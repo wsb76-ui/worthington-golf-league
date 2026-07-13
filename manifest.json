@@ -1,0 +1,25 @@
+{
+  "name": "Worthington Golf League",
+  "short_name": "WGL",
+  "description": "Standings, handicaps, and announcements for the Worthington Golf League",
+  "start_url": "/worthington-golf-league/",
+  "scope": "/worthington-golf-league/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1b5e20",
+  "theme_color": "#1b5e20",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
