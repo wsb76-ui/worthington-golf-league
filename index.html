@@ -546,5 +546,159 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');
 }
 </script>
+
+<!-- Add Score floating button -->
+<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(this)">
+<button id="addScoreBtn" onclick="document.getElementById('cameraInput').click()">📷 Add Score</button>
+
+<!-- Photo preview modal -->
+<div id="photoModal">
+  <div id="photoModalInner">
+    <div style="color:white;font-size:15px;font-weight:600;align-self:flex-start">Score Card Photo</div>
+    <img id="photoPreview" alt="Score card preview">
+    <div id="photoActions">
+      <button id="submitBtn" onclick="submitPhoto()">📤 Send Score Card</button>
+      <button id="retakeBtn" onclick="retakePhoto()">🔄 Retake</button>
+      <button id="cancelBtn" onclick="cancelPhoto()">✕</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  #addScoreBtn {
+    position: fixed;
+    bottom: 28px;
+    right: 20px;
+    background: #2e7d32;
+    color: white;
+    border: none;
+    border-radius: 28px;
+    padding: 14px 22px;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    cursor: pointer;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #addScoreBtn:active { transform: scale(0.95); }
+
+  #photoModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  #photoModal.open { display: flex; }
+  #photoModalInner {
+    background: #1c1c1e;
+    border-radius: 16px;
+    padding: 16px;
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  #photoPreview {
+    width: 100%;
+    border-radius: 10px;
+    max-height: 58vh;
+    object-fit: contain;
+    background: #000;
+  }
+  #photoActions {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+  #submitBtn {
+    flex: 1;
+    background: #2e7d32;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #retakeBtn {
+    background: #3a3a3c;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  #cancelBtn {
+    background: #2c2c2e;
+    color: #aaa;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  let capturedFile = null;
+
+  function handlePhoto(input) {
+    if (input.files && input.files[0]) {
+      capturedFile = input.files[0];
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('photoPreview').src = e.target.result;
+        document.getElementById('photoModal').classList.add('open');
+      };
+      reader.readAsDataURL(capturedFile);
+    }
+  }
+
+  async function submitPhoto() {
+    if (!capturedFile) return;
+    // Try Web Share API (native iOS/Android share sheet)
+    if (navigator.canShare && navigator.canShare({ files: [capturedFile] })) {
+      try {
+        await navigator.share({
+          files: [capturedFile],
+          title: 'WGL Score Card',
+          text: 'Score card — Worthington Golf League\nSend to: wglscore@gmail.com'
+        });
+        closeModal();
+        return;
+      } catch(e) {
+        if (e.name === 'AbortError') return; // user cancelled
+      }
+    }
+    // Fallback: open mail app with address pre-filled
+    window.location.href = 'mailto:wglscore@gmail.com?subject=WGL Score Card&body=Score card photo — Worthington Golf League';
+    closeModal();
+  }
+
+  function retakePhoto() {
+    closeModal();
+    setTimeout(() => document.getElementById('cameraInput').click(), 100);
+  }
+
+  function cancelPhoto() { closeModal(); }
+
+  function closeModal() {
+    document.getElementById('photoModal').classList.remove('open');
+    document.getElementById('cameraInput').value = '';
+    capturedFile = null;
+  }
+</script>
 </body>
 </html>
