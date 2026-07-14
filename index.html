@@ -43,6 +43,8 @@
   .gap td { height: 8px; background: #f5f5f5; border: none; }
   .check { color: #43a047; font-weight: 700; }
   .dash { color: #ccc; }
+  .missing-player td { background: #fff5f5; color: #c62828; font-style: italic; }
+  .missing-player .lft::after { content: " — no score"; font-size: 11px; }
 
   /* Handicap table */
   .hcp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; background: #eee; }
@@ -62,16 +64,17 @@
 <body>
 
 <h1>⛳ Worthington Golf League</h1>
-<div class="subtitle">Monday Nights · Hiland Golf Course, Butler/Sarver PA · Through Week 9 (7/6/26) · Week 10 tonight!</div>
+<div class="subtitle">Monday Nights · Hiland Golf Course, Butler PA · Week 10 In Progress (7/13/26) · Scores Pending</div>
 
 <div class="tabs">
   <div class="tab active" onclick="showTab('standings')">📊 Season Standings</div>
-  <div class="tab" onclick="showTab('week9')">📋 Wk 9 Detail</div>
+  <div class="tab" onclick="showTab('week10')">📋 Wk 10 Detail</div>
   <div class="tab" onclick="showTab('handicaps')">🏌️ Handicaps</div>
   <div class="tab" onclick="showTab('announcements')">📣 Announcements</div>
   <div class="tab" onclick="showTab('outing')">🏆 Outing</div>
   <div class="tab" onclick="showTab('dues')">💵 Dues</div>
   <div class="tab" onclick="showTab('scorecard')">📝 Score Card</div>
+  <div class="tab" onclick="showTab('week9')">📋 Wk 9 Detail</div>
 </div>
 
 <!-- STANDINGS TAB -->
@@ -151,6 +154,124 @@
       </tbody>
     </table>
     <div class="note">Lower total = better (low net accumulating, 4 lowest nets per team per week). All data from score cards — Weeks 1–9 complete. Week 10 is tonight (7/13/26).</div>
+  </div>
+</div>
+
+<!-- WEEK 10 DETAIL TAB -->
+<div id="week10" class="tab-content">
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th class="lft">Player</th>
+          <th>Team</th>
+          <th>HCP</th>
+          <th>Gross</th>
+          <th>Net</th>
+          <th>Counted</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- TEAM 7 -->
+        <tr class="team-header"><td colspan="6">TEAM #7 · Wk 10 Score: 144 · Season Total: 1,421 (provisional)</td></tr>
+        <tr class="counted"><td class="lft">Vince Sanzotti</td><td>7</td><td>7</td><td>39</td><td>32</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Jason Smith</td><td>7</td><td>11</td><td>48</td><td>37</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Wes Barton</td><td>7</td><td>12</td><td>49</td><td>37</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Ed Bargerstock</td><td>7</td><td>4</td><td>42</td><td>38</td><td class="check">✓</td></tr>
+        <tr class="not-counted"><td class="lft">Chris Remaley</td><td>7</td><td>11</td><td>50</td><td>39</td><td class="dash">—</td></tr>
+        <tr class="missing-player"><td class="lft">Mike Hickman</td><td>7</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="missing-player"><td class="lft">Doug Anthony</td><td>7</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="team-total"><td class="lft" colspan="4">Team #7 — 4 lowest nets</td><td>144</td><td></td></tr>
+        <tr class="gap"><td colspan="6"></td></tr>
+
+        <!-- TEAM 4 — AT RISK -->
+        <tr class="team-header"><td colspan="6" style="background:#c62828">TEAM #4 · ⚠️ ONLY 3 SCORES — +50 PENALTY IF NO MORE CARDS · Season Total: TBD</td></tr>
+        <tr class="counted"><td class="lft">Chad Hollobaugh</td><td>4</td><td>10</td><td>43</td><td>33</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Roger Hoffman</td><td>4</td><td>7</td><td>44</td><td>37</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Tom Stennett</td><td>4</td><td>14</td><td>55</td><td>41</td><td class="check">✓</td></tr>
+        <tr class="missing-player"><td class="lft">Clark Helm</td><td>4</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="missing-player"><td class="lft">Harry Breski</td><td>4</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="missing-player"><td class="lft">Blake Bowser</td><td>4</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="missing-player"><td class="lft">Landon Badac</td><td>4</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="team-total" style="background:#fff3e0"><td class="lft" colspan="4" style="color:#e65100">Team #4 — ⚠️ PENDING · Need at least 1 more score</td><td style="color:#e65100">TBD</td><td></td></tr>
+        <tr class="gap"><td colspan="6"></td></tr>
+
+        <!-- TEAM 2 -->
+        <tr class="team-header"><td colspan="6">TEAM #2 · Wk 10 Score: 140 · Season Total: 1,449 (provisional)</td></tr>
+        <tr class="counted"><td class="lft">Jim Frye</td><td>2</td><td>1</td><td>33</td><td>32</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Wilbur Dudley</td><td>2</td><td>18</td><td>53</td><td>35</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Jeff Hollobaugh</td><td>2</td><td>12</td><td>48</td><td>36</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Nick Keefer</td><td>2</td><td>9</td><td>46</td><td>37</td><td class="check">✓</td></tr>
+        <tr class="not-counted"><td class="lft">Andy Patz</td><td>2</td><td>14</td><td>54</td><td>40</td><td class="dash">—</td></tr>
+        <tr class="not-counted"><td class="lft">Skylar Grafton</td><td>2</td><td>8</td><td>50</td><td>42</td><td class="dash">—</td></tr>
+        <tr class="missing-player"><td class="lft">Trent Brocious</td><td>2</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="team-total"><td class="lft" colspan="4">Team #2 — 4 lowest nets</td><td>140</td><td></td></tr>
+        <tr class="gap"><td colspan="6"></td></tr>
+
+        <!-- TEAM 8 — AT RISK -->
+        <tr class="team-header"><td colspan="6" style="background:#c62828">TEAM #8 · ⚠️ ONLY 3 SCORES — +50 PENALTY IF NO MORE CARDS · Season Total: TBD</td></tr>
+        <tr class="counted"><td class="lft">Ken Long</td><td>8</td><td>13</td><td>45</td><td>32</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Paul Bowser</td><td>8</td><td>8</td><td>43</td><td>35</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Patric Weber</td><td>8</td><td>15</td><td>55</td><td>40</td><td class="check">✓</td></tr>
+        <tr class="missing-player"><td class="lft">Brian Barton</td><td>8</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="missing-player"><td class="lft">Logan Bowser</td><td>8</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="missing-player"><td class="lft">Cole Clark</td><td>8</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="missing-player"><td class="lft">Dylan Smith</td><td>8</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="team-total" style="background:#fff3e0"><td class="lft" colspan="4" style="color:#e65100">Team #8 — ⚠️ PENDING · Need at least 1 more score</td><td style="color:#e65100">TBD</td><td></td></tr>
+        <tr class="gap"><td colspan="6"></td></tr>
+
+        <!-- TEAM 5 -->
+        <tr class="team-header"><td colspan="6">TEAM #5 · Wk 10 Score: 142 · Season Total: 1,467 (provisional) · ✅ All 7 scores in!</td></tr>
+        <tr class="counted"><td class="lft">Eli Hickman</td><td>5</td><td>8</td><td>41</td><td>33</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Tyler Eroh</td><td>5</td><td>8</td><td>43</td><td>35</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Jaxon Smith</td><td>5</td><td>9</td><td>45</td><td>36</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Denny Snyder</td><td>5</td><td>9</td><td>47</td><td>38</td><td class="check">✓</td></tr>
+        <tr class="not-counted"><td class="lft">Bill Long</td><td>5</td><td>9</td><td>47</td><td>38</td><td class="dash">—</td></tr>
+        <tr class="not-counted"><td class="lft">Dave Toy</td><td>5</td><td>10</td><td>49</td><td>39</td><td class="dash">—</td></tr>
+        <tr class="not-counted"><td class="lft">Don Nulph</td><td>5</td><td>11</td><td>60</td><td>49</td><td class="dash">—</td></tr>
+        <tr class="team-total"><td class="lft" colspan="4">Team #5 — 4 lowest nets</td><td>142</td><td></td></tr>
+        <tr class="gap"><td colspan="6"></td></tr>
+
+        <!-- TEAM 1 -->
+        <tr class="team-header"><td colspan="6">TEAM #1 · Wk 10 Score: 144 · Season Total: 1,471 (provisional)</td></tr>
+        <tr class="counted"><td class="lft">Kris Simmons</td><td>1</td><td>4</td><td>39</td><td>35</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Larry Julius</td><td>1</td><td>2</td><td>38</td><td>36</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Butch Griffith</td><td>1</td><td>12</td><td>48</td><td>36</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Frank Watt</td><td>1</td><td>16</td><td>53</td><td>37</td><td class="check">✓</td></tr>
+        <tr class="not-counted"><td class="lft">Andy Gallagher</td><td>1</td><td>16</td><td>53</td><td>37</td><td class="dash">—</td></tr>
+        <tr class="missing-player"><td class="lft">Mario Jenkins</td><td>1</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="missing-player"><td class="lft">Paul Harmon</td><td>1</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="missing-player"><td class="lft">Keith Clark</td><td>1</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="team-total"><td class="lft" colspan="4">Team #1 — 4 lowest nets</td><td>144</td><td></td></tr>
+        <tr class="gap"><td colspan="6"></td></tr>
+
+        <!-- TEAM 3 -->
+        <tr class="team-header"><td colspan="6">TEAM #3 · Wk 10 Score: 147 · Season Total: 1,481 (provisional)</td></tr>
+        <tr class="counted"><td class="lft">Bruce Thomas</td><td>3</td><td>10</td><td>45</td><td>35</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Willie Powell</td><td>3</td><td>10</td><td>45</td><td>35</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Duck Julius</td><td>3</td><td>1</td><td>37</td><td>36</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Dicky Peat</td><td>3</td><td>17</td><td>58</td><td>41</td><td class="check">✓</td></tr>
+        <tr class="not-counted"><td class="lft">Allan Voltz</td><td>3</td><td>20</td><td>66</td><td>46</td><td class="dash">—</td></tr>
+        <tr class="missing-player"><td class="lft">Scott Barton</td><td>3</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="missing-player"><td class="lft">Dave Cushey</td><td>3</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="team-total"><td class="lft" colspan="4">Team #3 — 4 lowest nets</td><td>147</td><td></td></tr>
+        <tr class="gap"><td colspan="6"></td></tr>
+
+        <!-- TEAM 6 -->
+        <tr class="team-header"><td colspan="6">TEAM #6 · Wk 10 Score: 139 · Season Total: 1,555 (provisional)</td></tr>
+        <tr class="counted"><td class="lft">Kevin Frye</td><td>6</td><td>9</td><td>38</td><td>29</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Jesse Hickman</td><td>6</td><td>13</td><td>47</td><td>34</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Jim Goodman</td><td>6</td><td>17</td><td>53</td><td>36</td><td class="check">✓</td></tr>
+        <tr class="counted"><td class="lft">Jay Griffith</td><td>6</td><td>9</td><td>49</td><td>40</td><td class="check">✓</td></tr>
+        <tr class="not-counted"><td class="lft">Sam Long</td><td>6</td><td>7</td><td>47</td><td>40</td><td class="dash">—</td></tr>
+        <tr class="not-counted"><td class="lft">Dylan Barton</td><td>6</td><td>20</td><td>62</td><td>42</td><td class="dash">—</td></tr>
+        <tr class="missing-player"><td class="lft">Matt Nulph</td><td>6</td><td>—</td><td>—</td><td>—</td><td>?</td></tr>
+        <tr class="team-total"><td class="lft" colspan="4">Team #6 — 4 lowest nets</td><td>139</td><td></td></tr>
+
+      </tbody>
+    </table>
+    <div class="note">Green = counted (4 lowest nets). Gray = played, not counted. Red/italic = no score received. Teams with fewer than 4 scores take a +50 penalty. Week 10 — played 7/13/26. Scores provisional — pending T4 &amp; T8 late cards.</div>
   </div>
 </div>
 
@@ -343,14 +464,15 @@
 
     <div class="card" style="padding:20px">
       <div style="font-size:18px;font-weight:700;margin-bottom:4px">🏆 2026 Season Outing</div>
-      <div style="font-size:13px;color:#888;margin-bottom:16px">Details to be announced — check back for updates</div>
+      <div style="font-size:13px;color:#388e3c;font-weight:600;margin-bottom:16px">✅ Details confirmed — mark your calendar!</div>
 
-      <div class="outing-detail-row"><span class="outing-label">📍 Course</span><span class="outing-val">TBD</span></div>
-      <div class="outing-detail-row"><span class="outing-label">📅 Date</span><span class="outing-val">TBD</span></div>
-      <div class="outing-detail-row"><span class="outing-label">⏰ Tee Time</span><span class="outing-val">TBD</span></div>
+      <div class="outing-detail-row"><span class="outing-label">📍 Course</span><span class="outing-val">Hiland Golf Course · Butler, PA</span></div>
+      <div class="outing-detail-row"><span class="outing-label">📅 Date</span><span class="outing-val">Saturday, August 29, 2026</span></div>
+      <div class="outing-detail-row"><span class="outing-label">⏰ Tee Time</span><span class="outing-val">8:00 AM start</span></div>
+      <div class="outing-detail-row"><span class="outing-label">🏌️ Holes</span><span class="outing-val">18 holes · starting on the back 9</span></div>
+      <div class="outing-detail-row"><span class="outing-label">🎯 Format</span><span class="outing-val">TBD</span></div>
       <div class="outing-detail-row"><span class="outing-label">💰 Cost</span><span class="outing-val">TBD</span></div>
-      <div class="outing-detail-row"><span class="outing-label">🏌️ Format</span><span class="outing-val">TBD</span></div>
-      <div class="outing-detail-row"><span class="outing-label">🍺 Dinner / After</span><span class="outing-val">TBD</span></div>
+      <div class="outing-detail-row"><span class="outing-label">🍽️ Dinner After</span><span class="outing-val">The Farm · 150 Fox Rd, Worthington PA 16262</span></div>
     </div>
 
     <div class="card" style="overflow:hidden">
