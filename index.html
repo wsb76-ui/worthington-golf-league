@@ -599,100 +599,66 @@
 <!-- SCORE CARD TAB -->
 <div id="scorecard" class="tab-content">
   <div style="max-width:480px">
-    <div class="section-label">Submit Your Score · Hiland GC · Front 9</div>
-    <div class="card" style="padding:16px 16px 20px">
 
-      <div class="sc-field">
-        <div class="sc-label">Your Name</div>
-        <select id="sc-player" onchange="scPlayerSelect()">
-          <option value="">— Select Your Name —</option>
-          <optgroup label="Team #1">
-            <option>Larry Julius</option><option>Kris Simmons</option><option>Butch Griffith</option>
-            <option>Mario Jenkins</option><option>Frank Watt</option><option>Paul Harmon</option>
-            <option>Andy Gallagher</option><option>Keith Clark</option>
-          </optgroup>
-          <optgroup label="Team #2">
-            <option>Jim Frye</option><option>Skylar Grafton</option><option>Nick Keefer</option>
-            <option>Jeff Hollobaugh</option><option>Andy Patz</option><option>Trent Brocious</option>
-            <option>Wilbur Dudley</option>
-          </optgroup>
-          <optgroup label="Team #3">
-            <option>Duck Julius</option><option>Willie Powell</option><option>Bruce Thomas</option>
-            <option>Scott Barton</option><option>Dave Cushey</option><option>Dicky Peat</option>
-            <option>Allan Voltz</option>
-          </optgroup>
-          <optgroup label="Team #4">
-            <option>Clark Helm</option><option>Harry Breski</option><option>Roger Hoffman</option>
-            <option>Chad Hollobaugh</option><option>Blake Bowser</option><option>Tom Stennett</option>
-            <option>Landon Badac</option>
-          </optgroup>
-          <optgroup label="Team #5">
-            <option>Eli Hickman</option><option>Jaxon Smith</option><option>Bill Long</option>
-            <option>Tyler Eroh</option><option>Denny Snyder</option><option>Don Nulph</option>
-            <option>Dave Toy</option>
-          </optgroup>
-          <optgroup label="Team #6">
-            <option>Sam Long</option><option>Jay Griffith</option><option>Kevin Frye</option>
-            <option>Jesse Hickman</option><option>Jim Goodman</option><option>Dylan Barton</option>
-            <option>Matt Nulph</option>
-          </optgroup>
-          <optgroup label="Team #7">
-            <option>Ed Bargerstock</option><option>Vince Sanzotti</option><option>Mike Hickman</option>
-            <option>Chris Remaley</option><option>Jason Smith</option><option>Wes Barton</option>
-            <option>Doug Anthony</option>
-          </optgroup>
-          <optgroup label="Team #8">
-            <option>Brian Barton</option><option>Logan Bowser</option><option>Paul Bowser</option>
-            <option>Ken Long</option><option>Patric Weber</option><option>Cole Clark</option>
-            <option>Dylan Smith</option>
-          </optgroup>
-        </select>
-      </div>
-
-      <div id="sc-info" class="sc-info-row" style="display:none">
-        <span>Team <strong id="sc-team">—</strong></span>
-        <span>Handicap <strong id="sc-hcp">—</strong></span>
-      </div>
-
-      <div class="sc-label" style="margin-bottom:8px">Hole Scores</div>
-      <div class="sc-grid">
-        <div class="sc-grid-label">Hole</div>
-        <div class="sc-par-cell"><div class="sc-hole-num">1</div><div class="sc-par-num">4</div></div>
-        <div class="sc-par-cell"><div class="sc-hole-num">2</div><div class="sc-par-num">4</div></div>
-        <div class="sc-par-cell"><div class="sc-hole-num">3</div><div class="sc-par-num">3</div></div>
-        <div class="sc-par-cell"><div class="sc-hole-num">4</div><div class="sc-par-num">4</div></div>
-        <div class="sc-par-cell"><div class="sc-hole-num">5</div><div class="sc-par-num">4</div></div>
-        <div class="sc-par-cell"><div class="sc-hole-num">6</div><div class="sc-par-num">4</div></div>
-        <div class="sc-par-cell"><div class="sc-hole-num">7</div><div class="sc-par-num">5</div></div>
-        <div class="sc-par-cell"><div class="sc-hole-num">8</div><div class="sc-par-num">4</div></div>
-        <div class="sc-par-cell"><div class="sc-hole-num">9</div><div class="sc-par-num">3</div></div>
-
-        <div class="sc-grid-label">Score</div>
-        <input id="sc-h1" class="sc-score-input" type="number" min="1" max="12" inputmode="numeric" oninput="scCalcTotals()">
-        <input id="sc-h2" class="sc-score-input" type="number" min="1" max="12" inputmode="numeric" oninput="scCalcTotals()">
-        <input id="sc-h3" class="sc-score-input" type="number" min="1" max="12" inputmode="numeric" oninput="scCalcTotals()">
-        <input id="sc-h4" class="sc-score-input" type="number" min="1" max="12" inputmode="numeric" oninput="scCalcTotals()">
-        <input id="sc-h5" class="sc-score-input" type="number" min="1" max="12" inputmode="numeric" oninput="scCalcTotals()">
-        <input id="sc-h6" class="sc-score-input" type="number" min="1" max="12" inputmode="numeric" oninput="scCalcTotals()">
-        <input id="sc-h7" class="sc-score-input" type="number" min="1" max="12" inputmode="numeric" oninput="scCalcTotals()">
-        <input id="sc-h8" class="sc-score-input" type="number" min="1" max="12" inputmode="numeric" oninput="scCalcTotals()">
-        <input id="sc-h9" class="sc-score-input" type="number" min="1" max="12" inputmode="numeric" oninput="scCalcTotals()">
-      </div>
-
-      <div class="sc-totals">
-        <div class="sc-total-box">
-          <div class="sc-total-label">Gross</div>
-          <div id="sc-gross" class="sc-total-val">—</div>
+    <!-- Step 1: Build the group -->
+    <div id="sc-step-setup">
+      <div class="section-label">Start League Card</div>
+      <div class="card" style="padding:16px 16px 20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0;margin-bottom:14px">
+          <span style="font-size:14px;color:#555">Week <strong>11</strong></span>
+          <span style="font-size:13px;font-weight:600;color:#2e7d32">Back 9 · Holes 10–18</span>
         </div>
-        <div class="sc-total-box sc-net-box">
-          <div class="sc-total-label">Net</div>
-          <div id="sc-net" class="sc-total-val">—</div>
+        <div class="sc-label" style="margin-bottom:6px">Players on this card</div>
+        <div style="position:relative;margin-bottom:10px">
+          <input type="text" id="sc-search" placeholder="Search player name…"
+            oninput="scSearch(this.value)" autocomplete="off"
+            style="width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;box-sizing:border-box;-webkit-appearance:none;appearance:none">
+          <div id="sc-drop" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:white;border:1px solid #e0e0e0;border-radius:8px;max-height:200px;overflow-y:auto;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,.12)"></div>
         </div>
+        <div id="sc-added" style="min-height:36px">
+          <div style="color:#bbb;font-size:13px;text-align:center;padding:10px 0">No players added yet</div>
+        </div>
+        <div id="sc-start-err" style="color:#c62828;font-size:12px;margin-top:6px;display:none">Add at least one player to start.</div>
+        <button class="sc-submit-btn" onclick="scStart()" style="margin-top:16px">▶ Start Scoring</button>
+        <div class="sc-note" style="margin-top:8px">Mixed teams are fine — scores sort by team automatically.</div>
       </div>
-
-      <button class="sc-submit-btn" onclick="scSubmit()">📤 Email My Score</button>
-      <div class="sc-note">Opens your mail app with scores pre-filled — just tap Send.</div>
     </div>
+
+    <!-- Step 2: Hole-by-hole scoring -->
+    <div id="sc-step-scoring" style="display:none">
+      <div class="section-label" id="sc-hole-label">Hole 10 · Par 5 · Max 10</div>
+      <div class="card" style="padding:14px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div id="sc-progress" style="display:flex;gap:5px;align-items:center"></div>
+          <button onclick="scToggleAddMid()"
+            style="background:#f0f7f0;border:1.5px solid #2e7d32;color:#2e7d32;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">
+            + Player
+          </button>
+        </div>
+        <div id="sc-mid-panel" style="display:none;margin-bottom:10px;position:relative">
+          <input type="text" id="sc-mid-search" placeholder="Search to add player…"
+            oninput="scMidSearch(this.value)" autocomplete="off"
+            style="width:100%;padding:9px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;box-sizing:border-box;-webkit-appearance:none">
+          <div id="sc-mid-drop" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:white;border:1px solid #e0e0e0;border-radius:8px;max-height:200px;overflow-y:auto;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,.12)"></div>
+        </div>
+        <div id="sc-inputs"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button class="sc-nav-btn" id="sc-prev-btn" onclick="scHoleNav(-1)">← Prev</button>
+        <button class="sc-nav-btn sc-nav-next" id="sc-next-btn" onclick="scHoleNav(1)">Next Hole →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Review & submit -->
+    <div id="sc-step-review" style="display:none">
+      <div class="section-label">Review &amp; Submit</div>
+      <div id="sc-review"></div>
+      <button class="sc-submit-btn" onclick="scSubmitCard()" style="margin-top:4px">📤 Email Card to Commissioner</button>
+      <button onclick="scBackToScoring()"
+        style="width:100%;background:none;border:none;color:#888;font-size:13px;padding:10px;cursor:pointer;margin-top:4px">← Back to Scoring</button>
+      <div class="sc-note">Opens your mail app — just tap Send.</div>
+    </div>
+
   </div>
 </div>
 
@@ -736,6 +702,30 @@
   .outing-detail-row:last-child { border-bottom: none; }
   .outing-label { color: #555; font-weight: 500; }
   .outing-val { color: #1a1a1a; font-weight: 600; }
+
+  /* Score Card — Session Flow */
+  .sc-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: #888; }
+  .sc-submit-btn { width: 100%; background: #2e7d32; color: white; border: none; border-radius: 10px; padding: 16px; font-size: 15px; font-weight: 600; cursor: pointer; display: block; -webkit-tap-highlight-color: transparent; }
+  .sc-submit-btn:active { transform: scale(.97); background: #1b5e20; }
+  .sc-note { font-size: 11px; color: #aaa; text-align: center; line-height: 1.5; }
+  .sc-nav-btn { flex: 1; padding: 14px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 15px; font-weight: 600; background: white; color: #333; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .sc-nav-btn:active { transform: scale(.97); }
+  .sc-nav-next { background: #2e7d32; color: white; border-color: #2e7d32; }
+  .sc-score-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid #f0f0f0; }
+  .sc-score-row:last-child { border-bottom: none; }
+  .sc-sname { font-size: 17px; font-weight: 700; }
+  .sc-adj { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid #ddd; background: white; font-size: 28px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
+  .sc-adj:active { background: #f0f0f0; transform: scale(.88); }
+  .sc-val { width: 38px; text-align: center; font-size: 28px; font-weight: 800; }
+  .sc-chip { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+  .sc-chip:last-child { border-bottom: none; }
+  .sc-chip-rm { background: none; border: none; color: #ccc; font-size: 22px; cursor: pointer; line-height: 1; padding: 0 4px; -webkit-tap-highlight-color: transparent; }
+  .sc-search-item { padding: 11px 14px; cursor: pointer; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
+  .sc-search-item:last-child { border-bottom: none; }
+  .sc-search-item:active { background: #f5f5f5; }
+  .sc-hd { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 22px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+  .sc-player-link { color: #1a1a1a; text-decoration: none; border-bottom: 1px dashed #aaa; cursor: pointer; }
+  .sc-player-link:hover { color: #2e7d32; border-bottom-color: #2e7d32; }
 </style>
 
 <script>
@@ -782,31 +772,234 @@ const WGL_PLAYERS = {
   "Dylan Smith":     {team:8,hcp:16}
 };
 
-function scPlayerSelect() {
-  const name = document.getElementById('sc-player').value;
-  const p = WGL_PLAYERS[name];
-  if (p) {
-    document.getElementById('sc-info').style.display = 'flex';
-    document.getElementById('sc-team').textContent = p.team;
-    document.getElementById('sc-hcp').textContent = p.hcp;
-    scCalcTotals();
-  } else {
-    document.getElementById('sc-info').style.display = 'none';
-    document.getElementById('sc-gross').textContent = '—';
-    document.getElementById('sc-net').textContent = '—';
-  }
+// ── Scorecard Session ────────────────────────────────────────
+const SC_WEEK  = 11;
+const SC_SIDE  = 'back';
+const SC_HOLES = [10,11,12,13,14,15,16,17,18];
+const SC_PARS  = [5,4,4,4,4,3,4,3,4];
+
+let scSess = { players:[], scores:{}, hole:0 };
+let _scHits = [], _scMidHits = [];
+
+function scShowStep(id) {
+  ['sc-step-setup','sc-step-scoring','sc-step-review'].forEach(s => {
+    document.getElementById(s).style.display = s === id ? 'block' : 'none';
+  });
+  window.scrollTo(0,0);
 }
 
-function scCalcTotals() {
-  const name = document.getElementById('sc-player').value;
-  const p = WGL_PLAYERS[name];
-  let total = 0, filled = 0;
-  for (let i = 1; i <= 9; i++) {
-    const v = parseInt(document.getElementById('sc-h' + i).value);
-    if (!isNaN(v) && v > 0) { total += v; filled++; }
+// Jump from Weekly Detail tab — open Score Card tab with player pre-loaded
+function scJumpTo(name) {
+  const info = WGL_PLAYERS[name];
+  if (!info) return;
+  // Reset session and pre-add player
+  scSess = { players:[], scores:{}, hole:0 };
+  scSess.players.push({name, team:info.team, hcp:info.hcp});
+  scSess.scores[name] = Array(9).fill(null);
+  showTabById('scorecard');
+  scShowStep('sc-step-setup');
+  scRenderAdded();
+}
+
+// ── Setup Step ───────────────────────────────────────────────
+function scSearch(val) {
+  const drop = document.getElementById('sc-drop');
+  if (!val.trim()) { drop.style.display='none'; _scHits=[]; return; }
+  const q = val.toLowerCase();
+  const added = new Set(scSess.players.map(p=>p.name));
+  _scHits = Object.entries(WGL_PLAYERS).filter(([n])=>!added.has(n)&&n.toLowerCase().includes(q)).slice(0,8);
+  if (!_scHits.length) { drop.style.display='none'; return; }
+  drop.innerHTML = _scHits.map(([name,info],i)=>
+    `<div class="sc-search-item" onclick="scAdd(${i})">${name} <span style="color:#aaa;font-size:12px">T${info.team} · HCP ${info.hcp}</span></div>`
+  ).join('');
+  drop.style.display='block';
+}
+
+function scAdd(i) {
+  const [name, info] = _scHits[i] || [];
+  if (!name || scSess.players.find(p=>p.name===name)) return;
+  scSess.players.push({name, team:info.team, hcp:info.hcp});
+  scSess.scores[name] = Array(9).fill(null);
+  _scHits=[];
+  document.getElementById('sc-search').value='';
+  document.getElementById('sc-drop').style.display='none';
+  document.getElementById('sc-start-err').style.display='none';
+  scRenderAdded();
+}
+
+function scRemove(i) {
+  const name = scSess.players[i].name;
+  scSess.players.splice(i,1);
+  delete scSess.scores[name];
+  scRenderAdded();
+}
+
+function scRenderAdded() {
+  const el = document.getElementById('sc-added');
+  if (!el) return;
+  if (!scSess.players.length) {
+    el.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:10px 0">No players added yet</div>';
+    return;
   }
-  document.getElementById('sc-gross').textContent = filled > 0 ? total : '—';
-  document.getElementById('sc-net').textContent = (filled === 9 && p) ? (total - p.hcp) : '—';
+  el.innerHTML = scSess.players.map((p,i)=>
+    `<div class="sc-chip">
+      <span style="font-size:14px;font-weight:600">${p.name} <span style="font-size:12px;color:#888;font-weight:400">T${p.team} · HCP ${p.hcp}</span></span>
+      <button class="sc-chip-rm" onclick="scRemove(${i})">×</button>
+    </div>`
+  ).join('');
+}
+
+function scStart() {
+  if (!scSess.players.length) { document.getElementById('sc-start-err').style.display='block'; return; }
+  scSess.hole=0;
+  scShowStep('sc-step-scoring');
+  scRenderHole();
+}
+
+// ── Mid-round add ────────────────────────────────────────────
+function scToggleAddMid() {
+  const p = document.getElementById('sc-mid-panel');
+  const open = p.style.display!=='none';
+  p.style.display = open?'none':'block';
+  if (!open) setTimeout(()=>{ const el=document.getElementById('sc-mid-search'); if(el) el.focus(); },50);
+}
+
+function scMidSearch(val) {
+  const drop = document.getElementById('sc-mid-drop');
+  if (!val.trim()) { drop.style.display='none'; _scMidHits=[]; return; }
+  const q = val.toLowerCase();
+  const added = new Set(scSess.players.map(p=>p.name));
+  _scMidHits = Object.entries(WGL_PLAYERS).filter(([n])=>!added.has(n)&&n.toLowerCase().includes(q)).slice(0,8);
+  if (!_scMidHits.length) { drop.style.display='none'; return; }
+  drop.innerHTML = _scMidHits.map(([name,info],i)=>
+    `<div class="sc-search-item" onclick="scMidAdd(${i})">${name} <span style="color:#aaa;font-size:12px">T${info.team} · HCP ${info.hcp}</span></div>`
+  ).join('');
+  drop.style.display='block';
+}
+
+function scMidAdd(i) {
+  const [name, info] = _scMidHits[i] || [];
+  if (!name || scSess.players.find(p=>p.name===name)) return;
+  scSess.players.push({name, team:info.team, hcp:info.hcp});
+  scSess.scores[name] = Array(9).fill(null);
+  _scMidHits=[];
+  document.getElementById('sc-mid-search').value='';
+  document.getElementById('sc-mid-drop').style.display='none';
+  document.getElementById('sc-mid-panel').style.display='none';
+  scRenderHole();
+}
+
+// ── Scoring ──────────────────────────────────────────────────
+function scShortName(name) {
+  const first = name.split(' ')[0];
+  if (scSess.players.filter(p=>p.name.split(' ')[0]===first).length > 1)
+    return first + ' ' + name.split(' ').slice(-1)[0][0] + '.';
+  return first;
+}
+
+function scMkProgress() {
+  return SC_HOLES.map((_,i)=>{
+    const done = scSess.players.every(p=>scSess.scores[p.name][i]!==null);
+    const active = i===scSess.hole;
+    const bg = active?'#2e7d32':done?'#81c784':'#ddd';
+    const sz = active?13:8;
+    return `<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${bg};transition:all .15s"></div>`;
+  }).join('');
+}
+
+function scRenderHole() {
+  const hi = scSess.hole;
+  const par = SC_PARS[hi];
+  document.getElementById('sc-hole-label').textContent = `Hole ${SC_HOLES[hi]} · Par ${par} · Max ${par*2}`;
+  document.getElementById('sc-progress').innerHTML = scMkProgress();
+  document.getElementById('sc-inputs').innerHTML = scSess.players.map((p,pi)=>{
+    const val = scSess.scores[p.name][hi];
+    return `<div class="sc-score-row">
+      <span class="sc-sname">${scShortName(p.name)}</span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="sc-adj" onclick="scAdj(${pi},-1)">−</button>
+        <div class="sc-val" id="scv-${pi}" style="color:${val!==null?'#1a1a1a':'#bbb'}">${val!==null?val:'—'}</div>
+        <button class="sc-adj" onclick="scAdj(${pi},+1)">+</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('sc-prev-btn').style.visibility = hi===0?'hidden':'visible';
+  const last = hi===SC_HOLES.length-1;
+  const nb = document.getElementById('sc-next-btn');
+  nb.textContent = last?'✓ Review':'Next Hole →';
+  nb.style.background = last?'#1565c0':'#2e7d32';
+  nb.style.borderColor = last?'#1565c0':'#2e7d32';
+}
+
+function scAdj(pi, delta) {
+  const hi=scSess.hole, par=SC_PARS[hi], p=scSess.players[pi];
+  let cur = scSess.scores[p.name][hi];
+  if (cur===null) cur=par;
+  cur = Math.max(1, Math.min(par*2, cur+delta));
+  scSess.scores[p.name][hi] = cur;
+  const el = document.getElementById('scv-'+pi);
+  if (el) { el.textContent=cur; el.style.color='#1a1a1a'; }
+  document.getElementById('sc-progress').innerHTML = scMkProgress();
+}
+
+function scHoleNav(dir) {
+  const next = scSess.hole+dir;
+  if (next<0) return;
+  if (next>=SC_HOLES.length) { scShowReview(); return; }
+  scSess.hole=next;
+  scRenderHole();
+}
+
+function scBackToScoring() {
+  scShowStep('sc-step-scoring');
+  scRenderHole();
+}
+
+// ── Review ────────────────────────────────────────────────────
+function scHdClass(val,par) {
+  if (val===null)   return 'miss';
+  if (val<=par-2)   return 'eagle';
+  if (val===par-1)  return 'birdie';
+  if (val===par)    return 'par';
+  if (val===par+1)  return 'bogey';
+  return 'double';
+}
+const scHdBg = {eagle:'#fff9c4',birdie:'#e8f5e9',par:'#f5f5f5',bogey:'#fff3e0',double:'#fce4ec',miss:'#fce4ec'};
+const scHdFg = {eagle:'#f57f17',birdie:'#2e7d32',par:'#555',bogey:'#e65100',double:'#c62828',miss:'#c62828'};
+
+function scShowReview() {
+  scShowStep('sc-step-review');
+  const byTeam={};
+  for (const p of scSess.players) {
+    (byTeam[p.team]=byTeam[p.team]||[]).push(p);
+  }
+  const sideLabel='Back 9 (10–18)';
+  let html = `<div class="card" style="margin-bottom:10px;background:#f0f7f0;padding:10px 16px">
+    <span style="font-size:13px;color:#2e7d32;font-weight:600">Week ${SC_WEEK} · ${sideLabel}</span>
+    <span style="font-size:12px;color:#555;margin-left:8px">${scSess.players.length} players</span>
+  </div>`;
+  for (const team of Object.keys(byTeam).sort((a,b)=>+a-+b)) {
+    html+=`<div class="card" style="margin-bottom:10px;padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Team ${team}</div>`;
+    for (const p of byTeam[team]) {
+      const s=scSess.scores[p.name];
+      const filled=s.every(v=>v!==null);
+      const gross=s.reduce((a,b)=>a+(b||0),0);
+      const dots=s.map((sv,i)=>{
+        const cls=scHdClass(sv,SC_PARS[i]);
+        return `<span class="sc-hd" style="background:${scHdBg[cls]};color:${scHdFg[cls]}">${sv??'?'}</span>`;
+      }).join('');
+      html+=`<div style="padding:8px 0;border-bottom:1px solid #f5f5f5">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+          <span style="font-weight:600;font-size:14px">${p.name}</span>
+          <span style="font-size:13px;font-weight:700;color:${filled?'#2e7d32':'#c62828'}">${filled?`${gross} / ${gross-p.hcp} net`:'⚠ incomplete'}</span>
+        </div>
+        <div style="display:flex;gap:3px;flex-wrap:wrap">${dots}</div>
+      </div>`;
+    }
+    html+='</div>';
+  }
+  document.getElementById('sc-review').innerHTML=html;
 }
 
 // --- Week 10 submitted players (update each week) ---
@@ -869,31 +1062,34 @@ function buildHcpGrid() {
   html += '</div>';
   container.innerHTML = html;
 }
-document.addEventListener('DOMContentLoaded', buildHcpGrid);
+// Link player names in Weekly Detail tabs → Score Card (pre-loads that player)
+function buildPlayerLinks() {
+  document.querySelectorAll('#week10 td.lft, #week9 td.lft').forEach(td => {
+    const name = td.textContent.trim();
+    if (WGL_PLAYERS[name]) {
+      td.innerHTML = `<a class="sc-player-link" onclick="scJumpTo('${name}')">${name}</a>`;
+    }
+  });
+}
 
-function scSubmit() {
-  const name = document.getElementById('sc-player').value;
-  const p = WGL_PLAYERS[name];
-  if (!p) { alert('Please select your name.'); return; }
+document.addEventListener('DOMContentLoaded', () => { buildHcpGrid(); buildPlayerLinks(); });
 
-  const holes = [];
-  let gross = 0;
-  for (let i = 1; i <= 9; i++) {
-    const v = parseInt(document.getElementById('sc-h' + i).value);
-    if (isNaN(v) || v < 1) { alert('Please enter a score for every hole.'); return; }
-    holes.push(v); gross += v;
-  }
-
-  const net = gross - p.hcp;
-  const pars  = [4,4,3,4,4,4,5,4,3];
+function scSubmitCard() {
   const today = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-
-  const rows = holes.map((h,i) => `H${i+1}(par ${pars[i]}): ${h}`).join('  ');
-  const body = `WGL Score Submission\nPlayer: ${name}\nTeam: ${p.team}  |  HCP: ${p.hcp}\nDate: ${today}\n\n${rows}\n\nGross: ${gross}\nNet: ${net}`;
-
-  const sub = encodeURIComponent(`WGL Score – ${name} – ${today}`);
-  const bod = encodeURIComponent(body);
-  window.location.href = `mailto:wglscore@gmail.com?subject=${sub}&body=${bod}`;
+  let body = `WGL Card — Week ${SC_WEEK} · BACK 9 (Holes 10–18)\nDate: ${today}\n\n`;
+  const byTeam={};
+  for (const p of scSess.players) (byTeam[p.team]=byTeam[p.team]||[]).push(p);
+  for (const team of Object.keys(byTeam).sort((a,b)=>+a-+b)) {
+    body+=`--- Team ${team} ---\n`;
+    for (const p of byTeam[team]) {
+      const s=scSess.scores[p.name];
+      const gross=s.reduce((a,b)=>a+(b||0),0);
+      const hstr=SC_HOLES.map((h,i)=>`H${h}:${s[i]??'?'}`).join('  ');
+      body+=`${p.name}  HCP ${p.hcp}\n${hstr}\nGross:${gross}  Net:${gross-p.hcp}\n\n`;
+    }
+  }
+  const sub=encodeURIComponent(`WGL Card Wk${SC_WEEK} Back9 – ${today}`);
+  window.location.href=`mailto:wglscore@gmail.com?subject=${sub}&body=${encodeURIComponent(body)}`;
 }
 </script>
 
