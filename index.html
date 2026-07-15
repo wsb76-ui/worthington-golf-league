@@ -3,1523 +3,1004 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#1b5e20">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="WGL">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
-<title>Worthington Golf League</title>
+<title>WGL 2026</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f5; color: #1a1a1a; padding: 20px; }
-  h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-  .subtitle { font-size: 13px; color: #666; margin-bottom: 24px; }
-  .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: #888; margin-bottom: 8px; margin-top: 24px; }
-  .card { background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.1); overflow: hidden; margin-bottom: 24px; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead th { background: #f0f0f0; padding: 8px 12px; text-align: center; font-weight: 600; font-size: 12px; color: #555; border-bottom: 1px solid #ddd; white-space: nowrap; }
-  thead th.lft { text-align: left; }
-  tbody td { padding: 7px 12px; border-bottom: 1px solid #f0f0f0; text-align: center; white-space: nowrap; }
-  tbody td.lft { text-align: left; }
-  tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover { background: #fafafa; }
-  .rank-1 { background: #fff8e1; }
-  .rank-2 { background: #f9fbe7; }
-  .rank-3 { background: #f3f8ff; }
-  .rank-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .b1 { background: #ffd700; color: #7a5c00; }
-  .b2 { background: #c8e6c9; color: #1b5e20; }
-  .b3 { background: #bbdefb; color: #0d47a1; }
-  .total-col { font-weight: 700; background: #f7f7f7; border-left: 2px solid #ddd !important; }
-  .wk8-col { font-weight: 600; color: #1a73e8; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg,#f5f5f5); color:var(--text,#1a1a1a); min-height:100vh; font-size:14px; }
 
-  /* Week Detail */
-  .team-header td { background: #1a1a1a; color: white; font-weight: 600; font-size: 12px; padding: 6px 12px; }
-  .counted { background: #e8f5e9; }
-  .counted td { color: #2e7d32; }
-  .not-counted td { color: #999; }
-  .team-total td { background: #f5f5f5; font-weight: 700; border-top: 2px solid #ddd; }
-  .gap td { height: 8px; background: #f5f5f5; border: none; }
-  .check { color: #43a047; font-weight: 700; }
-  .dash { color: #ccc; }
-  .missing-player td { background: #fff5f5; color: #c62828; font-style: italic; }
-  .missing-player .lft::after { content: " — no score"; font-size: 11px; }
+/* Sync badge */
+.sync-bar { display:flex; align-items:center; justify-content:center; gap:6px; padding:5px 12px; font-size:11px; color:#2e7d32; background:#e8f5e9; border-bottom:1px solid #c8e6c9; }
+.sync-dot { width:7px; height:7px; border-radius:50%; background:#43a047; flex-shrink:0; }
 
-  /* Handicap table */
-  .hcp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; background: #eee; }
-  .hcp-row { background: white; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
-  .hcp-name { color: #1a1a1a; }
-  .hcp-team { color: #888; font-size: 11px; margin-left: 4px; }
-  .hcp-val { font-weight: 700; color: #1a73e8; font-size: 14px; }
+/* Header */
+.app-hdr { background:#1b5e20; color:white; padding-top:env(safe-area-inset-top); position:sticky; top:0; z-index:100; }
+.hdr-inner { padding:10px 14px 0; }
+.hdr-inner h1 { font-size:17px; font-weight:700; }
+.hdr-sub { font-size:11px; opacity:.75; margin:1px 0 8px; }
+.tabs { display:flex; overflow-x:auto; scrollbar-width:none; border-top:1px solid rgba(255,255,255,.2); }
+.tabs::-webkit-scrollbar { display:none; }
+.tab { flex-shrink:0; padding:9px 12px; font-size:11px; font-weight:600; color:rgba(255,255,255,.6); cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
+.tab.active { color:white; border-bottom-color:white; }
+.tab-content { display:none; padding:12px 12px 90px; max-width:700px; margin:0 auto; }
+.tab-content.active { display:block; }
 
-  .note { font-size: 11px; color: #999; padding: 10px 12px; background: white; border-top: 1px solid #eee; }
-  .tabs { display: flex; gap: 4px; margin-bottom: -1px; }
-  .tab { padding: 7px 14px; font-size: 12px; font-weight: 500; border-radius: 6px 6px 0 0; cursor: pointer; background: #e0e0e0; color: #666; border: 1px solid #ddd; border-bottom: none; }
-  .tab.active { background: white; color: #1a1a1a; border-color: #ddd; }
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
+/* Cards */
+.card { background:var(--card,white); border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.1); margin-bottom:12px; overflow:hidden; }
+.card-hdr { padding:11px 14px; font-weight:700; font-size:13px; border-bottom:1px solid #f0f0f0; background:var(--card,white); }
+
+/* Settings gear */
+#gear-btn { position:fixed; bottom:28px; left:20px; width:50px; height:50px; border-radius:50%; background:#2e7d32; color:white; border:none; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 12px rgba(0,0,0,.25); z-index:100; -webkit-tap-highlight-color:transparent; transition:transform .3s; }
+#gear-btn.open { transform:rotate(90deg); }
+#settings-panel { position:fixed; bottom:90px; left:16px; width:240px; background:white; border-radius:16px; box-shadow:0 4px 24px rgba(0,0,0,.15); z-index:99; padding:16px; display:none; border:1px solid #ddd; }
+#settings-panel.open { display:block; }
+.settings-title { font-size:12px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.06em; margin-bottom:12px; }
+.settings-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.settings-label { font-size:14px; }
+.toggle { position:relative; width:44px; height:26px; flex-shrink:0; }
+.toggle input { opacity:0; width:0; height:0; }
+.toggle-track { position:absolute; inset:0; background:#ccc; border-radius:26px; cursor:pointer; transition:.2s; }
+.toggle input:checked + .toggle-track { background:#2e7d32; }
+.toggle-track:before { content:''; position:absolute; height:20px; width:20px; left:3px; bottom:3px; background:white; border-radius:50%; transition:.2s; }
+.toggle input:checked + .toggle-track:before { transform:translateX(18px); }
+
+/* Scorecard */
+.hole-grid { display:grid; grid-template-columns:repeat(10,1fr); gap:3px; font-size:11px; text-align:center; }
+.hg-lbl { font-weight:700; padding:5px 2px; background:#e8f5e9; border-radius:4px; }
+.hg-par { color:#888; padding:3px 2px; }
+.hg-in { border:1px solid #2e7d32; border-radius:4px; padding:4px 2px; }
+
+/* Team table */
+table.standings { width:100%; border-collapse:collapse; font-size:13px; }
+.standings th { background:#f5f5f5; padding:7px 8px; text-align:center; font-size:11px; font-weight:700; color:#555; border-bottom:2px solid #eee; }
+.standings th.lft { text-align:left; }
+.standings td { padding:7px 8px; border-bottom:1px solid #f5f5f5; text-align:center; }
+.standings td.lft { text-align:left; }
+.standings tr:last-child td { border-bottom:none; }
+.rank1 { color:#f57f17; font-weight:700; }
+
+/* News */
+.ann-item { background:var(--card,white); border-radius:12px; padding:14px; margin-bottom:10px; border-left:4px solid #2e7d32; box-shadow:0 1px 4px rgba(0,0,0,.08); }
+.ann-tag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#2e7d32; margin-bottom:4px; }
+.ann-title { font-weight:700; font-size:15px; margin-bottom:5px; }
+.ann-body { font-size:13px; color:#555; line-height:1.55; }
+.ann-date { font-size:11px; color:#aaa; margin-top:6px; }
+.ann-info { border-left-color:#1565c0; }
+.ann-info .ann-tag { color:#1565c0; }
+.ann-reminder { border-left-color:#e65100; }
+.ann-reminder .ann-tag { color:#e65100; }
+.ann-alert { border-left-color:#c62828; }
+.ann-alert .ann-tag { color:#c62828; }
+
+/* Outing */
+.outing-section { margin-bottom:16px; }
+.outing-lbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#2e7d32; margin-bottom:5px; }
+.outing-val { font-size:14px; line-height:1.5; }
+.prize-row { display:flex; gap:10px; padding:8px 0; border-bottom:1px solid #f5f5f5; font-size:13px; }
+.prize-row:last-child { border-bottom:none; }
+.prize-pos { font-weight:700; min-width:80px; }
+.prize-desc { color:#555; }
+
+/* Dues */
+.badge-in { display:inline-block; background:#e8f5e9; color:#2e7d32; border-radius:20px; font-size:11px; font-weight:700; padding:2px 10px; }
+.badge-out { display:inline-block; background:#f5f5f5; color:#bbb; border-radius:20px; font-size:11px; font-weight:600; padding:2px 10px; }
+.dues-summary { display:flex; gap:14px; flex-wrap:wrap; font-size:13px; padding:12px 14px; }
+
+/* Roster / player details */
+.roster-team { margin-bottom:12px; }
+.roster-team-hdr { background:#1b5e20; color:white; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; padding:5px 12px; border-radius:8px 8px 0 0; }
+.roster-player { display:flex; align-items:center; gap:10px; padding:10px 12px; border-bottom:1px solid #f5f5f5; }
+.roster-player:last-child { border-bottom:none; }
+.rp-name { font-weight:600; font-size:14px; flex:1; }
+.rp-hcp { font-size:11px; color:#888; }
+.call-btn { background:#e8f5e9; color:#2e7d32; border:none; border-radius:8px; padding:5px 11px; font-size:12px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; text-decoration:none; display:inline-block; }
+.call-btn.no-phone { background:#f5f5f5; color:#ccc; pointer-events:none; }
+
+/* Player modal */
+.modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:200; align-items:flex-end; }
+.modal-bg.open { display:flex; }
+.modal { background:white; border-radius:20px 20px 0 0; padding:24px 20px env(safe-area-inset-bottom); width:100%; max-width:500px; margin:0 auto; }
+.modal-name { font-size:20px; font-weight:700; margin-bottom:4px; }
+.modal-meta { font-size:13px; color:#888; margin-bottom:16px; }
+.modal-row { display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid #f5f5f5; font-size:14px; }
+.modal-row:last-child { border-bottom:none; }
+.modal-close { width:100%; padding:13px; margin-top:14px; background:#f5f5f5; border:none; border-radius:12px; font-size:15px; font-weight:600; color:#555; cursor:pointer; }
+.call-big { background:#2e7d32; color:white; border:none; border-radius:10px; padding:9px 18px; font-size:14px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+
+/* HCP grid */
+.hcp-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:8px; }
+.hcp-row { background:var(--card,white); border-radius:10px; padding:10px 12px; box-shadow:0 1px 3px rgba(0,0,0,.08); display:flex; justify-content:space-between; align-items:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.hcp-row:active { background:#f0faf0; }
+.hcp-name { font-size:13px; font-weight:600; }
+.hcp-val { font-size:18px; font-weight:800; color:#2e7d32; }
 </style>
 </head>
 <body>
 
-<h1>⛳ Worthington Golf League</h1>
-<div class="subtitle">Monday Nights · Hiland Golf Course, Butler PA · Week 10 In Progress (7/13/26) · Scores Pending</div>
-
-<div class="tabs">
-  <div class="tab active" onclick="showTab('standings')">📊 Season Standings</div>
-  <div class="tab" onclick="showTab('week10')">📋 Wk 10 Detail</div>
-  <div class="tab" onclick="showTab('handicaps')">🏌️ Handicaps</div>
-  <div class="tab" onclick="showTab('announcements')">📣 Announcements</div>
-  <div class="tab" onclick="showTab('outing')">🏆 Outing</div>
-  <div class="tab" onclick="showTab('dues')">💵 Dues</div>
-  <div class="tab" onclick="showTab('scorecard')">📝 Score Card</div>
-  <div class="tab" onclick="showTab('lownet')">🏅 Low Net</div>
-  <div class="tab" onclick="showTab('skins')">💰 Skins</div>
-  <div class="tab" onclick="showTab('week9')">📋 Wk 9 Detail</div>
+<!-- Sync indicator -->
+<div class="sync-bar">
+  <div class="sync-dot"></div>
+  <span id="sync-label">Loaded from wgl-data.json · just now</span>
 </div>
 
-<!-- STANDINGS TAB -->
-<div id="standings" class="tab-content active">
-  <div class="card">
-    <table>
-      <thead>
-        <tr>
-          <th style="width:60px">Rank</th>
-          <th class="lft">Team</th>
-          <th>Wk 1</th><th>Wk 2</th><th>Wk 3</th><th>Wk 4</th>
-          <th>Wk 5</th><th>Wk 6</th><th>Wk 7</th><th>Wk 8</th>
-          <th class="wk8-col">Wk 9</th>
-          <th class="total-col">Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="rank-1">
-          <td><span class="rank-badge b1">1st 🥇</span></td>
-          <td class="lft"><strong>Team #7</strong></td>
-          <td>150</td><td>147</td><td>155</td><td>155</td>
-          <td>136</td><td>139</td><td>129</td><td>136</td>
-          <td class="wk8-col">130</td>
-          <td class="total-col">1,277</td>
-        </tr>
-        <tr class="rank-2">
-          <td><span class="rank-badge b2">2nd 🥈</span></td>
-          <td class="lft">Team #4</td>
-          <td>147</td><td>162</td><td>154</td><td>157</td>
-          <td>135</td><td>137</td><td>142</td><td>142</td>
-          <td class="wk8-col">126</td>
-          <td class="total-col">1,302</td>
-        </tr>
-        <tr class="rank-3">
-          <td><span class="rank-badge b3">3rd 🥉</span></td>
-          <td class="lft">Team #2</td>
-          <td>148</td><td>149</td><td>147</td><td>143</td>
-          <td>144</td><td>143</td><td>141</td><td>149</td>
-          <td class="wk8-col">145</td>
-          <td class="total-col">1,309</td>
-        </tr>
-        <tr>
-          <td>4th</td><td class="lft">Team #8</td>
-          <td>150</td><td>149</td><td>140</td><td>140</td>
-          <td>147</td><td>145</td><td>147</td><td>147</td>
-          <td class="wk8-col">146</td>
-          <td class="total-col">1,311</td>
-        </tr>
-        <tr>
-          <td>5th</td><td class="lft">Team #5</td>
-          <td>161</td><td>153</td><td>159</td><td>150</td>
-          <td>139</td><td>140</td><td>133</td><td>149</td>
-          <td class="wk8-col">141</td>
-          <td class="total-col">1,325</td>
-        </tr>
-        <tr>
-          <td>6th</td><td class="lft">Team #1</td>
-          <td>151</td><td>150</td><td>154</td><td>159</td>
-          <td>150</td><td>141</td><td>132</td><td>150</td>
-          <td class="wk8-col">140</td>
-          <td class="total-col">1,327</td>
-        </tr>
-        <tr>
-          <td>7th</td><td class="lft">Team #3</td>
-          <td>155</td><td>152</td><td>153</td><td>146</td>
-          <td>151</td><td>145</td><td>146</td><td>138</td>
-          <td class="wk8-col">148</td>
-          <td class="total-col">1,334</td>
-        </tr>
-        <tr>
-          <td>8th</td><td class="lft">Team #6</td>
-          <td>170</td><td>159</td><td>157</td><td>157</td>
-          <td>158</td><td>157</td><td>160</td><td>148</td>
-          <td class="wk8-col">150</td>
-          <td class="total-col">1,416</td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="note">Lower total = better (low net accumulating, 4 lowest nets per team per week). All data from score cards — Weeks 1–9 complete. Week 10 is tonight (7/13/26).</div>
+<!-- Header -->
+<div class="app-hdr">
+  <div class="hdr-inner">
+    <h1>⛳ Worthington Golf League</h1>
+    <div class="hdr-sub" id="app-subtitle">Monday Nights · Hiland Golf Course · Week 11 Upcoming</div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('scorecard',this)">📝 Score Card</div>
+    <div class="tab" onclick="showTab('results',this)">📋 Results</div>
+    <div class="tab" onclick="showTab('standings',this)">📊 Standings</div>
+    <div class="tab" onclick="showTab('news',this)">📣 News</div>
+    <div class="tab" onclick="showTab('outing',this)">🏆 Outing</div>
+    <div class="tab" onclick="showTab('dues',this)">💵 Dues</div>
   </div>
 </div>
 
-<!-- WEEK 10 DETAIL TAB -->
-<div id="week10" class="tab-content">
-  <div class="card">
-    <table>
-      <thead>
-        <tr>
-          <th class="lft">Player</th>
-          <th>Team</th>
-          <th>HCP</th>
-          <th>Gross</th>
-          <th>Net</th>
-          <th>Counted</th>
-        </tr>
-      </thead>
-      <tbody>
-
-        <!-- TEAM 7 — sorted low→high HCP -->
-        <tr class="team-header"><td colspan="6">TEAM #7 · Wk 10 Score: 144 · Season Total: 1,421 (provisional)</td></tr>
-        <tr class="counted"><td class="lft">Ed Bargerstock</td><td>7</td><td>4</td><td>42</td><td>38</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft" style="font-style:italic;color:#bbb">Mike Hickman</td><td style="color:#bbb">7</td><td style="color:#bbb">5</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td></tr>
-        <tr class="counted"><td class="lft">Vince Sanzotti</td><td>7</td><td>7</td><td>39</td><td>32</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft" style="font-style:italic;color:#bbb">Doug Anthony</td><td style="color:#bbb">7</td><td style="color:#bbb">10</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td></tr>
-        <tr class="counted"><td class="lft">Jason Smith</td><td>7</td><td>11</td><td>48</td><td>37</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft">Chris Remaley</td><td>7</td><td>11</td><td>50</td><td>39</td><td class="dash">—</td></tr>
-        <tr class="counted"><td class="lft">Wes Barton</td><td>7</td><td>12</td><td>49</td><td>37</td><td class="check">✓</td></tr>
-        <tr class="team-total"><td class="lft" colspan="4">Team #7 — 4 lowest nets</td><td>144</td><td></td></tr>
-        <tr class="gap"><td colspan="6"></td></tr>
-
-        <!-- TEAM 4 — AT RISK, sorted low→high HCP -->
-        <tr class="team-header"><td colspan="6" style="background:#c62828">TEAM #4 · ⚠️ ONLY 3 SCORES — +50 PENALTY WITHOUT MORE CARDS</td></tr>
-        <tr class="missing-player"><td class="lft">Clark Helm</td><td>4</td><td>5</td><td>—</td><td>—</td><td>?</td></tr>
-        <tr class="missing-player"><td class="lft">Harry Breski</td><td>4</td><td>7</td><td>—</td><td>—</td><td>?</td></tr>
-        <tr class="counted"><td class="lft">Roger Hoffman</td><td>4</td><td>7</td><td>44</td><td>37</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Chad Hollobaugh</td><td>4</td><td>10</td><td>43</td><td>33</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Tom Stennett</td><td>4</td><td>14</td><td>55</td><td>41</td><td class="check">✓</td></tr>
-        <tr class="missing-player"><td class="lft">Blake Bowser</td><td>4</td><td>15</td><td>—</td><td>—</td><td>?</td></tr>
-        <tr class="missing-player"><td class="lft">Landon Badac</td><td>4</td><td>17</td><td>—</td><td>—</td><td>?</td></tr>
-        <tr class="team-total" style="background:#fff3e0"><td class="lft" colspan="4" style="color:#e65100">Team #4 — ⚠️ PENDING · Need at least 1 more score</td><td style="color:#e65100">TBD</td><td></td></tr>
-        <tr class="gap"><td colspan="6"></td></tr>
-
-        <!-- TEAM 2 — sorted low→high HCP -->
-        <tr class="team-header"><td colspan="6">TEAM #2 · Wk 10 Score: 140 · Season Total: 1,449 (provisional)</td></tr>
-        <tr class="counted"><td class="lft">Jim Frye</td><td>2</td><td>1</td><td>33</td><td>32</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft">Skylar Grafton</td><td>2</td><td>8</td><td>50</td><td>42</td><td class="dash">—</td></tr>
-        <tr class="counted"><td class="lft">Nick Keefer</td><td>2</td><td>9</td><td>46</td><td>37</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Jeff Hollobaugh</td><td>2</td><td>12</td><td>48</td><td>36</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft">Andy Patz</td><td>2</td><td>14</td><td>54</td><td>40</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft" style="font-style:italic;color:#bbb">Trent Brocious</td><td style="color:#bbb">2</td><td style="color:#bbb">15</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td></tr>
-        <tr class="counted"><td class="lft">Wilbur Dudley</td><td>2</td><td>18</td><td>53</td><td>35</td><td class="check">✓</td></tr>
-        <tr class="team-total"><td class="lft" colspan="4">Team #2 — 4 lowest nets</td><td>140</td><td></td></tr>
-        <tr class="gap"><td colspan="6"></td></tr>
-
-        <!-- TEAM 8 — AT RISK, sorted low→high HCP -->
-        <tr class="team-header"><td colspan="6" style="background:#c62828">TEAM #8 · ⚠️ ONLY 3 SCORES — +50 PENALTY WITHOUT MORE CARDS</td></tr>
-        <tr class="missing-player"><td class="lft">Brian Barton</td><td>8</td><td>6</td><td>—</td><td>—</td><td>?</td></tr>
-        <tr class="counted"><td class="lft">Paul Bowser</td><td>8</td><td>8</td><td>43</td><td>35</td><td class="check">✓</td></tr>
-        <tr class="missing-player"><td class="lft">Logan Bowser</td><td>8</td><td>10</td><td>—</td><td>—</td><td>?</td></tr>
-        <tr class="counted"><td class="lft">Ken Long</td><td>8</td><td>13</td><td>45</td><td>32</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Patric Weber</td><td>8</td><td>15</td><td>55</td><td>40</td><td class="check">✓</td></tr>
-        <tr class="missing-player"><td class="lft">Cole Clark</td><td>8</td><td>15</td><td>—</td><td>—</td><td>?</td></tr>
-        <tr class="missing-player"><td class="lft">Dylan Smith</td><td>8</td><td>16</td><td>—</td><td>—</td><td>?</td></tr>
-        <tr class="team-total" style="background:#fff3e0"><td class="lft" colspan="4" style="color:#e65100">Team #8 — ⚠️ PENDING · Need at least 1 more score</td><td style="color:#e65100">TBD</td><td></td></tr>
-        <tr class="gap"><td colspan="6"></td></tr>
-
-        <!-- TEAM 5 — sorted low→high HCP, all 7 in -->
-        <tr class="team-header"><td colspan="6">TEAM #5 · Wk 10 Score: 142 · Season Total: 1,467 (provisional) · ✅ All 7 in</td></tr>
-        <tr class="counted"><td class="lft">Eli Hickman</td><td>5</td><td>8</td><td>41</td><td>33</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Tyler Eroh</td><td>5</td><td>8</td><td>43</td><td>35</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Jaxon Smith</td><td>5</td><td>9</td><td>45</td><td>36</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Denny Snyder</td><td>5</td><td>9</td><td>47</td><td>38</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft">Bill Long</td><td>5</td><td>9</td><td>47</td><td>38</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Dave Toy</td><td>5</td><td>10</td><td>49</td><td>39</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Don Nulph</td><td>5</td><td>11</td><td>60</td><td>49</td><td class="dash">—</td></tr>
-        <tr class="team-total"><td class="lft" colspan="4">Team #5 — 4 lowest nets</td><td>142</td><td></td></tr>
-        <tr class="gap"><td colspan="6"></td></tr>
-
-        <!-- TEAM 1 — sorted low→high HCP -->
-        <tr class="team-header"><td colspan="6">TEAM #1 · Wk 10 Score: 144 · Season Total: 1,471 (provisional)</td></tr>
-        <tr class="counted"><td class="lft">Larry Julius</td><td>1</td><td>2</td><td>38</td><td>36</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Kris Simmons</td><td>1</td><td>4</td><td>39</td><td>35</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft" style="font-style:italic;color:#bbb">Mario Jenkins</td><td style="color:#bbb">1</td><td style="color:#bbb">10</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td></tr>
-        <tr class="counted"><td class="lft">Butch Griffith</td><td>1</td><td>12</td><td>48</td><td>36</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft" style="font-style:italic;color:#bbb">Paul Harmon</td><td style="color:#bbb">1</td><td style="color:#bbb">15</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td></tr>
-        <tr class="counted"><td class="lft">Frank Watt</td><td>1</td><td>16</td><td>53</td><td>37</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft">Andy Gallagher</td><td>1</td><td>16</td><td>53</td><td>37</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft" style="font-style:italic;color:#bbb">Keith Clark</td><td style="color:#bbb">1</td><td style="color:#bbb">20</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td></tr>
-        <tr class="team-total"><td class="lft" colspan="4">Team #1 — 4 lowest nets</td><td>144</td><td></td></tr>
-        <tr class="gap"><td colspan="6"></td></tr>
-
-        <!-- TEAM 3 — sorted low→high HCP -->
-        <tr class="team-header"><td colspan="6">TEAM #3 · Wk 10 Score: 147 · Season Total: 1,481 (provisional)</td></tr>
-        <tr class="counted"><td class="lft">Duck Julius</td><td>3</td><td>1</td><td>37</td><td>36</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Bruce Thomas</td><td>3</td><td>10</td><td>45</td><td>35</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Willie Powell</td><td>3</td><td>10</td><td>45</td><td>35</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft" style="font-style:italic;color:#bbb">Scott Barton</td><td style="color:#bbb">3</td><td style="color:#bbb">11</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td></tr>
-        <tr class="not-counted"><td class="lft" style="font-style:italic;color:#bbb">Dave Cushey</td><td style="color:#bbb">3</td><td style="color:#bbb">12</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td></tr>
-        <tr class="counted"><td class="lft">Dicky Peat</td><td>3</td><td>17</td><td>58</td><td>41</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft">Allan Voltz</td><td>3</td><td>20</td><td>66</td><td>46</td><td class="dash">—</td></tr>
-        <tr class="team-total"><td class="lft" colspan="4">Team #3 — 4 lowest nets</td><td>147</td><td></td></tr>
-        <tr class="gap"><td colspan="6"></td></tr>
-
-        <!-- TEAM 6 — sorted low→high HCP -->
-        <tr class="team-header"><td colspan="6">TEAM #6 · Wk 10 Score: 139 · Season Total: 1,555 (provisional)</td></tr>
-        <tr class="not-counted"><td class="lft">Sam Long</td><td>6</td><td>7</td><td>47</td><td>40</td><td class="dash">—</td></tr>
-        <tr class="counted"><td class="lft">Kevin Frye</td><td>6</td><td>9</td><td>38</td><td>29</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Jay Griffith</td><td>6</td><td>9</td><td>49</td><td>40</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Jesse Hickman</td><td>6</td><td>13</td><td>47</td><td>34</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Jim Goodman</td><td>6</td><td>17</td><td>53</td><td>36</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft" style="font-style:italic;color:#bbb">Matt Nulph</td><td style="color:#bbb">6</td><td style="color:#bbb">20</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td></tr>
-        <tr class="not-counted"><td class="lft">Dylan Barton</td><td>6</td><td>20</td><td>62</td><td>42</td><td class="dash">—</td></tr>
-        <tr class="team-total"><td class="lft" colspan="4">Team #6 — 4 lowest nets</td><td>139</td><td></td></tr>
-
-      </tbody>
-    </table>
-    <div class="note">Green = counted (4 lowest nets). Gray = played, not counted. Gray italic = no score received (team has enough). Red = no score received (team at penalty risk). Players sorted lowest to highest handicap within each team. Week 10 — played 7/13/26. Provisional pending T4 &amp; T8 late cards.</div>
+<!-- SCORE CARD -->
+<div id="scorecard" class="tab-content active">
+  <div class="card" style="margin-top:12px">
+    <div class="card-hdr">Weekly Score Card</div>
+    <div style="padding:12px;font-size:13px;color:#888;text-align:center;padding:20px">
+      📝 Score card entry works the same as your current app.<br><br>No changes proposed here — just showing the data integration.
+    </div>
   </div>
-</div>
-
-<!-- WEEK 9 DETAIL TAB -->
-<div id="week9" class="tab-content">
   <div class="card">
-    <table>
-      <thead>
-        <tr>
-          <th class="lft">Player</th>
-          <th>Team</th>
-          <th>HCP</th>
-          <th>Gross</th>
-          <th>Net</th>
-          <th>Counted</th>
-        </tr>
-      </thead>
-      <tbody>
-
-        <!-- TEAM 7 -->
-        <tr class="team-header"><td colspan="6">TEAM #7 · Wk 9 Score: 130 · Season Total: 1,277 · Rank: 1st 🥇</td></tr>
-        <tr class="counted"><td class="lft">Ed Bargerstock</td><td>7</td><td>4</td><td>34</td><td>30</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Vince Sanzotti</td><td>7</td><td>7</td><td>39</td><td>32</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Mike Hickman</td><td>7</td><td>5</td><td>37</td><td>32</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Chris Remaley</td><td>7</td><td>11</td><td>47</td><td>36</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft">Jason Smith</td><td>7</td><td>11</td><td>48</td><td>37</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Doug Anthony</td><td>7</td><td>10</td><td>48</td><td>38</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Wes Barton</td><td>7</td><td>12</td><td>55</td><td>43</td><td class="dash">—</td></tr>
-        <tr class="team-total"><td class="lft" colspan="4">Team #7 — 4 lowest nets</td><td>130</td><td></td></tr>
-        <tr class="gap"><td colspan="6"></td></tr>
-
-        <!-- TEAM 4 -->
-        <tr class="team-header"><td colspan="6">TEAM #4 · Wk 9 Score: 126 · Season Total: 1,302 · Rank: 2nd 🥈</td></tr>
-        <tr class="counted"><td class="lft">Clark Helm</td><td>4</td><td>5</td><td>32</td><td>27</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Chad Hollobaugh</td><td>4</td><td>12</td><td>43</td><td>31</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Landon Badac</td><td>4</td><td>18</td><td>51</td><td>33</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Roger Hoffman</td><td>4</td><td>7</td><td>42</td><td>35</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft">Blake Bowser</td><td>4</td><td>15</td><td>50</td><td>35</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Tom Stennett</td><td>4</td><td>16</td><td>52</td><td>36</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Harry Breski</td><td>4</td><td>7</td><td>43</td><td>36</td><td class="dash">—</td></tr>
-        <tr class="team-total"><td class="lft" colspan="4">Team #4 — 4 lowest nets</td><td>126</td><td></td></tr>
-        <tr class="gap"><td colspan="6"></td></tr>
-
-        <!-- TEAM 2 -->
-        <tr class="team-header"><td colspan="6">TEAM #2 · Wk 9 Score: 145 · Season Total: 1,309 · Rank: 3rd 🥉</td></tr>
-        <tr class="counted"><td class="lft">Jim Frye</td><td>2</td><td>2</td><td>36</td><td>34</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Andy Patz</td><td>2</td><td>14</td><td>48</td><td>34</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Jeff Hollobaugh</td><td>2</td><td>12</td><td>50</td><td>38</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Skylar Grafton</td><td>2</td><td>7</td><td>46</td><td>39</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft">Nick Keefer</td><td>2</td><td>9</td><td>45</td><td>36</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Trent Brocious</td><td>2</td><td>15</td><td>52</td><td>37</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Wilbur Dudley</td><td>2</td><td>18</td><td>58</td><td>40</td><td class="dash">—</td></tr>
-        <tr class="team-total"><td class="lft" colspan="4">Team #2 — 4 lowest nets</td><td>145</td><td></td></tr>
-        <tr class="gap"><td colspan="6"></td></tr>
-
-        <!-- TEAM 8 -->
-        <tr class="team-header"><td colspan="6">TEAM #8 · Wk 9 Score: 146 · Season Total: 1,311 · Rank: 4th</td></tr>
-        <tr class="counted"><td class="lft">Brian Barton</td><td>8</td><td>7</td><td>39</td><td>32</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Logan Bowser</td><td>8</td><td>10</td><td>47</td><td>37</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Patric Weber</td><td>8</td><td>15</td><td>53</td><td>38</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Dylan Smith</td><td>8</td><td>16</td><td>55</td><td>39</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft">Paul Bowser</td><td>8</td><td>13</td><td>52</td><td>39</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Ken Long</td><td>8</td><td>15</td><td>54</td><td>39</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Cole Clark</td><td>8</td><td>15</td><td>52</td><td>37</td><td class="dash">—</td></tr>
-        <tr class="team-total"><td class="lft" colspan="4">Team #8 — 4 lowest nets</td><td>146</td><td></td></tr>
-        <tr class="gap"><td colspan="6"></td></tr>
-
-        <!-- TEAM 5 -->
-        <tr class="team-header"><td colspan="6">TEAM #5 · Wk 9 Score: 141 · Season Total: 1,325 · Rank: 5th</td></tr>
-        <tr class="counted"><td class="lft">Tyler Eroh</td><td>5</td><td>10</td><td>42</td><td>32</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Eli Hickman</td><td>5</td><td>8</td><td>42</td><td>34</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Bill Long</td><td>5</td><td>9</td><td>45</td><td>36</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Don Nulph</td><td>5</td><td>11</td><td>50</td><td>39</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft">Denny Snyder</td><td>5</td><td>10</td><td>45</td><td>35</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Dave Toy</td><td>5</td><td>10</td><td>49</td><td>39</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Jaxon Smith</td><td>5</td><td>8</td><td>51</td><td>43</td><td class="dash">—</td></tr>
-        <tr class="team-total"><td class="lft" colspan="4">Team #5 — 4 lowest nets</td><td>141</td><td></td></tr>
-        <tr class="gap"><td colspan="6"></td></tr>
-
-        <!-- TEAM 1 -->
-        <tr class="team-header"><td colspan="6">TEAM #1 · Wk 9 Score: 140 · Season Total: 1,327 · Rank: 6th</td></tr>
-        <tr class="counted"><td class="lft">Andy Gallagher</td><td>1</td><td>16</td><td>47</td><td>31</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Larry Julius</td><td>1</td><td>3</td><td>36</td><td>33</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Kris Simmons</td><td>1</td><td>4</td><td>42</td><td>38</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Butch Griffith</td><td>1</td><td>11</td><td>49</td><td>38</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft">Mario Jenkins</td><td>1</td><td>12</td><td>51</td><td>39</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Frank Watt</td><td>1</td><td>15</td><td>57</td><td>42</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Keith Clark</td><td>1</td><td>19</td><td>63</td><td>44</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Paul Harmon</td><td>1</td><td>15</td><td>60</td><td>45</td><td class="dash">—</td></tr>
-        <tr class="team-total"><td class="lft" colspan="4">Team #1 — 4 lowest nets</td><td>140</td><td></td></tr>
-        <tr class="gap"><td colspan="6"></td></tr>
-
-        <!-- TEAM 3 -->
-        <tr class="team-header"><td colspan="6">TEAM #3 · Wk 9 Score: 148 · Season Total: 1,334 · Rank: 7th</td></tr>
-        <tr class="counted"><td class="lft">Duck Julius</td><td>3</td><td>2</td><td>35</td><td>33</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Bruce Thomas</td><td>3</td><td>9</td><td>47</td><td>38</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Scott Barton</td><td>3</td><td>11</td><td>49</td><td>38</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Willie Powell</td><td>3</td><td>10</td><td>49</td><td>39</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft">Dicky Peat</td><td>3</td><td>18</td><td>57</td><td>39</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Dave Cushey</td><td>3</td><td>12</td><td>52</td><td>40</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Allan Voltz</td><td>3</td><td>20</td><td>65</td><td>45</td><td class="dash">—</td></tr>
-        <tr class="team-total"><td class="lft" colspan="4">Team #3 — 4 lowest nets</td><td>148</td><td></td></tr>
-        <tr class="gap"><td colspan="6"></td></tr>
-
-        <!-- TEAM 6 -->
-        <tr class="team-header"><td colspan="6">TEAM #6 · Wk 9 Score: 150 · Season Total: 1,416 · Rank: 8th</td></tr>
-        <tr class="counted"><td class="lft">Jay Griffith</td><td>6</td><td>9</td><td>42</td><td>33</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Sam Long</td><td>6</td><td>7</td><td>43</td><td>36</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Jesse Hickman</td><td>6</td><td>13</td><td>52</td><td>39</td><td class="check">✓</td></tr>
-        <tr class="counted"><td class="lft">Kevin Frye</td><td>6</td><td>12</td><td>54</td><td>42</td><td class="check">✓</td></tr>
-        <tr class="not-counted"><td class="lft">Jim Goodman</td><td>6</td><td>17</td><td>64</td><td>47</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Dylan Barton</td><td>6</td><td>20</td><td>65</td><td>45</td><td class="dash">—</td></tr>
-        <tr class="not-counted"><td class="lft">Matt Nulph</td><td>6</td><td>20</td><td>65</td><td>45</td><td class="dash">—</td></tr>
-        <tr class="team-total"><td class="lft" colspan="4">Team #6 — 4 lowest nets</td><td>150</td><td></td></tr>
-
-      </tbody>
-    </table>
-    <div class="note">Green rows = counted toward team score (4 lowest nets only). Gray rows = played but not counted. Gross scores capped at double par per hole. Teams short a player take a 50 penalty. Week 9 — played 7/6/26.</div>
-  </div>
-</div>
-
-<!-- HANDICAPS TAB -->
-<div id="handicaps" class="tab-content">
-  <div class="section-label" style="padding:0 0 8px 0">Week 10 Handicaps — Tonight 7/13/26 (FRONT)</div>
-  <div class="card">
-    <div id="hcp-grid-container"></div>
-    <div class="note">Week 10 handicaps (7/13/26 FRONT) from score sheet. Formula: (3-week avg gross − 35) × 0.80, max ±1 change per week. Scores capped at double par per hole. Teams with fewer than 4 scores receive a +50 penalty for that week.</div>
-  </div>
-</div>
-
-<!-- ANNOUNCEMENTS TAB -->
-<div id="announcements" class="tab-content">
-  <div style="max-width:680px">
-    <div class="card" style="padding:0;overflow:hidden">
-      <!-- Wk10 Missing Scores -->
-      <div class="announce-post" style="border-left:4px solid #c62828">
-        <div class="announce-meta">
-          <span class="announce-date">📅 July 14, 2026</span>
-          <span class="announce-tag tag-alert">⚠️ Action Needed</span>
-        </div>
-        <div class="announce-title">Week 10 Scores — Still Waiting on These Players</div>
-        <div class="announce-body">
-          If your name is on this list, your score hasn't come in yet. Photograph your card and email it to the league address — Wednesday is the cutoff.<br><br>
-          <strong style="color:#c62828">🚨 Team 4 (only 3 scores — at risk of +50 penalty):</strong><br>
-          Clark Helm · Harry Breski · Blake Bowser · Landon Badac<br><br>
-          <strong style="color:#c62828">🚨 Team 8 (only 3 scores — at risk of +50 penalty):</strong><br>
-          Brian Barton · Logan Bowser · Cole Clark · Dylan Smith<br><br>
-          <strong>Team 1:</strong> Mario Jenkins · Paul Harmon · Keith Clark<br>
-          <strong>Team 2:</strong> Trent Brocious<br>
-          <strong>Team 3:</strong> Scott Barton · Dave Cushey<br>
-          <strong>Team 6:</strong> Matt Nulph<br>
-          <strong>Team 7:</strong> Mike Hickman · Doug Anthony<br><br>
-          <span style="color:#388e3c">✅ Team 5 — all scores in!</span>
-        </div>
-      </div>
-      <!-- Post 1 -->
-      <div class="announce-post">
-        <div class="announce-meta">
-          <span class="announce-date">📅 July 13, 2026</span>
-          <span class="announce-tag tag-info">League Notice</span>
-        </div>
-        <div class="announce-title">Week 9 Standings Posted · Week 10 Tonight!</div>
-        <div class="announce-body">Week 9 scores are in — Team #7 holds 1st at 1,277 total net. Big move by Team #4 with a 126 in Week 9 (jumps to 2nd). All 9 weeks now confirmed from score cards. Handicaps updated for tonight's front-9 round. Good luck out there!</div>
-      </div>
-      <!-- Post 2 -->
-      <div class="announce-post">
-        <div class="announce-meta">
-          <span class="announce-date">📅 July 7, 2026</span>
-          <span class="announce-tag tag-reminder">Reminder</span>
-        </div>
-        <div class="announce-title">Scorecard Submission</div>
-        <div class="announce-body">Please photograph and email your scorecard after each round. One photo per card covers up to 5 players. Send to the league email address. Scores not submitted by Wednesday may not count for that week.</div>
-      </div>
-      <!-- Placeholder -->
-      <div class="announce-post" style="background:#fafafa">
-        <div class="announce-meta">
-          <span class="announce-date" style="color:#bbb">📅 Add Date</span>
-          <span class="announce-tag" style="background:#eee;color:#999">Placeholder</span>
-        </div>
-        <div class="announce-title" style="color:#bbb">New announcement goes here</div>
-        <div class="announce-body" style="color:#ccc">Edit this file or paste in your announcement text. Posts stack newest-first.</div>
-      </div>
+    <div class="card-hdr">📡 How Data Sync Works</div>
+    <div style="padding:14px;font-size:13px;color:#555;line-height:1.7">
+      <strong>When an admin publishes:</strong><br>
+      1. Admin app writes <code>wgl-data.json</code> to GitHub<br>
+      2. League app fetches fresh data on every load<br>
+      3. Announcements, outing details, dues, and buy-in status update automatically<br>
+      4. No manual copy/paste — ~60 second delay after admin publishes<br><br>
+      <strong>What stays the same:</strong> Score card, standings, HCP grid, skins tab, low net tab — all still work exactly as today.
     </div>
   </div>
 </div>
 
-<!-- OUTING TAB -->
+<!-- NEWS (dynamic from wgl-data.json) -->
+<div id="news" class="tab-content">
+  <div style="margin-top:12px" id="news-list"></div>
+  <div style="font-size:11px;color:#bbb;text-align:center;padding:8px">Posted by WGL Admin · Data from wgl-data.json</div>
+</div>
+
+<!-- OUTING (dynamic from wgl-data.json) -->
 <div id="outing" class="tab-content">
-  <div style="max-width:680px">
+  <div style="margin-top:12px">
 
-    <div class="card" style="padding:20px">
-      <div style="font-size:18px;font-weight:700;margin-bottom:4px">🏆 2026 Season Outing</div>
-      <div style="font-size:13px;color:#388e3c;font-weight:600;margin-bottom:16px">✅ Details confirmed — mark your calendar!</div>
-
-      <div class="outing-detail-row"><span class="outing-label">📍 Course</span><span class="outing-val">Hiland Golf Course · Butler, PA</span></div>
-      <div class="outing-detail-row"><span class="outing-label">📅 Date</span><span class="outing-val">Saturday, August 29, 2026</span></div>
-      <div class="outing-detail-row"><span class="outing-label">⏰ Tee Time</span><span class="outing-val">8:00 AM start</span></div>
-      <div class="outing-detail-row"><span class="outing-label">🏌️ Holes</span><span class="outing-val">18 holes · starting on the back 9</span></div>
-      <div class="outing-detail-row"><span class="outing-label">🎯 Format</span><span class="outing-val">TBD</span></div>
-      <div class="outing-detail-row"><span class="outing-label">💰 Cost</span><span class="outing-val">TBD</span></div>
-      <div class="outing-detail-row"><span class="outing-label">🍽️ Dinner After</span><span class="outing-val">The Farm · 150 Fox Rd, Worthington PA 16262</span></div>
+    <!-- Outing selector -->
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button id="lo-mid-btn" onclick="switchLeagueOuting('mid')" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#2e7d32;color:white;-webkit-tap-highlight-color:transparent">🏌️ Mid-Season</button>
+      <button id="lo-end-btn" onclick="switchLeagueOuting('end')" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#eee;color:#555;-webkit-tap-highlight-color:transparent">🏆 End of Season</button>
     </div>
 
-    <div class="card" style="overflow:hidden">
-      <div style="padding:12px 16px;font-weight:600;font-size:13px;border-bottom:1px solid #eee;background:#f8f8f8">Sign-Up Sheet</div>
-      <table>
-        <thead>
-          <tr>
-            <th class="lft">#</th>
-            <th class="lft">Player Name</th>
-            <th>Team</th>
-            <th>Paid</th>
-            <th>Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td class="lft" style="color:#bbb">1</td><td class="lft" style="color:#bbb;font-style:italic">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td></tr>
-          <tr><td class="lft" style="color:#bbb">2</td><td class="lft" style="color:#bbb;font-style:italic">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td></tr>
-          <tr><td class="lft" style="color:#bbb">3</td><td class="lft" style="color:#bbb;font-style:italic">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td></tr>
-          <tr><td class="lft" style="color:#bbb">4</td><td class="lft" style="color:#bbb;font-style:italic">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td></tr>
-          <tr><td class="lft" style="color:#bbb">5</td><td class="lft" style="color:#bbb;font-style:italic">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td><td style="color:#bbb">—</td></tr>
-          <tr><td class="lft" colspan="5" style="color:#bbb;font-style:italic;font-size:11px;padding:8px 12px">Fill in as players sign up — edit this file or let the AI agent update it from email responses</td></tr>
-        </tbody>
-      </table>
+    <!-- Mid-Season -->
+    <div id="lo-mid">
+      <div class="card">
+        <div class="card-hdr">🏌️ Mid-Season Outing</div>
+        <div style="padding:14px" id="outing-body"></div>
+      </div>
+      <div class="card" id="prizes-card" style="display:none">
+        <div class="card-hdr">Prizes & Awards</div>
+        <div style="padding:8px 14px" id="prizes-body"></div>
+      </div>
+      <button onclick="openSignupForm('mid')" style="width:100%;padding:15px;background:#2e7d32;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;-webkit-tap-highlight-color:transparent">
+        ✉️ Sign Up for Mid-Season Outing
+      </button>
+      <div class="card" id="signups-card" style="display:none">
+        <div class="card-hdr">Who's In <span id="signup-cnt" style="background:#e8f5e9;color:#2e7d32;border-radius:20px;font-size:11px;font-weight:700;padding:2px 9px;margin-left:6px">0</span></div>
+        <div style="padding:8px 14px;font-size:13px" id="signups-body"></div>
+      </div>
+      <div class="card" id="teams-card" style="display:none">
+        <div class="card-hdr">🏌️ Outing Teams</div>
+        <div style="padding:8px 14px" id="teams-body"></div>
+      </div>
     </div>
 
-    <div class="card" style="padding:16px">
-      <div style="font-weight:600;font-size:13px;margin-bottom:10px">Prizes / Payouts</div>
-      <div class="outing-detail-row"><span class="outing-label">🥇 Low Gross</span><span class="outing-val">TBD</span></div>
-      <div class="outing-detail-row"><span class="outing-label">🏌️ Low Net</span><span class="outing-val">TBD</span></div>
-      <div class="outing-detail-row"><span class="outing-label">🎯 Closest to Pin</span><span class="outing-val">TBD</span></div>
-      <div class="outing-detail-row"><span class="outing-label">📏 Long Drive</span><span class="outing-val">TBD</span></div>
-      <div class="outing-detail-row"><span class="outing-label">🏆 Season Champion</span><span class="outing-val">Lowest season net total</span></div>
+    <!-- End of Season -->
+    <div id="lo-end" style="display:none">
+      <div class="card">
+        <div class="card-hdr">🏆 End-of-Season Outing</div>
+        <div style="padding:14px" id="outing2-body">
+          <div style="color:#aaa;font-size:13px;text-align:center;padding:10px">Details coming soon — check back later.</div>
+        </div>
+      </div>
+      <div class="card" id="prizes2-card" style="display:none">
+        <div class="card-hdr">Prizes & Awards</div>
+        <div style="padding:8px 14px" id="prizes2-body"></div>
+      </div>
+      <button onclick="openSignupForm('end')" style="width:100%;padding:15px;background:#1565c0;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;-webkit-tap-highlight-color:transparent">
+        ✉️ Sign Up for End-of-Season Outing
+      </button>
+      <div class="card" id="signups2-card" style="display:none">
+        <div class="card-hdr">Who's In <span id="signup2-cnt" style="background:#e8f5e9;color:#2e7d32;border-radius:20px;font-size:11px;font-weight:700;padding:2px 9px;margin-left:6px">0</span></div>
+        <div style="padding:8px 14px;font-size:13px" id="signups2-body"></div>
+      </div>
+      <div class="card" id="teams2-card" style="display:none">
+        <div class="card-hdr">🏌️ Outing Teams</div>
+        <div style="padding:8px 14px" id="teams2-body"></div>
+      </div>
     </div>
-
   </div>
 </div>
 
-<!-- DUES TAB -->
+<!-- Sign-up modal (shared for both outings) -->
+<div id="signup-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;align-items:flex-end;justify-content:center" onclick="closeSignupForm(event)">
+  <div id="signup-modal" style="background:white;border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:500px">
+    <div style="font-size:18px;font-weight:700;margin-bottom:4px" id="signup-modal-title">Sign Up for the Outing</div>
+    <div style="font-size:13px;color:#888;margin-bottom:18px" id="signup-modal-sub"></div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;display:block;margin-bottom:5px">Your Name</label>
+      <input id="signup-name" type="text" placeholder="First Last" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:10px;font-size:15px">
+    </div>
+    <div style="margin-bottom:18px">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;display:block;margin-bottom:5px">Notes (optional)</label>
+      <input id="signup-notes" type="text" placeholder="e.g. bringing a guest, dietary needs…" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:10px;font-size:14px">
+    </div>
+    <button onclick="submitSignup()" style="width:100%;padding:14px;background:#2e7d32;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">Send Sign-Up Email</button>
+    <button onclick="closeSignupForm()" style="width:100%;padding:12px;background:#f5f5f5;color:#555;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
+  </div>
+</div>
+
+<!-- STANDINGS (placeholder) -->
+<div id="standings" class="tab-content">
+  <div class="card" style="margin-top:12px">
+    <div class="card-hdr">Team Standings · Week 10</div>
+    <div style="overflow-x:auto">
+      <table class="standings">
+        <thead><tr>
+          <th style="width:28px">#</th>
+          <th class="lft">Team</th>
+          <th>Pts</th><th>W</th><th>L</th><th>T</th><th>Net</th>
+        </tr></thead>
+        <tbody id="standings-tbody">
+          <tr><td class="rank1">1</td><td class="lft">Team 7</td><td class="rank1">45.5</td><td>9</td><td>2</td><td>1</td><td>-12.4</td></tr>
+          <tr><td>2</td><td class="lft">Team 3</td><td>42.0</td><td>8</td><td>3</td><td>1</td><td>-10.1</td></tr>
+          <tr><td>3</td><td class="lft">Team 1</td><td>40.5</td><td>7</td><td>3</td><td>2</td><td>-8.8</td></tr>
+          <tr><td>4</td><td class="lft">Team 5</td><td>38.0</td><td>7</td><td>4</td><td>1</td><td>-7.2</td></tr>
+          <tr><td>5</td><td class="lft">Team 6</td><td>36.0</td><td>6</td><td>5</td><td>1</td><td>-5.9</td></tr>
+          <tr><td>6</td><td class="lft">Team 2</td><td>34.5</td><td>6</td><td>5</td><td>1</td><td>-4.1</td></tr>
+          <tr><td>7</td><td class="lft">Team 4</td><td>30.0</td><td>5</td><td>6</td><td>1</td><td>+1.3</td></tr>
+          <tr><td>8</td><td class="lft">Team 8</td><td>26.0</td><td>4</td><td>7</td><td>1</td><td>+2.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div style="font-size:12px;color:#aaa;text-align:center;padding:4px">Sample data — standings still work exactly as today</div>
+</div>
+
+<!-- RESULTS (single tab with week dropdown) -->
+<div id="results" class="tab-content">
+  <div style="margin-top:12px"></div>
+  <div class="card" style="margin-bottom:12px">
+    <div style="padding:12px 14px;display:flex;align-items:center;gap:12px">
+      <label style="font-size:13px;font-weight:600;color:#555;white-space:nowrap">📋 View Week</label>
+      <select id="week-select" onchange="loadWeekResult(+this.value)"
+        style="flex:1;padding:9px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;font-weight:600;background:white;-webkit-appearance:none;appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22%23888%22 d=%22M6 8L1 3h10z%22/></svg>');background-repeat:no-repeat;background-position:right 10px center">
+        <option value="10">Week 10 — July 7</option>
+        <option value="9">Week 9 — June 30</option>
+        <option value="8">Week 8 — June 23</option>
+        <option value="7">Week 7 — June 16</option>
+        <option value="6">Week 6 — June 9</option>
+        <option value="5">Week 5 — June 2</option>
+        <option value="4">Week 4 — May 26</option>
+        <option value="3">Week 3 — May 19</option>
+        <option value="2">Week 2 — May 12</option>
+        <option value="1">Week 1 — May 5</option>
+      </select>
+    </div>
+  </div>
+  <div id="week-result-body"></div>
+</div>
+
+<!-- Scorecard Modal -->
+<div id="sc-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:999;align-items:flex-end;justify-content:center" onclick="if(event.target===this)closeScModal()">
+  <div style="background:white;border-radius:18px 18px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:0 0 24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 16px 10px">
+      <div>
+        <div id="sc-title" style="font-size:16px;font-weight:700;color:#1b5e20"></div>
+        <div id="sc-subtitle" style="font-size:12px;color:#888;margin-top:2px"></div>
+      </div>
+      <button onclick="closeScModal()" style="background:none;border:none;font-size:24px;color:#bbb;cursor:pointer;line-height:1">×</button>
+    </div>
+    <div style="overflow-x:auto;padding:0 16px">
+      <table style="width:100%;border-collapse:collapse;font-size:13px" id="sc-table">
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ROSTER (NEW TAB — player phone numbers) -->
+<div id="roster" class="tab-content">
+  <div style="margin-top:12px">
+    <div class="card" style="padding:12px 14px;font-size:13px;color:#2e7d32;font-weight:600;background:#e8f5e9">
+      👥 Tap any player to see contact details &amp; handicap info
+    </div>
+    <div id="roster-list"></div>
+  </div>
+</div>
+
+<!-- DUES (dynamic from wgl-data.json) -->
 <div id="dues" class="tab-content">
-  <div style="max-width:680px">
-
-    <div class="card" style="padding:20px">
-      <div style="font-size:18px;font-weight:700;margin-bottom:4px">💵 2026 Season Dues</div>
-      <div style="font-size:13px;color:#888;margin-bottom:16px">Update amounts and paid status as collected</div>
-      <div class="outing-detail-row"><span class="outing-label">Weekly Greens Fee</span><span class="outing-val">TBD</span></div>
-      <div class="outing-detail-row"><span class="outing-label">Season Dues / Pot</span><span class="outing-val">TBD</span></div>
-      <div class="outing-detail-row"><span class="outing-label">Outing Fee</span><span class="outing-val">TBD</span></div>
-    </div>
-
-    <div class="card" style="overflow:hidden">
-      <div style="padding:12px 16px;font-weight:600;font-size:13px;border-bottom:1px solid #eee;background:#f8f8f8;display:flex;justify-content:space-between;align-items:center">
-        <span>Player Dues Tracker</span>
-        <span style="font-size:11px;color:#888">✅ = Paid &nbsp; ⏳ = Owes</span>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th class="lft">Player</th>
-            <th>Team</th>
-            <th>Season Dues</th>
-            <th>Outing</th>
-            <th>Balance</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Team 1 -->
-          <tr class="team-header"><td colspan="6">Team #1</td></tr>
-          <tr><td class="lft">Larry Julius</td><td>1</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Mario Jenkins</td><td>1</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Butch Griffith</td><td>1</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Andy Gallagher</td><td>1</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Frank Watt</td><td>1</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Paul Harmon</td><td>1</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Keith Clark</td><td>1</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <!-- Team 2 -->
-          <tr class="team-header"><td colspan="6">Team #2</td></tr>
-          <tr><td class="lft">Bob Sipes</td><td>2</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Gary Kimmy</td><td>2</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Tom Kimmy</td><td>2</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Bob Kramer</td><td>2</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Ron Neafus</td><td>2</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Pat Golden</td><td>2</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Dave Hughes</td><td>2</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <!-- Team 3 -->
-          <tr class="team-header"><td colspan="6">Team #3</td></tr>
-          <tr><td class="lft">Jeff Sabol</td><td>3</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Pat Sabol</td><td>3</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Bill Sabol</td><td>3</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td class="lft">Scott Sabol</td><td>3</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Kenny Sabol</td><td>3</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Ryan Sabol</td><td>3</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Jack Sabol</td><td>3</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <!-- Teams 4-6 abbreviated -->
-          <tr class="team-header"><td colspan="6">Teams #4, #5, #6 — add players from score sheets</td></tr>
-          <tr><td class="lft" colspan="6" style="color:#bbb;font-style:italic;font-size:11px;padding:8px 12px">Fill in once remaining rosters are confirmed</td></tr>
-          <!-- Team 7 -->
-          <tr class="team-header"><td colspan="6">Team #7</td></tr>
-          <tr><td class="lft">Ed Bargerstock</td><td>7</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Vince Sanzotti</td><td>7</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Mike Hickman</td><td>7</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Chris Remaley</td><td>7</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Jason Smith</td><td>7</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <tr><td class="lft">Wes Barton</td><td>7</td><td>—</td><td>—</td><td>—</td><td>✅</td></tr>
-          <tr><td class="lft">Doug Anthony</td><td>7</td><td>—</td><td>—</td><td>—</td><td>⏳</td></tr>
-          <!-- Team 8 abbreviated -->
-          <tr class="team-header"><td colspan="6">Team #8 — add players from score sheets</td></tr>
-          <tr><td class="lft" colspan="6" style="color:#bbb;font-style:italic;font-size:11px;padding:8px 12px">Fill in once roster is confirmed</td></tr>
-        </tbody>
+  <div class="card" style="margin-top:12px">
+    <div class="card-hdr">Season Buy-ins &amp; Dues</div>
+    <div class="dues-summary" id="dues-summary"></div>
+  </div>
+  <div class="card">
+    <div style="overflow-x:auto">
+      <table class="standings">
+        <thead><tr>
+          <th class="lft">Player</th><th>T</th>
+          <th>Dues</th>
+          <th>💰 Skins</th><th>🏅 Low Net</th>
+        </tr></thead>
+        <tbody id="dues-tbody"></tbody>
       </table>
     </div>
-
-    <div class="card" style="padding:16px">
-      <div style="font-weight:600;font-size:13px;margin-bottom:10px">Collection Summary</div>
-      <div class="outing-detail-row"><span class="outing-label">Total Players</span><span class="outing-val">57</span></div>
-      <div class="outing-detail-row"><span class="outing-label">Paid</span><span class="outing-val" style="color:#43a047">—</span></div>
-      <div class="outing-detail-row"><span class="outing-label">Outstanding</span><span class="outing-val" style="color:#e53935">—</span></div>
-      <div class="outing-detail-row"><span class="outing-label">Total Collected</span><span class="outing-val">—</span></div>
-    </div>
-
   </div>
 </div>
 
-<!-- SCORE CARD TAB -->
-<div id="scorecard" class="tab-content">
-  <div style="max-width:480px">
+<!-- Gear button -->
+<button id="gear-btn" onclick="toggleSettings()">⚙️</button>
+<div id="settings-panel">
+  <div class="settings-title">⚙️ Display</div>
+  <div class="settings-row">
+    <span class="settings-label">🌙 Dark Mode</span>
+    <label class="toggle"><input type="checkbox" onchange="setDark(this.checked)"><div class="toggle-track"></div></label>
+  </div>
+  <div class="settings-row">
+    <span class="settings-label">🔤 Larger Text</span>
+    <label class="toggle"><input type="checkbox" onchange="document.body.style.fontSize=this.checked?'16px':''"><div class="toggle-track"></div></label>
+  </div>
+  <div style="margin-top:4px;padding-top:12px;border-top:1px solid #eee;font-size:11px;color:#999">WGL 2026 · Proto v1</div>
+</div>
 
-    <!-- Step 1: Build the group -->
-    <div id="sc-step-setup">
-      <div class="section-label">Start League Card</div>
-      <div class="card" style="padding:16px 16px 20px">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0;margin-bottom:14px">
-          <span style="font-size:14px;color:#555">Week <strong>11</strong></span>
-          <span style="font-size:13px;font-weight:600;color:#2e7d32">Back 9 · Holes 10–18</span>
-        </div>
-        <div class="sc-label" style="margin-bottom:6px">Players on this card</div>
-        <div style="position:relative;margin-bottom:10px">
-          <input type="text" id="sc-search" placeholder="Search player name…"
-            oninput="scSearch(this.value)" autocomplete="off"
-            style="width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;box-sizing:border-box;-webkit-appearance:none;appearance:none">
-          <div id="sc-drop" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:white;border:1px solid #e0e0e0;border-radius:8px;max-height:200px;overflow-y:auto;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,.12)"></div>
-        </div>
-        <div id="sc-added" style="min-height:36px">
-          <div style="color:#bbb;font-size:13px;text-align:center;padding:10px 0">No players added yet</div>
-        </div>
-        <div id="sc-start-err" style="color:#c62828;font-size:12px;margin-top:6px;display:none">Add at least one player to start.</div>
-        <button class="sc-submit-btn" onclick="scStart()" style="margin-top:16px">▶ Start Scoring</button>
-        <div class="sc-note" style="margin-top:8px">Mixed teams are fine — scores sort by team automatically.</div>
-      </div>
+<!-- Player Modal -->
+<div class="modal-bg" id="player-modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-content">
+    <div class="modal-name" id="modal-name">—</div>
+    <div class="modal-meta" id="modal-meta">—</div>
+    <div class="modal-row">
+      <span>📞 Phone</span>
+      <span id="modal-phone">—</span>
     </div>
-
-    <!-- Step 2: Hole-by-hole scoring -->
-    <div id="sc-step-scoring" style="display:none">
-      <div class="section-label" id="sc-hole-label">Hole 10 · Par 5 · Max 10</div>
-      <div class="card" style="padding:14px 16px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div id="sc-progress" style="display:flex;gap:5px;align-items:center"></div>
-          <button onclick="scToggleAddMid()"
-            style="background:#f0f7f0;border:1.5px solid #2e7d32;color:#2e7d32;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">
-            + Player
-          </button>
-        </div>
-        <div id="sc-mid-panel" style="display:none;margin-bottom:10px;position:relative">
-          <input type="text" id="sc-mid-search" placeholder="Search to add player…"
-            oninput="scMidSearch(this.value)" autocomplete="off"
-            style="width:100%;padding:9px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;box-sizing:border-box;-webkit-appearance:none">
-          <div id="sc-mid-drop" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:white;border:1px solid #e0e0e0;border-radius:8px;max-height:200px;overflow-y:auto;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,.12)"></div>
-        </div>
-        <div id="sc-inputs"></div>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:12px">
-        <button class="sc-nav-btn" id="sc-prev-btn" onclick="scHoleNav(-1)">← Prev</button>
-        <button class="sc-nav-btn sc-nav-next" id="sc-next-btn" onclick="scHoleNav(1)">Next Hole →</button>
-      </div>
+    <div class="modal-row">
+      <span>🏌️ Handicap</span>
+      <span id="modal-hcp" style="font-size:20px;font-weight:800;color:#2e7d32">—</span>
     </div>
-
-    <!-- Step 3: Review & submit -->
-    <div id="sc-step-review" style="display:none">
-      <div class="section-label">Review &amp; Submit</div>
-      <div id="sc-review"></div>
-      <button class="sc-submit-btn" onclick="scSubmitCard()" style="margin-top:4px">📤 Email Card to Commissioner</button>
-      <button onclick="scBackToScoring()"
-        style="width:100%;background:none;border:none;color:#888;font-size:13px;padding:10px;cursor:pointer;margin-top:4px">← Back to Scoring</button>
-      <div class="sc-note">Opens your mail app — just tap Send.</div>
+    <div class="modal-row">
+      <span>👥 Team</span>
+      <span id="modal-team">—</span>
     </div>
-
+    <div class="modal-row" id="modal-call-row" style="display:none">
+      <span>Call / Text</span>
+      <a id="modal-call-btn" class="call-big">📲 Call</a>
+    </div>
+    <button class="modal-close" onclick="closeModal()">Close</button>
   </div>
 </div>
-
-<!-- LOW NET TAB -->
-<div id="lownet" class="tab-content">
-  <div class="section-label">Individual Low Net</div>
-  <div class="ln-week-sel" id="ln-weeks"></div>
-  <div id="ln-content"></div>
-</div>
-
-<!-- SKINS TAB -->
-<div id="skins" class="tab-content">
-  <div class="section-label">Skins</div>
-  <div class="ln-week-sel" id="sk-weeks"></div>
-  <div id="sk-content"></div>
-</div>
-
-<style>
-  /* Announcements */
-  .announce-post { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
-  .announce-post:last-child { border-bottom: none; }
-  .announce-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-  .announce-date { font-size: 11px; color: #888; }
-  .announce-tag { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
-  .tag-info { background: #e3f2fd; color: #1565c0; }
-  .tag-reminder { background: #fff3e0; color: #e65100; }
-  .tag-alert { background: #fce4ec; color: #b71c1c; }
-  .announce-title { font-size: 14px; font-weight: 600; margin-bottom: 5px; }
-  .announce-body { font-size: 13px; color: #555; line-height: 1.5; }
-  /* Score Card form */
-  .sc-field { margin-bottom: 14px; }
-  .sc-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: #888; margin-bottom: 5px; }
-  .sc-field select { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; background: white; color: #1a1a1a; -webkit-appearance: none; appearance: none; }
-  .sc-info-row { display: flex; gap: 20px; background: #f0f7f0; padding: 10px 14px; border-radius: 8px; font-size: 13px; color: #2e7d32; margin-bottom: 16px; }
-  .sc-grid { display: grid; grid-template-columns: 44px repeat(9, 1fr); gap: 5px; margin-bottom: 16px; align-items: center; }
-  .sc-grid-label { font-size: 11px; color: #999; font-weight: 600; }
-  .sc-par-cell { text-align: center; }
-  .sc-par-num { font-size: 14px; font-weight: 700; color: #333; }
-  .sc-hole-num { font-size: 10px; color: #aaa; }
-  .sc-score-input { width: 100%; text-align: center; padding: 9px 2px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 17px; font-weight: 700; color: #1a1a1a; background: white; -moz-appearance: textfield; }
-  .sc-score-input::-webkit-outer-spin-button, .sc-score-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  .sc-score-input:focus { border-color: #2e7d32; outline: none; background: #f0fff0; }
-  .sc-totals { display: flex; gap: 10px; margin-bottom: 18px; }
-  .sc-total-box { flex: 1; background: #f5f5f5; border-radius: 10px; padding: 12px; text-align: center; }
-  .sc-net-box { background: #e8f5e9; }
-  .sc-total-label { font-size: 11px; color: #888; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
-  .sc-total-val { font-size: 26px; font-weight: 700; color: #1a1a1a; }
-  .sc-net-box .sc-total-val { color: #2e7d32; }
-  .sc-submit-btn { width: 100%; background: #2e7d32; color: white; border: none; border-radius: 10px; padding: 16px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 10px; -webkit-tap-highlight-color: transparent; }
-  .sc-submit-btn:active { transform: scale(0.97); background: #1b5e20; }
-  .sc-note { font-size: 11px; color: #aaa; text-align: center; line-height: 1.5; }
-
-  /* Outing */
-  .outing-detail-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px; }
-  .outing-detail-row:last-child { border-bottom: none; }
-  .outing-label { color: #555; font-weight: 500; }
-  .outing-val { color: #1a1a1a; font-weight: 600; }
-
-  /* Score Card — Session Flow */
-  .sc-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: #888; }
-  .sc-submit-btn { width: 100%; background: #2e7d32; color: white; border: none; border-radius: 10px; padding: 16px; font-size: 15px; font-weight: 600; cursor: pointer; display: block; -webkit-tap-highlight-color: transparent; }
-  .sc-submit-btn:active { transform: scale(.97); background: #1b5e20; }
-  .sc-note { font-size: 11px; color: #aaa; text-align: center; line-height: 1.5; }
-  .sc-nav-btn { flex: 1; padding: 14px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 15px; font-weight: 600; background: white; color: #333; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-  .sc-nav-btn:active { transform: scale(.97); }
-  .sc-nav-next { background: #2e7d32; color: white; border-color: #2e7d32; }
-  .sc-score-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid #f0f0f0; }
-  .sc-score-row:last-child { border-bottom: none; }
-  .sc-sname { font-size: 17px; font-weight: 700; }
-  .sc-adj { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid #ddd; background: white; font-size: 28px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
-  .sc-adj:active { background: #f0f0f0; transform: scale(.88); }
-  .sc-val { width: 38px; text-align: center; font-size: 28px; font-weight: 800; }
-  .sc-chip { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
-  .sc-chip:last-child { border-bottom: none; }
-  .sc-chip-rm { background: none; border: none; color: #ccc; font-size: 22px; cursor: pointer; line-height: 1; padding: 0 4px; -webkit-tap-highlight-color: transparent; }
-  .sc-search-item { padding: 11px 14px; cursor: pointer; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
-  .sc-search-item:last-child { border-bottom: none; }
-  .sc-search-item:active { background: #f5f5f5; }
-  .sc-hd { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 22px; border-radius: 4px; font-size: 12px; font-weight: 700; }
-  .sc-player-link { color: #1a1a1a; text-decoration: none; border-bottom: 1px dashed #aaa; cursor: pointer; }
-  .sc-player-link:hover { color: #2e7d32; border-bottom-color: #2e7d32; }
-
-  /* Low Net & Skins Tabs */
-  .ln-week-sel { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px; }
-  .ln-week-btn { padding:7px 16px;border:1.5px solid #ddd;border-radius:20px;font-size:13px;font-weight:600;background:white;cursor:pointer;color:#555;-webkit-tap-highlight-color:transparent; }
-  .ln-week-btn.active { background:#2e7d32;color:white;border-color:#2e7d32; }
-  .ln-rank-cell { font-size:14px;font-weight:700;width:28px;text-align:center; }
-  .skins-hole-row { padding:10px 4px;border-bottom:1px solid #f0f0f0;display:flex;align-items:flex-start;gap:10px; }
-  .skins-hole-row:last-child { border-bottom:none; }
-  .skins-hole-lbl { min-width:88px;font-size:12px;font-weight:700;color:#888;padding-top:1px; }
-  .skins-winner { font-size:14px;font-weight:700;color:#2e7d32; }
-  .skins-tied { font-size:13px;color:#bbb;font-style:italic; }
-  /* Card History Modal */
-  #cardModal { display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch; }
-  #cardModalInner { background:white;border-radius:14px;max-width:480px;margin:0 auto;padding:18px 16px; }
-  .cm-header { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px; }
-  .cm-close { background:none;border:none;font-size:32px;cursor:pointer;color:#bbb;line-height:1;padding:0;-webkit-tap-highlight-color:transparent; }
-  .cm-close:active { color:#888; }
-  .card-hole-table { width:100%;border-collapse:collapse;font-size:12px;margin-top:8px; }
-  .card-hole-table th { background:#f5f5f5;padding:5px 4px;text-align:center;font-size:10px;font-weight:700;color:#555; }
-  .card-hole-table td { padding:5px 4px;text-align:center;border-bottom:1px solid #f8f8f8; }
-  .card-hole-table .cn { text-align:left;font-size:11px;font-weight:600;max-width:72px;overflow:hidden;white-space:nowrap; }
-</style>
 
 <script>
-// ── Score Card form ──────────────────────────────────────────
-const WGL_PLAYERS = {
-  "Larry Julius":    {team:1,hcp:2},  "Kris Simmons":   {team:1,hcp:4},
-  "Butch Griffith":  {team:1,hcp:12}, "Mario Jenkins":  {team:1,hcp:10},
-  "Frank Watt":      {team:1,hcp:16}, "Paul Harmon":    {team:1,hcp:15},
-  "Andy Gallagher":  {team:1,hcp:16}, "Keith Clark":    {team:1,hcp:20},
+// ── Live data fetch ───────────────────────────────────────────────────────────
+const DATA_URL=`https://raw.githubusercontent.com/wsb76-ui/worthington-golf-league/main/wgl-data.json?t=${Date.now()}`;
 
-  "Jim Frye":        {team:2,hcp:1},  "Skylar Grafton": {team:2,hcp:8},
-  "Nick Keefer":     {team:2,hcp:9},  "Jeff Hollobaugh":{team:2,hcp:12},
-  "Andy Patz":       {team:2,hcp:14}, "Trent Brocious": {team:2,hcp:15},
-  "Wilbur Dudley":   {team:2,hcp:18},
-
-  "Duck Julius":     {team:3,hcp:1},  "Willie Powell":  {team:3,hcp:10},
-  "Bruce Thomas":    {team:3,hcp:10}, "Scott Barton":   {team:3,hcp:11},
-  "Dave Cushey":     {team:3,hcp:12}, "Dicky Peat":     {team:3,hcp:17},
-  "Allan Voltz":     {team:3,hcp:20},
-
-  "Clark Helm":      {team:4,hcp:5},  "Harry Breski":   {team:4,hcp:7},
-  "Roger Hoffman":   {team:4,hcp:7},  "Chad Hollobaugh":{team:4,hcp:10},
-  "Blake Bowser":    {team:4,hcp:15}, "Tom Stennett":   {team:4,hcp:14},
-  "Landon Badac":    {team:4,hcp:17},
-
-  "Eli Hickman":     {team:5,hcp:8},  "Jaxon Smith":    {team:5,hcp:9},
-  "Bill Long":       {team:5,hcp:9},  "Tyler Eroh":     {team:5,hcp:8},
-  "Denny Snyder":    {team:5,hcp:9},  "Don Nulph":      {team:5,hcp:11},
-  "Dave Toy":        {team:5,hcp:10},
-
-  "Sam Long":        {team:6,hcp:7},  "Jay Griffith":   {team:6,hcp:9},
-  "Kevin Frye":      {team:6,hcp:9},  "Jesse Hickman":  {team:6,hcp:13},
-  "Jim Goodman":     {team:6,hcp:17}, "Dylan Barton":   {team:6,hcp:20},
-  "Matt Nulph":      {team:6,hcp:20},
-
-  "Ed Bargerstock":  {team:7,hcp:4},  "Vince Sanzotti": {team:7,hcp:7},
-  "Mike Hickman":    {team:7,hcp:5},  "Chris Remaley":  {team:7,hcp:11},
-  "Jason Smith":     {team:7,hcp:11}, "Wes Barton":     {team:7,hcp:12},
-  "Doug Anthony":    {team:7,hcp:10},
-
-  "Brian Barton":    {team:8,hcp:6},  "Logan Bowser":   {team:8,hcp:10},
-  "Paul Bowser":     {team:8,hcp:8},  "Ken Long":       {team:8,hcp:13},
-  "Patric Weber":    {team:8,hcp:15}, "Cole Clark":     {team:8,hcp:15},
-  "Dylan Smith":     {team:8,hcp:16}
-};
-
-// ── Scorecard Session ────────────────────────────────────────
-const SC_WEEK  = 11;
-const SC_SIDE  = 'back';
-const SC_HOLES = [10,11,12,13,14,15,16,17,18];
-const SC_PARS  = [5,4,4,4,4,3,4,3,4];
-
-let scSess = { players:[], scores:{}, hole:0 };
-let _scHits = [], _scMidHits = [];
-
-function scShowStep(id) {
-  ['sc-step-setup','sc-step-scoring','sc-step-review'].forEach(s => {
-    document.getElementById(s).style.display = s === id ? 'block' : 'none';
-  });
-  window.scrollTo(0,0);
-}
-
-// Jump from Weekly Detail tab — open Score Card tab with player pre-loaded
-function scJumpTo(name) {
-  const info = WGL_PLAYERS[name];
-  if (!info) return;
-  // Reset session and pre-add player
-  scSess = { players:[], scores:{}, hole:0 };
-  scSess.players.push({name, team:info.team, hcp:info.hcp});
-  scSess.scores[name] = Array(9).fill(null);
-  showTabById('scorecard');
-  scShowStep('sc-step-setup');
-  scRenderAdded();
-}
-
-// ── Setup Step ───────────────────────────────────────────────
-function scSearch(val) {
-  const drop = document.getElementById('sc-drop');
-  if (!val.trim()) { drop.style.display='none'; _scHits=[]; return; }
-  const q = val.toLowerCase();
-  const added = new Set(scSess.players.map(p=>p.name));
-  _scHits = Object.entries(WGL_PLAYERS).filter(([n])=>!added.has(n)&&n.toLowerCase().includes(q)).slice(0,8);
-  if (!_scHits.length) { drop.style.display='none'; return; }
-  drop.innerHTML = _scHits.map(([name,info],i)=>
-    `<div class="sc-search-item" onclick="scAdd(${i})">${name} <span style="color:#aaa;font-size:12px">T${info.team} · HCP ${info.hcp}</span></div>`
-  ).join('');
-  drop.style.display='block';
-}
-
-function scAdd(i) {
-  const [name, info] = _scHits[i] || [];
-  if (!name || scSess.players.find(p=>p.name===name)) return;
-  scSess.players.push({name, team:info.team, hcp:info.hcp});
-  scSess.scores[name] = Array(9).fill(null);
-  _scHits=[];
-  document.getElementById('sc-search').value='';
-  document.getElementById('sc-drop').style.display='none';
-  document.getElementById('sc-start-err').style.display='none';
-  scRenderAdded();
-}
-
-function scRemove(i) {
-  const name = scSess.players[i].name;
-  scSess.players.splice(i,1);
-  delete scSess.scores[name];
-  scRenderAdded();
-}
-
-function scRenderAdded() {
-  const el = document.getElementById('sc-added');
-  if (!el) return;
-  if (!scSess.players.length) {
-    el.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:10px 0">No players added yet</div>';
-    return;
-  }
-  el.innerHTML = scSess.players.map((p,i)=>
-    `<div class="sc-chip">
-      <span style="font-size:14px;font-weight:600">${p.name} <span style="font-size:12px;color:#888;font-weight:400">T${p.team} · HCP ${p.hcp}</span></span>
-      <button class="sc-chip-rm" onclick="scRemove(${i})">×</button>
-    </div>`
-  ).join('');
-}
-
-function scStart() {
-  if (!scSess.players.length) { document.getElementById('sc-start-err').style.display='block'; return; }
-  scSess.hole=0;
-  scShowStep('sc-step-scoring');
-  scRenderHole();
-}
-
-// ── Mid-round add ────────────────────────────────────────────
-function scToggleAddMid() {
-  const p = document.getElementById('sc-mid-panel');
-  const open = p.style.display!=='none';
-  p.style.display = open?'none':'block';
-  if (!open) setTimeout(()=>{ const el=document.getElementById('sc-mid-search'); if(el) el.focus(); },50);
-}
-
-function scMidSearch(val) {
-  const drop = document.getElementById('sc-mid-drop');
-  if (!val.trim()) { drop.style.display='none'; _scMidHits=[]; return; }
-  const q = val.toLowerCase();
-  const added = new Set(scSess.players.map(p=>p.name));
-  _scMidHits = Object.entries(WGL_PLAYERS).filter(([n])=>!added.has(n)&&n.toLowerCase().includes(q)).slice(0,8);
-  if (!_scMidHits.length) { drop.style.display='none'; return; }
-  drop.innerHTML = _scMidHits.map(([name,info],i)=>
-    `<div class="sc-search-item" onclick="scMidAdd(${i})">${name} <span style="color:#aaa;font-size:12px">T${info.team} · HCP ${info.hcp}</span></div>`
-  ).join('');
-  drop.style.display='block';
-}
-
-function scMidAdd(i) {
-  const [name, info] = _scMidHits[i] || [];
-  if (!name || scSess.players.find(p=>p.name===name)) return;
-  scSess.players.push({name, team:info.team, hcp:info.hcp});
-  scSess.scores[name] = Array(9).fill(null);
-  _scMidHits=[];
-  document.getElementById('sc-mid-search').value='';
-  document.getElementById('sc-mid-drop').style.display='none';
-  document.getElementById('sc-mid-panel').style.display='none';
-  scRenderHole();
-}
-
-// ── Scoring ──────────────────────────────────────────────────
-function scShortName(name) {
-  const first = name.split(' ')[0];
-  if (scSess.players.filter(p=>p.name.split(' ')[0]===first).length > 1)
-    return first + ' ' + name.split(' ').slice(-1)[0][0] + '.';
-  return first;
-}
-
-function scMkProgress() {
-  return SC_HOLES.map((_,i)=>{
-    const done = scSess.players.every(p=>scSess.scores[p.name][i]!==null);
-    const active = i===scSess.hole;
-    const bg = active?'#2e7d32':done?'#81c784':'#ddd';
-    const sz = active?13:8;
-    return `<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${bg};transition:all .15s"></div>`;
-  }).join('');
-}
-
-function scRenderHole() {
-  const hi = scSess.hole;
-  const par = SC_PARS[hi];
-  document.getElementById('sc-hole-label').textContent = `Hole ${SC_HOLES[hi]} · Par ${par} · Max ${par*2}`;
-  document.getElementById('sc-progress').innerHTML = scMkProgress();
-  document.getElementById('sc-inputs').innerHTML = scSess.players.map((p,pi)=>{
-    const val = scSess.scores[p.name][hi];
-    return `<div class="sc-score-row">
-      <span class="sc-sname">${scShortName(p.name)}</span>
-      <div style="display:flex;align-items:center;gap:10px">
-        <button class="sc-adj" onclick="scAdj(${pi},-1)">−</button>
-        <div class="sc-val" id="scv-${pi}" style="color:${val!==null?'#1a1a1a':'#bbb'}">${val!==null?val:'—'}</div>
-        <button class="sc-adj" onclick="scAdj(${pi},+1)">+</button>
-      </div>
-    </div>`;
-  }).join('');
-  document.getElementById('sc-prev-btn').style.visibility = hi===0?'hidden':'visible';
-  const last = hi===SC_HOLES.length-1;
-  const nb = document.getElementById('sc-next-btn');
-  nb.textContent = last?'✓ Review':'Next Hole →';
-  nb.style.background = last?'#1565c0':'#2e7d32';
-  nb.style.borderColor = last?'#1565c0':'#2e7d32';
-}
-
-function scAdj(pi, delta) {
-  const hi=scSess.hole, par=SC_PARS[hi], p=scSess.players[pi];
-  let cur = scSess.scores[p.name][hi];
-  if (cur===null) cur=par;
-  cur = Math.max(1, Math.min(par*2, cur+delta));
-  scSess.scores[p.name][hi] = cur;
-  const el = document.getElementById('scv-'+pi);
-  if (el) { el.textContent=cur; el.style.color='#1a1a1a'; }
-  document.getElementById('sc-progress').innerHTML = scMkProgress();
-}
-
-function scHoleNav(dir) {
-  const next = scSess.hole+dir;
-  if (next<0) return;
-  if (next>=SC_HOLES.length) { scShowReview(); return; }
-  scSess.hole=next;
-  scRenderHole();
-}
-
-function scBackToScoring() {
-  scShowStep('sc-step-scoring');
-  scRenderHole();
-}
-
-// ── Review ────────────────────────────────────────────────────
-function scHdClass(val,par) {
-  if (val===null)   return 'miss';
-  if (val<=par-2)   return 'eagle';
-  if (val===par-1)  return 'birdie';
-  if (val===par)    return 'par';
-  if (val===par+1)  return 'bogey';
-  return 'double';
-}
-const scHdBg = {eagle:'#fff9c4',birdie:'#e8f5e9',par:'#f5f5f5',bogey:'#fff3e0',double:'#fce4ec',miss:'#fce4ec'};
-const scHdFg = {eagle:'#f57f17',birdie:'#2e7d32',par:'#555',bogey:'#e65100',double:'#c62828',miss:'#c62828'};
-
-function scShowReview() {
-  scShowStep('sc-step-review');
-  const byTeam={};
-  for (const p of scSess.players) {
-    (byTeam[p.team]=byTeam[p.team]||[]).push(p);
-  }
-  const sideLabel='Back 9 (10–18)';
-  let html = `<div class="card" style="margin-bottom:10px;background:#f0f7f0;padding:10px 16px">
-    <span style="font-size:13px;color:#2e7d32;font-weight:600">Week ${SC_WEEK} · ${sideLabel}</span>
-    <span style="font-size:12px;color:#555;margin-left:8px">${scSess.players.length} players</span>
-  </div>`;
-  for (const team of Object.keys(byTeam).sort((a,b)=>+a-+b)) {
-    html+=`<div class="card" style="margin-bottom:10px;padding:14px 16px">
-      <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Team ${team}</div>`;
-    for (const p of byTeam[team]) {
-      const s=scSess.scores[p.name];
-      const filled=s.every(v=>v!==null);
-      const gross=s.reduce((a,b)=>a+(b||0),0);
-      const dots=s.map((sv,i)=>{
-        const cls=scHdClass(sv,SC_PARS[i]);
-        return `<span class="sc-hd" style="background:${scHdBg[cls]};color:${scHdFg[cls]}">${sv??'?'}</span>`;
-      }).join('');
-      html+=`<div style="padding:8px 0;border-bottom:1px solid #f5f5f5">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
-          <span style="font-weight:600;font-size:14px">${p.name}</span>
-          <span style="font-size:13px;font-weight:700;color:${filled?'#2e7d32':'#c62828'}">${filled?`${gross} / ${gross-p.hcp} net`:'⚠ incomplete'}</span>
-        </div>
-        <div style="display:flex;gap:3px;flex-wrap:wrap">${dots}</div>
-      </div>`;
+// ── Default/fallback data (used until wgl-data.json is fetched) ───────────────
+const MOCK_DATA = {
+  settings: {
+    week: 11,
+    subtitle: "Monday Nights · Hiland Golf Course, Butler PA · Week 11 Upcoming",
+    greens: "$12",
+    dues: "$50",
+    skins: "$20",
+    lownet: "$20",
+    pot: "$800"
+  },
+  players: {
+    "Larry Julius":    {team:1,hcp:2,phone:"724-555-0101"},
+    "Kris Simmons":    {team:1,hcp:4,phone:""},
+    "Butch Griffith":  {team:1,hcp:12,phone:"724-555-0103"},
+    "Mario Jenkins":   {team:1,hcp:10,phone:""},
+    "Frank Watt":      {team:1,hcp:16,phone:""},
+    "Paul Harmon":     {team:1,hcp:15,phone:"724-555-0106"},
+    "Andy Gallagher":  {team:1,hcp:16,phone:""},
+    "Keith Clark":     {team:1,hcp:20,phone:""},
+    "Jim Frye":        {team:2,hcp:1,phone:"724-555-0201"},
+    "Skylar Grafton":  {team:2,hcp:8,phone:""},
+    "Nick Keefer":     {team:2,hcp:9,phone:"724-555-0203"},
+    "Jeff Hollobaugh": {team:2,hcp:12,phone:""},
+    "Andy Patz":       {team:2,hcp:14,phone:""},
+    "Trent Brocious":  {team:2,hcp:15,phone:""},
+    "Wilbur Dudley":   {team:2,hcp:18,phone:""},
+    "Duck Julius":     {team:3,hcp:1,phone:"724-555-0301"},
+    "Willie Powell":   {team:3,hcp:10,phone:""},
+    "Bruce Thomas":    {team:3,hcp:10,phone:""},
+    "Scott Barton":    {team:3,hcp:11,phone:""},
+    "Dave Cushey":     {team:3,hcp:12,phone:"724-555-0305"},
+    "Dicky Peat":      {team:3,hcp:17,phone:""},
+    "Allan Voltz":     {team:3,hcp:20,phone:""},
+    "Clark Helm":      {team:4,hcp:5,phone:""},
+    "Harry Breski":    {team:4,hcp:7,phone:"724-555-0402"},
+    "Roger Hoffman":   {team:4,hcp:7,phone:""},
+    "Chad Hollobaugh": {team:4,hcp:10,phone:""},
+    "Blake Bowser":    {team:4,hcp:15,phone:""},
+    "Tom Stennett":    {team:4,hcp:14,phone:""},
+    "Landon Badac":    {team:4,hcp:17,phone:""},
+    "Eli Hickman":     {team:5,hcp:8,phone:"724-555-0501"},
+    "Jaxon Smith":     {team:5,hcp:9,phone:""},
+    "Bill Long":       {team:5,hcp:9,phone:""},
+    "Tyler Eroh":      {team:5,hcp:8,phone:""},
+    "Denny Snyder":    {team:5,hcp:9,phone:"724-555-0505"},
+    "Don Nulph":       {team:5,hcp:11,phone:""},
+    "Dave Toy":        {team:5,hcp:10,phone:""},
+    "Sam Long":        {team:6,hcp:7,phone:""},
+    "Jay Griffith":    {team:6,hcp:9,phone:"724-555-0602"},
+    "Kevin Frye":      {team:6,hcp:9,phone:""},
+    "Jesse Hickman":   {team:6,hcp:13,phone:""},
+    "Jim Goodman":     {team:6,hcp:17,phone:""},
+    "Dylan Barton":    {team:6,hcp:20,phone:""},
+    "Matt Nulph":      {team:6,hcp:20,phone:""},
+    "Ed Bargerstock":  {team:7,hcp:4,phone:"724-555-0701"},
+    "Vince Sanzotti":  {team:7,hcp:7,phone:""},
+    "Mike Hickman":    {team:7,hcp:5,phone:""},
+    "Chris Remaley":   {team:7,hcp:11,phone:"724-555-0704"},
+    "Jason Smith":     {team:7,hcp:11,phone:""},
+    "Wes Barton":      {team:7,hcp:12,phone:"724-814-0000"},
+    "Doug Anthony":    {team:7,hcp:10,phone:""},
+    "Brian Barton":    {team:8,hcp:6,phone:""},
+    "Logan Bowser":    {team:8,hcp:10,phone:""},
+    "Paul Bowser":     {team:8,hcp:8,phone:"724-555-0803"},
+    "Ken Long":        {team:8,hcp:13,phone:""},
+    "Patric Weber":    {team:8,hcp:15,phone:""},
+    "Cole Clark":      {team:8,hcp:15,phone:""},
+    "Dylan Smith":     {team:8,hcp:16,phone:""}
+  },
+  buyins: {
+    "Larry Julius":   {skins:true,lownet:true},
+    "Jim Frye":       {skins:true,lownet:false},
+    "Duck Julius":    {skins:true,lownet:true},
+    "Ed Bargerstock": {skins:true,lownet:true},
+    "Wes Barton":     {skins:true,lownet:true},
+    "Mike Hickman":   {skins:false,lownet:true},
+    "Clark Helm":     {skins:true,lownet:true},
+    "Eli Hickman":    {skins:true,lownet:false},
+    "Sam Long":       {skins:true,lownet:true}
+  },
+  duesPaid: {
+    "Larry Julius":   {dues:true,outing:true},
+    "Jim Frye":       {dues:true,outing:false},
+    "Duck Julius":    {dues:true,outing:true},
+    "Ed Bargerstock": {dues:true,outing:true},
+    "Wes Barton":     {dues:true,outing:false},
+    "Clark Helm":     {dues:true,outing:true},
+    "Sam Long":       {dues:false,outing:false}
+  },
+  announcements: [
+    {
+      date:"July 14, 2026",tag:"reminder",
+      title:"Week 11 Tee Times Posted",
+      body:"Tee times for Week 11 are posted on the course board. First group goes off at 4:30 PM. Please be ready 10 minutes before your time. Email your scorecard to wsb76@icloud.com."
+    },
+    {
+      date:"July 10, 2026",tag:"info",
+      title:"Season Outing Registration Open",
+      body:"The August 29 outing at Hiland is shaping up — see the Outing tab for details. Dinner at The Farm after. Let an admin know if you're in."
+    },
+    {
+      date:"July 7, 2026",tag:"success",
+      title:"Week 10 Results",
+      body:"Team 7 wins Week 10 with a net score of -14.2. Strong showing from Ed Bargerstock (gross 37) and Wes Barton (gross 41). Full low-net standings updated."
     }
-    html+='</div>';
-  }
-  document.getElementById('sc-review').innerHTML=html;
-}
-
-// --- Week 10 submitted players (update each week) ---
-const WGL_WK10_SUBMITTED = new Set([
-  // T1
-  "Frank Watt","Kris Simmons","Larry Julius","Butch Griffith","Andy Gallagher",
-  // T2
-  "Jim Frye","Wilbur Dudley","Jeff Hollobaugh","Nick Keefer","Andy Patz","Skylar Grafton",
-  // T3
-  "Duck Julius","Bruce Thomas","Willie Powell","Dicky Peat","Allan Voltz",
-  // T4
-  "Tom Stennett","Chad Hollobaugh","Roger Hoffman",
-  // T5 (all)
-  "Eli Hickman","Jaxon Smith","Bill Long","Tyler Eroh","Denny Snyder","Don Nulph","Dave Toy",
-  // T6
-  "Sam Long","Jay Griffith","Kevin Frye","Jesse Hickman","Jim Goodman","Dylan Barton",
-  // T7
-  "Ed Bargerstock","Vince Sanzotti","Chris Remaley","Jason Smith","Wes Barton",
-  // T8
-  "Ken Long","Paul Bowser","Patric Weber"
-]);
-
-function buildHcpGrid() {
-  const container = document.getElementById('hcp-grid-container');
-  if (!container) return;
-
-  // Count submitted per team
-  const teamSub = {};
-  for (const [name, info] of Object.entries(WGL_PLAYERS)) {
-    const t = info.team;
-    if (!teamSub[t]) teamSub[t] = 0;
-    if (WGL_WK10_SUBMITTED.has(name)) teamSub[t]++;
-  }
-
-  let html = '<div class="hcp-grid">';
-  for (const [name, info] of Object.entries(WGL_PLAYERS)) {
-    const t = info.team;
-    const submitted = WGL_WK10_SUBMITTED.has(name);
-    const teamAtRisk = teamSub[t] < 4;
-
-    let rowStyle = '';
-    let badge = '';
-    let valStyle = '';
-
-    if (!submitted && teamAtRisk) {
-      // Red: missing and team will take penalty
-      rowStyle = 'background:#fff5f5;border-left:3px solid #c62828;';
-      badge = '<span style="font-size:10px;color:#c62828;font-weight:700;margin-left:4px">⚠️ NEEDED</span>';
-    } else if (!submitted) {
-      // Gray: missing but team has enough
-      rowStyle = 'background:#f8f8f8;';
-      valStyle = 'color:#bbb;';
-    }
-
-    html += `<div class="hcp-row" style="${rowStyle}">` +
-      `<span class="hcp-name" style="${!submitted && !teamAtRisk ? 'color:#bbb' : ''}">${name}${badge} <span class="hcp-team">T${t}</span></span>` +
-      `<span class="hcp-val" style="${valStyle}">${info.hcp}</span>` +
-      `</div>`;
-  }
-  html += '</div>';
-  container.innerHTML = html;
-}
-// Link player names in Weekly Detail tabs → Card History modal
-function buildPlayerLinks() {
-  [['#week10',10],['#week9',9]].forEach(([sel,wk])=>{
-    document.querySelectorAll(sel+' td.lft').forEach(td=>{
-      const name=td.textContent.trim();
-      if (WGL_PLAYERS[name]) {
-        td.innerHTML=`<a class="sc-player-link" onclick="showCardHistory('${name}',${wk})">${name}</a>`;
-      }
-    });
-  });
-}
-
-document.addEventListener('DOMContentLoaded', () => { buildHcpGrid(); buildPlayerLinks(); initLowNet(); initSkins(); });
-
-function scSubmitCard() {
-  const today = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  let body = `WGL Card — Week ${SC_WEEK} · BACK 9 (Holes 10–18)\nDate: ${today}\n\n`;
-  const byTeam={};
-  for (const p of scSess.players) (byTeam[p.team]=byTeam[p.team]||[]).push(p);
-  for (const team of Object.keys(byTeam).sort((a,b)=>+a-+b)) {
-    body+=`--- Team ${team} ---\n`;
-    for (const p of byTeam[team]) {
-      const s=scSess.scores[p.name];
-      const gross=s.reduce((a,b)=>a+(b||0),0);
-      const hstr=SC_HOLES.map((h,i)=>`H${h}:${s[i]??'?'}`).join('  ');
-      body+=`${p.name}  HCP ${p.hcp}\n${hstr}\nGross:${gross}  Net:${gross-p.hcp}\n\n`;
-    }
-  }
-  const sub=encodeURIComponent(`WGL Card Wk${SC_WEEK} Back9 – ${today}`);
-  window.location.href=`mailto:wglscore@gmail.com?subject=${sub}&body=${encodeURIComponent(body)}`;
-}
-
-// ── Weekly Summary Data ──────────────────────────────────────────────────────
-// Format per player: [name, team, hcp-used-that-week, gross]  net = gross - hcp
-const WGL_WEEKLY = {
-  9: {
-    label:'Wk 9 · Jul 6 · Front 9', side:'front',
-    holes:[1,2,3,4,5,6,7,8,9], pars:[4,4,3,4,4,4,5,4,3],
-    players:[
-      ['Andy Gallagher',1,16,47],['Larry Julius',1,3,36],['Kris Simmons',1,4,42],
-      ['Butch Griffith',1,11,49],['Mario Jenkins',1,12,51],['Frank Watt',1,15,57],
-      ['Keith Clark',1,19,63],['Paul Harmon',1,15,60],
-      ['Jim Frye',2,2,36],['Andy Patz',2,14,48],['Jeff Hollobaugh',2,12,50],
-      ['Skylar Grafton',2,7,46],['Nick Keefer',2,9,45],['Trent Brocious',2,15,52],
-      ['Wilbur Dudley',2,18,58],
-      ['Duck Julius',3,2,35],['Bruce Thomas',3,9,47],['Scott Barton',3,11,49],
-      ['Willie Powell',3,10,49],['Dicky Peat',3,18,57],['Dave Cushey',3,12,52],
-      ['Allan Voltz',3,20,65],
-      ['Clark Helm',4,5,32],['Chad Hollobaugh',4,12,43],['Landon Badac',4,18,51],
-      ['Roger Hoffman',4,7,42],['Blake Bowser',4,15,50],['Tom Stennett',4,16,52],
-      ['Harry Breski',4,7,43],
-      ['Tyler Eroh',5,10,42],['Eli Hickman',5,8,42],['Bill Long',5,9,45],
-      ['Don Nulph',5,11,50],['Denny Snyder',5,10,45],['Dave Toy',5,10,49],
-      ['Jaxon Smith',5,8,51],
-      ['Jay Griffith',6,9,42],['Sam Long',6,7,43],['Jesse Hickman',6,13,52],
-      ['Kevin Frye',6,12,54],['Jim Goodman',6,17,64],['Dylan Barton',6,20,65],
-      ['Matt Nulph',6,20,65],
-      ['Ed Bargerstock',7,4,34],['Vince Sanzotti',7,7,39],['Mike Hickman',7,5,37],
-      ['Chris Remaley',7,11,47],['Jason Smith',7,11,48],['Doug Anthony',7,10,48],
-      ['Wes Barton',7,12,55],
-      ['Brian Barton',8,7,39],['Logan Bowser',8,10,47],['Patric Weber',8,15,53],
-      ['Dylan Smith',8,16,55],['Paul Bowser',8,13,52],['Ken Long',8,15,54],
-      ['Cole Clark',8,15,52],
+  ],
+  outing: {
+    date:"Saturday, August 29, 2026",
+    tee:"8:00 AM shotgun start",
+    course:"Hiland Golf Course · Butler, PA",
+    holes:"18 holes · starting on the back 9",
+    format:"Best Ball (2-man teams, net score)",
+    cost:"$75 per player (includes cart)",
+    dinner:"The Farm · 150 Fox Rd, Worthington PA 16262",
+    prizes:{
+      p1:"Low Gross",
+      p2:"Low Net (Best Ball)",
+      p3:"Closest to Pin — Hole 7",
+      p4:"Longest Drive — Hole 12",
+      p5:"Season Champion (lowest net total)"
+    },
+    signups:[
+      {name:"Wes Barton"},
+      {name:"Ed Bargerstock"},
+      {name:"Mike Hickman"},
+      {name:"Larry Julius"},
+      {name:"Duck Julius"},
+      {name:"Vince Sanzotti"},
+      {name:"Jim Frye"},
+      {name:"Clark Helm"},
+      {name:"Sam Long"},
+      {name:"Jay Griffith"},
+      {name:"Tyler Eroh"},
+      {name:"Skylar Grafton"},
+      {name:"Roger Hoffman"},
+      {name:"Brian Barton"},
+      {name:"Kris Simmons"},
+      {name:"Eli Hickman"}
+    ],
+    teams:[
+      {num:1,players:["Wes Barton","Larry Julius"]},
+      {num:2,players:["Ed Bargerstock","Duck Julius"]},
+      {num:3,players:["Mike Hickman","Jim Frye"]},
+      {num:4,players:["Vince Sanzotti","Clark Helm"]},
+      {num:5,players:["Eli Hickman","Sam Long"]},
+      {num:6,players:["Brian Barton","Roger Hoffman"]},
+      {num:7,players:["Jay Griffith","Kris Simmons"]},
+      {num:8,players:["Skylar Grafton","Tyler Eroh"]}
     ]
   },
+  outing2:{
+    date:'',tee:'',course:'',holes:'',format:'',cost:'',dinner:'',
+    prizes:{p1:'',p2:'',p3:'',p4:'',p5:''},
+    signups:[],
+    teams:[]
+  }
+};
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function sortedPlayers(){
+  return Object.entries(D.players)
+    .map(([n,v])=>({name:n,...v}))
+    .sort((a,b)=>a.team-b.team||a.hcp-b.hcp);
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+function showTab(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(el)el.classList.add('active');
+  closeSettings();
+}
+
+// ── Announcements ─────────────────────────────────────────────────────────────
+function buildNews(){
+  const el=document.getElementById('news-list');
+  const anns=D.announcements;
+  if(!anns||!anns.length){el.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:20px">No announcements yet.</div>';return;}
+  const cls={info:'ann-info',reminder:'ann-reminder',alert:'ann-alert',success:''};
+  el.innerHTML=anns.map(a=>`
+    <div class="ann-item ${cls[a.tag]||''}">
+      <div class="ann-tag">${a.tag==='info'?'League Notice':a.tag==='reminder'?'Reminder':a.tag==='alert'?'⚠️ Action Needed':'✅ Update'}</div>
+      <div class="ann-title">${a.title}</div>
+      <div class="ann-body">${a.body}</div>
+      <div class="ann-date">${a.date}</div>
+    </div>`).join('');
+}
+
+// ── Outing ────────────────────────────────────────────────────────────────────
+function buildOuting(){
+  const o=D.outing;
+  const body=document.getElementById('outing-body');
+  body.innerHTML=`
+    <div class="outing-section"><div class="outing-lbl">📅 Date</div><div class="outing-val">${o.date}</div></div>
+    <div class="outing-section"><div class="outing-lbl">⏰ Tee Time</div><div class="outing-val">${o.tee}</div></div>
+    <div class="outing-section"><div class="outing-lbl">📍 Course</div><div class="outing-val">${o.course}</div></div>
+    <div class="outing-section"><div class="outing-lbl">⛳ Format</div><div class="outing-val">${o.holes}<br>${o.format}</div></div>
+    <div class="outing-section"><div class="outing-lbl">💵 Cost</div><div class="outing-val">${o.cost}</div></div>
+    <div class="outing-section"><div class="outing-lbl">🍽️ Dinner</div><div class="outing-val">${o.dinner}</div></div>`;
+  const prizes=o.prizes;
+  if(prizes){
+    const pcard=document.getElementById('prizes-card');
+    pcard.style.display='';
+    document.getElementById('prizes-body').innerHTML=[
+      ['🥇 Low Gross',prizes.p1],['🥈 Low Net',prizes.p2],
+      ['📍 Closest to Pin',prizes.p3],['🏌️ Long Drive',prizes.p4],
+      ['🏆 Season Champion',prizes.p5]
+    ].map(([pos,desc])=>desc?`<div class="prize-row"><span class="prize-pos">${pos}</span><span class="prize-desc">${desc}</span></div>`:'').join('');
+  }
+  const sups=o.signups||[];
+  // Update sign-up modal subtitle with outing date
+  const sub=document.getElementById('signup-modal-sub');
+  if(sub&&o.date)sub.textContent=o.date+(o.course?' · '+o.course.split('·')[0].trim():'');
+  if(sups.length){
+    document.getElementById('signups-card').style.display='';
+    document.getElementById('signup-cnt').textContent=sups.length;
+    document.getElementById('signups-body').innerHTML=sups.map(s=>`
+      <div style="padding:9px 0;border-bottom:1px solid #f5f5f5;font-size:14px;font-weight:500">
+        ${s.name}
+      </div>`).join('');
+  }
+  // Teams
+  renderOutingTeams(o.teams||[],'teams-card','teams-body');
+  // End of season outing
+  const o2=D.outing2||{};
+  if((o2.signups||[]).length){
+    document.getElementById('signups2-card').style.display='';
+    document.getElementById('signup2-cnt').textContent=o2.signups.length;
+    document.getElementById('signups2-body').innerHTML=o2.signups.map(s=>`
+      <div style="padding:9px 0;border-bottom:1px solid #f5f5f5;font-size:14px;font-weight:500">
+        ${s.name}
+      </div>`).join('');
+  }
+  renderOutingTeams(o2.teams||[],'teams2-card','teams2-body');
+}
+
+function renderOutingTeams(teams,cardId,bodyId){
+  const card=document.getElementById(cardId);
+  const body=document.getElementById(bodyId);
+  if(!card||!body)return;
+  if(!teams||!teams.length){card.style.display='none';return;}
+  card.style.display='';
+  body.innerHTML=teams.map(t=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f5f5f5">
+      <div style="width:32px;height:32px;border-radius:50%;background:#e8f5e9;color:#2e7d32;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">${t.num}</div>
+      <div>
+        ${t.players.map(p=>`<div style="font-size:14px;font-weight:600">${p}</div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ── Outing selector ───────────────────────────────────────────────────────────
+let _leagueOuting='mid';
+function switchLeagueOuting(which){
+  _leagueOuting=which;
+  document.getElementById('lo-mid').style.display=which==='mid'?'':'none';
+  document.getElementById('lo-end').style.display=which==='end'?'':'none';
+  document.getElementById('lo-mid-btn').style.background=which==='mid'?'#2e7d32':'#eee';
+  document.getElementById('lo-mid-btn').style.color=which==='mid'?'white':'#555';
+  document.getElementById('lo-end-btn').style.background=which==='end'?'#2e7d32':'#eee';
+  document.getElementById('lo-end-btn').style.color=which==='end'?'white':'#555';
+}
+
+// ── Outing Sign-Up ────────────────────────────────────────────────────────────
+let _signupForOuting='mid';
+function openSignupForm(which){
+  _signupForOuting=which||'mid';
+  const isMid=_signupForOuting==='mid';
+  const o=D.outing;
+  document.getElementById('signup-modal-title').textContent='Sign Up for '+(isMid?'Mid-Season':'End-of-Season')+' Outing';
+  document.getElementById('signup-modal-sub').textContent=isMid?(o.date||''):(D.outing2?.date||'Date TBD');
+  document.getElementById('signup-name').value='';
+  document.getElementById('signup-notes').value='';
+  document.getElementById('signup-modal-bg').style.display='flex';
+  setTimeout(()=>document.getElementById('signup-name').focus(),100);
+}
+function closeSignupForm(e){
+  if(!e||!document.getElementById('signup-modal').contains(e.target)){
+    document.getElementById('signup-modal-bg').style.display='none';
+  }
+}
+function submitSignup(){
+  const name=document.getElementById('signup-name').value.trim();
+  const notes=document.getElementById('signup-notes').value.trim();
+  if(!name){document.getElementById('signup-name').style.borderColor='#c62828';document.getElementById('signup-name').focus();return;}
+  document.getElementById('signup-name').style.borderColor='';
+  const isMid=_signupForOuting==='mid';
+  const label=isMid?'Mid-Season':'End-of-Season';
+  const o=D.outing;
+  const subject=encodeURIComponent('WGL '+label+' Outing Sign-Up: '+name);
+  const body=encodeURIComponent(
+    'Hi,\n\nI would like to sign up for the WGL '+label+' Outing.\n\n'+
+    'Name: '+name+'\n'+
+    (isMid&&o.date?'Date: '+o.date+'\n':'')+
+    (notes?'Notes: '+notes+'\n':'')+
+    '\nThanks!'
+  );
+  window.location.href='mailto:wglscore@gmail.com?subject='+subject+'&body='+body;
+  document.getElementById('signup-modal-bg').style.display='none';
+}
+
+// ── Dues ──────────────────────────────────────────────────────────────────────
+function buildDues(){
+  const tbody=document.getElementById('dues-tbody');
+  let html='',cur=0,skIn=0,lnIn=0,dIn=0,oIn=0;
+  for(const p of sortedPlayers()){
+    if(p.team!==cur){cur=p.team;html+=`<tr><td colspan="6" style="background:#1b5e20;color:white;font-size:11px;font-weight:700;text-transform:uppercase;padding:5px 8px">Team #${p.team}</td></tr>`;}
+    const d=D.duesPaid[p.name]||{};
+    const b=D.buyins[p.name]||{};
+    if(b.skins)skIn++;if(b.lownet)lnIn++;if(d.dues)dIn++;
+    const yes='<span class="badge-in">In</span>',no='<span class="badge-out">—</span>';
+    html+=`<tr>
+      <td class="lft">${p.name}</td><td>${p.team}</td>
+      <td>${d.dues?yes:no}</td>
+      <td>${b.skins?yes:no}</td><td>${b.lownet?yes:no}</td>
+    </tr>`;
+  }
+  tbody.innerHTML=html;
+  const s=D.settings;
+  document.getElementById('dues-summary').innerHTML=`
+    <span>💵 Dues Paid: <strong>${dIn}</strong>${s.dues?' ('+s.dues+' ea)':''}</span>
+    <span>💰 Skins: <strong>${skIn}</strong>${s.skins?' ('+s.skins+')':''}</span>
+    <span>🏅 Low Net: <strong>${lnIn}</strong>${s.lownet?' ('+s.lownet+')':''}</span>`;
+}
+
+// ── Roster ────────────────────────────────────────────────────────────────────
+let _players=[];
+function buildRoster(){
+  const el=document.getElementById('roster-list');
+  let html='',cur=0;
+  _players=sortedPlayers();
+  for(let i=0;i<_players.length;i++){
+    const p=_players[i];
+    if(p.team!==cur){
+      if(cur>0)html+='</div>';
+      cur=p.team;
+      html+=`<div class="roster-team"><div class="roster-team-hdr">Team #${p.team}</div><div class="card" style="border-radius:0 0 12px 12px;margin-bottom:12px">`;
+    }
+    const hasPhone=!!(p.phone);
+    html+=`<div class="roster-player" onclick="openModal(${i})">
+      <div style="flex:1">
+        <div class="rp-name">${p.name}</div>
+        <div class="rp-hcp">HCP ${p.hcp} · ${hasPhone?'📞 '+p.phone:'no phone on file'}</div>
+      </div>
+      <span class="${hasPhone?'call-btn':'call-btn no-phone'}">${hasPhone?'📞 Info':'Info'}</span>
+    </div>`;
+  }
+  if(cur>0)html+='</div></div>';
+  el.innerHTML=html;
+}
+function openModal(i){
+  const p=_players[i];
+  document.getElementById('modal-name').textContent=p.name;
+  document.getElementById('modal-meta').textContent=`Team #${p.team} · Handicap ${p.hcp}`;
+  document.getElementById('modal-team').textContent=`Team #${p.team}`;
+  document.getElementById('modal-hcp').textContent=p.hcp;
+  if(p.phone){
+    document.getElementById('modal-phone').textContent=p.phone;
+    const cr=document.getElementById('modal-call-row');
+    cr.style.display='flex';
+    const cb=document.getElementById('modal-call-btn');
+    cb.href='tel:'+p.phone.replace(/\D/g,'');
+    cb.textContent='📲 Call';
+  } else {
+    document.getElementById('modal-phone').textContent='Not on file';
+    document.getElementById('modal-call-row').style.display='none';
+  }
+  document.getElementById('player-modal').classList.add('open');
+}
+function closeModal(e){
+  if(!e||!document.getElementById('modal-content').contains(e.target)){
+    document.getElementById('player-modal').classList.remove('open');
+  }
+}
+
+// ── HCP Grid ──────────────────────────────────────────────────────────────────
+function buildHcps(){
+  const el=document.getElementById('hcp-grid');
+  el.innerHTML=sortedPlayers().map((p,i)=>`
+    <div class="hcp-row" onclick="openModal(${i})">
+      <div><div class="hcp-name">${p.name.split(' ')[0]}<br>${p.name.split(' ').slice(1).join(' ')}</div><div style="font-size:10px;color:#aaa">T${p.team}</div></div>
+      <div class="hcp-val">${p.hcp}</div>
+    </div>`).join('');
+}
+
+// ── Settings gear ─────────────────────────────────────────────────────────────
+function toggleSettings(){
+  const p=document.getElementById('settings-panel');
+  const b=document.getElementById('gear-btn');
+  const o=p.classList.contains('open');
+  p.classList.toggle('open',!o);
+  b.classList.toggle('open',!o);
+}
+function closeSettings(){
+  document.getElementById('settings-panel').classList.remove('open');
+  document.getElementById('gear-btn').classList.remove('open');
+}
+function setDark(on){
+  if(on){document.documentElement.style.setProperty('--bg','#111');document.documentElement.style.setProperty('--card','#1e1e1e');document.documentElement.style.setProperty('--text','#f0f0f0');}
+  else {document.documentElement.style.removeProperty('--bg');document.documentElement.style.removeProperty('--card');document.documentElement.style.removeProperty('--text');}
+}
+document.addEventListener('click',e=>{
+  const panel=document.getElementById('settings-panel');
+  if(panel.classList.contains('open')&&!panel.contains(e.target)&&!document.getElementById('gear-btn').contains(e.target))closeSettings();
+});
+
+// ── Weekly detail data ────────────────────────────────────────────────────────
+const WK_DATA = {
   10: {
-    label:'Wk 10 · Jul 13 · Back 9', side:'back',
-    holes:[10,11,12,13,14,15,16,17,18], pars:[5,4,4,4,4,3,4,3,4],
+    label:'Week 10',date:'Monday, July 7, 2026',course:'Hiland Golf Course',
     players:[
-      ['Larry Julius',1,2,38],['Kris Simmons',1,4,39],['Butch Griffith',1,12,48],
-      ['Frank Watt',1,16,53],['Andy Gallagher',1,16,53],
-      ['Jim Frye',2,1,33],['Skylar Grafton',2,8,50],['Nick Keefer',2,9,46],
-      ['Jeff Hollobaugh',2,12,48],['Andy Patz',2,14,54],['Wilbur Dudley',2,18,53],
-      ['Duck Julius',3,1,37],['Bruce Thomas',3,10,45],['Willie Powell',3,10,45],
-      ['Dicky Peat',3,17,58],['Allan Voltz',3,20,66],
-      ['Roger Hoffman',4,7,44],['Chad Hollobaugh',4,10,43],['Tom Stennett',4,14,55],
-      ['Eli Hickman',5,8,41],['Tyler Eroh',5,8,43],['Jaxon Smith',5,9,45],
-      ['Denny Snyder',5,9,47],['Bill Long',5,9,47],['Dave Toy',5,10,49],['Don Nulph',5,11,60],
-      ['Sam Long',6,7,47],['Kevin Frye',6,9,38],['Jay Griffith',6,9,49],
-      ['Jesse Hickman',6,13,47],['Jim Goodman',6,17,53],['Dylan Barton',6,20,62],
-      ['Ed Bargerstock',7,4,42],['Vince Sanzotti',7,7,39],['Jason Smith',7,11,48],
-      ['Chris Remaley',7,11,50],['Wes Barton',7,12,49],
-      ['Paul Bowser',8,8,43],['Ken Long',8,13,45],['Patric Weber',8,15,55],
+      {name:'Ed Bargerstock',team:7,hcp:4,gross:37,net:33,grp:1},
+      {name:'Duck Julius',team:3,hcp:1,gross:38,net:37,grp:1},
+      {name:'Larry Julius',team:1,hcp:2,gross:36,net:34,grp:1},
+      {name:'Jim Frye',team:2,hcp:1,gross:35,net:34,grp:1},
+      {name:'Wes Barton',team:7,hcp:12,gross:41,net:29,grp:2},
+      {name:'Willie Powell',team:3,hcp:10,gross:44,net:34,grp:2},
+      {name:'Kris Simmons',team:1,hcp:4,gross:40,net:36,grp:2},
+      {name:'Skylar Grafton',team:2,hcp:8,gross:41,net:33,grp:2},
+      {name:'Mike Hickman',team:7,hcp:5,gross:39,net:34,grp:3},
+      {name:'Bruce Thomas',team:3,hcp:10,gross:46,net:36,grp:3},
+      {name:'Butch Griffith',team:1,hcp:12,gross:43,net:31,grp:3},
+      {name:'Nick Keefer',team:2,hcp:9,gross:40,net:31,grp:3},
+      {name:'Vince Sanzotti',team:7,hcp:7,gross:42,net:35,grp:4},
+      {name:'Scott Barton',team:3,hcp:11,gross:45,net:34,grp:4},
+      {name:'Mario Jenkins',team:1,hcp:10,gross:44,net:34,grp:4},
+      {name:'Jeff Hollobaugh',team:2,hcp:12,gross:44,net:32,grp:4},
+      {name:'Eli Hickman',team:5,hcp:8,gross:41,net:33,grp:5},
+      {name:'Sam Long',team:6,hcp:7,gross:43,net:36,grp:5},
+      {name:'Clark Helm',team:4,hcp:5,gross:41,net:36,grp:5},
+      {name:'Brian Barton',team:8,hcp:6,gross:39,net:33,grp:5},
+      {name:'Tyler Eroh',team:5,hcp:8,gross:40,net:32,grp:6},
+      {name:'Jay Griffith',team:6,hcp:9,gross:44,net:35,grp:6},
+      {name:'Harry Breski',team:4,hcp:7,gross:42,net:35,grp:6},
+      {name:'Paul Bowser',team:8,hcp:8,gross:40,net:32,grp:6},
+      {name:'Denny Snyder',team:5,hcp:9,gross:42,net:33,grp:7},
+      {name:'Kevin Frye',team:6,hcp:9,gross:45,net:36,grp:7},
+      {name:'Roger Hoffman',team:4,hcp:7,gross:43,net:36,grp:7},
+      {name:'Logan Bowser',team:8,hcp:10,gross:42,net:32,grp:7},
+      {name:'Bill Long',team:5,hcp:9,gross:43,net:34,grp:8},
+      {name:'Jesse Hickman',team:6,hcp:13,gross:46,net:33,grp:8},
+      {name:'Chad Hollobaugh',team:4,hcp:10,gross:44,net:34,grp:8},
+      {name:'Ken Long',team:8,hcp:13,gross:45,net:32,grp:8}
+    ]
+  },
+  9: {
+    label:'Week 9',date:'Monday, June 30, 2026',course:'Hiland Golf Course',
+    players:[
+      {name:'Larry Julius',team:1,hcp:2,gross:37,net:35,grp:1},
+      {name:'Ed Bargerstock',team:7,hcp:4,gross:38,net:34,grp:1},
+      {name:'Duck Julius',team:3,hcp:1,gross:36,net:35,grp:1},
+      {name:'Jim Frye',team:2,hcp:1,gross:34,net:33,grp:1},
+      {name:'Kris Simmons',team:1,hcp:4,gross:42,net:38,grp:2},
+      {name:'Wes Barton',team:7,hcp:12,gross:42,net:30,grp:2},
+      {name:'Dave Cushey',team:3,hcp:12,gross:44,net:32,grp:2},
+      {name:'Skylar Grafton',team:2,hcp:8,gross:40,net:32,grp:2},
+      {name:'Frank Watt',team:1,hcp:16,gross:48,net:32,grp:3},
+      {name:'Doug Anthony',team:7,hcp:10,gross:40,net:30,grp:3},
+      {name:'Willie Powell',team:3,hcp:10,gross:43,net:33,grp:3},
+      {name:'Nick Keefer',team:2,hcp:9,gross:41,net:32,grp:3},
+      {name:'Paul Harmon',team:1,hcp:15,gross:47,net:32,grp:4},
+      {name:'Chris Remaley',team:7,hcp:11,gross:43,net:32,grp:4},
+      {name:'Dicky Peat',team:3,hcp:17,gross:49,net:32,grp:4},
+      {name:'Andy Patz',team:2,hcp:14,gross:46,net:32,grp:4},
+      {name:'Eli Hickman',team:5,hcp:8,gross:40,net:32,grp:5},
+      {name:'Sam Long',team:6,hcp:7,gross:40,net:33,grp:5},
+      {name:'Brian Barton',team:8,hcp:6,gross:42,net:36,grp:5},
+      {name:'Clark Helm',team:4,hcp:5,gross:42,net:37,grp:5},
+      {name:'Jaxon Smith',team:5,hcp:9,gross:42,net:33,grp:6},
+      {name:'Jay Griffith',team:6,hcp:9,gross:41,net:32,grp:6},
+      {name:'Paul Bowser',team:8,hcp:8,gross:43,net:35,grp:6},
+      {name:'Harry Breski',team:4,hcp:7,gross:43,net:36,grp:6},
+      {name:'Denny Snyder',team:5,hcp:9,gross:43,net:34,grp:7},
+      {name:'Kevin Frye',team:6,hcp:9,gross:42,net:33,grp:7},
+      {name:'Logan Bowser',team:8,hcp:10,gross:44,net:34,grp:7},
+      {name:'Tom Stennett',team:4,hcp:14,gross:47,net:33,grp:7},
+      {name:'Don Nulph',team:5,hcp:11,gross:45,net:34,grp:8},
+      {name:'Jim Goodman',team:6,hcp:17,gross:50,net:33,grp:8},
+      {name:'Cole Clark',team:8,hcp:15,gross:48,net:33,grp:8},
+      {name:'Landon Badac',team:4,hcp:17,gross:50,net:33,grp:8}
     ]
   }
 };
 
-// Per-hole card sessions — populated as Wk 11+ cards are submitted
-// { week: [ { date, side, holes, players:[{name,team,hcp,scores:[9]}] } ] }
-const WGL_CARDS = {};
-
-// ── Card helpers — WGL_CARDS is source of truth (populated from emails) ──────
-function wglGetCards(week) {
-  return WGL_CARDS[week] || [];
-}
-function wglFindCard(name,week) {
-  for (const card of wglGetCards(week)) {
-    if (card.players.find(p=>p.name===name)) return card;
-  }
-  return null;
+function loadWeekResult(wk){
+  const el=document.getElementById('week-result-body');
+  buildWeek(wk,el);
 }
 
-// ── Low Net tab ───────────────────────────────────────────────────────────────
-let _lnWeek=10;
-function initLowNet() {
-  const weeks=Object.keys(WGL_WEEKLY).map(Number).sort((a,b)=>b-a);
-  const sel=document.getElementById('ln-weeks');
-  if (!sel) return;
-  sel.innerHTML=weeks.map(w=>
-    `<button class="ln-week-btn${w===_lnWeek?' active':''}" onclick="selectLnWeek(${w},this)">Wk ${w}</button>`
-  ).join('');
-  renderLowNet(_lnWeek);
-}
-function selectLnWeek(w,btn) {
-  _lnWeek=w;
-  document.querySelectorAll('#ln-weeks .ln-week-btn').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  renderLowNet(w);
-}
-function renderLowNet(week) {
-  const data=WGL_WEEKLY[week];
-  const el=document.getElementById('ln-content');
-  if (!data||!el) return;
-  const ps=data.players.map(([n,t,h,g])=>({name:n,team:t,hcp:h,gross:g,net:g-h}))
-    .sort((a,b)=>a.net-b.net||a.gross-b.gross);
-  let html=`<div style="font-size:12px;color:#888;margin-bottom:8px">${data.label} · ${ps.length} players</div>`;
-  html+=`<div class="card"><table><thead><tr>
-    <th style="width:28px;text-align:center">#</th>
-    <th class="lft">Player</th><th>T</th><th>HCP</th><th>Gross</th><th>Net</th>
-  </tr></thead><tbody>`;
-  ps.forEach((p,i)=>{
-    const r=i+1;
-    const medal=r===1?'🥇':r===2?'🥈':r===3?'🥉':r;
-    const bg=r===1?'background:#fffde7':r===2?'background:#f5f5f5':r===3?'background:#f3f8ff':'';
-    html+=`<tr style="${bg}"><td class="ln-rank-cell">${medal}</td>
-      <td class="lft">${p.name}</td><td>${p.team}</td><td>${p.hcp}</td>
-      <td>${p.gross}</td><td><strong>${p.net}</strong></td></tr>`;
-  });
-  html+='</tbody></table></div>';
-  el.innerHTML=html;
-}
-
-// ── Skins tab ─────────────────────────────────────────────────────────────────
-let _skWeek=null;
-function initSkins() {
-  const weeks=Object.keys(WGL_CARDS).map(Number).sort((a,b)=>b-a);
-  const sel=document.getElementById('sk-weeks');
-  if (!sel) return;
-  if (!weeks.length) {
-    sel.innerHTML='';
-    document.getElementById('sk-content').innerHTML=
-      `<div class="card" style="padding:20px;text-align:center;color:#aaa;font-size:14px">
-        Skins are calculated from submitted session scorecards.<br>
-        <span style="font-size:12px;display:block;margin-top:6px">Available starting Week 11 once cards are submitted.</span>
-       </div>`;
-    return;
-  }
-  if (!_skWeek) _skWeek=weeks[0];
-  sel.innerHTML=weeks.map(w=>
-    `<button class="ln-week-btn${w===_skWeek?' active':''}" onclick="selectSkWeek(${w},this)">Wk ${w}</button>`
-  ).join('');
-  renderSkins(_skWeek);
-}
-function selectSkWeek(w,btn) {
-  _skWeek=w;
-  document.querySelectorAll('#sk-weeks .ln-week-btn').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  renderSkins(w);
-}
-function renderSkins(week) {
-  const el=document.getElementById('sk-content');
-  if (!el) return;
-  const cards=wglGetCards(week);
-  if (!cards.length) {
-    el.innerHTML=`<div class="card" style="padding:20px;text-align:center;color:#aaa;font-size:14px">No card data for Week ${week}.</div>`;
-    return;
-  }
-  const allPlayers=[];
-  cards.forEach(c=>allPlayers.push(...c.players));
-  const wdata=WGL_WEEKLY[week];
-  const pars=(wdata||{pars:SC_PARS}).pars;
-  const holes=(wdata||{holes:SC_HOLES}).holes;
-  let html=`<div style="font-size:12px;color:#888;margin-bottom:8px">Week ${week} · ${allPlayers.length} players on ${cards.length} card${cards.length>1?'s':''}</div>`;
-  html+=`<div class="card">`;
-  const skinCount={};
-  allPlayers.forEach(p=>{ skinCount[p.name]=0; });
-  holes.forEach((h,hi)=>{
-    const scored=allPlayers.filter(p=>p.scores&&p.scores[hi]!=null);
-    if (!scored.length) return;
-    const low=Math.min(...scored.map(p=>p.scores[hi]));
-    const winners=scored.filter(p=>p.scores[hi]===low);
-    const par=pars[hi];
-    const rel=low-par;
-    const relStr=rel<=-2?'🦅 Eagle':rel===-1?'🐦 Birdie':rel===0?'Par':rel===1?'Bogey':'Double+';
-    html+=`<div class="skins-hole-row"><span class="skins-hole-lbl">Hole ${h} · P${par}</span>`;
-    if (winners.length===1) {
-      skinCount[winners[0].name]=(skinCount[winners[0].name]||0)+1;
-      html+=`<span class="skins-winner">${winners[0].name} · ${low} <span style="font-size:12px;font-weight:400">(${relStr})</span></span>`;
-    } else {
-      html+=`<span class="skins-tied">Halved — ${winners.map(w=>w.name.split(' ')[0]).join(' & ')}</span>`;
-    }
-    html+='</div>';
-  });
-  html+='</div>';
-  const sw=Object.entries(skinCount).filter(([,v])=>v>0).sort(([,a],[,b])=>b-a);
-  if (sw.length) {
-    html+=`<div class="card" style="margin-top:12px;padding:14px 16px">
-      <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Skin Totals</div>`;
-    sw.forEach(([name,c])=>{
-      html+=`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f5f5f5;font-size:14px">
-        <span>${name}</span><span style="font-weight:700;color:#2e7d32">${c} skin${c>1?'s':''}</span></div>`;
-    });
-    html+='</div>';
-  }
-  el.innerHTML=html;
-}
-
-// ── Card History Modal ────────────────────────────────────────────────────────
-let _cmName='';
-function showCardHistory(name,weekNum) {
-  _cmName=name;
-  const wdata=WGL_WEEKLY[weekNum];
-  const pentry=wdata?wdata.players.find(([n])=>n===name):null;
-  const card=wglFindCard(name,weekNum);
-  document.getElementById('cm-title').textContent=name;
-  const team=pentry?` · T${pentry[1]}`:'';
-  document.getElementById('cm-sub').textContent=(wdata?wdata.label:'Week '+weekNum)+team;
-  let html='';
-  if (pentry) {
-    const [,t,h,g]=pentry; const net=g-h;
-    html+=`<div style="display:flex;gap:12px;margin-bottom:14px;padding:12px;background:#f0f7f0;border-radius:10px">
-      <div style="flex:1;text-align:center"><div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase">Gross</div><div style="font-size:26px;font-weight:800">${g}</div></div>
-      <div style="flex:1;text-align:center"><div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase">HCP</div><div style="font-size:26px;font-weight:800">${h}</div></div>
-      <div style="flex:1;text-align:center"><div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase">Net</div><div style="font-size:26px;font-weight:800;color:#2e7d32">${net}</div></div>
-    </div>`;
-  }
-  if (card) {
-    const choles=card.holes||SC_HOLES;
-    const cpars=wdata?wdata.pars:SC_PARS;
-    const sideLabel=card.side==='back'?'Back 9 (10–18)':'Front 9 (1–9)';
-    html+=`<div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">Card · ${sideLabel}</div>`;
-    html+=`<div style="overflow-x:auto"><table class="card-hole-table"><thead>
-      <tr><th class="cn">Player</th>`;
-    choles.forEach(h=>html+=`<th>${h}</th>`);
-    html+=`<th>Tot</th><th>Net</th></tr>
-      <tr style="background:#f9f9f9"><td class="cn" style="color:#999">Par</td>`;
-    cpars.forEach(p=>html+=`<td style="color:#999">${p}</td>`);
-    html+=`<td style="color:#999">35</td><td>—</td></tr>
-    </thead><tbody>`;
-    for (const pl of card.players) {
-      const me=pl.name===name;
-      const g2=pl.scores?pl.scores.reduce((a,b)=>a+(b||0),0):null;
-      const sn=pl.name.split(' ');
-      const dname=sn[0]+(sn.length>1?' '+sn[sn.length-1][0]+'.':'');
-      html+=`<tr style="${me?'background:#e8f5e9;':''}">
-        <td class="cn" style="${me?'color:#2e7d32;font-weight:700':''}" title="${pl.name}">${dname} <span style="font-size:9px;color:#bbb">T${pl.team}</span></td>`;
-      if (pl.scores) {
-        pl.scores.forEach((sv,i)=>{
-          if (sv==null){html+=`<td style="color:#ddd">—</td>`;return;}
-          const r=sv-cpars[i];
-          const bg=r<=-2?'#fff9c4':r===-1?'#e8f5e9':r===0?'':'#fff3e0';
-          const col=r<=-2?'#f57f17':r===-1?'#2e7d32':r===0?'#555':r===1?'#e65100':'#c62828';
-          html+=`<td style="background:${bg};color:${col};font-weight:${r<=0?700:400}">${sv}</td>`;
-        });
-        html+=`<td style="font-weight:700">${g2}</td><td style="font-weight:700;color:#2e7d32">${g2-pl.hcp}</td>`;
-      } else {
-        html+=`<td colspan="${choles.length+2}" style="color:#ccc;font-size:11px">no scores</td>`;
-      }
-      html+='</tr>';
-    }
-    html+='</tbody></table></div>';
-    const partners=card.players.filter(p=>p.name!==name);
-    if (partners.length)
-      html+=`<div style="margin-top:10px;font-size:12px;color:#888">Played with: ${partners.map(p=>p.name).join(', ')}</div>`;
-  } else {
-    html+=`<div style="text-align:center;padding:14px 0;color:#bbb;font-size:13px">
-      Per-hole scorecard not on file for this week.<br>
-      <span style="font-size:11px">Session cards are saved from Week 11 onwards.</span>
-    </div>`;
-  }
-  document.getElementById('cm-body').innerHTML=html;
-  document.getElementById('cardModal').style.display='block';
+function showScorecard(wk,grp,tapped){
+  const d=WK_DATA[wk];
+  if(!d)return;
+  const group=d.players.filter(p=>p.grp===grp).sort((a,b)=>a.net-b.net);
+  const modal=document.getElementById('sc-modal');
+  document.getElementById('sc-title').textContent=`Group ${grp} — ${d.label}`;
+  document.getElementById('sc-subtitle').textContent=`${d.date} · ${d.course}`;
+  const rows=group.map(p=>`
+    <tr style="border-bottom:1px solid #f0f0f0;background:${p.name===tapped?'#e8f5e9':'white'}">
+      <td style="padding:10px 8px;font-weight:${p.name===tapped?'700':'500'}">${p.name}<br><span style="font-size:11px;color:#888">Team ${p.team}</span></td>
+      <td style="padding:10px 6px;text-align:center;color:#888;font-size:13px">${p.hcp}</td>
+      <td style="padding:10px 6px;text-align:center;font-size:13px">${p.gross}</td>
+      <td style="padding:10px 6px;text-align:center;font-weight:700;color:#2e7d32;font-size:14px">${p.net}</td>
+    </tr>`).join('');
+  document.getElementById('sc-table').innerHTML=`
+    <thead><tr style="background:#f5f5f5">
+      <th style="text-align:left;padding:8px;font-size:11px;color:#555;font-weight:600">Player</th>
+      <th style="padding:8px 6px;font-size:11px;color:#555;font-weight:600;text-align:center">HCP</th>
+      <th style="padding:8px 6px;font-size:11px;color:#555;font-weight:600;text-align:center">Gross</th>
+      <th style="padding:8px 6px;font-size:11px;color:#555;font-weight:600;text-align:center">Net</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>`;
+  modal.style.display='flex';
   document.body.style.overflow='hidden';
 }
-function closeCardModal() {
-  document.getElementById('cardModal').style.display='none';
+function closeScModal(){
+  document.getElementById('sc-modal').style.display='none';
   document.body.style.overflow='';
 }
-</script>
 
-<script>
-function showTab(id) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  event.target.classList.add('active');
-}
-function showTabById(id) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.tab').forEach(t => {
-    if (t.getAttribute('onclick') === "showTab('" + id + "')") t.classList.add('active');
-  });
-  window.scrollTo(0,0);
-}
-</script>
+function buildWeek(wk,elOverride){
+  const d=WK_DATA[wk];
+  const el=elOverride||document.getElementById('week-result-body');
+  if(!d){el.innerHTML='<div class="card"><div style="padding:20px;text-align:center;color:#bbb;font-size:14px">No data for this week yet.</div></div>';return;}
 
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-</script>
+  // group by team and sum nets
+  const teams={};
+  for(const p of d.players){
+    if(!teams[p.team])teams[p.team]={num:p.team,total:0,players:[]};
+    teams[p.team].players.push(p);
+    teams[p.team].total+=p.net;
+  }
+  // sort teams by total net ascending (low net = best)
+  const sorted=Object.values(teams).sort((a,b)=>a.total-b.total);
+  const best=sorted[0].total;
 
-<!-- Camera button -->
-<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(this)">
-<button id="addScoreBtn" onclick="document.getElementById('cameraInput').click()">📷 Add Score</button>
+  let html=`<div class="card" style="margin-bottom:10px">
+    <div class="card-hdr">${d.label} · ${d.date}</div>
+    <div style="padding:8px 14px;font-size:13px;color:#555">${d.course}</div>
+  </div>`;
 
-<!-- Photo preview modal -->
-<div id="photoModal">
-  <div id="photoModalInner">
-    <div style="color:white;font-size:15px;font-weight:600;align-self:flex-start">Score Card Photo</div>
-    <img id="photoPreview" alt="Score card preview">
-    <div id="photoActions">
-      <button id="submitBtn" onclick="submitPhoto()">📤 Send Score Card</button>
-      <button id="retakeBtn" onclick="retakePhoto()">🔄 Retake</button>
-      <button id="cancelBtn" onclick="cancelPhoto()">✕</button>
-    </div>
-  </div>
-</div>
-
-<!-- Card History Modal -->
-<div id="cardModal">
-  <div id="cardModalInner">
-    <div class="cm-header">
-      <div>
-        <div id="cm-title" style="font-size:17px;font-weight:700;line-height:1.2"></div>
-        <div id="cm-sub" style="font-size:12px;color:#888;margin-top:3px"></div>
+  for(let i=0;i<sorted.length;i++){
+    const t=sorted[i];
+    const winner=t.total===best;
+    const bgHdr=winner?'#e8f5e9':'#f9f9f9';
+    const clrHdr=winner?'#1b5e20':'#333';
+    // sort players within team by net ascending
+    const ps=[...t.players].sort((a,b)=>a.net-b.net);
+    html+=`<div class="card" style="margin-bottom:10px">
+      <div class="card-hdr" style="background:${bgHdr};display:flex;justify-content:space-between;align-items:center">
+        <span style="font-weight:700;color:${clrHdr}">Team ${t.num}${winner?' 🏆':''}</span>
+        <span style="font-size:15px;font-weight:800;color:${clrHdr}">Net ${t.total}</span>
       </div>
-      <button class="cm-close" onclick="closeCardModal()">×</button>
-    </div>
-    <div id="cm-body"></div>
-    <div style="margin-top:14px">
-      <button class="sc-submit-btn" style="background:#555;font-size:13px;padding:12px" onclick="closeCardModal();scJumpTo(_cmName)">+ Start New Card with This Player</button>
-    </div>
-  </div>
-</div>
-
-
-<style>
-  #addScoreBtn {
-    position: fixed;
-    bottom: 28px;
-    right: 20px;
-    background: #2e7d32;
-    color: white;
-    border: none;
-    border-radius: 28px;
-    padding: 14px 22px;
-    font-size: 15px;
-    font-weight: 600;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    cursor: pointer;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    -webkit-tap-highlight-color: transparent;
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:#f5f5f5">
+            <th style="text-align:left;padding:6px 8px;font-size:11px;color:#555">Player</th>
+            <th style="padding:6px 4px;font-size:11px;color:#555;text-align:center">HCP</th>
+            <th style="padding:6px 4px;font-size:11px;color:#555;text-align:center">Gross</th>
+            <th style="padding:6px 4px;font-size:11px;color:#555;text-align:center">Net</th>
+          </tr></thead>
+          <tbody>
+            ${ps.map(p=>`<tr style="border-bottom:1px solid #f5f5f5">
+              <td style="padding:7px 8px;font-weight:600"><span style="color:#1565c0;cursor:pointer;text-decoration:underline" onclick="showScorecard(${wk},${p.grp},'${p.name}')">${p.name}</span></td>
+              <td style="padding:7px 4px;text-align:center;color:#888">${p.hcp}</td>
+              <td style="padding:7px 4px;text-align:center">${p.gross}</td>
+              <td style="padding:7px 4px;text-align:center;font-weight:700;color:#2e7d32">${p.net}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
   }
-  #addScoreBtn:active { transform: scale(0.95); }
+  el.innerHTML=html;
+}
 
-  #photoModal {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.88); z-index: 200;
-    align-items: center; justify-content: center; padding: 16px;
-  }
-  #photoModal.open { display: flex; }
-  #photoModalInner {
-    background: #1c1c1e; border-radius: 16px; padding: 16px;
-    width: 100%; max-width: 480px;
-    display: flex; flex-direction: column; align-items: center; gap: 14px;
-  }
-  #photoPreview { width:100%; border-radius:10px; max-height:58vh; object-fit:contain; background:#000; }
-  #photoActions { display:flex; gap:10px; width:100%; }
-  #submitBtn { flex:1; background:#2e7d32; color:white; border:none; border-radius:10px; padding:14px; font-size:14px; font-weight:600; cursor:pointer; }
-  #retakeBtn { background:#3a3a3c; color:white; border:none; border-radius:10px; padding:14px 16px; font-size:14px; cursor:pointer; }
-  #cancelBtn { background:#2c2c2e; color:#aaa; border:none; border-radius:10px; padding:14px 16px; font-size:14px; cursor:pointer; }
+// ── Init ──────────────────────────────────────────────────────────────────────
+document.getElementById('app-subtitle').textContent=D.settings.subtitle;
+buildNews();
+buildOuting();
+buildDues();
+buildRoster();
+loadWeekResult(10); // load most recent week by default
 
-</style>
-
-<script>
-  let capturedFile = null;
-  function handlePhoto(input) {
-    if (input.files && input.files[0]) {
-      capturedFile = input.files[0];
-      const reader = new FileReader();
-      reader.onload = e => {
-        document.getElementById('photoPreview').src = e.target.result;
-        document.getElementById('photoModal').classList.add('open');
-      };
-      reader.readAsDataURL(capturedFile);
+// ── Bootstrap: fetch live data, fall back to MOCK_DATA ───────────────────────
+let D=MOCK_DATA; // will be replaced by fetched data
+(async ()=>{
+  try {
+    const r=await fetch(DATA_URL);
+    if(r.ok){
+      const json=await r.json();
+      // Merge fetched data into D (players, settings, announcements, outings, buyins, duesPaid)
+      if(json.players)D.players=json.players;
+      if(json.settings)D.settings={...D.settings,...json.settings};
+      if(json.announcements)D.announcements=json.announcements;
+      if(json.outing)D.outing={...D.outing,...json.outing};
+      if(json.outing2)D.outing2={...D.outing2,...json.outing2};
+      if(json.buyins)D.buyins=json.buyins;
+      if(json.duesPaid)D.duesPaid=json.duesPaid;
+      document.getElementById('sync-label').textContent=`Live data · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+    } else {
+      document.getElementById('sync-label').textContent='Using cached data';
     }
+  } catch(e){
+    document.getElementById('sync-label').textContent='Offline — using cached data';
   }
-  async function submitPhoto() {
-    if (!capturedFile) return;
-    if (navigator.canShare && navigator.canShare({ files: [capturedFile] })) {
-      try {
-        await navigator.share({ files: [capturedFile], title: 'WGL Score Card', text: 'Score card — Worthington Golf League' });
-        closeModal(); return;
-      } catch(e) { if (e.name === 'AbortError') return; }
-    }
-    window.location.href = 'mailto:wglscore@gmail.com?subject=WGL Score Card&body=Score card photo attached';
-    closeModal();
-  }
-  function retakePhoto() { closeModal(); setTimeout(() => document.getElementById('cameraInput').click(), 100); }
-  function cancelPhoto() { closeModal(); }
-  function closeModal() {
-    document.getElementById('photoModal').classList.remove('open');
-    document.getElementById('cameraInput').value = '';
-    capturedFile = null;
-  }
+  // Re-render all dynamic sections with live data
+  document.getElementById('app-subtitle').textContent=D.settings.subtitle;
+  buildNews();
+  buildOuting();
+  buildDues();
+  buildRoster();
+  loadWeekResult(10);
+})();
 </script>
 </body>
 </html>
