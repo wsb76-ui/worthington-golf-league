@@ -1,75 +1,303 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-15",
-  "updatedBy": "",
+  "lastUpdated": "2026-07-15T22:33:08.487Z",
+  "updatedBy": "admin",
   "settings": {
-    "greens": "TBD",
-    "duesAmt": "TBD",
-    "outingFee": "TBD",
-    "skinsBuyin": "TBD",
-    "lownetBuyin": "TBD",
-    "pot": "TBD",
+    "greens": "",
+    "dues": "",
+    "outingFee": "",
+    "skins": "",
+    "lownet": "",
+    "pot": "",
     "week": 11,
     "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Week 11 Upcoming"
   },
   "players": {
-    "Larry Julius":    {"team":1,"hcp":2,"phone":""},
-    "Kris Simmons":    {"team":1,"hcp":4,"phone":""},
-    "Butch Griffith":  {"team":1,"hcp":12,"phone":""},
-    "Mario Jenkins":   {"team":1,"hcp":10,"phone":""},
-    "Frank Watt":      {"team":1,"hcp":16,"phone":""},
-    "Paul Harmon":     {"team":1,"hcp":15,"phone":""},
-    "Andy Gallagher":  {"team":1,"hcp":16,"phone":""},
-    "Keith Clark":     {"team":1,"hcp":20,"phone":""},
-    "Jim Frye":        {"team":2,"hcp":1,"phone":""},
-    "Skylar Grafton":  {"team":2,"hcp":8,"phone":""},
-    "Nick Keefer":     {"team":2,"hcp":9,"phone":""},
-    "Jeff Hollobaugh": {"team":2,"hcp":12,"phone":""},
-    "Andy Patz":       {"team":2,"hcp":14,"phone":""},
-    "Trent Brocious":  {"team":2,"hcp":15,"phone":""},
-    "Wilbur Dudley":   {"team":2,"hcp":18,"phone":""},
-    "Duck Julius":     {"team":3,"hcp":1,"phone":""},
-    "Willie Powell":   {"team":3,"hcp":10,"phone":""},
-    "Bruce Thomas":    {"team":3,"hcp":10,"phone":""},
-    "Scott Barton":    {"team":3,"hcp":11,"phone":""},
-    "Dave Cushey":     {"team":3,"hcp":12,"phone":""},
-    "Dicky Peat":      {"team":3,"hcp":17,"phone":""},
-    "Allan Voltz":     {"team":3,"hcp":20,"phone":""},
-    "Clark Helm":      {"team":4,"hcp":5,"phone":""},
-    "Harry Breski":    {"team":4,"hcp":7,"phone":""},
-    "Roger Hoffman":   {"team":4,"hcp":7,"phone":""},
-    "Chad Hollobaugh": {"team":4,"hcp":10,"phone":""},
-    "Blake Bowser":    {"team":4,"hcp":15,"phone":""},
-    "Tom Stennett":    {"team":4,"hcp":14,"phone":""},
-    "Landon Badac":    {"team":4,"hcp":17,"phone":""},
-    "Eli Hickman":     {"team":5,"hcp":8,"phone":""},
-    "Jaxon Smith":     {"team":5,"hcp":9,"phone":""},
-    "Bill Long":       {"team":5,"hcp":9,"phone":""},
-    "Tyler Eroh":      {"team":5,"hcp":8,"phone":""},
-    "Denny Snyder":    {"team":5,"hcp":9,"phone":""},
-    "Don Nulph":       {"team":5,"hcp":11,"phone":""},
-    "Dave Toy":        {"team":5,"hcp":10,"phone":""},
-    "Sam Long":        {"team":6,"hcp":7,"phone":""},
-    "Jay Griffith":    {"team":6,"hcp":9,"phone":""},
-    "Kevin Frye":      {"team":6,"hcp":9,"phone":""},
-    "Jesse Hickman":   {"team":6,"hcp":13,"phone":""},
-    "Jim Goodman":     {"team":6,"hcp":17,"phone":""},
-    "Dylan Barton":    {"team":6,"hcp":20,"phone":""},
-    "Matt Nulph":      {"team":6,"hcp":20,"phone":""},
-    "Ed Bargerstock":  {"team":7,"hcp":4,"phone":""},
-    "Vince Sanzotti":  {"team":7,"hcp":7,"phone":""},
-    "Mike Hickman":    {"team":7,"hcp":5,"phone":""},
-    "Chris Remaley":   {"team":7,"hcp":11,"phone":""},
-    "Jason Smith":     {"team":7,"hcp":11,"phone":""},
-    "Wes Barton":      {"team":7,"hcp":12,"phone":""},
-    "Doug Anthony":    {"team":7,"hcp":10,"phone":""},
-    "Brian Barton":    {"team":8,"hcp":6,"phone":""},
-    "Logan Bowser":    {"team":8,"hcp":10,"phone":""},
-    "Paul Bowser":     {"team":8,"hcp":8,"phone":""},
-    "Ken Long":        {"team":8,"hcp":13,"phone":""},
-    "Patric Weber":    {"team":8,"hcp":15,"phone":""},
-    "Cole Clark":      {"team":8,"hcp":15,"phone":""},
-    "Dylan Smith":     {"team":8,"hcp":16,"phone":""}
+    "Larry Julius": {
+      "team": 1,
+      "hcp": 2,
+      "phone": ""
+    },
+    "Kris Simmons": {
+      "team": 1,
+      "hcp": 4,
+      "phone": ""
+    },
+    "Butch Griffith": {
+      "team": 1,
+      "hcp": 12,
+      "phone": ""
+    },
+    "Mario Jenkins": {
+      "team": 1,
+      "hcp": 10,
+      "phone": ""
+    },
+    "Frank Watt": {
+      "team": 1,
+      "hcp": 16,
+      "phone": ""
+    },
+    "Paul Harmon": {
+      "team": 1,
+      "hcp": 15,
+      "phone": ""
+    },
+    "Andy Gallagher": {
+      "team": 1,
+      "hcp": 16,
+      "phone": ""
+    },
+    "Keith Clark": {
+      "team": 1,
+      "hcp": 20,
+      "phone": ""
+    },
+    "Jim Frye": {
+      "team": 2,
+      "hcp": 1,
+      "phone": ""
+    },
+    "Skylar Grafton": {
+      "team": 2,
+      "hcp": 8,
+      "phone": ""
+    },
+    "Nick Keefer": {
+      "team": 2,
+      "hcp": 9,
+      "phone": ""
+    },
+    "Jeff Hollobaugh": {
+      "team": 2,
+      "hcp": 12,
+      "phone": ""
+    },
+    "Andy Patz": {
+      "team": 2,
+      "hcp": 14,
+      "phone": ""
+    },
+    "Trent Brocious": {
+      "team": 2,
+      "hcp": 15,
+      "phone": ""
+    },
+    "Wilbur Dudley": {
+      "team": 2,
+      "hcp": 18,
+      "phone": ""
+    },
+    "Duck Julius": {
+      "team": 3,
+      "hcp": 1,
+      "phone": ""
+    },
+    "Willie Powell": {
+      "team": 3,
+      "hcp": 10,
+      "phone": ""
+    },
+    "Bruce Thomas": {
+      "team": 3,
+      "hcp": 10,
+      "phone": ""
+    },
+    "Scott Barton": {
+      "team": 3,
+      "hcp": 11,
+      "phone": ""
+    },
+    "Dave Cushey": {
+      "team": 3,
+      "hcp": 12,
+      "phone": ""
+    },
+    "Dicky Peat": {
+      "team": 3,
+      "hcp": 17,
+      "phone": ""
+    },
+    "Allan Voltz": {
+      "team": 3,
+      "hcp": 20,
+      "phone": ""
+    },
+    "Clark Helm": {
+      "team": 4,
+      "hcp": 5,
+      "phone": ""
+    },
+    "Harry Breski": {
+      "team": 4,
+      "hcp": 7,
+      "phone": ""
+    },
+    "Roger Hoffman": {
+      "team": 4,
+      "hcp": 7,
+      "phone": ""
+    },
+    "Chad Hollobaugh": {
+      "team": 4,
+      "hcp": 10,
+      "phone": ""
+    },
+    "Blake Bowser": {
+      "team": 4,
+      "hcp": 15,
+      "phone": ""
+    },
+    "Tom Stennett": {
+      "team": 4,
+      "hcp": 14,
+      "phone": ""
+    },
+    "Landon Badac": {
+      "team": 4,
+      "hcp": 17,
+      "phone": ""
+    },
+    "Eli Hickman": {
+      "team": 5,
+      "hcp": 8,
+      "phone": ""
+    },
+    "Jaxon Smith": {
+      "team": 5,
+      "hcp": 9,
+      "phone": ""
+    },
+    "Bill Long": {
+      "team": 5,
+      "hcp": 9,
+      "phone": ""
+    },
+    "Tyler Eroh": {
+      "team": 5,
+      "hcp": 8,
+      "phone": ""
+    },
+    "Denny Snyder": {
+      "team": 5,
+      "hcp": 9,
+      "phone": ""
+    },
+    "Don Nulph": {
+      "team": 5,
+      "hcp": 11,
+      "phone": ""
+    },
+    "Dave Toy": {
+      "team": 5,
+      "hcp": 10,
+      "phone": ""
+    },
+    "Sam Long": {
+      "team": 6,
+      "hcp": 7,
+      "phone": ""
+    },
+    "Jay Griffith": {
+      "team": 6,
+      "hcp": 9,
+      "phone": ""
+    },
+    "Kevin Frye": {
+      "team": 6,
+      "hcp": 9,
+      "phone": ""
+    },
+    "Jesse Hickman": {
+      "team": 6,
+      "hcp": 13,
+      "phone": ""
+    },
+    "Jim Goodman": {
+      "team": 6,
+      "hcp": 17,
+      "phone": ""
+    },
+    "Dylan Barton": {
+      "team": 6,
+      "hcp": 20,
+      "phone": ""
+    },
+    "Matt Nulph": {
+      "team": 6,
+      "hcp": 20,
+      "phone": ""
+    },
+    "Ed Bargerstock": {
+      "team": 7,
+      "hcp": 4,
+      "phone": ""
+    },
+    "Vince Sanzotti": {
+      "team": 7,
+      "hcp": 7,
+      "phone": ""
+    },
+    "Mike Hickman": {
+      "team": 7,
+      "hcp": 5,
+      "phone": ""
+    },
+    "Chris Remaley": {
+      "team": 7,
+      "hcp": 11,
+      "phone": ""
+    },
+    "Jason Smith": {
+      "team": 7,
+      "hcp": 11,
+      "phone": ""
+    },
+    "Wes Barton": {
+      "team": 7,
+      "hcp": 12,
+      "phone": ""
+    },
+    "Doug Anthony": {
+      "team": 7,
+      "hcp": 10,
+      "phone": ""
+    },
+    "Brian Barton": {
+      "team": 8,
+      "hcp": 6,
+      "phone": ""
+    },
+    "Logan Bowser": {
+      "team": 8,
+      "hcp": 10,
+      "phone": ""
+    },
+    "Paul Bowser": {
+      "team": 8,
+      "hcp": 8,
+      "phone": ""
+    },
+    "Ken Long": {
+      "team": 8,
+      "hcp": 13,
+      "phone": ""
+    },
+    "Patric Weber": {
+      "team": 8,
+      "hcp": 15,
+      "phone": ""
+    },
+    "Cole Clark": {
+      "team": 8,
+      "hcp": 15,
+      "phone": ""
+    },
+    "Dylan Smith": {
+      "team": 8,
+      "hcp": 16,
+      "phone": ""
+    }
   },
   "buyins": {},
   "duesPaid": {},
@@ -79,8 +307,8 @@
     "tee": "8:00 AM start",
     "course": "Hiland Golf Course · Butler, PA",
     "holes": "18 holes · starting on the back 9",
-    "format": "TBD",
-    "cost": "TBD",
+    "format": "",
+    "cost": "",
     "dinner": "The Farm · 150 Fox Rd, Worthington PA 16262",
     "prizes": {
       "p1": "",
@@ -96,6 +324,64 @@
     "pct1": 50,
     "pct2": 30,
     "pct3": 20,
-    "rollover": {}
+    "rollover": {
+      "Larry Julius": "",
+      "Kris Simmons": "",
+      "Butch Griffith": "",
+      "Mario Jenkins": "",
+      "Frank Watt": "",
+      "Paul Harmon": "",
+      "Andy Gallagher": "",
+      "Keith Clark": "",
+      "Jim Frye": "",
+      "Skylar Grafton": "",
+      "Nick Keefer": "",
+      "Jeff Hollobaugh": "",
+      "Andy Patz": "",
+      "Trent Brocious": "",
+      "Wilbur Dudley": "",
+      "Duck Julius": "",
+      "Willie Powell": "",
+      "Bruce Thomas": "",
+      "Scott Barton": "",
+      "Dave Cushey": "",
+      "Dicky Peat": "",
+      "Allan Voltz": "",
+      "Clark Helm": "",
+      "Harry Breski": "",
+      "Roger Hoffman": "",
+      "Chad Hollobaugh": "",
+      "Blake Bowser": "",
+      "Tom Stennett": "",
+      "Landon Badac": "",
+      "Eli Hickman": "",
+      "Jaxon Smith": "",
+      "Bill Long": "",
+      "Tyler Eroh": "",
+      "Denny Snyder": "",
+      "Don Nulph": "",
+      "Dave Toy": "",
+      "Sam Long": "",
+      "Jay Griffith": "",
+      "Kevin Frye": "",
+      "Jesse Hickman": "",
+      "Jim Goodman": "",
+      "Dylan Barton": "",
+      "Matt Nulph": "",
+      "Ed Bargerstock": "",
+      "Vince Sanzotti": "",
+      "Mike Hickman": "",
+      "Chris Remaley": "",
+      "Jason Smith": "",
+      "Wes Barton": "",
+      "Doug Anthony": "",
+      "Brian Barton": "",
+      "Logan Bowser": "",
+      "Paul Bowser": "",
+      "Ken Long": "",
+      "Patric Weber": "",
+      "Cole Clark": "",
+      "Dylan Smith": ""
+    }
   }
 }
