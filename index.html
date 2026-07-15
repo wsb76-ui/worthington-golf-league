@@ -272,9 +272,10 @@ table.standings { width:100%; border-collapse:collapse; font-size:13px; }
     <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;padding:16px 0 8px">Review Scores</div>
     <div id="sc-review-body"></div>
     <div style="padding:12px 0 0">
-      <button class="sc-btn" onclick="scSubmit()">📤 Email Card to Commissioner</button>
+      <button id="sc-submit-btn" class="sc-btn" onclick="scSubmit()">📤 Submit Card to League</button>
+      <div id="sc-submit-status" style="display:none;padding:10px;border-radius:8px;font-size:14px;font-weight:600;text-align:center;margin:8px 0"></div>
       <button class="sc-btn-ghost" onclick="scGoBack()">← Back to Scoring</button>
-      <div class="sc-note">Opens your mail app with all scores pre-filled · just tap Send</div>
+      <div id="sc-submit-note" class="sc-note">Sends scores directly to the WGL system · Commissioner reviews before official</div>
     </div>
   </div>
 
@@ -652,6 +653,7 @@ function sortedPlayers(){
 
 // ── Score Card — 3-step prototype ────────────────────────────────────────────
 const SC_EMAIL      = 'wglscore@gmail.com';
+const SCRIPT_URL    = 'https://script.google.com/macros/s/AKfycbx4vADa-QnAHP7QeHz6mN7lxA1Q24Ny7Z0GiDzFFg7nMqY35Uh54kS2C61JUYU87pj23g/exec';
 const SC_BACK_PARS  = [5,4,4,4,4,3,4,3,4]; // Holes 10–18 Hiland GC
 const SC_FRONT_PARS = [4,4,3,4,4,4,5,4,3]; // Holes 1–9
 
@@ -893,27 +895,67 @@ function scShowReview(){
   document.getElementById('sc-review-body').innerHTML=html;
 }
 
-function scSubmit(){
-  const today=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  const side=scSess.side==='back'?'BACK 9 (Holes 10–18)':'FRONT 9 (Holes 1–9)';
-  const wk=D.settings&&D.settings.week?D.settings.week:'?';
-  const holes=scGetHoles();
-  let body=`WGL Card — Week ${wk} · ${side}\nDate: ${today}\n\n`;
-  const byTeam={};
-  for(const p of scSess.players)(byTeam[p.team]=byTeam[p.team]||[]).push(p);
-  for(const team of Object.keys(byTeam).sort((a,b)=>+a-+b)){
-    body+=`--- Team ${team} ---\n`;
-    for(const p of byTeam[team]){
-      const s=scSess.scores[p.name];
-      const gross=s.reduce((a,b)=>a+(b||0),0);
-      const net=gross-p.hcp;
-      const hstr=holes.map((h,i)=>`H${h}:${s[i]??'?'}`).join('  ');
-      body+=`${p.name}  HCP ${p.hcp}\n${hstr}\nGross:${gross}  Net:${net}\n\n`;
-    }
+async function scSubmit(){
+  const btn = document.getElementById('sc-submit-btn');
+  const statusEl = document.getElementById('sc-submit-status');
+  const noteEl = document.getElementById('sc-submit-note');
+
+  btn.disabled = true;
+  statusEl.style.display = 'block';
+  statusEl.style.background = '#fff8e1';
+  statusEl.style.color = '#e65100';
+  statusEl.textContent = '⏳ Sending…';
+
+  const today = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const wk = D.settings&&D.settings.week ? D.settings.week : '?';
+  const holes = scGetHoles();
+
+  const entries = scSess.players.map(p => {
+    const s = scSess.scores[p.name];
+    const gross = s.reduce((a,b) => a+(b||0), 0);
+    const net = gross - p.hcp;
+    const scores = {};
+    holes.forEach((h,i) => { scores[h] = s[i] ?? null; });
+    return { name:p.name, team:p.team, hcp:p.hcp, side:scSess.side, gross, net, scores };
+  });
+
+  const payload = { week: wk, date: today, entries };
+
+  try {
+    const form = new URLSearchParams();
+    form.append('data', JSON.stringify(payload));
+    await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', body: form });
+    statusEl.style.background = '#e8f5e9';
+    statusEl.style.color = '#2e7d32';
+    statusEl.textContent = '✅ Card submitted! Commissioner will review before it\'s official.';
+    if(noteEl) noteEl.style.display = 'none';
+    btn.style.display = 'none';
+  } catch(err) {
+    // Network error — fall back to email
+    statusEl.style.background = '#fff3e0';
+    statusEl.style.color = '#e65100';
+    statusEl.textContent = '⚠️ Network issue — opening email backup…';
+    btn.disabled = false;
+    console.error('Submit error:', err);
+    setTimeout(() => {
+      const side = scSess.side==='back'?'BACK 9 (Holes 10–18)':'FRONT 9 (Holes 1–9)';
+      let body = `WGL Card — Week ${wk} · ${side}\nDate: ${today}\n\n`;
+      const byTeam = {};
+      for(const p of scSess.players)(byTeam[p.team]=byTeam[p.team]||[]).push(p);
+      for(const team of Object.keys(byTeam).sort((a,b)=>+a-+b)){
+        body += `--- Team ${team} ---\n`;
+        for(const p of byTeam[team]){
+          const s = scSess.scores[p.name];
+          const gross = s.reduce((a,b) => a+(b||0), 0);
+          const net = gross - p.hcp;
+          const hstr = holes.map((h,i) => `H${h}:${s[i]??'?'}`).join('  ');
+          body += `${p.name}  HCP ${p.hcp}\n${hstr}\nGross:${gross}  Net:${net}\n\n`;
+        }
+      }
+      const sub = encodeURIComponent(`WGL Card Wk${wk} ${scSess.side==='back'?'Back9':'Front9'} – ${today}`);
+      window.location.href = `mailto:${SC_EMAIL}?subject=${sub}&body=${encodeURIComponent(body)}`;
+    }, 1500);
   }
-  const sub=encodeURIComponent(`WGL Card Wk${wk} ${scSess.side==='back'?'Back9':'Front9'} – ${today}`);
-  const bod=encodeURIComponent(body);
-  window.location.href=`mailto:${SC_EMAIL}?subject=${sub}&body=${bod}`;
 }
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
