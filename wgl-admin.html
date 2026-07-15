@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>WGL Admin</title>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#f0f2f5; color:#1a1a1a; min-height:100vh; }
+
+/* PIN */
+#pin-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:90vh; padding:24px; }
+.pin-logo { font-size:42px; margin-bottom:8px; }
+.pin-title { font-size:22px; font-weight:700; color:#1b5e20; margin-bottom:4px; }
+.pin-sub { font-size:13px; color:#888; margin-bottom:32px; }
+.pin-display { font-size:36px; font-weight:800; letter-spacing:12px; min-height:52px; margin-bottom:24px; text-align:center; }
+.pin-grid { display:grid; grid-template-columns:repeat(3,76px); gap:10px; justify-content:center; }
+.pin-btn { width:76px; height:76px; border-radius:50%; border:none; background:white; font-size:22px; font-weight:600; cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,.15); -webkit-tap-highlight-color:transparent; }
+.pin-btn:active { background:#f0f0f0; transform:scale(.9); }
+.pin-btn.del { font-size:18px; color:#888; }
+.pin-error { color:#c62828; font-size:13px; margin-top:12px; display:none; }
+
+/* App */
+#app { display:none; }
+.app-header { background:#1b5e20; color:white; padding:12px 14px 0; position:sticky; top:0; z-index:50; }
+.header-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.header-row h1 { font-size:16px; font-weight:700; }
+.lock-btn { background:rgba(255,255,255,.2); border:none; color:white; border-radius:8px; padding:5px 11px; font-size:12px; font-weight:600; cursor:pointer; }
+
+/* Tabs */
+.tabs { display:flex; overflow-x:auto; scrollbar-width:none; border-top:1px solid rgba(255,255,255,.2); }
+.tabs::-webkit-scrollbar { display:none; }
+.tab { flex-shrink:0; padding:9px 13px; font-size:11px; font-weight:600; color:rgba(255,255,255,.6); cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
+.tab.active { color:white; border-bottom-color:white; }
+.tab-content { display:none; padding:12px 12px 100px; max-width:720px; margin:0 auto; }
+.tab-content.active { display:block; }
+
+/* Cards */
+.card { background:white; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.1); margin-bottom:12px; overflow:hidden; }
+.card-hdr { padding:11px 14px; font-weight:600; font-size:13px; border-bottom:1px solid #f0f0f0; background:#fafafa; display:flex; justify-content:space-between; align-items:center; }
+.card-body { padding:14px; }
+.section-lbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#888; margin:14px 0 7px; }
+
+/* Form */
+.field { margin-bottom:12px; }
+.field label { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#888; margin-bottom:4px; }
+.field input, .field select, .field textarea { width:100%; padding:9px 11px; border:1.5px solid #ddd; border-radius:8px; font-size:14px; font-family:inherit; background:white; -webkit-appearance:none; }
+.field textarea { min-height:72px; resize:vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color:#2e7d32; outline:none; }
+.row2 { display:flex; gap:8px; }
+.row2 .field { flex:1; }
+
+/* Table */
+table { width:100%; border-collapse:collapse; font-size:13px; }
+thead th { background:#f5f5f5; padding:7px 8px; text-align:center; font-size:11px; font-weight:700; color:#555; border-bottom:2px solid #eee; white-space:nowrap; }
+thead th.lft { text-align:left; }
+tbody td { padding:7px 8px; border-bottom:1px solid #f5f5f5; text-align:center; }
+tbody td.lft { text-align:left; }
+tbody tr:last-child td { border-bottom:none; }
+.team-hdr td { background:#1b5e20; color:white; font-size:11px; font-weight:700; text-transform:uppercase; padding:5px 8px; }
+
+/* Checkbox */
+.chk { width:20px; height:20px; cursor:pointer; accent-color:#2e7d32; }
+
+/* Buttons */
+.btn { padding:10px 16px; border:none; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:opacity .15s; }
+.btn:active { opacity:.8; }
+.btn-green { background:#2e7d32; color:white; }
+.btn-blue { background:#1565c0; color:white; }
+.btn-red { background:#c62828; color:white; }
+.btn-gray { background:#eee; color:#555; }
+.btn-orange { background:#e65100; color:white; }
+.btn-block { width:100%; display:block; margin-bottom:10px; }
+
+/* Count badge */
+.badge { display:inline-block; background:#e8f5e9; color:#2e7d32; border-radius:20px; font-size:11px; font-weight:700; padding:2px 9px; margin-left:5px; }
+
+/* Toggle */
+.toggle { position:relative; width:44px; height:26px; flex-shrink:0; }
+.toggle input { opacity:0; width:0; height:0; }
+.toggle-track { position:absolute; inset:0; background:#ccc; border-radius:26px; cursor:pointer; transition:.2s; }
+.toggle input:checked + .toggle-track { background:#2e7d32; }
+.toggle-track:before { content:''; position:absolute; height:20px; width:20px; left:3px; bottom:3px; background:white; border-radius:50%; transition:.2s; }
+.toggle input:checked + .toggle-track:before { transform:translateX(18px); }
+
+/* Announcement editor */
+.ann-card { border:1.5px solid #eee; border-radius:10px; padding:12px; margin-bottom:10px; }
+.ann-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.ann-del { background:none; border:none; color:#ccc; font-size:20px; cursor:pointer; }
+.ann-del:active { color:#c62828; }
+
+/* Player list */
+.player-row { display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid #f5f5f5; }
+.player-row:last-child { border-bottom:none; }
+.player-name { font-weight:600; font-size:14px; min-width:120px; }
+.player-meta { font-size:11px; color:#888; }
+.phone-input { flex:1; padding:6px 9px; border:1.5px solid #ddd; border-radius:7px; font-size:13px; min-width:0; }
+.phone-input:focus { border-color:#2e7d32; outline:none; }
+.rm-btn { background:none; border:none; color:#ddd; font-size:20px; cursor:pointer; flex-shrink:0; -webkit-tap-highlight-color:transparent; }
+.rm-btn:active { color:#c62828; }
+
+/* Add player form */
+.add-player-form { background:#f8f8f8; border-radius:10px; padding:14px; margin-top:10px; }
+
+/* Publish panel */
+.publish-status { display:flex; align-items:center; gap:10px; padding:12px; background:#f5f5f5; border-radius:10px; font-size:13px; }
+.status-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.status-dot.green { background:#43a047; }
+.status-dot.yellow { background:#ffa000; }
+.status-dot.red { background:#c62828; }
+
+/* Export box */
+.export-box { background:#1a1a1a; color:#4caf50; border-radius:8px; padding:12px; font-family:monospace; font-size:11px; line-height:1.6; max-height:240px; overflow-y:auto; margin-bottom:8px; white-space:pre-wrap; word-break:break-all; }
+
+/* Payout row */
+.payout-row { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid #f5f5f5; font-size:14px; }
+.payout-row:last-child { border-bottom:none; }
+.rollover-opts { display:flex; gap:6px; flex-wrap:wrap; }
+.ro-btn { padding:4px 11px; border:1.5px solid #ddd; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; background:white; color:#555; -webkit-tap-highlight-color:transparent; }
+.ro-btn.active { background:#2e7d32; color:white; border-color:#2e7d32; }
+</style>
+</head>
+<body>
+
+<!-- PIN -->
+<div id="pin-screen">
+  <div class="pin-logo">⛳</div>
+  <div class="pin-title">WGL Admin</div>
+  <div class="pin-sub">Default PIN: 7777</div>
+  <div class="pin-display" id="pin-disp">····</div>
+  <div class="pin-grid">
+    <button class="pin-btn" onclick="pk(1)">1</button>
+    <button class="pin-btn" onclick="pk(2)">2</button>
+    <button class="pin-btn" onclick="pk(3)">3</button>
+    <button class="pin-btn" onclick="pk(4)">4</button>
+    <button class="pin-btn" onclick="pk(5)">5</button>
+    <button class="pin-btn" onclick="pk(6)">6</button>
+    <button class="pin-btn" onclick="pk(7)">7</button>
+    <button class="pin-btn" onclick="pk(8)">8</button>
+    <button class="pin-btn" onclick="pk(9)">9</button>
+    <button class="pin-btn del" onclick="pd()">⌫</button>
+    <button class="pin-btn" onclick="pk(0)">0</button>
+    <button class="pin-btn del" onclick="pc()">✕</button>
+  </div>
+  <div class="pin-error" id="pin-err">Incorrect PIN — try again</div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <div class="app-header">
+    <div class="header-row">
+      <h1>⛳ WGL Admin · 2026</h1>
+      <button class="lock-btn" onclick="lockApp()">🔒 Lock</button>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('dues')">💵 Dues</div>
+      <div class="tab" onclick="showTab('players')">👥 Players</div>
+      <div class="tab" onclick="showTab('settings')">⚙️ Settings</div>
+      <div class="tab" onclick="showTab('announcements')">📣 News</div>
+      <div class="tab" onclick="showTab('outing')">🏆 Outing</div>
+      <div class="tab" onclick="showTab('payouts')">💰 Payouts</div>
+      <div class="tab" onclick="showTab('publish')">📤 Publish</div>
+      <div class="tab" onclick="showTab('season')">🔄 Season</div>
+    </div>
+  </div>
+
+  <!-- ── DUES & BUY-INS ─────────────────────────── -->
+  <div id="dues" class="tab-content active">
+    <div class="card" style="margin-top:12px">
+      <div class="card-hdr">Summary</div>
+      <div class="card-body" style="display:flex;gap:14px;flex-wrap:wrap;font-size:13px">
+        <span>💵 Dues: <span class="badge" id="cnt-dues">0</span></span>
+        <span>💰 Skins: <span class="badge" id="cnt-skins">0</span></span>
+        <span>🏅 Low Net: <span class="badge" id="cnt-ln">0</span></span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        Player Tracker
+        <span style="font-size:11px;color:#888">Tap to toggle</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th class="lft">Player</th>
+              <th>T</th>
+              <th>Dues</th>
+              <th style="color:#e65100">💰 Skins</th>
+              <th style="color:#2e7d32">🏅 Low Net</th>
+            </tr>
+          </thead>
+          <tbody id="dues-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PLAYERS ─────────────────────────────────── -->
+  <div id="players" class="tab-content">
+    <div style="margin-top:12px"></div>
+
+    <!-- Quick search -->
+    <div class="card">
+      <div class="card-hdr">
+        Player Roster <span class="badge" id="player-count">57</span>
+        <button class="btn btn-green" style="font-size:11px;padding:6px 12px" onclick="toggleAddForm()">+ Add Player</button>
+      </div>
+      <!-- Add form (hidden by default) -->
+      <div id="add-player-form" class="add-player-form" style="display:none;margin:0 12px 12px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:10px">New Player</div>
+        <div class="row2">
+          <div class="field"><label>First Name</label><input type="text" id="new-first" placeholder="First"></div>
+          <div class="field"><label>Last Name</label><input type="text" id="new-last" placeholder="Last"></div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Team</label>
+            <select id="new-team">
+              <option value="1">Team 1</option><option value="2">Team 2</option>
+              <option value="3">Team 3</option><option value="4">Team 4</option>
+              <option value="5">Team 5</option><option value="6">Team 6</option>
+              <option value="7">Team 7</option><option value="8">Team 8</option>
+            </select>
+          </div>
+          <div class="field"><label>Handicap</label><input type="number" id="new-hcp" placeholder="0" min="0" max="40"></div>
+        </div>
+        <div class="field"><label>Phone (optional)</label><input type="tel" id="new-phone" placeholder="724-555-0000"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-green" style="flex:1" onclick="addPlayer()">Add Player</button>
+          <button class="btn btn-gray" onclick="toggleAddForm()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Player list by team -->
+    <div class="card">
+      <div style="padding:8px 12px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px">
+        <input type="text" id="player-search" placeholder="Search players…" oninput="filterPlayers(this.value)"
+          style="flex:1;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:14px">
+      </div>
+      <div id="player-list" style="max-height:500px;overflow-y:auto"></div>
+    </div>
+
+  </div>
+
+  <!-- ── SETTINGS ────────────────────────────────── -->
+  <div id="settings" class="tab-content">
+    <div style="margin-top:12px"></div>
+    <div class="section-lbl">Financial</div>
+    <div class="card"><div class="card-body">
+      <div class="row2">
+        <div class="field"><label>Weekly Greens Fee</label><input type="text" id="s-greens" placeholder="e.g. $12" oninput="saveS()"></div>
+        <div class="field"><label>Season Dues</label><input type="text" id="s-dues" placeholder="e.g. $50" oninput="saveS()"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Outing Fee</label><input type="text" id="s-outing-fee" placeholder="e.g. $75" oninput="saveS()"></div>
+        <div class="field"><label>Skins Buy-in</label><input type="text" id="s-skins" placeholder="e.g. $20" oninput="saveS()"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Low Net Buy-in</label><input type="text" id="s-lownet" placeholder="e.g. $20" oninput="saveS()"></div>
+        <div class="field"><label>End-of-Season Pot</label><input type="text" id="s-pot" placeholder="e.g. $600" oninput="saveS()"></div>
+      </div>
+    </div></div>
+
+    <div class="section-lbl">App Settings</div>
+    <div class="card"><div class="card-body">
+      <div class="field"><label>Current Week</label><input type="number" id="s-week" placeholder="11" oninput="saveS()"></div>
+      <div class="field"><label>App Subtitle</label><input type="text" id="s-subtitle" oninput="saveS()"></div>
+    </div></div>
+
+    <div class="section-lbl">GitHub Sync</div>
+    <div class="card"><div class="card-body">
+      <div class="field">
+        <label>GitHub Token (stored on this device only)</label>
+        <input type="password" id="s-token" placeholder="ghp_xxxxxxxxxxxx" oninput="saveToken()">
+      </div>
+      <div style="font-size:12px;color:#888;line-height:1.5">
+        Enter the repo token from <code>.wgl_config</code>. Stored in your browser — never sent anywhere except GitHub. Each admin enters their own token once.
+      </div>
+    </div></div>
+
+    <div class="section-lbl">Push Notifications (OneSignal)</div>
+    <div class="card"><div class="card-body">
+      <div class="field">
+        <label>OneSignal App ID</label>
+        <input type="text" id="s-os-appid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" oninput="saveOSSettings()">
+      </div>
+      <div class="field">
+        <label>OneSignal REST API Key (stored on this device only)</label>
+        <input type="password" id="s-os-apikey" placeholder="REST API Key from OneSignal dashboard" oninput="saveOSSettings()">
+      </div>
+      <div id="os-status" style="font-size:12px;line-height:1.5;margin-top:4px;color:#888">
+        Not configured — push notifications disabled.
+      </div>
+      <div style="font-size:12px;color:#999;line-height:1.6;margin-top:8px;border-top:1px solid #f0f0f0;padding-top:8px">
+        Sign up free at <strong>onesignal.com</strong> → New App → Web Push → enter your GitHub Pages URL. Paste your App ID and REST API Key here. When you publish, push notifications fire automatically to all subscribed members.
+      </div>
+    </div></div>
+
+    <div class="section-lbl">Security</div>
+    <div class="card"><div class="card-body">
+      <div class="field"><label>Change Admin PIN (4 digits)</label><input type="number" id="s-pin" placeholder="Current: 7777" oninput="saveS()"></div>
+    </div></div>
+  </div>
+
+  <!-- ── ANNOUNCEMENTS ──────────────────────────── -->
+  <div id="announcements" class="tab-content">
+    <div style="margin-top:12px"></div>
+    <div class="card">
+      <div class="card-hdr">
+        Announcements
+        <button class="btn btn-green" style="font-size:11px;padding:6px 12px" onclick="addAnn()">+ Add</button>
+      </div>
+      <div class="card-body" id="ann-list">
+        <div style="color:#bbb;font-size:13px;text-align:center;padding:10px">No announcements yet.</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:#888;padding:0 4px">Posts display newest-first in the league app. Tap Publish to push live.</div>
+  </div>
+
+  <!-- ── OUTING ──────────────────────────────────── -->
+  <div id="outing" class="tab-content">
+    <div style="margin-top:12px"></div>
+
+    <!-- Sub-tabs for two outings -->
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button id="otab-mid-btn" onclick="switchOuting('mid')" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#2e7d32;color:white">🏌️ Mid-Season</button>
+      <button id="otab-end-btn" onclick="switchOuting('end')" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#eee;color:#555">🏆 End of Season</button>
+    </div>
+
+    <!-- Mid-Season Outing -->
+    <div id="otab-mid">
+      <div class="section-lbl">Mid-Season Outing Details</div>
+      <div class="card"><div class="card-body">
+        <div class="row2">
+          <div class="field"><label>Date</label><input type="text" id="o1-date" oninput="saveO(1)"></div>
+          <div class="field"><label>Tee Time</label><input type="text" id="o1-tee" oninput="saveO(1)"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Course</label><input type="text" id="o1-course" oninput="saveO(1)"></div>
+          <div class="field"><label>Format</label><input type="text" id="o1-format" oninput="saveO(1)"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Cost</label><input type="text" id="o1-cost" oninput="saveO(1)"></div>
+          <div class="field"><label>Holes</label><input type="text" id="o1-holes" oninput="saveO(1)"></div>
+        </div>
+        <div class="field"><label>Dinner Location</label><input type="text" id="o1-dinner" oninput="saveO(1)"></div>
+      </div></div>
+      <div class="section-lbl">Prizes</div>
+      <div class="card"><div class="card-body">
+        <div class="row2">
+          <div class="field"><label>Low Gross</label><input type="text" id="o1-p1" oninput="saveO(1)"></div>
+          <div class="field"><label>Low Net</label><input type="text" id="o1-p2" oninput="saveO(1)"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Closest to Pin</label><input type="text" id="o1-p3" oninput="saveO(1)"></div>
+          <div class="field"><label>Long Drive</label><input type="text" id="o1-p4" oninput="saveO(1)"></div>
+        </div>
+      </div></div>
+      <div class="section-lbl">Sign-Up Sheet</div>
+      <div class="card">
+        <div class="card-hdr">Signed Up <span class="badge" id="o1-signup-count">0</span>
+          <button class="btn btn-green" style="font-size:11px;padding:6px 12px" onclick="addSignup(1)">+ Add</button>
+        </div>
+        <div id="o1-signup-list" style="padding:8px 12px"><div style="color:#bbb;font-size:13px;text-align:center;padding:8px">No sign-ups yet.</div></div>
+      </div>
+      <div class="section-lbl">Outing Teams</div>
+      <div class="card">
+        <div class="card-hdr">Teams <span class="badge" id="o1-teams-count">0</span>
+          <button class="btn btn-green" style="font-size:11px;padding:6px 12px" onclick="addTeam(1)">+ Add Team</button>
+        </div>
+        <div id="o1-teams-list" style="padding:8px 12px"><div style="color:#bbb;font-size:13px;text-align:center;padding:8px">No teams posted yet.</div></div>
+      </div>
+    </div>
+
+    <!-- End of Season Outing -->
+    <div id="otab-end" style="display:none">
+      <div class="section-lbl">End-of-Season Outing Details</div>
+      <div class="card"><div class="card-body">
+        <div class="row2">
+          <div class="field"><label>Date</label><input type="text" id="o2-date" oninput="saveO(2)"></div>
+          <div class="field"><label>Tee Time</label><input type="text" id="o2-tee" oninput="saveO(2)"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Course</label><input type="text" id="o2-course" oninput="saveO(2)"></div>
+          <div class="field"><label>Format</label><input type="text" id="o2-format" oninput="saveO(2)"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Cost</label><input type="text" id="o2-cost" oninput="saveO(2)"></div>
+          <div class="field"><label>Holes</label><input type="text" id="o2-holes" oninput="saveO(2)"></div>
+        </div>
+        <div class="field"><label>Dinner Location</label><input type="text" id="o2-dinner" oninput="saveO(2)"></div>
+      </div></div>
+      <div class="section-lbl">Prizes</div>
+      <div class="card"><div class="card-body">
+        <div class="row2">
+          <div class="field"><label>Low Gross</label><input type="text" id="o2-p1" oninput="saveO(2)"></div>
+          <div class="field"><label>Low Net</label><input type="text" id="o2-p2" oninput="saveO(2)"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Closest to Pin</label><input type="text" id="o2-p3" oninput="saveO(2)"></div>
+          <div class="field"><label>Long Drive</label><input type="text" id="o2-p4" oninput="saveO(2)"></div>
+        </div>
+        <div class="field"><label>Season Champion</label><input type="text" id="o2-p5" oninput="saveO(2)"></div>
+      </div></div>
+      <div class="section-lbl">Sign-Up Sheet</div>
+      <div class="card">
+        <div class="card-hdr">Signed Up <span class="badge" id="o2-signup-count">0</span>
+          <button class="btn btn-green" style="font-size:11px;padding:6px 12px" onclick="addSignup(2)">+ Add</button>
+        </div>
+        <div id="o2-signup-list" style="padding:8px 12px"><div style="color:#bbb;font-size:13px;text-align:center;padding:8px">No sign-ups yet.</div></div>
+      </div>
+      <div class="section-lbl">Outing Teams</div>
+      <div class="card">
+        <div class="card-hdr">Teams <span class="badge" id="o2-teams-count">0</span>
+          <button class="btn btn-green" style="font-size:11px;padding:6px 12px" onclick="addTeam(2)">+ Add Team</button>
+        </div>
+        <div id="o2-teams-list" style="padding:8px 12px"><div style="color:#bbb;font-size:13px;text-align:center;padding:8px">No teams posted yet.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PAYOUTS ─────────────────────────────────── -->
+  <div id="payouts" class="tab-content">
+    <div style="margin-top:12px"></div>
+    <div class="section-lbl">Season Pot</div>
+    <div class="card"><div class="card-body">
+      <div class="row2">
+        <div class="field"><label>Total Pot ($)</label><input type="number" id="p-total" placeholder="0" oninput="saveP();calcP()"></div>
+        <div class="field"><label>% to 1st</label><input type="number" id="p-p1" value="50" oninput="saveP();calcP()"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>% to 2nd</label><input type="number" id="p-p2" value="30" oninput="saveP();calcP()"></div>
+        <div class="field"><label>% to 3rd</label><input type="number" id="p-p3" value="20" oninput="saveP();calcP()"></div>
+      </div>
+    </div></div>
+
+    <div class="card">
+      <div class="card-hdr">Calculated Payouts</div>
+      <div class="card-body" id="payout-calc"><div style="color:#888;font-size:13px">Enter pot total above.</div></div>
+    </div>
+
+    <div class="section-lbl">Cash Out / Roll Over — Per Player</div>
+    <div class="card" id="rollover-list"></div>
+  </div>
+
+  <!-- ── PUBLISH ─────────────────────────────────── -->
+  <div id="publish" class="tab-content">
+    <div style="margin-top:12px"></div>
+
+    <div class="card">
+      <div class="card-hdr">Publish to League App</div>
+      <div class="card-body">
+        <div class="publish-status">
+          <div class="status-dot yellow" id="pub-dot"></div>
+          <div id="pub-status-text" style="flex:1">Enter GitHub token in Settings to enable publishing.</div>
+        </div>
+        <div style="margin-top:12px;font-size:13px;color:#555;line-height:1.5">
+          When you publish, the league app updates within ~60–90 seconds for all users. This writes <code>wgl-data.json</code> to your GitHub repo.
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-green btn-block" style="font-size:15px;padding:14px" id="pub-btn" onclick="publishToGitHub()">
+      📤 Publish Changes Live
+    </button>
+
+    <div id="pub-result" style="display:none;text-align:center;padding:10px;font-size:14px;font-weight:600;border-radius:10px;margin-bottom:10px"></div>
+
+    <div class="section-lbl">What Gets Published</div>
+    <div class="card"><div class="card-body" style="font-size:13px;color:#555;line-height:1.8">
+      ✅ Skins &amp; Low Net buy-in status<br>
+      ✅ Dues &amp; Outing paid status<br>
+      ✅ Player roster (add/remove, phone numbers)<br>
+      ✅ Financial amounts (buy-in prices, pot)<br>
+      ✅ Announcements<br>
+      ✅ Outing details and sign-up sheet<br>
+      ✅ Season payouts and roll-over decisions
+    </div></div>
+
+    <div class="section-lbl">Last Published</div>
+    <div class="card"><div class="card-body">
+      <div id="last-pub-info" style="font-size:13px;color:#888">Never published from this device.</div>
+    </div></div>
+  </div>
+
+  <!-- ── SEASON RESET ──────────────────────────────── -->
+  <div id="season" class="tab-content">
+    <div style="margin-top:12px"></div>
+
+    <div class="card" style="border:1.5px solid #ef9a9a;background:#fff8f8">
+      <div class="card-body" style="font-size:13px;color:#b71c1c;line-height:1.6">
+        ⚠️ <strong>Archive first, then reset.</strong> Once reset, dues, outing data, and announcements are cleared. Player roster and contact info carry over automatically.
+      </div>
+    </div>
+
+    <div class="section-lbl">Step 1 — Archive Current Season</div>
+    <div class="card">
+      <div class="card-hdr">Archive to GitHub</div>
+      <div class="card-body">
+        <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:10px">
+          Saves a complete snapshot of the current season to <code id="archive-path-display">archive/wgl-2026.json</code> in your GitHub repo. Do this before resetting.
+        </div>
+        <label class="row-lbl" style="font-size:12px;color:#888">Season year</label>
+        <input type="number" id="archive-year" value="2026" style="width:100%;box-sizing:border-box;padding:9px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:10px" oninput="document.getElementById('archive-path-display').textContent='archive/wgl-'+this.value+'.json'">
+        <button class="btn btn-green btn-block" style="font-size:15px;padding:14px" onclick="archiveSeason()">
+          💾 Archive Season to GitHub
+        </button>
+        <div id="archive-result" style="display:none;text-align:center;padding:10px;font-size:14px;font-weight:600;border-radius:10px;margin-top:10px"></div>
+      </div>
+    </div>
+
+    <div class="section-lbl">Step 2 — Reset for New Season</div>
+    <div class="card">
+      <div class="card-hdr">What Resets vs. Carries Over</div>
+      <div class="card-body" style="font-size:13px;color:#555;line-height:1.9">
+        <div style="color:#c62828">🗑 Cleared: Dues &amp; buy-in status · Outing sign-ups &amp; teams · Announcements</div>
+        <div style="color:#2e7d32;margin-top:4px">✅ Kept: Full player roster · Phone numbers · Handicaps · Settings</div>
+      </div>
+    </div>
+    <div class="card" id="rollover-card">
+      <div class="card-hdr">Season Pot Roll-Over</div>
+      <div class="card-body" style="font-size:13px;color:#555;margin-bottom:8px">Check players whose pot share rolls into next season:</div>
+      <div id="rollover-list"></div>
+    </div>
+
+    <div id="reset-confirm-box" style="display:none;background:#fff8e1;border:1.5px solid #ffa000;border-radius:10px;padding:14px;margin-bottom:10px">
+      <div style="font-size:14px;font-weight:700;color:#e65100;margin-bottom:8px">⚠️ Confirm Season Reset</div>
+      <div style="font-size:13px;color:#555;margin-bottom:12px">This will clear dues, buy-ins, outing data, and announcements. Players carry over. Have you archived this season?</div>
+      <div style="display:flex;gap:10px">
+        <button class="btn" style="flex:1;padding:12px" onclick="document.getElementById('reset-confirm-box').style.display='none'">Cancel</button>
+        <button class="btn" style="flex:1;padding:12px;background:#c62828;color:white;border-color:#c62828" onclick="doSeasonReset()">Yes, Reset Season</button>
+      </div>
+    </div>
+    <button class="btn btn-block" style="font-size:15px;padding:14px;background:#e53935;color:white;border:none" onclick="document.getElementById('reset-confirm-box').style.display='block'">
+      🔄 Reset for New Season
+    </button>
+    <div id="reset-result" style="display:none;text-align:center;padding:10px;font-size:14px;font-weight:600;border-radius:10px;margin-top:10px"></div>
+  </div>
+
+</div><!-- #app -->
+
+<script>
+// ── Baseline roster ───────────────────────────────────────────────────────────
+const BASE_PLAYERS = {
+  "Larry Julius":    {team:1,hcp:2,phone:""}, "Kris Simmons":   {team:1,hcp:4,phone:""},
+  "Butch Griffith":  {team:1,hcp:12,phone:""}, "Mario Jenkins":  {team:1,hcp:10,phone:""},
+  "Frank Watt":      {team:1,hcp:16,phone:""}, "Paul Harmon":    {team:1,hcp:15,phone:""},
+  "Andy Gallagher":  {team:1,hcp:16,phone:""}, "Keith Clark":    {team:1,hcp:20,phone:""},
+  "Jim Frye":        {team:2,hcp:1,phone:""},  "Skylar Grafton": {team:2,hcp:8,phone:""},
+  "Nick Keefer":     {team:2,hcp:9,phone:""},  "Jeff Hollobaugh":{team:2,hcp:12,phone:""},
+  "Andy Patz":       {team:2,hcp:14,phone:""}, "Trent Brocious": {team:2,hcp:15,phone:""},
+  "Wilbur Dudley":   {team:2,hcp:18,phone:""},
+  "Duck Julius":     {team:3,hcp:1,phone:""},  "Willie Powell":  {team:3,hcp:10,phone:""},
+  "Bruce Thomas":    {team:3,hcp:10,phone:""}, "Scott Barton":   {team:3,hcp:11,phone:""},
+  "Dave Cushey":     {team:3,hcp:12,phone:""}, "Dicky Peat":     {team:3,hcp:17,phone:""},
+  "Allan Voltz":     {team:3,hcp:20,phone:""},
+  "Clark Helm":      {team:4,hcp:5,phone:""},  "Harry Breski":   {team:4,hcp:7,phone:""},
+  "Roger Hoffman":   {team:4,hcp:7,phone:""},  "Chad Hollobaugh":{team:4,hcp:10,phone:""},
+  "Blake Bowser":    {team:4,hcp:15,phone:""}, "Tom Stennett":   {team:4,hcp:14,phone:""},
+  "Landon Badac":    {team:4,hcp:17,phone:""},
+  "Eli Hickman":     {team:5,hcp:8,phone:""},  "Jaxon Smith":    {team:5,hcp:9,phone:""},
+  "Bill Long":       {team:5,hcp:9,phone:""},  "Tyler Eroh":     {team:5,hcp:8,phone:""},
+  "Denny Snyder":    {team:5,hcp:9,phone:""},  "Don Nulph":      {team:5,hcp:11,phone:""},
+  "Dave Toy":        {team:5,hcp:10,phone:""},
+  "Sam Long":        {team:6,hcp:7,phone:""},  "Jay Griffith":   {team:6,hcp:9,phone:""},
+  "Kevin Frye":      {team:6,hcp:9,phone:""},  "Jesse Hickman":  {team:6,hcp:13,phone:""},
+  "Jim Goodman":     {team:6,hcp:17,phone:""}, "Dylan Barton":   {team:6,hcp:20,phone:""},
+  "Matt Nulph":      {team:6,hcp:20,phone:""},
+  "Ed Bargerstock":  {team:7,hcp:4,phone:""},  "Vince Sanzotti": {team:7,hcp:7,phone:""},
+  "Mike Hickman":    {team:7,hcp:5,phone:""},  "Chris Remaley":  {team:7,hcp:11,phone:""},
+  "Jason Smith":     {team:7,hcp:11,phone:""}, "Wes Barton":     {team:7,hcp:12,phone:""},
+  "Doug Anthony":    {team:7,hcp:10,phone:""},
+  "Brian Barton":    {team:8,hcp:6,phone:""},  "Logan Bowser":   {team:8,hcp:10,phone:""},
+  "Paul Bowser":     {team:8,hcp:8,phone:""},  "Ken Long":       {team:8,hcp:13,phone:""},
+  "Patric Weber":    {team:8,hcp:15,phone:""}, "Cole Clark":     {team:8,hcp:15,phone:""},
+  "Dylan Smith":     {team:8,hcp:16,phone:""}
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+const LS='wgl_admin';
+let ST;
+
+function defaultST() {
+  const players=JSON.parse(JSON.stringify(BASE_PLAYERS));
+  const dues={}, rollover={};
+  for (const n of Object.keys(players)) {
+    dues[n]={dues:false,outing:false,skins:false,lownet:false};
+    rollover[n]='';
+  }
+  return {
+    pin:'7777',
+    players, dues, rollover,
+    settings:{greens:'',dues:'',outingFee:'',skins:'',lownet:'',pot:'',week:11,subtitle:'Monday Nights · Hiland Golf Course, Butler PA · Week 11 Upcoming'},
+    anns:[],
+    outing:{date:'Saturday, August 29, 2026',tee:'8:00 AM start',course:'Hiland Golf Course · Butler, PA',holes:'18 holes · starting on the back 9',format:'',cost:'',dinner:'The Farm · 150 Fox Rd, Worthington PA 16262',prizes:{p1:'',p2:'',p3:'',p4:'',p5:'Lowest season net total'},signups:[]},
+    payouts:{total:'',pct1:50,pct2:30,pct3:20},
+    lastPub:null
+  };
+}
+
+function loadST() {
+  try { const s=localStorage.getItem(LS); ST=s?JSON.parse(s):defaultST(); }
+  catch(e) { ST=defaultST(); }
+  // Ensure all base players exist
+  for (const [n,v] of Object.entries(BASE_PLAYERS)) {
+    if (!ST.players[n]) ST.players[n]={...v};
+    if (!ST.dues[n]) ST.dues[n]={dues:false,outing:false,skins:false,lownet:false};
+    if (ST.rollover[n]===undefined) ST.rollover[n]='';
+  }
+}
+function saveST() { localStorage.setItem(LS,JSON.stringify(ST)); }
+
+// Sorted player list
+function sortedPlayers() {
+  return Object.entries(ST.players)
+    .map(([n,v])=>({name:n,...v}))
+    .sort((a,b)=>a.team-b.team||a.hcp-b.hcp);
+}
+
+// ── PIN ───────────────────────────────────────────────────────────────────────
+let pe='';
+function pk(d){if(pe.length>=4)return;pe+=String(d);upd();if(pe.length===4)setTimeout(ck,120);}
+function pd(){pe=pe.slice(0,-1);upd();}
+function pc(){pe='';upd();}
+function upd(){document.getElementById('pin-disp').textContent='●'.repeat(pe.length)+'·'.repeat(4-pe.length);}
+function ck(){
+  if(pe===(ST.pin||'7777')){
+    document.getElementById('pin-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    document.getElementById('pin-err').style.display='none';
+    initApp();
+  } else {
+    document.getElementById('pin-err').style.display='block';
+    pe='';upd();
+  }
+}
+function lockApp(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('pin-screen').style.display='flex';
+  pe='';upd();
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+function showTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  if(id==='season')renderRolloverList();
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+function initApp(){
+  buildDues();
+  buildPlayerList('');
+  loadSettingsUI();
+  renderAnns();
+  loadOutingUI();
+  renderRollover();
+  calcP();
+  updatePublishStatus();
+  if(ST.lastPub){
+    document.getElementById('last-pub-info').textContent=`Last published ${new Date(ST.lastPub).toLocaleString()} by ${ST.lastPubBy||'admin'}`;
+  }
+}
+
+// ── Dues ──────────────────────────────────────────────────────────────────────
+function buildDues(){
+  const tbody=document.getElementById('dues-tbody');
+  let html='',cur=0;
+  for(const p of sortedPlayers()){
+    if(p.team!==cur){cur=p.team;html+=`<tr class="team-hdr"><td colspan="6">Team #${p.team}</td></tr>`;}
+    const d=ST.dues[p.name]||{};
+    const n=esc(p.name);
+    html+=`<tr>
+      <td class="lft">${p.name}</td><td>${p.team}</td>
+      <td><input type="checkbox" class="chk" ${d.dues?'checked':''} onchange="tog('${n}','dues',this.checked)"></td>
+      <td><input type="checkbox" class="chk" ${d.skins?'checked':''} onchange="tog('${n}','skins',this.checked)"></td>
+      <td><input type="checkbox" class="chk" ${d.lownet?'checked':''} onchange="tog('${n}','lownet',this.checked)"></td>
+    </tr>`;
+  }
+  tbody.innerHTML=html;
+  updCounts();
+}
+function esc(s){return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
+function tog(name,field,val){
+  if(!ST.dues[name])ST.dues[name]={dues:false,outing:false,skins:false,lownet:false};
+  ST.dues[name][field]=val;saveST();updCounts();
+}
+function updCounts(){
+  let d=0,s=0,l=0;
+  for(const v of Object.values(ST.dues)){if(v.dues)d++;if(v.skins)s++;if(v.lownet)l++;}
+  document.getElementById('cnt-dues').textContent=d;
+  document.getElementById('cnt-skins').textContent=s;
+  document.getElementById('cnt-ln').textContent=l;
+}
+
+// ── Players ───────────────────────────────────────────────────────────────────
+let _pFilter='';
+function filterPlayers(q){_pFilter=q.toLowerCase();buildPlayerList(q);}
+function buildPlayerList(filter){
+  const q=(filter||'').toLowerCase();
+  const el=document.getElementById('player-list');
+  const ps=sortedPlayers().filter(p=>!q||p.name.toLowerCase().includes(q));
+  let html='',cur=0;
+  for(const p of ps){
+    if(!q&&p.team!==cur){
+      cur=p.team;
+      html+=`<div style="background:#1b5e20;color:white;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:5px 12px">Team #${p.team}</div>`;
+    }
+    const n=esc(p.name);
+    html+=`<div class="player-row" style="padding:8px 12px">
+      <div style="flex:1;min-width:0">
+        <div class="player-name">${p.name}</div>
+        <div class="player-meta">T${p.team} · HCP ${p.hcp}</div>
+      </div>
+      <input class="phone-input" type="tel" placeholder="Phone" value="${p.phone||''}"
+        oninput="updPhone('${n}',this.value)" style="width:130px">
+      <input type="number" placeholder="HCP" value="${p.hcp}"
+        oninput="updHcp('${n}',this.value)"
+        style="width:52px;padding:6px;border:1.5px solid #ddd;border-radius:7px;font-size:13px;text-align:center">
+      <button class="rm-btn" onclick="removePlayer('${n}')">×</button>
+    </div>`;
+  }
+  if(!ps.length) html='<div style="color:#bbb;font-size:13px;text-align:center;padding:16px">No players found.</div>';
+  el.innerHTML=html;
+  document.getElementById('player-count').textContent=Object.keys(ST.players).length;
+}
+function updPhone(name,val){
+  if(ST.players[name])ST.players[name].phone=val;
+  saveST();
+}
+function updHcp(name,val){
+  if(ST.players[name])ST.players[name].hcp=parseInt(val)||0;
+  saveST();
+}
+function removePlayer(name){
+  if(!confirm(`Remove ${name} from the roster? This cannot be undone.`))return;
+  delete ST.players[name];
+  delete ST.dues[name];
+  delete ST.rollover[name];
+  saveST();
+  buildPlayerList(_pFilter);
+  buildDues();
+  renderRollover();
+}
+function toggleAddForm(){
+  const f=document.getElementById('add-player-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+}
+function addPlayer(){
+  const first=document.getElementById('new-first').value.trim();
+  const last=document.getElementById('new-last').value.trim();
+  const team=parseInt(document.getElementById('new-team').value);
+  const hcp=parseInt(document.getElementById('new-hcp').value)||0;
+  const phone=document.getElementById('new-phone').value.trim();
+  if(!first||!last){alert('Enter first and last name.');return;}
+  const name=first+' '+last;
+  if(ST.players[name]){alert(name+' already exists.');return;}
+  ST.players[name]={team,hcp,phone};
+  ST.dues[name]={dues:false,outing:false,skins:false,lownet:false};
+  ST.rollover[name]='';
+  saveST();
+  // Clear form
+  ['new-first','new-last','new-hcp','new-phone'].forEach(id=>document.getElementById(id).value='');
+  toggleAddForm();
+  buildPlayerList(_pFilter);
+  buildDues();
+  renderRollover();
+  alert(`${name} added to Team ${team}.`);
+}
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+function loadSettingsUI(){
+  const s=ST.settings;
+  document.getElementById('s-greens').value=s.greens||'';
+  document.getElementById('s-dues').value=s.dues||'';
+  document.getElementById('s-outing-fee').value=s.outingFee||'';
+  document.getElementById('s-skins').value=s.skins||'';
+  document.getElementById('s-lownet').value=s.lownet||'';
+  document.getElementById('s-pot').value=s.pot||'';
+  document.getElementById('s-week').value=s.week||11;
+  document.getElementById('s-subtitle').value=s.subtitle||'';
+  const tok=localStorage.getItem('wgl_token')||'';
+  document.getElementById('s-token').value=tok;
+  // OneSignal
+  document.getElementById('s-os-appid').value=localStorage.getItem('wgl_os_appid')||'2d45ee7e-57a8-450f-bbcd-42a872d6ac59';
+  document.getElementById('s-os-apikey').value=localStorage.getItem('wgl_os_apikey')||'';
+  updateOSStatus();
+}
+function saveS(){
+  ST.settings={
+    greens:document.getElementById('s-greens').value,
+    dues:document.getElementById('s-dues').value,
+    outingFee:document.getElementById('s-outing-fee').value,
+    skins:document.getElementById('s-skins').value,
+    lownet:document.getElementById('s-lownet').value,
+    pot:document.getElementById('s-pot').value,
+    week:document.getElementById('s-week').value||11,
+    subtitle:document.getElementById('s-subtitle').value
+  };
+  const np=document.getElementById('s-pin').value;
+  if(np&&np.length===4&&/^\d{4}$/.test(np))ST.pin=np;
+  saveST();
+}
+function saveToken(){
+  const t=document.getElementById('s-token').value.trim();
+  localStorage.setItem('wgl_token',t);
+  updatePublishStatus();
+}
+function saveOSSettings(){
+  const appId=document.getElementById('s-os-appid').value.trim();
+  const apiKey=document.getElementById('s-os-apikey').value.trim();
+  localStorage.setItem('wgl_os_appid',appId);
+  localStorage.setItem('wgl_os_apikey',apiKey);
+  updateOSStatus();
+}
+function updateOSStatus(){
+  const el=document.getElementById('os-status');
+  if(!el)return;
+  const appId=localStorage.getItem('wgl_os_appid')||'';
+  const apiKey=localStorage.getItem('wgl_os_apikey')||'';
+  if(appId&&apiKey){
+    el.style.color='#2e7d32';
+    el.textContent='✅ OneSignal configured — push notifications will fire on publish.';
+  } else if(appId||apiKey){
+    el.style.color='#e65100';
+    el.textContent='⚠️ Partially configured — enter both App ID and REST API Key.';
+  } else {
+    el.style.color='#888';
+    el.textContent='Not configured — push notifications disabled.';
+  }
+}
+async function sendPushNotification(heading, message){
+  const appId=localStorage.getItem('wgl_os_appid')||'';
+  const apiKey=localStorage.getItem('wgl_os_apikey')||'';
+  if(!appId||!apiKey)return; // Not configured, skip silently
+  try {
+    const r=await fetch('https://onesignal.com/api/v1/notifications',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Basic ${apiKey}`},
+      body:JSON.stringify({
+        app_id:appId,
+        included_segments:['All'],
+        headings:{en:heading||'WGL Update'},
+        contents:{en:message||'New league update posted.'},
+        url:'https://wsb76-ui.github.io/worthington-golf-league/'
+      })
+    });
+    if(!r.ok){const e=await r.json();console.warn('OneSignal error:',e);}
+  } catch(e){
+    console.warn('OneSignal push failed:',e);
+  }
+}
+
+// ── Announcements ─────────────────────────────────────────────────────────────
+const ANN_TAGS=[
+  {val:'info',lbl:'League Notice',cls:'#e3f2fd;color:#1565c0'},
+  {val:'reminder',lbl:'Reminder',cls:'#fff3e0;color:#e65100'},
+  {val:'alert',lbl:'⚠️ Action Needed',cls:'#fce4ec;color:#b71c1c'},
+  {val:'success',lbl:'✅ Update',cls:'#e8f5e9;color:#2e7d32'}
+];
+function addAnn(){
+  ST.anns.unshift({date:new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}),tag:'info',title:'',body:''});
+  saveST();renderAnns();
+}
+function delAnn(i){if(!confirm('Delete?'))return;ST.anns.splice(i,1);saveST();renderAnns();}
+function updAnn(i,f,v){ST.anns[i][f]=v;saveST();}
+function renderAnns(){
+  const el=document.getElementById('ann-list');
+  if(!ST.anns.length){el.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:10px">No announcements yet. Tap + Add above.</div>';return;}
+  el.innerHTML=ST.anns.map((a,i)=>{
+    const opts=ANN_TAGS.map(t=>`<option value="${t.val}" ${a.tag===t.val?'selected':''}>${t.lbl}</option>`).join('');
+    return `<div class="ann-card">
+      <div class="ann-hdr">
+        <input type="text" placeholder="Date" value="${a.date||''}" oninput="updAnn(${i},'date',this.value)"
+          style="flex:1;padding:6px 9px;border:1.5px solid #ddd;border-radius:7px;font-size:12px;margin-right:8px">
+        <select onchange="updAnn(${i},'tag',this.value)" style="padding:6px;border:1.5px solid #ddd;border-radius:7px;font-size:12px;background:white">${opts}</select>
+        <button class="ann-del" onclick="delAnn(${i})">×</button>
+      </div>
+      <input type="text" placeholder="Title" value="${(a.title||'').replace(/"/g,'&quot;')}" oninput="updAnn(${i},'title',this.value)"
+        style="width:100%;padding:7px 9px;border:1.5px solid #ddd;border-radius:7px;font-size:14px;font-weight:600;margin-bottom:7px">
+      <textarea placeholder="Body…" rows="2" oninput="updAnn(${i},'body',this.value)"
+        style="width:100%;padding:7px 9px;border:1.5px solid #ddd;border-radius:7px;font-size:13px;resize:vertical;margin-bottom:8px">${a.body||''}</textarea>
+      <button id="post-ann-btn-${i}" onclick="postAnnouncement(${i})"
+        style="width:100%;padding:10px;background:#1b5e20;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.02em">
+        📢 Post &amp; Notify Members
+      </button>
+    </div>`;
+  }).join('');
+}
+async function postAnnouncement(i){
+  const a=ST.anns[i];
+  if(!a.title&&!a.body){alert('Add a title or message before posting.');return;}
+  const tok=localStorage.getItem('wgl_token')||'';
+  if(!tok){alert('Enter your GitHub token in Settings first.');return;}
+  const btn=document.getElementById('post-ann-btn-'+i);
+  btn.textContent='⏳ Posting…'; btn.disabled=true;
+  try {
+    // Push to GitHub
+    const getR=await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`,{
+      headers:{'Authorization':`token ${tok}`,'Accept':'application/vnd.github.v3+json'}
+    });
+    let sha='';
+    if(getR.ok){const d=await getR.json();sha=d.sha;}
+    const data=buildData();
+    const b64=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
+    const body={message:`Announcement: ${a.title||'update'} · ${new Date().toLocaleDateString()}`,content:b64,branch:BRANCH};
+    if(sha)body.sha=sha;
+    const putR=await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`,{
+      method:'PUT',
+      headers:{'Authorization':`token ${tok}`,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},
+      body:JSON.stringify(body)
+    });
+    if(!putR.ok){const e=await putR.json();throw new Error(e.message||'GitHub error');}
+    ST.lastPub=Date.now();ST.lastPubBy='admin';saveST();
+    // Send push notification
+    await sendPushNotification(a.title||'WGL Update', a.body||'New league announcement posted.');
+    btn.textContent='✅ Posted!';
+    setTimeout(()=>{btn.textContent='📢 Post & Notify Members';btn.disabled=false;},4000);
+  } catch(e){
+    btn.textContent='❌ Failed — try again';btn.disabled=false;
+    alert('Error: '+e.message);
+  }
+}
+
+// ── Outing ────────────────────────────────────────────────────────────────────
+let _curOuting=1;
+function switchOuting(which){
+  _curOuting=which==='end'?2:1;
+  document.getElementById('otab-mid').style.display=_curOuting===1?'':'none';
+  document.getElementById('otab-end').style.display=_curOuting===2?'':'none';
+  document.getElementById('otab-mid-btn').style.background=_curOuting===1?'#2e7d32':'#eee';
+  document.getElementById('otab-mid-btn').style.color=_curOuting===1?'white':'#555';
+  document.getElementById('otab-end-btn').style.background=_curOuting===2?'#2e7d32':'#eee';
+  document.getElementById('otab-end-btn').style.color=_curOuting===2?'white':'#555';
+}
+function outingObj(n){
+  // ST.outings is an array of 2 outing objects
+  if(!ST.outings)ST.outings=[{...ST.outing},{date:'',tee:'',course:'',holes:'',format:'',cost:'',dinner:'',prizes:{p1:'',p2:'',p3:'',p4:'',p5:''},signups:[]}];
+  return ST.outings[n-1];
+}
+function loadOutingUI(){
+  [1,2].forEach(n=>{
+    const o=outingObj(n);
+    ['date','tee','course','holes','format','cost','dinner'].forEach(f=>{const el=document.getElementById('o'+n+'-'+f);if(el)el.value=o[f]||'';});
+    [1,2,3,4,5].forEach(p=>{const el=document.getElementById('o'+n+'-p'+p);if(el)el.value=o.prizes?.['p'+p]||'';});
+    renderSignups(n);
+    renderAdminTeams(n);
+  });
+}
+function saveO(n){
+  const o=outingObj(n);
+  ['date','tee','course','holes','format','cost','dinner'].forEach(f=>{const el=document.getElementById('o'+n+'-'+f);if(el)o[f]=el.value;});
+  o.prizes={};[1,2,3,4,5].forEach(p=>{const el=document.getElementById('o'+n+'-p'+p);if(el)o.prizes['p'+p]=el.value;});
+  saveST();
+}
+function addSignup(n){
+  const name=prompt('Player name:');
+  if(!name||!name.trim())return;
+  const o=outingObj(n);
+  o.signups=o.signups||[];
+  o.signups.push({name:name.trim()});
+  saveST();renderSignups(n);
+}
+function togSignupPaid(n,i,v){outingObj(n).signups[i].paid=v;saveST();}
+function rmSignup(n,i){outingObj(n).signups.splice(i,1);saveST();renderSignups(n);}
+function renderSignups(n){
+  const el=document.getElementById('o'+n+'-signup-list');
+  const s=outingObj(n).signups||[];
+  const cnt=document.getElementById('o'+n+'-signup-count');
+  if(cnt)cnt.textContent=s.length;
+  if(!el)return;
+  if(!s.length){el.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:8px">No sign-ups yet.</div>';return;}
+  el.innerHTML=s.map((p,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f5f5f5;font-size:13px">
+      <span style="flex:1;font-weight:500">${p.name}</span>
+      <button style="background:none;border:none;color:#ccc;font-size:18px;cursor:pointer" onclick="rmSignup(${n},${i})">×</button>
+    </div>`).join('');
+}
+
+// ── Outing Teams ─────────────────────────────────────────────────────────────
+function addTeam(n){
+  const o=outingObj(n);
+  o.teams=o.teams||[];
+  const num=o.teams.length+1;
+  const p1=prompt('Team '+num+' — Player 1 name:');
+  if(!p1||!p1.trim())return;
+  const p2=prompt('Team '+num+' — Player 2 name:');
+  if(!p2||!p2.trim())return;
+  o.teams.push({num,players:[p1.trim(),p2.trim()]});
+  saveST();renderAdminTeams(n);
+}
+function removeTeam(n,i){
+  const o=outingObj(n);
+  o.teams.splice(i,1);
+  // re-number
+  o.teams.forEach((t,idx)=>t.num=idx+1);
+  saveST();renderAdminTeams(n);
+}
+function renderAdminTeams(n){
+  const el=document.getElementById('o'+n+'-teams-list');
+  const cnt=document.getElementById('o'+n+'-teams-count');
+  const teams=(outingObj(n).teams)||[];
+  if(cnt)cnt.textContent=teams.length;
+  if(!el)return;
+  if(!teams.length){el.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:8px">No teams posted yet.</div>';return;}
+  el.innerHTML=teams.map((t,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f5f5f5">
+      <div style="width:32px;height:32px;border-radius:50%;background:#e8f5e9;color:#2e7d32;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0">${t.num}</div>
+      <div style="flex:1">
+        ${t.players.map(p=>`<div style="font-size:13px;font-weight:600;line-height:1.5">${p}</div>`).join('')}
+      </div>
+      <button style="background:none;border:none;color:#ccc;font-size:18px;cursor:pointer" onclick="removeTeam(${n},${i})">×</button>
+    </div>`).join('');
+}
+
+// ── Payouts ───────────────────────────────────────────────────────────────────
+function saveP(){
+  ST.payouts={total:document.getElementById('p-total').value,pct1:+document.getElementById('p-p1').value||50,pct2:+document.getElementById('p-p2').value||30,pct3:+document.getElementById('p-p3').value||20};
+  saveST();
+}
+function calcP(){
+  const t=parseFloat(document.getElementById('p-total').value)||0;
+  const p1=+(document.getElementById('p-p1').value)||50;
+  const p2=+(document.getElementById('p-p2').value)||30;
+  const p3=+(document.getElementById('p-p3').value)||20;
+  const el=document.getElementById('payout-calc');
+  if(!t){el.innerHTML='<div style="color:#888;font-size:13px">Enter pot total above.</div>';return;}
+  el.innerHTML=`
+    <div class="payout-row"><span>🥇 1st Place (${p1}%)</span><strong style="color:#f57f17;font-size:16px">$${(t*p1/100).toFixed(2)}</strong></div>
+    <div class="payout-row"><span>🥈 2nd Place (${p2}%)</span><strong style="font-size:16px">$${(t*p2/100).toFixed(2)}</strong></div>
+    <div class="payout-row"><span>🥉 3rd Place (${p3}%)</span><strong style="font-size:16px">$${(t*p3/100).toFixed(2)}</strong></div>
+    <div class="payout-row" style="border-top:2px solid #eee;margin-top:4px"><span>Total</span><strong>$${t.toFixed(2)}</strong></div>`;
+}
+function renderRollover(){
+  const el=document.getElementById('rollover-list');
+  let html='',cur=0;
+  for(const p of sortedPlayers()){
+    if(p.team!==cur){
+      cur=p.team;
+      html+=`<div style="background:#1b5e20;color:white;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:5px 14px">Team #${p.team}</div>`;
+    }
+    const rv=ST.rollover[p.name]||'';
+    const n=esc(p.name);
+    html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid #f5f5f5">
+      <span style="font-weight:600;font-size:13px">${p.name}</span>
+      <div class="rollover-opts">
+        <button class="ro-btn ${rv==='cash'?'active':''}" onclick="setRV('${n}','cash',this)">💵 Cash</button>
+        <button class="ro-btn ${rv==='rollover'?'active':''}" onclick="setRV('${n}','rollover',this)">🔄 Roll</button>
+      </div>
+    </div>`;
+  }
+  el.innerHTML=html;
+}
+function setRV(name,val,btn){
+  ST.rollover[name]=val;saveST();
+  btn.closest('div.rollover-opts').querySelectorAll('.ro-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── Publish ───────────────────────────────────────────────────────────────────
+const REPO='wsb76-ui/worthington-golf-league';
+const BRANCH='main';
+const FILE='wgl-data.json';
+
+function updatePublishStatus(){
+  const tok=localStorage.getItem('wgl_token')||'';
+  const dot=document.getElementById('pub-dot');
+  const txt=document.getElementById('pub-status-text');
+  if(tok){dot.className='status-dot green';txt.textContent='GitHub token set — ready to publish.';}
+  else {dot.className='status-dot yellow';txt.textContent='No token set. Go to Settings → GitHub Sync.';}
+}
+
+async function publishToGitHub(){
+  const tok=localStorage.getItem('wgl_token')||'';
+  if(!tok){alert('Enter your GitHub token in Settings first.');return;}
+  const btn=document.getElementById('pub-btn');
+  const res=document.getElementById('pub-result');
+  btn.textContent='⏳ Publishing…'; btn.disabled=true;
+  res.style.display='none';
+  try {
+    // Get SHA of existing file
+    const getR=await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`,{
+      headers:{'Authorization':`token ${tok}`,'Accept':'application/vnd.github.v3+json'}
+    });
+    let sha='';
+    if(getR.ok){const d=await getR.json();sha=d.sha;}
+    // Build data payload
+    const data=buildData();
+    const json=JSON.stringify(data,null,2);
+    // btoa for unicode
+    const b64=btoa(unescape(encodeURIComponent(json)));
+    const body={message:`Admin update · ${new Date().toLocaleDateString()}`,content:b64,branch:BRANCH};
+    if(sha)body.sha=sha;
+    const putR=await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`,{
+      method:'PUT',
+      headers:{'Authorization':`token ${tok}`,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},
+      body:JSON.stringify(body)
+    });
+    if(putR.ok){
+      ST.lastPub=Date.now();ST.lastPubBy='admin';saveST();
+      btn.textContent='✅ Published!';
+      res.style.display='block';res.style.background='#e8f5e9';res.style.color='#2e7d32';
+      res.textContent='✅ Changes are live! The league app updates in ~60 seconds.';
+      document.getElementById('last-pub-info').textContent=`Last published ${new Date().toLocaleString()}`;
+      // Fire OneSignal push notification if configured
+      const latestAnn=ST.anns&&ST.anns.length?ST.anns[0]:null;
+      const pushHeading='WGL Update';
+      const pushMsg=latestAnn?latestAnn.body||latestAnn.title:'League info has been updated — check the app.';
+      sendPushNotification(pushHeading,pushMsg);
+      setTimeout(()=>{btn.textContent='📤 Publish Changes Live';btn.disabled=false;},4000);
+    } else {
+      const err=await putR.json();
+      throw new Error(err.message||'GitHub API error');
+    }
+  } catch(e){
+    btn.textContent='❌ Failed — try again'; btn.disabled=false;
+    res.style.display='block';res.style.background='#fce4ec';res.style.color='#c62828';
+    res.textContent='Error: '+e.message;
+  }
+}
+
+function buildData(){
+  const buyins={},duesPaid={};
+  for(const [n,d] of Object.entries(ST.dues)){
+    if(d.skins||d.lownet){buyins[n]={};if(d.skins)buyins[n].skins=true;if(d.lownet)buyins[n].lownet=true;}
+    if(d.dues||d.outing){duesPaid[n]={};if(d.dues)duesPaid[n].dues=true;if(d.outing)duesPaid[n].outing=true;}
+  }
+  return {
+    version:2,lastUpdated:new Date().toISOString(),updatedBy:'admin',
+    settings:ST.settings,players:ST.players,buyins,duesPaid,
+    announcements:ST.anns,outing:ST.outing,
+    payouts:{...ST.payouts,rollover:ST.rollover}
+  };
+}
+
+// ── Season Archive & Reset ────────────────────────────────────────────────────
+async function archiveSeason(){
+  const tok=localStorage.getItem('wgl_token')||'';
+  if(!tok){alert('Enter your GitHub token in Settings first.');return;}
+  const year=document.getElementById('archive-year').value||new Date().getFullYear();
+  const archiveFile=`archive/wgl-${year}.json`;
+  const res=document.getElementById('archive-result');
+  res.style.display='none';
+  try {
+    // Check if archive file already exists (get its SHA if so)
+    const getR=await fetch(`https://api.github.com/repos/${REPO}/contents/${archiveFile}`,{
+      headers:{'Authorization':`token ${tok}`,'Accept':'application/vnd.github.v3+json'}
+    });
+    let sha='';
+    if(getR.ok){const d=await getR.json();sha=d.sha;}
+    const payload=JSON.stringify({...buildData(),archivedAt:new Date().toISOString(),season:year},null,2);
+    const encoded=btoa(unescape(encodeURIComponent(payload)));
+    const body={message:`Archive WGL season ${year}`,content:encoded,branch:BRANCH};
+    if(sha)body.sha=sha;
+    const putR=await fetch(`https://api.github.com/repos/${REPO}/contents/${archiveFile}`,{
+      method:'PUT',
+      headers:{'Authorization':`token ${tok}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    if(putR.ok){
+      res.style.display='block';res.style.background='#e8f5e9';res.style.color='#2e7d32';
+      res.textContent=`✅ Season ${year} archived to ${archiveFile}`;
+    } else {
+      const err=await putR.json();throw new Error(err.message||'GitHub API error');
+    }
+  } catch(e){
+    res.style.display='block';res.style.background='#fce4ec';res.style.color='#c62828';
+    res.textContent='Error: '+e.message;
+  }
+}
+
+function renderRolloverList(){
+  const el=document.getElementById('rollover-list');
+  const ps=sortedPlayers();
+  if(!ps.length){el.innerHTML='<div style="color:#bbb;font-size:13px;padding:4px 0">No players found.</div>';return;}
+  el.innerHTML=ps.map(([n])=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f5f5f5;font-size:13px">
+      <input type="checkbox" id="ro-${n.replace(/\s/g,'_')}" ${ST.rollover?.[n]?'checked':''} onchange="ST.rollover=ST.rollover||{};ST.rollover['${n}']=this.checked;saveST()">
+      <label style="flex:1;font-weight:500;cursor:pointer" for="ro-${n.replace(/\s/g,'_')}">${n}</label>
+    </div>`).join('');
+}
+
+function doSeasonReset(){
+  // Clear dues / buy-ins
+  for(const k of Object.keys(ST.dues)){ST.dues[k]={dues:false,skins:false,lownet:false,outing:false};}
+  // Clear outing sign-ups and teams (keep details/prizes)
+  if(ST.outings){ST.outings.forEach(o=>{o.signups=[];o.teams=[];});}
+  // Clear announcements
+  ST.anns=[];
+  // Keep rollover flags as-is (admin set them intentionally)
+  // Reset week counter
+  if(ST.settings)ST.settings.week=0;
+  saveST();
+  // Hide confirm box
+  document.getElementById('reset-confirm-box').style.display='none';
+  const res=document.getElementById('reset-result');
+  res.style.display='block';res.style.background='#e8f5e9';res.style.color='#2e7d32';
+  res.textContent='✅ Season reset. Dues, outings, and announcements cleared. Players carried over. Don\'t forget to publish!';
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+loadST();
+upd();
+</script>
+</body>
+</html>
