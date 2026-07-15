@@ -74,6 +74,8 @@
   <div class="tab" onclick="showTab('outing')">🏆 Outing</div>
   <div class="tab" onclick="showTab('dues')">💵 Dues</div>
   <div class="tab" onclick="showTab('scorecard')">📝 Score Card</div>
+  <div class="tab" onclick="showTab('lownet')">🏅 Low Net</div>
+  <div class="tab" onclick="showTab('skins')">💰 Skins</div>
   <div class="tab" onclick="showTab('week9')">📋 Wk 9 Detail</div>
 </div>
 
@@ -662,6 +664,20 @@
   </div>
 </div>
 
+<!-- LOW NET TAB -->
+<div id="lownet" class="tab-content">
+  <div class="section-label">Individual Low Net</div>
+  <div class="ln-week-sel" id="ln-weeks"></div>
+  <div id="ln-content"></div>
+</div>
+
+<!-- SKINS TAB -->
+<div id="skins" class="tab-content">
+  <div class="section-label">Skins</div>
+  <div class="ln-week-sel" id="sk-weeks"></div>
+  <div id="sk-content"></div>
+</div>
+
 <style>
   /* Announcements */
   .announce-post { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
@@ -726,6 +742,27 @@
   .sc-hd { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 22px; border-radius: 4px; font-size: 12px; font-weight: 700; }
   .sc-player-link { color: #1a1a1a; text-decoration: none; border-bottom: 1px dashed #aaa; cursor: pointer; }
   .sc-player-link:hover { color: #2e7d32; border-bottom-color: #2e7d32; }
+
+  /* Low Net & Skins Tabs */
+  .ln-week-sel { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px; }
+  .ln-week-btn { padding:7px 16px;border:1.5px solid #ddd;border-radius:20px;font-size:13px;font-weight:600;background:white;cursor:pointer;color:#555;-webkit-tap-highlight-color:transparent; }
+  .ln-week-btn.active { background:#2e7d32;color:white;border-color:#2e7d32; }
+  .ln-rank-cell { font-size:14px;font-weight:700;width:28px;text-align:center; }
+  .skins-hole-row { padding:10px 4px;border-bottom:1px solid #f0f0f0;display:flex;align-items:flex-start;gap:10px; }
+  .skins-hole-row:last-child { border-bottom:none; }
+  .skins-hole-lbl { min-width:88px;font-size:12px;font-weight:700;color:#888;padding-top:1px; }
+  .skins-winner { font-size:14px;font-weight:700;color:#2e7d32; }
+  .skins-tied { font-size:13px;color:#bbb;font-style:italic; }
+  /* Card History Modal */
+  #cardModal { display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch; }
+  #cardModalInner { background:white;border-radius:14px;max-width:480px;margin:0 auto;padding:18px 16px; }
+  .cm-header { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px; }
+  .cm-close { background:none;border:none;font-size:32px;cursor:pointer;color:#bbb;line-height:1;padding:0;-webkit-tap-highlight-color:transparent; }
+  .cm-close:active { color:#888; }
+  .card-hole-table { width:100%;border-collapse:collapse;font-size:12px;margin-top:8px; }
+  .card-hole-table th { background:#f5f5f5;padding:5px 4px;text-align:center;font-size:10px;font-weight:700;color:#555; }
+  .card-hole-table td { padding:5px 4px;text-align:center;border-bottom:1px solid #f8f8f8; }
+  .card-hole-table .cn { text-align:left;font-size:11px;font-weight:600;max-width:72px;overflow:hidden;white-space:nowrap; }
 </style>
 
 <script>
@@ -1062,17 +1099,19 @@ function buildHcpGrid() {
   html += '</div>';
   container.innerHTML = html;
 }
-// Link player names in Weekly Detail tabs → Score Card (pre-loads that player)
+// Link player names in Weekly Detail tabs → Card History modal
 function buildPlayerLinks() {
-  document.querySelectorAll('#week10 td.lft, #week9 td.lft').forEach(td => {
-    const name = td.textContent.trim();
-    if (WGL_PLAYERS[name]) {
-      td.innerHTML = `<a class="sc-player-link" onclick="scJumpTo('${name}')">${name}</a>`;
-    }
+  [['#week10',10],['#week9',9]].forEach(([sel,wk])=>{
+    document.querySelectorAll(sel+' td.lft').forEach(td=>{
+      const name=td.textContent.trim();
+      if (WGL_PLAYERS[name]) {
+        td.innerHTML=`<a class="sc-player-link" onclick="showCardHistory('${name}',${wk})">${name}</a>`;
+      }
+    });
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => { buildHcpGrid(); buildPlayerLinks(); });
+document.addEventListener('DOMContentLoaded', () => { buildHcpGrid(); buildPlayerLinks(); initLowNet(); initSkins(); });
 
 function scSubmitCard() {
   const today = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
@@ -1090,6 +1129,263 @@ function scSubmitCard() {
   }
   const sub=encodeURIComponent(`WGL Card Wk${SC_WEEK} Back9 – ${today}`);
   window.location.href=`mailto:wglscore@gmail.com?subject=${sub}&body=${encodeURIComponent(body)}`;
+}
+
+// ── Weekly Summary Data ──────────────────────────────────────────────────────
+// Format per player: [name, team, hcp-used-that-week, gross]  net = gross - hcp
+const WGL_WEEKLY = {
+  9: {
+    label:'Wk 9 · Jul 6 · Front 9', side:'front',
+    holes:[1,2,3,4,5,6,7,8,9], pars:[4,4,3,4,4,4,5,4,3],
+    players:[
+      ['Andy Gallagher',1,16,47],['Larry Julius',1,3,36],['Kris Simmons',1,4,42],
+      ['Butch Griffith',1,11,49],['Mario Jenkins',1,12,51],['Frank Watt',1,15,57],
+      ['Keith Clark',1,19,63],['Paul Harmon',1,15,60],
+      ['Jim Frye',2,2,36],['Andy Patz',2,14,48],['Jeff Hollobaugh',2,12,50],
+      ['Skylar Grafton',2,7,46],['Nick Keefer',2,9,45],['Trent Brocious',2,15,52],
+      ['Wilbur Dudley',2,18,58],
+      ['Duck Julius',3,2,35],['Bruce Thomas',3,9,47],['Scott Barton',3,11,49],
+      ['Willie Powell',3,10,49],['Dicky Peat',3,18,57],['Dave Cushey',3,12,52],
+      ['Allan Voltz',3,20,65],
+      ['Clark Helm',4,5,32],['Chad Hollobaugh',4,12,43],['Landon Badac',4,18,51],
+      ['Roger Hoffman',4,7,42],['Blake Bowser',4,15,50],['Tom Stennett',4,16,52],
+      ['Harry Breski',4,7,43],
+      ['Tyler Eroh',5,10,42],['Eli Hickman',5,8,42],['Bill Long',5,9,45],
+      ['Don Nulph',5,11,50],['Denny Snyder',5,10,45],['Dave Toy',5,10,49],
+      ['Jaxon Smith',5,8,51],
+      ['Jay Griffith',6,9,42],['Sam Long',6,7,43],['Jesse Hickman',6,13,52],
+      ['Kevin Frye',6,12,54],['Jim Goodman',6,17,64],['Dylan Barton',6,20,65],
+      ['Matt Nulph',6,20,65],
+      ['Ed Bargerstock',7,4,34],['Vince Sanzotti',7,7,39],['Mike Hickman',7,5,37],
+      ['Chris Remaley',7,11,47],['Jason Smith',7,11,48],['Doug Anthony',7,10,48],
+      ['Wes Barton',7,12,55],
+      ['Brian Barton',8,7,39],['Logan Bowser',8,10,47],['Patric Weber',8,15,53],
+      ['Dylan Smith',8,16,55],['Paul Bowser',8,13,52],['Ken Long',8,15,54],
+      ['Cole Clark',8,15,52],
+    ]
+  },
+  10: {
+    label:'Wk 10 · Jul 13 · Back 9', side:'back',
+    holes:[10,11,12,13,14,15,16,17,18], pars:[5,4,4,4,4,3,4,3,4],
+    players:[
+      ['Larry Julius',1,2,38],['Kris Simmons',1,4,39],['Butch Griffith',1,12,48],
+      ['Frank Watt',1,16,53],['Andy Gallagher',1,16,53],
+      ['Jim Frye',2,1,33],['Skylar Grafton',2,8,50],['Nick Keefer',2,9,46],
+      ['Jeff Hollobaugh',2,12,48],['Andy Patz',2,14,54],['Wilbur Dudley',2,18,53],
+      ['Duck Julius',3,1,37],['Bruce Thomas',3,10,45],['Willie Powell',3,10,45],
+      ['Dicky Peat',3,17,58],['Allan Voltz',3,20,66],
+      ['Roger Hoffman',4,7,44],['Chad Hollobaugh',4,10,43],['Tom Stennett',4,14,55],
+      ['Eli Hickman',5,8,41],['Tyler Eroh',5,8,43],['Jaxon Smith',5,9,45],
+      ['Denny Snyder',5,9,47],['Bill Long',5,9,47],['Dave Toy',5,10,49],['Don Nulph',5,11,60],
+      ['Sam Long',6,7,47],['Kevin Frye',6,9,38],['Jay Griffith',6,9,49],
+      ['Jesse Hickman',6,13,47],['Jim Goodman',6,17,53],['Dylan Barton',6,20,62],
+      ['Ed Bargerstock',7,4,42],['Vince Sanzotti',7,7,39],['Jason Smith',7,11,48],
+      ['Chris Remaley',7,11,50],['Wes Barton',7,12,49],
+      ['Paul Bowser',8,8,43],['Ken Long',8,13,45],['Patric Weber',8,15,55],
+    ]
+  }
+};
+
+// Per-hole card sessions — populated as Wk 11+ cards are submitted
+// { week: [ { date, side, holes, players:[{name,team,hcp,scores:[9]}] } ] }
+const WGL_CARDS = {};
+
+// ── Card helpers — WGL_CARDS is source of truth (populated from emails) ──────
+function wglGetCards(week) {
+  return WGL_CARDS[week] || [];
+}
+function wglFindCard(name,week) {
+  for (const card of wglGetCards(week)) {
+    if (card.players.find(p=>p.name===name)) return card;
+  }
+  return null;
+}
+
+// ── Low Net tab ───────────────────────────────────────────────────────────────
+let _lnWeek=10;
+function initLowNet() {
+  const weeks=Object.keys(WGL_WEEKLY).map(Number).sort((a,b)=>b-a);
+  const sel=document.getElementById('ln-weeks');
+  if (!sel) return;
+  sel.innerHTML=weeks.map(w=>
+    `<button class="ln-week-btn${w===_lnWeek?' active':''}" onclick="selectLnWeek(${w},this)">Wk ${w}</button>`
+  ).join('');
+  renderLowNet(_lnWeek);
+}
+function selectLnWeek(w,btn) {
+  _lnWeek=w;
+  document.querySelectorAll('#ln-weeks .ln-week-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderLowNet(w);
+}
+function renderLowNet(week) {
+  const data=WGL_WEEKLY[week];
+  const el=document.getElementById('ln-content');
+  if (!data||!el) return;
+  const ps=data.players.map(([n,t,h,g])=>({name:n,team:t,hcp:h,gross:g,net:g-h}))
+    .sort((a,b)=>a.net-b.net||a.gross-b.gross);
+  let html=`<div style="font-size:12px;color:#888;margin-bottom:8px">${data.label} · ${ps.length} players</div>`;
+  html+=`<div class="card"><table><thead><tr>
+    <th style="width:28px;text-align:center">#</th>
+    <th class="lft">Player</th><th>T</th><th>HCP</th><th>Gross</th><th>Net</th>
+  </tr></thead><tbody>`;
+  ps.forEach((p,i)=>{
+    const r=i+1;
+    const medal=r===1?'🥇':r===2?'🥈':r===3?'🥉':r;
+    const bg=r===1?'background:#fffde7':r===2?'background:#f5f5f5':r===3?'background:#f3f8ff':'';
+    html+=`<tr style="${bg}"><td class="ln-rank-cell">${medal}</td>
+      <td class="lft">${p.name}</td><td>${p.team}</td><td>${p.hcp}</td>
+      <td>${p.gross}</td><td><strong>${p.net}</strong></td></tr>`;
+  });
+  html+='</tbody></table></div>';
+  el.innerHTML=html;
+}
+
+// ── Skins tab ─────────────────────────────────────────────────────────────────
+let _skWeek=null;
+function initSkins() {
+  const weeks=Object.keys(WGL_CARDS).map(Number).sort((a,b)=>b-a);
+  const sel=document.getElementById('sk-weeks');
+  if (!sel) return;
+  if (!weeks.length) {
+    sel.innerHTML='';
+    document.getElementById('sk-content').innerHTML=
+      `<div class="card" style="padding:20px;text-align:center;color:#aaa;font-size:14px">
+        Skins are calculated from submitted session scorecards.<br>
+        <span style="font-size:12px;display:block;margin-top:6px">Available starting Week 11 once cards are submitted.</span>
+       </div>`;
+    return;
+  }
+  if (!_skWeek) _skWeek=weeks[0];
+  sel.innerHTML=weeks.map(w=>
+    `<button class="ln-week-btn${w===_skWeek?' active':''}" onclick="selectSkWeek(${w},this)">Wk ${w}</button>`
+  ).join('');
+  renderSkins(_skWeek);
+}
+function selectSkWeek(w,btn) {
+  _skWeek=w;
+  document.querySelectorAll('#sk-weeks .ln-week-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderSkins(w);
+}
+function renderSkins(week) {
+  const el=document.getElementById('sk-content');
+  if (!el) return;
+  const cards=wglGetCards(week);
+  if (!cards.length) {
+    el.innerHTML=`<div class="card" style="padding:20px;text-align:center;color:#aaa;font-size:14px">No card data for Week ${week}.</div>`;
+    return;
+  }
+  const allPlayers=[];
+  cards.forEach(c=>allPlayers.push(...c.players));
+  const wdata=WGL_WEEKLY[week];
+  const pars=(wdata||{pars:SC_PARS}).pars;
+  const holes=(wdata||{holes:SC_HOLES}).holes;
+  let html=`<div style="font-size:12px;color:#888;margin-bottom:8px">Week ${week} · ${allPlayers.length} players on ${cards.length} card${cards.length>1?'s':''}</div>`;
+  html+=`<div class="card">`;
+  const skinCount={};
+  allPlayers.forEach(p=>{ skinCount[p.name]=0; });
+  holes.forEach((h,hi)=>{
+    const scored=allPlayers.filter(p=>p.scores&&p.scores[hi]!=null);
+    if (!scored.length) return;
+    const low=Math.min(...scored.map(p=>p.scores[hi]));
+    const winners=scored.filter(p=>p.scores[hi]===low);
+    const par=pars[hi];
+    const rel=low-par;
+    const relStr=rel<=-2?'🦅 Eagle':rel===-1?'🐦 Birdie':rel===0?'Par':rel===1?'Bogey':'Double+';
+    html+=`<div class="skins-hole-row"><span class="skins-hole-lbl">Hole ${h} · P${par}</span>`;
+    if (winners.length===1) {
+      skinCount[winners[0].name]=(skinCount[winners[0].name]||0)+1;
+      html+=`<span class="skins-winner">${winners[0].name} · ${low} <span style="font-size:12px;font-weight:400">(${relStr})</span></span>`;
+    } else {
+      html+=`<span class="skins-tied">Halved — ${winners.map(w=>w.name.split(' ')[0]).join(' & ')}</span>`;
+    }
+    html+='</div>';
+  });
+  html+='</div>';
+  const sw=Object.entries(skinCount).filter(([,v])=>v>0).sort(([,a],[,b])=>b-a);
+  if (sw.length) {
+    html+=`<div class="card" style="margin-top:12px;padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Skin Totals</div>`;
+    sw.forEach(([name,c])=>{
+      html+=`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f5f5f5;font-size:14px">
+        <span>${name}</span><span style="font-weight:700;color:#2e7d32">${c} skin${c>1?'s':''}</span></div>`;
+    });
+    html+='</div>';
+  }
+  el.innerHTML=html;
+}
+
+// ── Card History Modal ────────────────────────────────────────────────────────
+let _cmName='';
+function showCardHistory(name,weekNum) {
+  _cmName=name;
+  const wdata=WGL_WEEKLY[weekNum];
+  const pentry=wdata?wdata.players.find(([n])=>n===name):null;
+  const card=wglFindCard(name,weekNum);
+  document.getElementById('cm-title').textContent=name;
+  const team=pentry?` · T${pentry[1]}`:'';
+  document.getElementById('cm-sub').textContent=(wdata?wdata.label:'Week '+weekNum)+team;
+  let html='';
+  if (pentry) {
+    const [,t,h,g]=pentry; const net=g-h;
+    html+=`<div style="display:flex;gap:12px;margin-bottom:14px;padding:12px;background:#f0f7f0;border-radius:10px">
+      <div style="flex:1;text-align:center"><div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase">Gross</div><div style="font-size:26px;font-weight:800">${g}</div></div>
+      <div style="flex:1;text-align:center"><div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase">HCP</div><div style="font-size:26px;font-weight:800">${h}</div></div>
+      <div style="flex:1;text-align:center"><div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase">Net</div><div style="font-size:26px;font-weight:800;color:#2e7d32">${net}</div></div>
+    </div>`;
+  }
+  if (card) {
+    const choles=card.holes||SC_HOLES;
+    const cpars=wdata?wdata.pars:SC_PARS;
+    const sideLabel=card.side==='back'?'Back 9 (10–18)':'Front 9 (1–9)';
+    html+=`<div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">Card · ${sideLabel}</div>`;
+    html+=`<div style="overflow-x:auto"><table class="card-hole-table"><thead>
+      <tr><th class="cn">Player</th>`;
+    choles.forEach(h=>html+=`<th>${h}</th>`);
+    html+=`<th>Tot</th><th>Net</th></tr>
+      <tr style="background:#f9f9f9"><td class="cn" style="color:#999">Par</td>`;
+    cpars.forEach(p=>html+=`<td style="color:#999">${p}</td>`);
+    html+=`<td style="color:#999">35</td><td>—</td></tr>
+    </thead><tbody>`;
+    for (const pl of card.players) {
+      const me=pl.name===name;
+      const g2=pl.scores?pl.scores.reduce((a,b)=>a+(b||0),0):null;
+      const sn=pl.name.split(' ');
+      const dname=sn[0]+(sn.length>1?' '+sn[sn.length-1][0]+'.':'');
+      html+=`<tr style="${me?'background:#e8f5e9;':''}">
+        <td class="cn" style="${me?'color:#2e7d32;font-weight:700':''}" title="${pl.name}">${dname} <span style="font-size:9px;color:#bbb">T${pl.team}</span></td>`;
+      if (pl.scores) {
+        pl.scores.forEach((sv,i)=>{
+          if (sv==null){html+=`<td style="color:#ddd">—</td>`;return;}
+          const r=sv-cpars[i];
+          const bg=r<=-2?'#fff9c4':r===-1?'#e8f5e9':r===0?'':'#fff3e0';
+          const col=r<=-2?'#f57f17':r===-1?'#2e7d32':r===0?'#555':r===1?'#e65100':'#c62828';
+          html+=`<td style="background:${bg};color:${col};font-weight:${r<=0?700:400}">${sv}</td>`;
+        });
+        html+=`<td style="font-weight:700">${g2}</td><td style="font-weight:700;color:#2e7d32">${g2-pl.hcp}</td>`;
+      } else {
+        html+=`<td colspan="${choles.length+2}" style="color:#ccc;font-size:11px">no scores</td>`;
+      }
+      html+='</tr>';
+    }
+    html+='</tbody></table></div>';
+    const partners=card.players.filter(p=>p.name!==name);
+    if (partners.length)
+      html+=`<div style="margin-top:10px;font-size:12px;color:#888">Played with: ${partners.map(p=>p.name).join(', ')}</div>`;
+  } else {
+    html+=`<div style="text-align:center;padding:14px 0;color:#bbb;font-size:13px">
+      Per-hole scorecard not on file for this week.<br>
+      <span style="font-size:11px">Session cards are saved from Week 11 onwards.</span>
+    </div>`;
+  }
+  document.getElementById('cm-body').innerHTML=html;
+  document.getElementById('cardModal').style.display='block';
+  document.body.style.overflow='hidden';
+}
+function closeCardModal() {
+  document.getElementById('cardModal').style.display='none';
+  document.body.style.overflow='';
 }
 </script>
 
@@ -1130,6 +1426,23 @@ if ('serviceWorker' in navigator) {
       <button id="submitBtn" onclick="submitPhoto()">📤 Send Score Card</button>
       <button id="retakeBtn" onclick="retakePhoto()">🔄 Retake</button>
       <button id="cancelBtn" onclick="cancelPhoto()">✕</button>
+    </div>
+  </div>
+</div>
+
+<!-- Card History Modal -->
+<div id="cardModal">
+  <div id="cardModalInner">
+    <div class="cm-header">
+      <div>
+        <div id="cm-title" style="font-size:17px;font-weight:700;line-height:1.2"></div>
+        <div id="cm-sub" style="font-size:12px;color:#888;margin-top:3px"></div>
+      </div>
+      <button class="cm-close" onclick="closeCardModal()">×</button>
+    </div>
+    <div id="cm-body"></div>
+    <div style="margin-top:14px">
+      <button class="sc-submit-btn" style="background:#555;font-size:13px;padding:12px" onclick="closeCardModal();scJumpTo(_cmName)">+ Start New Card with This Player</button>
     </div>
   </div>
 </div>
