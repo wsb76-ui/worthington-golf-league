@@ -152,21 +152,79 @@ table.standings { width:100%; border-collapse:collapse; font-size:13px; }
 
 <!-- SCORE CARD -->
 <div id="scorecard" class="tab-content active">
-  <div class="card" style="margin-top:12px">
+  <div style="margin-top:12px"></div>
+
+  <!-- Player selector -->
+  <div class="card">
     <div class="card-hdr">Weekly Score Card</div>
-    <div style="padding:12px;font-size:13px;color:#888;text-align:center;padding:20px">
-      📝 Score card entry works the same as your current app.<br><br>No changes proposed here — just showing the data integration.
+    <div style="padding:12px">
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;display:block;margin-bottom:4px">Player</label>
+        <select id="sc-player" onchange="scSelectPlayer()" style="width:100%;padding:9px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;background:white;-webkit-appearance:none">
+          <option value="">— Select player —</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:2px">
+        <div style="flex:1;text-align:center">
+          <div style="font-size:11px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Handicap</div>
+          <div id="sc-hcp-display" style="font-size:22px;font-weight:800;color:#2e7d32">—</div>
+        </div>
+        <div style="flex:1;text-align:center">
+          <div style="font-size:11px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Gross</div>
+          <div id="sc-gross-display" style="font-size:22px;font-weight:800;color:#1a1a1a">—</div>
+        </div>
+        <div style="flex:1;text-align:center">
+          <div style="font-size:11px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Net</div>
+          <div id="sc-net-display" style="font-size:22px;font-weight:800;color:#1565c0">—</div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- Hole grid -->
   <div class="card">
-    <div class="card-hdr">📡 How Data Sync Works</div>
-    <div style="padding:14px;font-size:13px;color:#555;line-height:1.7">
-      <strong>When an admin publishes:</strong><br>
-      1. Admin app writes <code>wgl-data.json</code> to GitHub<br>
-      2. League app fetches fresh data on every load<br>
-      3. Announcements, outing details, dues, and buy-in status update automatically<br>
-      4. No manual copy/paste — ~60 second delay after admin publishes<br><br>
-      <strong>What stays the same:</strong> Score card, standings, HCP grid, skins tab, low net tab — all still work exactly as today.
+    <div class="card-hdr">Hole-by-Hole Entry</div>
+    <div style="padding:10px 12px">
+      <!-- Hole numbers row -->
+      <div class="hole-grid" style="margin-bottom:4px">
+        <div class="hg-lbl" style="background:#1b5e20;color:white">Hole</div>
+        <div class="hg-lbl" style="background:#1b5e20;color:white">1</div>
+        <div class="hg-lbl" style="background:#1b5e20;color:white">2</div>
+        <div class="hg-lbl" style="background:#1b5e20;color:white">3</div>
+        <div class="hg-lbl" style="background:#1b5e20;color:white">4</div>
+        <div class="hg-lbl" style="background:#1b5e20;color:white">5</div>
+        <div class="hg-lbl" style="background:#1b5e20;color:white">6</div>
+        <div class="hg-lbl" style="background:#1b5e20;color:white">7</div>
+        <div class="hg-lbl" style="background:#1b5e20;color:white">8</div>
+        <div class="hg-lbl" style="background:#1b5e20;color:white">9</div>
+      </div>
+      <!-- Par row -->
+      <div class="hole-grid" id="sc-par-row" style="margin-bottom:4px">
+        <div class="hg-lbl" style="background:#e8f5e9;color:#2e7d32">Par</div>
+        <div class="hg-par" id="par-1">4</div>
+        <div class="hg-par" id="par-2">4</div>
+        <div class="hg-par" id="par-3">3</div>
+        <div class="hg-par" id="par-4">4</div>
+        <div class="hg-par" id="par-5">5</div>
+        <div class="hg-par" id="par-6">4</div>
+        <div class="hg-par" id="par-7">3</div>
+        <div class="hg-par" id="par-8">4</div>
+        <div class="hg-par" id="par-9">4</div>
+      </div>
+      <!-- Score entry row -->
+      <div class="hole-grid" style="margin-bottom:8px">
+        <div class="hg-lbl">Score</div>
+        <input id="sc-h1" type="number" min="1" max="12" oninput="scCalc()" style="text-align:center;padding:4px 2px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;font-weight:700;width:100%;background:white;-webkit-appearance:none">
+        <input id="sc-h2" type="number" min="1" max="12" oninput="scCalc()" style="text-align:center;padding:4px 2px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;font-weight:700;width:100%;background:white;-webkit-appearance:none">
+        <input id="sc-h3" type="number" min="1" max="12" oninput="scCalc()" style="text-align:center;padding:4px 2px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;font-weight:700;width:100%;background:white;-webkit-appearance:none">
+        <input id="sc-h4" type="number" min="1" max="12" oninput="scCalc()" style="text-align:center;padding:4px 2px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;font-weight:700;width:100%;background:white;-webkit-appearance:none">
+        <input id="sc-h5" type="number" min="1" max="12" oninput="scCalc()" style="text-align:center;padding:4px 2px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;font-weight:700;width:100%;background:white;-webkit-appearance:none">
+        <input id="sc-h6" type="number" min="1" max="12" oninput="scCalc()" style="text-align:center;padding:4px 2px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;font-weight:700;width:100%;background:white;-webkit-appearance:none">
+        <input id="sc-h7" type="number" min="1" max="12" oninput="scCalc()" style="text-align:center;padding:4px 2px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;font-weight:700;width:100%;background:white;-webkit-appearance:none">
+        <input id="sc-h8" type="number" min="1" max="12" oninput="scCalc()" style="text-align:center;padding:4px 2px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;font-weight:700;width:100%;background:white;-webkit-appearance:none">
+        <input id="sc-h9" type="number" min="1" max="12" oninput="scCalc()" style="text-align:center;padding:4px 2px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;font-weight:700;width:100%;background:white;-webkit-appearance:none">
+      </div>
+      <button onclick="scClear()" style="width:100%;padding:10px;background:#f5f5f5;color:#555;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Clear</button>
     </div>
   </div>
 </div>
@@ -563,6 +621,47 @@ function sortedPlayers(){
     .sort((a,b)=>a.team-b.team||a.hcp-b.hcp);
 }
 
+// ── Score Card ────────────────────────────────────────────────────────────────
+const SC_PARS=[4,4,3,4,5,4,3,4,4]; // Hiland GC pars — adjust if needed
+function scPopulatePlayers(){
+  const sel=document.getElementById('sc-player');
+  if(!sel)return;
+  const cur=sel.value;
+  const sorted=Object.keys(D.players||{}).sort();
+  sel.innerHTML='<option value="">— Select player —</option>'+sorted.map(n=>`<option value="${n}" ${n===cur?'selected':''}>${n}</option>`).join('');
+}
+function scSelectPlayer(){
+  const name=document.getElementById('sc-player').value;
+  const p=name&&D.players?D.players[name]:null;
+  document.getElementById('sc-hcp-display').textContent=p?p.hcp:'—';
+  scCalc();
+}
+function scCalc(){
+  let gross=0,filled=0;
+  for(let h=1;h<=9;h++){
+    const v=parseInt(document.getElementById('sc-h'+h).value)||0;
+    if(v>0){gross+=v;filled++;}
+  }
+  const name=document.getElementById('sc-player').value;
+  const p=name&&D.players?D.players[name]:null;
+  const hcp=p?+p.hcp:0;
+  if(filled===9){
+    document.getElementById('sc-gross-display').textContent=gross;
+    document.getElementById('sc-net-display').textContent=gross-hcp;
+  } else if(filled>0){
+    document.getElementById('sc-gross-display').textContent=gross+' ('+filled+'/9)';
+    document.getElementById('sc-net-display').textContent='—';
+  } else {
+    document.getElementById('sc-gross-display').textContent='—';
+    document.getElementById('sc-net-display').textContent='—';
+  }
+}
+function scClear(){
+  for(let h=1;h<=9;h++){document.getElementById('sc-h'+h).value='';}
+  document.getElementById('sc-gross-display').textContent='—';
+  document.getElementById('sc-net-display').textContent='—';
+}
+
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 function showTab(id,el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -748,6 +847,7 @@ function buildRoster(){
   }
   if(cur>0)html+='</div></div>';
   el.innerHTML=html;
+  scPopulatePlayers(); // keep score card player list in sync
 }
 function openModal(i){
   const p=_players[i];
@@ -974,16 +1074,11 @@ function buildWeek(wk,elOverride){
   el.innerHTML=html;
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
-document.getElementById('app-subtitle').textContent=D.settings.subtitle;
-buildNews();
-buildOuting();
-buildDues();
-buildRoster();
-loadWeekResult(10); // load most recent week by default
-
 // ── Bootstrap: fetch live data, fall back to MOCK_DATA ───────────────────────
-let D=MOCK_DATA; // will be replaced by fetched data
+let D=MOCK_DATA;
+// Render immediately with default data so nothing is blank on load
+document.getElementById('app-subtitle').textContent=D.settings.subtitle;
+buildNews();buildOuting();buildDues();buildRoster();loadWeekResult(10);
 (async ()=>{
   try {
     const r=await fetch(DATA_URL);
