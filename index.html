@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<title>WGL 2026</title>
+<!-- OneSignal Web Push SDK -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: '2d45ee7e-57a8-450f-bbcd-42a872d6ac59',
+    });
+  });
+</script>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg,#f5f5f5); color:var(--text,#1a1a1a); min-height:100vh; font-size:14px; }
+
+/* Sync badge */
+.sync-bar { display:flex; align-items:center; justify-content:center; gap:6px; padding:5px 12px; font-size:11px; color:#2e7d32; background:#e8f5e9; border-bottom:1px solid #c8e6c9; }
+.sync-dot { width:7px; height:7px; border-radius:50%; background:#43a047; flex-shrink:0; }
+
+/* Header */
+.app-hdr { background:#1b5e20; color:white; padding-top:env(safe-area-inset-top); position:sticky; top:0; z-index:100; }
+.hdr-inner { padding:10px 14px 0; }
+.hdr-inner h1 { font-size:17px; font-weight:700; }
+.hdr-sub { font-size:11px; opacity:.75; margin:1px 0 8px; }
+.tabs { display:flex; overflow-x:auto; scrollbar-width:none; border-top:1px solid rgba(255,255,255,.2); }
+.tabs::-webkit-scrollbar { display:none; }
+.tab { flex-shrink:0; padding:9px 12px; font-size:11px; font-weight:600; color:rgba(255,255,255,.6); cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
+.tab.active { color:white; border-bottom-color:white; }
+.tab-content { display:none; padding:12px 12px 90px; max-width:700px; margin:0 auto; }
+.tab-content.active { display:block; }
+
+/* Cards */
+.card { background:var(--card,white); border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.1); margin-bottom:12px; overflow:hidden; }
+.card-hdr { padding:11px 14px; font-weight:700; font-size:13px; border-bottom:1px solid #f0f0f0; background:var(--card,white); }
+
+/* Settings gear */
+#gear-btn { position:fixed; bottom:28px; left:20px; width:50px; height:50px; border-radius:50%; background:#2e7d32; color:white; border:none; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 12px rgba(0,0,0,.25); z-index:100; -webkit-tap-highlight-color:transparent; transition:transform .3s; }
+#gear-btn.open { transform:rotate(90deg); }
+#settings-panel { position:fixed; bottom:90px; left:16px; width:240px; background:white; border-radius:16px; box-shadow:0 4px 24px rgba(0,0,0,.15); z-index:99; padding:16px; display:none; border:1px solid #ddd; }
+#settings-panel.open { display:block; }
+.settings-title { font-size:12px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.06em; margin-bottom:12px; }
+.settings-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.settings-label { font-size:14px; }
+.toggle { position:relative; width:44px; height:26px; flex-shrink:0; }
+.toggle input { opacity:0; width:0; height:0; }
+.toggle-track { position:absolute; inset:0; background:#ccc; border-radius:26px; cursor:pointer; transition:.2s; }
+.toggle input:checked + .toggle-track { background:#2e7d32; }
+.toggle-track:before { content:''; position:absolute; height:20px; width:20px; left:3px; bottom:3px; background:white; border-radius:50%; transition:.2s; }
+.toggle input:checked + .toggle-track:before { transform:translateX(18px); }
+
+/* Scorecard — 3-step prototype */
+.sc-step { display:none; }
+.sc-step.active { display:block; }
+.search-input { width:100%; padding:11px 14px; border:1.5px solid #ddd; border-radius:8px; font-size:15px; -webkit-appearance:none; outline:none; }
+.search-input:focus { border-color:#2e7d32; }
+.search-wrap { position:relative; }
+.search-drop { display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; background:white; border:1px solid #e0e0e0; border-radius:10px; max-height:230px; overflow-y:auto; z-index:50; box-shadow:0 6px 20px rgba(0,0,0,.14); }
+.search-item { padding:12px 14px; cursor:pointer; border-bottom:1px solid #f5f5f5; font-size:14px; }
+.search-item:last-child { border-bottom:none; }
+.player-chip { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f5f5f5; }
+.player-chip:last-child { border-bottom:none; }
+.chip-name { font-size:14px; font-weight:600; }
+.chip-meta { font-size:12px; color:#888; font-weight:400; }
+.chip-remove { background:none; border:none; color:#ccc; font-size:24px; cursor:pointer; line-height:1; padding:0 4px; }
+.progress-row { display:flex; gap:5px; justify-content:center; padding:8px 0 12px; }
+.dot { border-radius:50%; transition:all .15s; }
+.hole-hdr { padding:14px 16px 10px; }
+.hole-num-big { font-size:24px; font-weight:800; }
+.hole-par-lbl { font-size:13px; color:#888; margin-top:2px; }
+.score-row { display:flex; align-items:center; justify-content:space-between; padding:11px 0; border-bottom:1px solid #f0f0f0; }
+.score-row:last-child { border-bottom:none; }
+.sname { font-size:17px; font-weight:700; letter-spacing:-.2px; }
+.score-ctrl { display:flex; align-items:center; gap:8px; }
+.adj-btn { width:44px; height:44px; border-radius:50%; border:1.5px solid #ddd; background:white; font-size:28px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; }
+.adj-btn:active { background:#f0f0f0; transform:scale(.88); }
+.score-val { width:38px; text-align:center; font-size:28px; font-weight:800; }
+.nav-row { display:flex; gap:10px; padding:12px 0 0; }
+.nav-btn { flex:1; padding:14px; border:1.5px solid #ddd; border-radius:10px; font-size:15px; font-weight:600; background:white; color:#333; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.nav-btn:active { transform:scale(.97); }
+.nav-btn.next { background:#2e7d32; color:white; border-color:#2e7d32; }
+.nav-btn.review { background:#1565c0; color:white; border-color:#1565c0; }
+.sc-team-hdr { font-size:11px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.08em; padding-bottom:8px; }
+.rev-row { padding:10px 0; border-bottom:1px solid #f5f5f5; }
+.rev-row:last-child { border-bottom:none; }
+.rev-name-row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:5px; }
+.rname { font-size:14px; font-weight:600; }
+.rtotals { font-size:13px; font-weight:700; color:#2e7d32; }
+.rtotals.warn { color:#c62828; }
+.hole-dots { display:flex; gap:3px; flex-wrap:wrap; margin-top:3px; }
+.hd { display:inline-flex; align-items:center; justify-content:center; width:26px; height:24px; border-radius:5px; font-size:12px; font-weight:700; }
+.hd.eagle  { background:#fff9c4; color:#f57f17; }
+.hd.birdie { background:#e8f5e9; color:#2e7d32; }
+.hd.par    { background:#f5f5f5; color:#555; }
+.hd.bogey  { background:#fff3e0; color:#e65100; }
+.hd.double { background:#fce4ec; color:#c62828; }
+.hd.miss   { background:#fce4ec; color:#c62828; }
+.sc-btn { width:100%; background:#2e7d32; color:white; border:none; border-radius:10px; padding:16px; font-size:15px; font-weight:600; cursor:pointer; display:block; -webkit-tap-highlight-color:transparent; }
+.sc-btn:active { background:#1b5e20; }
+.sc-btn-ghost { width:100%; background:none; border:none; color:#888; font-size:13px; padding:10px; cursor:pointer; }
+.sc-note { font-size:11px; color:#aaa; text-align:center; margin-top:8px; line-height:1.5; }
+.empty-msg { color:#bbb; font-size:13px; text-align:center; padding:12px 0; }
+
+/* Team table */
+table.standings { width:100%; border-collapse:collapse; font-size:13px; }
+.standings th { background:#f5f5f5; padding:7px 8px; text-align:center; font-size:11px; font-weight:700; color:#555; border-bottom:2px solid #eee; }
+.standings th.lft { text-align:left; }
+.standings td { padding:7px 8px; border-bottom:1px solid #f5f5f5; text-align:center; }
+.standings td.lft { text-align:left; }
+.standings tr:last-child td { border-bottom:none; }
+.rank1 { color:#f57f17; font-weight:700; }
+
+/* News */
+.ann-item { background:var(--card,white); border-radius:12px; padding:14px; margin-bottom:10px; border-left:4px solid #2e7d32; box-shadow:0 1px 4px rgba(0,0,0,.08); }
+.ann-tag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#2e7d32; margin-bottom:4px; }
+.ann-title { font-weight:700; font-size:15px; margin-bottom:5px; }
+.ann-body { font-size:13px; color:#555; line-height:1.55; }
+.ann-date { font-size:11px; color:#aaa; margin-top:6px; }
+.ann-info { border-left-color:#1565c0; }
+.ann-info .ann-tag { color:#1565c0; }
+.ann-reminder { border-left-color:#e65100; }
+.ann-reminder .ann-tag { color:#e65100; }
+.ann-alert { border-left-color:#c62828; }
+.ann-alert .ann-tag { color:#c62828; }
+
+/* Outing */
+.outing-section { margin-bottom:16px; }
+.outing-lbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#2e7d32; margin-bottom:5px; }
+.outing-val { font-size:14px; line-height:1.5; }
+.prize-row { display:flex; gap:10px; padding:8px 0; border-bottom:1px solid #f5f5f5; font-size:13px; }
+.prize-row:last-child { border-bottom:none; }
+.prize-pos { font-weight:700; min-width:80px; }
+.prize-desc { color:#555; }
+
+/* Dues */
+.badge-in { display:inline-block; background:#e8f5e9; color:#2e7d32; border-radius:20px; font-size:11px; font-weight:700; padding:2px 10px; }
+.badge-out { display:inline-block; background:#f5f5f5; color:#bbb; border-radius:20px; font-size:11px; font-weight:600; padding:2px 10px; }
+.dues-summary { display:flex; gap:14px; flex-wrap:wrap; font-size:13px; padding:12px 14px; }
+
+/* Roster / player details */
+.roster-team { margin-bottom:12px; }
+.roster-team-hdr { background:#1b5e20; color:white; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; padding:5px 12px; border-radius:8px 8px 0 0; }
+.roster-player { display:flex; align-items:center; gap:10px; padding:10px 12px; border-bottom:1px solid #f5f5f5; }
+.roster-player:last-child { border-bottom:none; }
+.rp-name { font-weight:600; font-size:14px; flex:1; }
+.rp-hcp { font-size:11px; color:#888; }
+.call-btn { background:#e8f5e9; color:#2e7d32; border:none; border-radius:8px; padding:5px 11px; font-size:12px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; text-decoration:none; display:inline-block; }
+.call-btn.no-phone { background:#f5f5f5; color:#ccc; pointer-events:none; }
+
+/* Player modal */
+.modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:200; align-items:flex-end; }
+.modal-bg.open { display:flex; }
+.modal { background:white; border-radius:20px 20px 0 0; padding:24px 20px env(safe-area-inset-bottom); width:100%; max-width:500px; margin:0 auto; }
+.modal-name { font-size:20px; font-weight:700; margin-bottom:4px; }
+.modal-meta { font-size:13px; color:#888; margin-bottom:16px; }
+.modal-row { display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid #f5f5f5; font-size:14px; }
+.modal-row:last-child { border-bottom:none; }
+.modal-close { width:100%; padding:13px; margin-top:14px; background:#f5f5f5; border:none; border-radius:12px; font-size:15px; font-weight:600; color:#555; cursor:pointer; }
+.call-big { background:#2e7d32; color:white; border:none; border-radius:10px; padding:9px 18px; font-size:14px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+
+/* HCP grid */
+.hcp-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:8px; }
+.hcp-row { background:var(--card,white); border-radius:10px; padding:10px 12px; box-shadow:0 1px 3px rgba(0,0,0,.08); display:flex; justify-content:space-between; align-items:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.hcp-row:active { background:#f0faf0; }
+.hcp-name { font-size:13px; font-weight:600; }
+.hcp-val { font-size:18px; font-weight:800; color:#2e7d32; }
+</style>
+</head>
+<body>
+
+<!-- Sync indicator -->
+<div class="sync-bar">
+  <div class="sync-dot"></div>
+  <span id="sync-label">Loaded from wgl-data.json · just now</span>
+</div>
+
+<!-- Header -->
+<div class="app-hdr">
+  <div class="hdr-inner">
+    <h1>⛳ Worthington Golf League</h1>
+    <div class="hdr-sub" id="app-subtitle">Monday Nights · Hiland Golf Course · Week 11 Upcoming</div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('scorecard',this)">📝 Score Card</div>
+    <div class="tab" onclick="showTab('results',this)">📋 Results</div>
+    <div class="tab" onclick="showTab('standings',this)">📊 Standings</div>
+    <div class="tab" onclick="showTab('news',this)">📣 News</div>
+    <div class="tab" onclick="showTab('outing',this)">🏆 Outing</div>
+    <div class="tab" onclick="showTab('dues',this)">💵 Dues</div>
+  </div>
+</div>
+
+<!-- SCORE CARD — 3-step prototype -->
+<div id="scorecard" class="tab-content active">
+
+  <!-- ══ STEP 1: Build the group ══ -->
+  <div id="sc-step-setup" class="sc-step active">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;padding:16px 0 8px">Players on this card</div>
+    <div class="card">
+      <div style="padding:14px 16px">
+        <div class="search-wrap" style="margin-bottom:12px">
+          <input type="text" id="sc-search" class="search-input"
+            placeholder="Search player name…"
+            oninput="scSearch(this.value)"
+            autocomplete="off">
+          <div id="sc-drop" class="search-drop"></div>
+        </div>
+        <div id="sc-added"><div class="empty-msg">No players added yet</div></div>
+      </div>
+    </div>
+    <!-- Side toggle -->
+    <div style="display:flex;gap:8px;padding:12px 0 0">
+      <button id="sc-front-btn" onclick="scSetSide('front')"
+        style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;font-weight:600;background:white;color:#555;cursor:pointer">Front 9</button>
+      <button id="sc-back-btn" onclick="scSetSide('back')"
+        style="flex:1;padding:10px;border:1.5px solid #2e7d32;border-radius:8px;font-size:13px;font-weight:600;background:#2e7d32;color:white;cursor:pointer">Back 9 ✓</button>
+    </div>
+    <div style="padding:12px 0 0">
+      <div id="sc-start-err" style="color:#c62828;font-size:12px;margin-bottom:8px;display:none">Add at least one player to start.</div>
+      <button class="sc-btn" onclick="scStart()">▶ Start Scoring</button>
+      <div class="sc-note" style="margin-top:10px">Anyone in the playing group can be on one card.<br>Mixed teams are fine — scores sort automatically.</div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 2: Hole-by-hole ══ -->
+  <div id="sc-step-scoring" class="sc-step">
+    <div class="card" style="margin-top:12px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:14px 16px 0">
+        <div>
+          <div class="hole-num-big" id="sc-hole-lbl">Hole 10</div>
+          <div class="hole-par-lbl" id="sc-par-lbl">Par 5 · Max 10</div>
+        </div>
+        <button onclick="scToggleMidAdd()"
+          style="background:#f0f7f0;border:1.5px solid #2e7d32;color:#2e7d32;border-radius:8px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;margin-top:2px;-webkit-tap-highlight-color:transparent">
+          + Player
+        </button>
+      </div>
+      <!-- Mid-round add-player panel -->
+      <div id="sc-mid-panel" style="display:none;padding:10px 16px 12px;border-top:1px solid #f0f0f0;margin-top:10px">
+        <div class="search-wrap">
+          <input type="text" id="sc-mid-search" class="search-input"
+            placeholder="Search to add player…"
+            oninput="scMidSearch(this.value)"
+            autocomplete="off"
+            style="font-size:14px;padding:9px 12px">
+          <div id="sc-mid-drop" class="search-drop"></div>
+        </div>
+      </div>
+      <div class="progress-row" id="sc-progress"></div>
+    </div>
+
+    <div class="card" style="margin-top:10px">
+      <div style="padding:4px 16px">
+        <div id="sc-inputs"></div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="nav-btn" id="sc-prev-btn" onclick="scHoleNav(-1)">← Prev</button>
+      <button class="nav-btn next" id="sc-next-btn" onclick="scHoleNav(1)">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══ STEP 3: Review & submit ══ -->
+  <div id="sc-step-review" class="sc-step">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;padding:16px 0 8px">Review Scores</div>
+    <div id="sc-review-body"></div>
+    <div style="padding:12px 0 0">
+      <button class="sc-btn" onclick="scSubmit()">📤 Email Card to Commissioner</button>
+      <button class="sc-btn-ghost" onclick="scGoBack()">← Back to Scoring</button>
+      <div class="sc-note">Opens your mail app with all scores pre-filled · just tap Send</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- NEWS (dynamic from wgl-data.json) -->
+<div id="news" class="tab-content">
+  <div style="margin-top:12px" id="news-list"></div>
+  <div style="font-size:11px;color:#bbb;text-align:center;padding:8px">Posted by WGL Admin · Data from wgl-data.json</div>
+</div>
+
+<!-- OUTING (dynamic from wgl-data.json) -->
+<div id="outing" class="tab-content">
+  <div style="margin-top:12px">
+
+    <!-- Outing selector -->
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button id="lo-mid-btn" onclick="switchLeagueOuting('mid')" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#2e7d32;color:white;-webkit-tap-highlight-color:transparent">🏌️ Mid-Season</button>
+      <button id="lo-end-btn" onclick="switchLeagueOuting('end')" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#eee;color:#555;-webkit-tap-highlight-color:transparent">🏆 End of Season</button>
+    </div>
+
+    <!-- Mid-Season -->
+    <div id="lo-mid">
+      <div class="card">
+        <div class="card-hdr">🏌️ Mid-Season Outing</div>
+        <div style="padding:14px" id="outing-body"></div>
+      </div>
+      <div class="card" id="prizes-card" style="display:none">
+        <div class="card-hdr">Prizes & Awards</div>
+        <div style="padding:8px 14px" id="prizes-body"></div>
+      </div>
+      <button onclick="openSignupForm('mid')" style="width:100%;padding:15px;background:#2e7d32;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;-webkit-tap-highlight-color:transparent">
+        ✉️ Sign Up for Mid-Season Outing
+      </button>
+      <div class="card" id="signups-card" style="display:none">
+        <div class="card-hdr">Who's In <span id="signup-cnt" style="background:#e8f5e9;color:#2e7d32;border-radius:20px;font-size:11px;font-weight:700;padding:2px 9px;margin-left:6px">0</span></div>
+        <div style="padding:8px 14px;font-size:13px" id="signups-body"></div>
+      </div>
+      <div class="card" id="teams-card" style="display:none">
+        <div class="card-hdr">🏌️ Outing Teams</div>
+        <div style="padding:8px 14px" id="teams-body"></div>
+      </div>
+    </div>
+
+    <!-- End of Season -->
+    <div id="lo-end" style="display:none">
+      <div class="card">
+        <div class="card-hdr">🏆 End-of-Season Outing</div>
+        <div style="padding:14px" id="outing2-body">
+          <div style="color:#aaa;font-size:13px;text-align:center;padding:10px">Details coming soon — check back later.</div>
+        </div>
+      </div>
+      <div class="card" id="prizes2-card" style="display:none">
+        <div class="card-hdr">Prizes & Awards</div>
+        <div style="padding:8px 14px" id="prizes2-body"></div>
+      </div>
+      <button onclick="openSignupForm('end')" style="width:100%;padding:15px;background:#1565c0;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;-webkit-tap-highlight-color:transparent">
+        ✉️ Sign Up for End-of-Season Outing
+      </button>
+      <div class="card" id="signups2-card" style="display:none">
+        <div class="card-hdr">Who's In <span id="signup2-cnt" style="background:#e8f5e9;color:#2e7d32;border-radius:20px;font-size:11px;font-weight:700;padding:2px 9px;margin-left:6px">0</span></div>
+        <div style="padding:8px 14px;font-size:13px" id="signups2-body"></div>
+      </div>
+      <div class="card" id="teams2-card" style="display:none">
+        <div class="card-hdr">🏌️ Outing Teams</div>
+        <div style="padding:8px 14px" id="teams2-body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sign-up modal (shared for both outings) -->
+<div id="signup-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;align-items:flex-end;justify-content:center" onclick="closeSignupForm(event)">
+  <div id="signup-modal" style="background:white;border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:500px">
+    <div style="font-size:18px;font-weight:700;margin-bottom:4px" id="signup-modal-title">Sign Up for the Outing</div>
+    <div style="font-size:13px;color:#888;margin-bottom:18px" id="signup-modal-sub"></div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;display:block;margin-bottom:5px">Your Name</label>
+      <input id="signup-name" type="text" placeholder="First Last" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:10px;font-size:15px">
+    </div>
+    <div style="margin-bottom:18px">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;display:block;margin-bottom:5px">Notes (optional)</label>
+      <input id="signup-notes" type="text" placeholder="e.g. bringing a guest, dietary needs…" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:10px;font-size:14px">
+    </div>
+    <button onclick="submitSignup()" style="width:100%;padding:14px;background:#2e7d32;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">Send Sign-Up Email</button>
+    <button onclick="closeSignupForm()" style="width:100%;padding:12px;background:#f5f5f5;color:#555;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
+  </div>
+</div>
+
+<!-- STANDINGS (placeholder) -->
+<div id="standings" class="tab-content">
+  <div class="card" style="margin-top:12px">
+    <div class="card-hdr">Team Standings · Week 10</div>
+    <div style="overflow-x:auto">
+      <table class="standings">
+        <thead><tr>
+          <th style="width:28px">#</th>
+          <th class="lft">Team</th>
+          <th>Pts</th><th>W</th><th>L</th><th>T</th><th>Net</th>
+        </tr></thead>
+        <tbody id="standings-tbody">
+          <tr><td class="rank1">1</td><td class="lft">Team 7</td><td class="rank1">45.5</td><td>9</td><td>2</td><td>1</td><td>-12.4</td></tr>
+          <tr><td>2</td><td class="lft">Team 3</td><td>42.0</td><td>8</td><td>3</td><td>1</td><td>-10.1</td></tr>
+          <tr><td>3</td><td class="lft">Team 1</td><td>40.5</td><td>7</td><td>3</td><td>2</td><td>-8.8</td></tr>
+          <tr><td>4</td><td class="lft">Team 5</td><td>38.0</td><td>7</td><td>4</td><td>1</td><td>-7.2</td></tr>
+          <tr><td>5</td><td class="lft">Team 6</td><td>36.0</td><td>6</td><td>5</td><td>1</td><td>-5.9</td></tr>
+          <tr><td>6</td><td class="lft">Team 2</td><td>34.5</td><td>6</td><td>5</td><td>1</td><td>-4.1</td></tr>
+          <tr><td>7</td><td class="lft">Team 4</td><td>30.0</td><td>5</td><td>6</td><td>1</td><td>+1.3</td></tr>
+          <tr><td>8</td><td class="lft">Team 8</td><td>26.0</td><td>4</td><td>7</td><td>1</td><td>+2.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div style="font-size:12px;color:#aaa;text-align:center;padding:4px">Sample data — standings still work exactly as today</div>
+</div>
+
+<!-- RESULTS (single tab with week dropdown) -->
+<div id="results" class="tab-content">
+  <div style="margin-top:12px"></div>
+  <div class="card" style="margin-bottom:12px">
+    <div style="padding:12px 14px;display:flex;align-items:center;gap:12px">
+      <label style="font-size:13px;font-weight:600;color:#555;white-space:nowrap">📋 View Week</label>
+      <select id="week-select" onchange="loadWeekResult(+this.value)"
+        style="flex:1;padding:9px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;font-weight:600;background:white;-webkit-appearance:none;appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22%23888%22 d=%22M6 8L1 3h10z%22/></svg>');background-repeat:no-repeat;background-position:right 10px center">
+        <option value="10">Week 10 — July 13</option>
+        <option value="9">Week 9 — June 30</option>
+        <option value="8">Week 8 — June 23</option>
+        <option value="7">Week 7 — June 16</option>
+        <option value="6">Week 6 — June 9</option>
+        <option value="5">Week 5 — June 2</option>
+        <option value="4">Week 4 — May 26</option>
+        <option value="3">Week 3 — May 19</option>
+        <option value="2">Week 2 — May 12</option>
+        <option value="1">Week 1 — May 5</option>
+      </select>
+    </div>
+  </div>
+  <div id="week-result-body"></div>
+</div>
+
+<!-- Scorecard Modal -->
+<div id="sc-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:999;align-items:flex-end;justify-content:center" onclick="if(event.target===this)closeScModal()">
+  <div style="background:white;border-radius:18px 18px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:0 0 24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 16px 10px">
+      <div>
+        <div id="sc-title" style="font-size:16px;font-weight:700;color:#1b5e20"></div>
+        <div id="sc-subtitle" style="font-size:12px;color:#888;margin-top:2px"></div>
+      </div>
+      <button onclick="closeScModal()" style="background:none;border:none;font-size:24px;color:#bbb;cursor:pointer;line-height:1">×</button>
+    </div>
+    <div style="overflow-x:auto;padding:0 16px">
+      <table style="width:100%;border-collapse:collapse;font-size:13px" id="sc-table">
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ROSTER (NEW TAB — player phone numbers) -->
+<div id="roster" class="tab-content">
+  <div style="margin-top:12px">
+    <div class="card" style="padding:12px 14px;font-size:13px;color:#2e7d32;font-weight:600;background:#e8f5e9">
+      👥 Tap any player to see contact details &amp; handicap info
+    </div>
+    <div id="roster-list"></div>
+  </div>
+</div>
+
+<!-- DUES (dynamic from wgl-data.json) -->
+<div id="dues" class="tab-content">
+  <div class="card" style="margin-top:12px">
+    <div class="card-hdr">Season Buy-ins &amp; Dues</div>
+    <div class="dues-summary" id="dues-summary"></div>
+  </div>
+  <div class="card">
+    <div style="overflow-x:auto">
+      <table class="standings">
+        <thead><tr>
+          <th class="lft">Player</th><th>T</th>
+          <th>Dues</th>
+          <th>💰 Skins</th><th>🏅 Low Net</th>
+        </tr></thead>
+        <tbody id="dues-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Gear button -->
+<button id="gear-btn" onclick="toggleSettings()">⚙️</button>
+<div id="settings-panel">
+  <div class="settings-title">⚙️ Display</div>
+  <div class="settings-row">
+    <span class="settings-label">🌙 Dark Mode</span>
+    <label class="toggle"><input type="checkbox" onchange="setDark(this.checked)"><div class="toggle-track"></div></label>
+  </div>
+  <div class="settings-row">
+    <span class="settings-label">🔤 Larger Text</span>
+    <label class="toggle"><input type="checkbox" onchange="document.body.style.fontSize=this.checked?'16px':''"><div class="toggle-track"></div></label>
+  </div>
+  <div style="margin-top:4px;padding-top:12px;border-top:1px solid #eee;font-size:11px;color:#999">WGL 2026 · Proto v1</div>
+</div>
+
+<!-- Player Modal -->
+<div class="modal-bg" id="player-modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-content">
+    <div class="modal-name" id="modal-name">—</div>
+    <div class="modal-meta" id="modal-meta">—</div>
+    <div class="modal-row">
+      <span>📞 Phone</span>
+      <span id="modal-phone">—</span>
+    </div>
+    <div class="modal-row">
+      <span>🏌️ Handicap</span>
+      <span id="modal-hcp" style="font-size:20px;font-weight:800;color:#2e7d32">—</span>
+    </div>
+    <div class="modal-row">
+      <span>👥 Team</span>
+      <span id="modal-team">—</span>
+    </div>
+    <div class="modal-row" id="modal-call-row" style="display:none">
+      <span>Call / Text</span>
+      <a id="modal-call-btn" class="call-big">📲 Call</a>
+    </div>
+    <button class="modal-close" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<script>
+// ── Live data fetch ───────────────────────────────────────────────────────────
+const DATA_URL=`https://raw.githubusercontent.com/wsb76-ui/worthington-golf-league/main/wgl-data.json?t=${Date.now()}`;
+
+// ── Default/fallback data (used until wgl-data.json is fetched) ───────────────
+const MOCK_DATA = {
+  settings: {
+    week: 11,
+    subtitle: "Monday Nights · Hiland Golf Course, Butler PA · Week 11 Upcoming",
+    greens: "$12",
+    dues: "$50",
+    skins: "$20",
+    lownet: "$20",
+    pot: "$800"
+  },
+  players: {
+    "Larry Julius":    {team:1,hcp:2,phone:"724-555-0101"},
+    "Kris Simmons":    {team:1,hcp:4,phone:""},
+    "Butch Griffith":  {team:1,hcp:12,phone:"724-555-0103"},
+    "Mario Jenkins":   {team:1,hcp:10,phone:""},
+    "Frank Watt":      {team:1,hcp:16,phone:""},
+    "Paul Harmon":     {team:1,hcp:15,phone:"724-555-0106"},
+    "Andy Gallagher":  {team:1,hcp:16,phone:""},
+    "Keith Clark":     {team:1,hcp:20,phone:""},
+    "Jim Frye":        {team:2,hcp:1,phone:"724-555-0201"},
+    "Skylar Grafton":  {team:2,hcp:8,phone:""},
+    "Nick Keefer":     {team:2,hcp:9,phone:"724-555-0203"},
+    "Jeff Hollobaugh": {team:2,hcp:12,phone:""},
+    "Andy Patz":       {team:2,hcp:14,phone:""},
+    "Trent Brocious":  {team:2,hcp:15,phone:""},
+    "Wilbur Dudley":   {team:2,hcp:18,phone:""},
+    "Duck Julius":     {team:3,hcp:1,phone:"724-555-0301"},
+    "Willie Powell":   {team:3,hcp:10,phone:""},
+    "Bruce Thomas":    {team:3,hcp:10,phone:""},
+    "Scott Barton":    {team:3,hcp:11,phone:""},
+    "Dave Cushey":     {team:3,hcp:12,phone:"724-555-0305"},
+    "Dicky Peat":      {team:3,hcp:17,phone:""},
+    "Allan Voltz":     {team:3,hcp:20,phone:""},
+    "Clark Helm":      {team:4,hcp:5,phone:""},
+    "Harry Breski":    {team:4,hcp:7,phone:"724-555-0402"},
+    "Roger Hoffman":   {team:4,hcp:7,phone:""},
+    "Chad Hollobaugh": {team:4,hcp:10,phone:""},
+    "Blake Bowser":    {team:4,hcp:15,phone:""},
+    "Tom Stennett":    {team:4,hcp:14,phone:""},
+    "Landon Badac":    {team:4,hcp:17,phone:""},
+    "Eli Hickman":     {team:5,hcp:8,phone:"724-555-0501"},
+    "Jaxon Smith":     {team:5,hcp:9,phone:""},
+    "Bill Long":       {team:5,hcp:9,phone:""},
+    "Tyler Eroh":      {team:5,hcp:8,phone:""},
+    "Denny Snyder":    {team:5,hcp:9,phone:"724-555-0505"},
+    "Don Nulph":       {team:5,hcp:11,phone:""},
+    "Dave Toy":        {team:5,hcp:10,phone:""},
+    "Sam Long":        {team:6,hcp:7,phone:""},
+    "Jay Griffith":    {team:6,hcp:9,phone:"724-555-0602"},
+    "Kevin Frye":      {team:6,hcp:9,phone:""},
+    "Jesse Hickman":   {team:6,hcp:13,phone:""},
+    "Jim Goodman":     {team:6,hcp:17,phone:""},
+    "Dylan Barton":    {team:6,hcp:20,phone:""},
+    "Matt Nulph":      {team:6,hcp:20,phone:""},
+    "Ed Bargerstock":  {team:7,hcp:4,phone:"724-555-0701"},
+    "Vince Sanzotti":  {team:7,hcp:7,phone:""},
+    "Mike Hickman":    {team:7,hcp:5,phone:""},
+    "Chris Remaley":   {team:7,hcp:11,phone:"724-555-0704"},
+    "Jason Smith":     {team:7,hcp:11,phone:""},
+    "Wes Barton":      {team:7,hcp:12,phone:"724-814-0000"},
+    "Doug Anthony":    {team:7,hcp:10,phone:""},
+    "Brian Barton":    {team:8,hcp:6,phone:""},
+    "Logan Bowser":    {team:8,hcp:10,phone:""},
+    "Paul Bowser":     {team:8,hcp:8,phone:"724-555-0803"},
+    "Ken Long":        {team:8,hcp:13,phone:""},
+    "Patric Weber":    {team:8,hcp:15,phone:""},
+    "Cole Clark":      {team:8,hcp:15,phone:""},
+    "Dylan Smith":     {team:8,hcp:16,phone:""}
+  },
+  buyins: {
+    "Larry Julius":   {skins:true,lownet:true},
+    "Jim Frye":       {skins:true,lownet:false},
+    "Duck Julius":    {skins:true,lownet:true},
+    "Ed Bargerstock": {skins:true,lownet:true},
+    "Wes Barton":     {skins:true,lownet:true},
+    "Mike Hickman":   {skins:false,lownet:true},
+    "Clark Helm":     {skins:true,lownet:true},
+    "Eli Hickman":    {skins:true,lownet:false},
+    "Sam Long":       {skins:true,lownet:true}
+  },
+  duesPaid: {
+    "Larry Julius":   {dues:true,outing:true},
+    "Jim Frye":       {dues:true,outing:false},
+    "Duck Julius":    {dues:true,outing:true},
+    "Ed Bargerstock": {dues:true,outing:true},
+    "Wes Barton":     {dues:true,outing:false},
+    "Clark Helm":     {dues:true,outing:true},
+    "Sam Long":       {dues:false,outing:false}
+  },
+  announcements: [
+    {
+      date:"July 14, 2026",tag:"reminder",
+      title:"Week 11 Tee Times Posted",
+      body:"Tee times for Week 11 are posted on the course board. First group goes off at 4:30 PM. Please be ready 10 minutes before your time. Email your scorecard to wsb76@icloud.com."
+    },
+    {
+      date:"July 10, 2026",tag:"info",
+      title:"Season Outing Registration Open",
+      body:"The August 29 outing at Hiland is shaping up — see the Outing tab for details. Dinner at The Farm after. Let an admin know if you're in."
+    },
+    {
+      date:"July 7, 2026",tag:"success",
+      title:"Week 10 Results",
+      body:"Team 7 wins Week 10 with a net score of -14.2. Strong showing from Ed Bargerstock (gross 37) and Wes Barton (gross 41). Full low-net standings updated."
+    }
+  ],
+  outing: {
+    date:"Saturday, August 29, 2026",
+    tee:"8:00 AM shotgun start",
+    course:"Hiland Golf Course · Butler, PA",
+    holes:"18 holes · starting on the back 9",
+    format:"Best Ball (2-man teams, net score)",
+    cost:"$75 per player (includes cart)",
+    dinner:"The Farm · 150 Fox Rd, Worthington PA 16262",
+    prizes:{
+      p1:"Low Gross",
+      p2:"Low Net (Best Ball)",
+      p3:"Closest to Pin — Hole 7",
+      p4:"Longest Drive — Hole 12",
+      p5:"Season Champion (lowest net total)"
+    },
+    signups:[
+      {name:"Wes Barton"},
+      {name:"Ed Bargerstock"},
+      {name:"Mike Hickman"},
+      {name:"Larry Julius"},
+      {name:"Duck Julius"},
+      {name:"Vince Sanzotti"},
+      {name:"Jim Frye"},
+      {name:"Clark Helm"},
+      {name:"Sam Long"},
+      {name:"Jay Griffith"},
+      {name:"Tyler Eroh"},
+      {name:"Skylar Grafton"},
+      {name:"Roger Hoffman"},
+      {name:"Brian Barton"},
+      {name:"Kris Simmons"},
+      {name:"Eli Hickman"}
+    ],
+    teams:[
+      {num:1,players:["Wes Barton","Larry Julius"]},
+      {num:2,players:["Ed Bargerstock","Duck Julius"]},
+      {num:3,players:["Mike Hickman","Jim Frye"]},
+      {num:4,players:["Vince Sanzotti","Clark Helm"]},
+      {num:5,players:["Eli Hickman","Sam Long"]},
+      {num:6,players:["Brian Barton","Roger Hoffman"]},
+      {num:7,players:["Jay Griffith","Kris Simmons"]},
+      {num:8,players:["Skylar Grafton","Tyler Eroh"]}
+    ]
+  },
+  outing2:{
+    date:'',tee:'',course:'',holes:'',format:'',cost:'',dinner:'',
+    prizes:{p1:'',p2:'',p3:'',p4:'',p5:''},
+    signups:[],
+    teams:[]
+  }
+};
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function sortedPlayers(){
+  return Object.entries(D.players)
+    .map(([n,v])=>({name:n,...v}))
+    .sort((a,b)=>a.team-b.team||a.hcp-b.hcp);
+}
+
+// ── Score Card — 3-step prototype ────────────────────────────────────────────
+const SC_EMAIL      = 'wsb76@icloud.com';
+const SC_BACK_PARS  = [5,4,4,4,4,3,4,3,4]; // Holes 10–18 Hiland GC
+const SC_FRONT_PARS = [4,4,3,4,4,4,5,4,3]; // Holes 1–9
+
+let scSess = { players:[], scores:{}, hole:0, side:'back' };
+let _scHits=[], _scMidHits=[];
+
+function scGetPars()  { return scSess.side==='back'?SC_BACK_PARS:SC_FRONT_PARS; }
+function scGetHoles() { return scSess.side==='back'?[10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9]; }
+
+function scSetSide(side){
+  scSess.side=side;
+  const fb=document.getElementById('sc-front-btn');
+  const bb=document.getElementById('sc-back-btn');
+  if(side==='front'){
+    fb.style.cssText='flex:1;padding:10px;border:1.5px solid #2e7d32;border-radius:8px;font-size:13px;font-weight:600;background:#2e7d32;color:white;cursor:pointer';
+    fb.textContent='Front 9 ✓';
+    bb.style.cssText='flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;font-weight:600;background:white;color:#555;cursor:pointer';
+    bb.textContent='Back 9';
+  } else {
+    bb.style.cssText='flex:1;padding:10px;border:1.5px solid #2e7d32;border-radius:8px;font-size:13px;font-weight:600;background:#2e7d32;color:white;cursor:pointer';
+    bb.textContent='Back 9 ✓';
+    fb.style.cssText='flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;font-weight:600;background:white;color:#555;cursor:pointer';
+    fb.textContent='Front 9';
+  }
+}
+
+function scShowStep(id){
+  document.querySelectorAll('.sc-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// roster from live data
+function scGetRoster(){
+  const r={};
+  if(D.players){
+    for(const [name,p] of Object.entries(D.players)) r[name]={team:p.team,hcp:p.hcp};
+  }
+  return r;
+}
+
+function scSearch(val){
+  const drop=document.getElementById('sc-drop');
+  if(!val.trim()){drop.style.display='none';_scHits=[];return;}
+  const q=val.toLowerCase();
+  const added=new Set(scSess.players.map(p=>p.name));
+  _scHits=Object.entries(scGetRoster()).filter(([n])=>!added.has(n)&&n.toLowerCase().includes(q)).slice(0,8);
+  if(!_scHits.length){drop.style.display='none';return;}
+  drop.innerHTML=_scHits.map(([name,info],i)=>
+    `<div class="search-item" onclick="scAddPlayer(${i})">${name}<span style="color:#aaa;font-size:12px"> · T${info.team} · HCP ${info.hcp}</span></div>`
+  ).join('');
+  drop.style.display='block';
+}
+
+function scAddPlayer(i){
+  const [name,info]=_scHits[i]||[];
+  if(!name||!info||scSess.players.find(p=>p.name===name))return;
+  scSess.players.push({name,team:info.team,hcp:info.hcp});
+  scSess.scores[name]=Array(9).fill(null);
+  _scHits=[];
+  document.getElementById('sc-search').value='';
+  document.getElementById('sc-drop').style.display='none';
+  document.getElementById('sc-start-err').style.display='none';
+  scRenderAdded();
+}
+
+function scRemovePlayer(i){
+  const name=scSess.players[i].name;
+  scSess.players.splice(i,1);
+  delete scSess.scores[name];
+  scRenderAdded();
+}
+
+function scRenderAdded(){
+  const el=document.getElementById('sc-added');
+  if(!scSess.players.length){el.innerHTML='<div class="empty-msg">No players added yet</div>';return;}
+  el.innerHTML=scSess.players.map((p,i)=>
+    `<div class="player-chip">
+      <span class="chip-name">${p.name}<span class="chip-meta"> T${p.team} · HCP ${p.hcp}</span></span>
+      <button class="chip-remove" onclick="scRemovePlayer(${i})">×</button>
+    </div>`
+  ).join('');
+}
+
+function scStart(){
+  if(!scSess.players.length){document.getElementById('sc-start-err').style.display='block';return;}
+  scSess.hole=0;
+  scShowStep('sc-step-scoring');
+  scRenderHole();
+}
+
+function scToggleMidAdd(){
+  const p=document.getElementById('sc-mid-panel');
+  const open=p.style.display!=='none';
+  p.style.display=open?'none':'block';
+  if(!open)setTimeout(()=>document.getElementById('sc-mid-search').focus(),50);
+}
+
+function scMidSearch(val){
+  const drop=document.getElementById('sc-mid-drop');
+  if(!val.trim()){drop.style.display='none';_scMidHits=[];return;}
+  const q=val.toLowerCase();
+  const added=new Set(scSess.players.map(p=>p.name));
+  _scMidHits=Object.entries(scGetRoster()).filter(([n])=>!added.has(n)&&n.toLowerCase().includes(q)).slice(0,8);
+  if(!_scMidHits.length){drop.style.display='none';return;}
+  drop.innerHTML=_scMidHits.map(([name,info],i)=>
+    `<div class="search-item" onclick="scMidAdd(${i})">${name}<span style="color:#aaa;font-size:12px"> · T${info.team} · HCP ${info.hcp}</span></div>`
+  ).join('');
+  drop.style.display='block';
+}
+
+function scMidAdd(i){
+  const [name,info]=_scMidHits[i]||[];
+  if(!name||!info||scSess.players.find(p=>p.name===name))return;
+  scSess.players.push({name,team:info.team,hcp:info.hcp});
+  scSess.scores[name]=Array(9).fill(null);
+  _scMidHits=[];
+  document.getElementById('sc-mid-search').value='';
+  document.getElementById('sc-mid-drop').style.display='none';
+  document.getElementById('sc-mid-panel').style.display='none';
+  scRenderHole();
+}
+
+function scMkProgress(){
+  return scGetHoles().map((_,i)=>{
+    const done=scSess.players.every(p=>scSess.scores[p.name][i]!==null);
+    const active=i===scSess.hole;
+    const bg=active?'#2e7d32':done?'#81c784':'#ddd';
+    const sz=active?13:8;
+    return `<div class="dot" style="width:${sz}px;height:${sz}px;background:${bg}"></div>`;
+  }).join('');
+}
+
+function scShortName(name){
+  const first=name.split(' ')[0];
+  const dupes=scSess.players.filter(p=>p.name.split(' ')[0]===first);
+  if(dupes.length>1){const last=name.split(' ').slice(-1)[0];return first+' '+last[0]+'.';}
+  return first;
+}
+
+function scRenderHole(){
+  const hi=scSess.hole;
+  const pars=scGetPars();
+  const holes=scGetHoles();
+  const par=pars[hi];
+  document.getElementById('sc-hole-lbl').textContent=`Hole ${holes[hi]}`;
+  document.getElementById('sc-par-lbl').textContent=`Par ${par} · Max ${par*2}`;
+  document.getElementById('sc-progress').innerHTML=scMkProgress();
+  document.getElementById('sc-inputs').innerHTML=scSess.players.map((p,pi)=>{
+    const val=scSess.scores[p.name][hi];
+    const disp=val!==null?val:'—';
+    const clr=val!==null?'#1a1a1a':'#bbb';
+    return `<div class="score-row">
+      <span class="sname">${scShortName(p.name)}</span>
+      <div class="score-ctrl">
+        <button class="adj-btn" onclick="scAdj(${pi},-1)">−</button>
+        <div class="score-val" id="sc-sv-${pi}" style="color:${clr}">${disp}</div>
+        <button class="adj-btn" onclick="scAdj(${pi},+1)">+</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('sc-prev-btn').style.visibility=hi===0?'hidden':'visible';
+  const last=hi===holes.length-1;
+  const nb=document.getElementById('sc-next-btn');
+  nb.textContent=last?'✓ Review':'Next Hole →';
+  nb.className='nav-btn '+(last?'review':'next');
+}
+
+function scAdj(pi,delta){
+  const hi=scSess.hole;
+  const par=scGetPars()[hi];
+  const p=scSess.players[pi];
+  let cur=scSess.scores[p.name][hi];
+  if(cur===null)cur=par;
+  cur=Math.max(1,Math.min(par*2,cur+delta));
+  scSess.scores[p.name][hi]=cur;
+  const el=document.getElementById('sc-sv-'+pi);
+  if(el){el.textContent=cur;el.style.color='#1a1a1a';}
+  document.getElementById('sc-progress').innerHTML=scMkProgress();
+}
+
+function scHoleNav(dir){
+  const next=scSess.hole+dir;
+  if(next<0)return;
+  if(next>=scGetHoles().length){scShowReview();return;}
+  scSess.hole=next;
+  scRenderHole();
+}
+
+function scGoBack(){
+  scShowStep('sc-step-scoring');
+  scRenderHole();
+}
+
+function scHdClass(val,par){
+  if(val===null)return 'miss';
+  if(val<=par-2)return 'eagle';
+  if(val===par-1)return 'birdie';
+  if(val===par)return 'par';
+  if(val===par+1)return 'bogey';
+  return 'double';
+}
+
+function scShowReview(){
+  scShowStep('sc-step-review');
+  const pars=scGetPars();
+  const holes=scGetHoles();
+  const byTeam={};
+  for(const p of scSess.players){
+    const s=scSess.scores[p.name];
+    const filled=s.every(v=>v!==null);
+    const gross=s.reduce((a,b)=>a+(b||0),0);
+    const net=filled?gross-p.hcp:null;
+    (byTeam[p.team]=byTeam[p.team]||[]).push({...p,scores:s,gross:filled?gross:null,net});
+  }
+  const sideLabel=scSess.side==='back'?'Back 9 (Holes 10–18)':'Front 9 (Holes 1–9)';
+  const wk=D.settings&&D.settings.week?D.settings.week:'?';
+  let html=`<div class="card" style="margin-bottom:4px;background:#f0f7f0">
+    <div style="padding:10px 14px">
+      <span style="font-size:13px;color:#2e7d32;font-weight:600">Week ${wk} · ${sideLabel}</span>
+      <span style="font-size:12px;color:#666;margin-left:8px">${scSess.players.length} player${scSess.players.length!==1?'s':''}</span>
+    </div>
+  </div>`;
+  for(const team of Object.keys(byTeam).sort((a,b)=>+a-+b)){
+    html+=`<div class="card"><div style="padding:14px 16px"><div class="sc-team-hdr">Team ${team}</div>`;
+    for(const p of byTeam[team]){
+      const dots=p.scores.map((s,i)=>`<span class="hd ${scHdClass(s,pars[i])}">${s??'?'}</span>`).join('');
+      const totStr=p.gross!==null?`${p.gross} gross · ${p.net} net`:'⚠ incomplete';
+      html+=`<div class="rev-row">
+        <div class="rev-name-row">
+          <span class="rname">${p.name}</span>
+          <span class="rtotals${p.gross===null?' warn':''}">${totStr}</span>
+        </div>
+        <div class="hole-dots">${dots}</div>
+      </div>`;
+    }
+    html+='</div></div>';
+  }
+  document.getElementById('sc-review-body').innerHTML=html;
+}
+
+function scSubmit(){
+  const today=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const side=scSess.side==='back'?'BACK 9 (Holes 10–18)':'FRONT 9 (Holes 1–9)';
+  const wk=D.settings&&D.settings.week?D.settings.week:'?';
+  const holes=scGetHoles();
+  let body=`WGL Card — Week ${wk} · ${side}\nDate: ${today}\n\n`;
+  const byTeam={};
+  for(const p of scSess.players)(byTeam[p.team]=byTeam[p.team]||[]).push(p);
+  for(const team of Object.keys(byTeam).sort((a,b)=>+a-+b)){
+    body+=`--- Team ${team} ---\n`;
+    for(const p of byTeam[team]){
+      const s=scSess.scores[p.name];
+      const gross=s.reduce((a,b)=>a+(b||0),0);
+      const net=gross-p.hcp;
+      const hstr=holes.map((h,i)=>`H${h}:${s[i]??'?'}`).join('  ');
+      body+=`${p.name}  HCP ${p.hcp}\n${hstr}\nGross:${gross}  Net:${net}\n\n`;
+    }
+  }
+  const sub=encodeURIComponent(`WGL Card Wk${wk} ${scSess.side==='back'?'Back9':'Front9'} – ${today}`);
+  const bod=encodeURIComponent(body);
+  window.location.href=`mailto:${SC_EMAIL}?subject=${sub}&body=${bod}`;
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+function showTab(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(el)el.classList.add('active');
+  closeSettings();
+}
+
+// ── Announcements ─────────────────────────────────────────────────────────────
+function buildNews(){
+  const el=document.getElementById('news-list');
+  const anns=D.announcements;
+  if(!anns||!anns.length){el.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:20px">No announcements yet.</div>';return;}
+  const cls={info:'ann-info',reminder:'ann-reminder',alert:'ann-alert',success:''};
+  el.innerHTML=anns.map(a=>`
+    <div class="ann-item ${cls[a.tag]||''}">
+      <div class="ann-tag">${a.tag==='info'?'League Notice':a.tag==='reminder'?'Reminder':a.tag==='alert'?'⚠️ Action Needed':'✅ Update'}</div>
+      <div class="ann-title">${a.title}</div>
+      <div class="ann-body">${a.body}</div>
+      <div class="ann-date">${a.date}</div>
+    </div>`).join('');
+}
+
+// ── Outing ────────────────────────────────────────────────────────────────────
+function buildOuting(){
+  const o=D.outing;
+  const body=document.getElementById('outing-body');
+  body.innerHTML=`
+    <div class="outing-section"><div class="outing-lbl">📅 Date</div><div class="outing-val">${o.date}</div></div>
+    <div class="outing-section"><div class="outing-lbl">⏰ Tee Time</div><div class="outing-val">${o.tee}</div></div>
+    <div class="outing-section"><div class="outing-lbl">📍 Course</div><div class="outing-val">${o.course}</div></div>
+    <div class="outing-section"><div class="outing-lbl">⛳ Format</div><div class="outing-val">${o.holes}<br>${o.format}</div></div>
+    <div class="outing-section"><div class="outing-lbl">💵 Cost</div><div class="outing-val">${o.cost}</div></div>
+    <div class="outing-section"><div class="outing-lbl">🍽️ Dinner</div><div class="outing-val">${o.dinner}</div></div>`;
+  const prizes=o.prizes;
+  if(prizes){
+    const pcard=document.getElementById('prizes-card');
+    pcard.style.display='';
+    document.getElementById('prizes-body').innerHTML=[
+      ['🥇 Low Gross',prizes.p1],['🥈 Low Net',prizes.p2],
+      ['📍 Closest to Pin',prizes.p3],['🏌️ Long Drive',prizes.p4],
+      ['🏆 Season Champion',prizes.p5]
+    ].map(([pos,desc])=>desc?`<div class="prize-row"><span class="prize-pos">${pos}</span><span class="prize-desc">${desc}</span></div>`:'').join('');
+  }
+  const sups=o.signups||[];
+  // Update sign-up modal subtitle with outing date
+  const sub=document.getElementById('signup-modal-sub');
+  if(sub&&o.date)sub.textContent=o.date+(o.course?' · '+o.course.split('·')[0].trim():'');
+  if(sups.length){
+    document.getElementById('signups-card').style.display='';
+    document.getElementById('signup-cnt').textContent=sups.length;
+    document.getElementById('signups-body').innerHTML=sups.map(s=>`
+      <div style="padding:9px 0;border-bottom:1px solid #f5f5f5;font-size:14px;font-weight:500">
+        ${s.name}
+      </div>`).join('');
+  }
+  // Teams
+  renderOutingTeams(o.teams||[],'teams-card','teams-body');
+  // End of season outing
+  const o2=D.outing2||{};
+  if((o2.signups||[]).length){
+    document.getElementById('signups2-card').style.display='';
+    document.getElementById('signup2-cnt').textContent=o2.signups.length;
+    document.getElementById('signups2-body').innerHTML=o2.signups.map(s=>`
+      <div style="padding:9px 0;border-bottom:1px solid #f5f5f5;font-size:14px;font-weight:500">
+        ${s.name}
+      </div>`).join('');
+  }
+  renderOutingTeams(o2.teams||[],'teams2-card','teams2-body');
+}
+
+function renderOutingTeams(teams,cardId,bodyId){
+  const card=document.getElementById(cardId);
+  const body=document.getElementById(bodyId);
+  if(!card||!body)return;
+  if(!teams||!teams.length){card.style.display='none';return;}
+  card.style.display='';
+  body.innerHTML=teams.map(t=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f5f5f5">
+      <div style="width:32px;height:32px;border-radius:50%;background:#e8f5e9;color:#2e7d32;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">${t.num}</div>
+      <div>
+        ${t.players.map(p=>`<div style="font-size:14px;font-weight:600">${p}</div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ── Outing selector ───────────────────────────────────────────────────────────
+let _leagueOuting='mid';
+function switchLeagueOuting(which){
+  _leagueOuting=which;
+  document.getElementById('lo-mid').style.display=which==='mid'?'':'none';
+  document.getElementById('lo-end').style.display=which==='end'?'':'none';
+  document.getElementById('lo-mid-btn').style.background=which==='mid'?'#2e7d32':'#eee';
+  document.getElementById('lo-mid-btn').style.color=which==='mid'?'white':'#555';
+  document.getElementById('lo-end-btn').style.background=which==='end'?'#2e7d32':'#eee';
+  document.getElementById('lo-end-btn').style.color=which==='end'?'white':'#555';
+}
+
+// ── Outing Sign-Up ────────────────────────────────────────────────────────────
+let _signupForOuting='mid';
+function openSignupForm(which){
+  _signupForOuting=which||'mid';
+  const isMid=_signupForOuting==='mid';
+  const o=D.outing;
+  document.getElementById('signup-modal-title').textContent='Sign Up for '+(isMid?'Mid-Season':'End-of-Season')+' Outing';
+  document.getElementById('signup-modal-sub').textContent=isMid?(o.date||''):(D.outing2?.date||'Date TBD');
+  document.getElementById('signup-name').value='';
+  document.getElementById('signup-notes').value='';
+  document.getElementById('signup-modal-bg').style.display='flex';
+  setTimeout(()=>document.getElementById('signup-name').focus(),100);
+}
+function closeSignupForm(e){
+  if(!e||!document.getElementById('signup-modal').contains(e.target)){
+    document.getElementById('signup-modal-bg').style.display='none';
+  }
+}
+function submitSignup(){
+  const name=document.getElementById('signup-name').value.trim();
+  const notes=document.getElementById('signup-notes').value.trim();
+  if(!name){document.getElementById('signup-name').style.borderColor='#c62828';document.getElementById('signup-name').focus();return;}
+  document.getElementById('signup-name').style.borderColor='';
+  const isMid=_signupForOuting==='mid';
+  const label=isMid?'Mid-Season':'End-of-Season';
+  const o=D.outing;
+  const subject=encodeURIComponent('WGL '+label+' Outing Sign-Up: '+name);
+  const body=encodeURIComponent(
+    'Hi,\n\nI would like to sign up for the WGL '+label+' Outing.\n\n'+
+    'Name: '+name+'\n'+
+    (isMid&&o.date?'Date: '+o.date+'\n':'')+
+    (notes?'Notes: '+notes+'\n':'')+
+    '\nThanks!'
+  );
+  window.location.href='mailto:wglscore@gmail.com?subject='+subject+'&body='+body;
+  document.getElementById('signup-modal-bg').style.display='none';
+}
+
+// ── Dues ──────────────────────────────────────────────────────────────────────
+function buildDues(){
+  const tbody=document.getElementById('dues-tbody');
+  let html='',cur=0,skIn=0,lnIn=0,dIn=0,oIn=0;
+  for(const p of sortedPlayers()){
+    if(p.team!==cur){cur=p.team;html+=`<tr><td colspan="6" style="background:#1b5e20;color:white;font-size:11px;font-weight:700;text-transform:uppercase;padding:5px 8px">Team #${p.team}</td></tr>`;}
+    const d=D.duesPaid[p.name]||{};
+    const b=D.buyins[p.name]||{};
+    if(b.skins)skIn++;if(b.lownet)lnIn++;if(d.dues)dIn++;
+    const yes='<span class="badge-in">In</span>',no='<span class="badge-out">—</span>';
+    html+=`<tr>
+      <td class="lft">${p.name}</td><td>${p.team}</td>
+      <td>${d.dues?yes:no}</td>
+      <td>${b.skins?yes:no}</td><td>${b.lownet?yes:no}</td>
+    </tr>`;
+  }
+  tbody.innerHTML=html;
+  const s=D.settings;
+  document.getElementById('dues-summary').innerHTML=`
+    <span>💵 Dues Paid: <strong>${dIn}</strong>${s.dues?' ('+s.dues+' ea)':''}</span>
+    <span>💰 Skins: <strong>${skIn}</strong>${s.skins?' ('+s.skins+')':''}</span>
+    <span>🏅 Low Net: <strong>${lnIn}</strong>${s.lownet?' ('+s.lownet+')':''}</span>`;
+}
+
+// ── Roster ────────────────────────────────────────────────────────────────────
+let _players=[];
+function buildRoster(){
+  const el=document.getElementById('roster-list');
+  let html='',cur=0;
+  _players=sortedPlayers();
+  for(let i=0;i<_players.length;i++){
+    const p=_players[i];
+    if(p.team!==cur){
+      if(cur>0)html+='</div>';
+      cur=p.team;
+      html+=`<div class="roster-team"><div class="roster-team-hdr">Team #${p.team}</div><div class="card" style="border-radius:0 0 12px 12px;margin-bottom:12px">`;
+    }
+    const hasPhone=!!(p.phone);
+    html+=`<div class="roster-player" onclick="openModal(${i})">
+      <div style="flex:1">
+        <div class="rp-name">${p.name}</div>
+        <div class="rp-hcp">HCP ${p.hcp} · ${hasPhone?'📞 '+p.phone:'no phone on file'}</div>
+      </div>
+      <span class="${hasPhone?'call-btn':'call-btn no-phone'}">${hasPhone?'📞 Info':'Info'}</span>
+    </div>`;
+  }
+  if(cur>0)html+='</div></div>';
+  el.innerHTML=html;
+  // (roster is loaded dynamically from D.players when score card tab is used)
+}
+function openModal(i){
+  const p=_players[i];
+  document.getElementById('modal-name').textContent=p.name;
+  document.getElementById('modal-meta').textContent=`Team #${p.team} · Handicap ${p.hcp}`;
+  document.getElementById('modal-team').textContent=`Team #${p.team}`;
+  document.getElementById('modal-hcp').textContent=p.hcp;
+  if(p.phone){
+    document.getElementById('modal-phone').textContent=p.phone;
+    const cr=document.getElementById('modal-call-row');
+    cr.style.display='flex';
+    const cb=document.getElementById('modal-call-btn');
+    cb.href='tel:'+p.phone.replace(/\D/g,'');
+    cb.textContent='📲 Call';
+  } else {
+    document.getElementById('modal-phone').textContent='Not on file';
+    document.getElementById('modal-call-row').style.display='none';
+  }
+  document.getElementById('player-modal').classList.add('open');
+}
+function closeModal(e){
+  if(!e||!document.getElementById('modal-content').contains(e.target)){
+    document.getElementById('player-modal').classList.remove('open');
+  }
+}
+
+// ── HCP Grid ──────────────────────────────────────────────────────────────────
+function buildHcps(){
+  const el=document.getElementById('hcp-grid');
+  el.innerHTML=sortedPlayers().map((p,i)=>`
+    <div class="hcp-row" onclick="openModal(${i})">
+      <div><div class="hcp-name">${p.name.split(' ')[0]}<br>${p.name.split(' ').slice(1).join(' ')}</div><div style="font-size:10px;color:#aaa">T${p.team}</div></div>
+      <div class="hcp-val">${p.hcp}</div>
+    </div>`).join('');
+}
+
+// ── Settings gear ─────────────────────────────────────────────────────────────
+function toggleSettings(){
+  const p=document.getElementById('settings-panel');
+  const b=document.getElementById('gear-btn');
+  const o=p.classList.contains('open');
+  p.classList.toggle('open',!o);
+  b.classList.toggle('open',!o);
+}
+function closeSettings(){
+  document.getElementById('settings-panel').classList.remove('open');
+  document.getElementById('gear-btn').classList.remove('open');
+}
+function setDark(on){
+  if(on){document.documentElement.style.setProperty('--bg','#111');document.documentElement.style.setProperty('--card','#1e1e1e');document.documentElement.style.setProperty('--text','#f0f0f0');}
+  else {document.documentElement.style.removeProperty('--bg');document.documentElement.style.removeProperty('--card');document.documentElement.style.removeProperty('--text');}
+}
+document.addEventListener('click',e=>{
+  const panel=document.getElementById('settings-panel');
+  if(panel.classList.contains('open')&&!panel.contains(e.target)&&!document.getElementById('gear-btn').contains(e.target))closeSettings();
+  if(!e.target.closest('#sc-search')&&!e.target.closest('#sc-drop')){const d=document.getElementById('sc-drop');if(d)d.style.display='none';}
+  if(!e.target.closest('#sc-mid-search')&&!e.target.closest('#sc-mid-drop')){const d=document.getElementById('sc-mid-drop');if(d)d.style.display='none';}
+});
+
+// ── Weekly detail data ────────────────────────────────────────────────────────
+// Week 10 — verified from score cards (7/13/2026). Scoring: 4 lowest nets per team.
+// T4 and T8 submitted only 3 cards → +50 penalty applied in buildWeek().
+const WK_DATA = {
+  10: {
+    label:'Week 10',date:'Monday, July 13, 2026',course:'Hiland Golf Course',
+    players:[
+      // Grp 1 — Card A
+      {name:'Tom Stennett',   team:4,hcp:14,gross:55,net:41,grp:1},
+      {name:'Paul Bowser',    team:8,hcp:8, gross:43,net:35,grp:1},
+      {name:'Dylan Barton',   team:6,hcp:20,gross:62,net:42,grp:1},
+      {name:'Wes Barton',     team:7,hcp:12,gross:49,net:37,grp:1},
+      // Grp 2 — Card B
+      {name:'Jaxon Smith',    team:5,hcp:9, gross:45,net:36,grp:2},
+      {name:'Jason Smith',    team:7,hcp:11,gross:48,net:37,grp:2},
+      {name:'Andy Patz',      team:2,hcp:14,gross:54,net:40,grp:2},
+      {name:'Bruce Thomas',   team:3,hcp:10,gross:45,net:35,grp:2},
+      // Grp 3 — Card C
+      {name:'Chris Remaley',  team:7,hcp:11,gross:50,net:39,grp:3},
+      {name:'Denny Snyder',   team:5,hcp:9, gross:47,net:38,grp:3},
+      // Grp 4 — Card D
+      {name:'Frank Watt',     team:1,hcp:16,gross:53,net:37,grp:4},
+      {name:'Wilbur Dudley',  team:2,hcp:18,gross:53,net:35,grp:4},
+      {name:'Ed Bargerstock', team:7,hcp:4, gross:42,net:38,grp:4},
+      // Grp 5 — Card E
+      {name:'Chad Hollobaugh',team:4,hcp:10,gross:43,net:33,grp:5},
+      {name:'Allan Voltz',    team:3,hcp:20,gross:66,net:46,grp:5},
+      {name:'Don Nulph',      team:5,hcp:11,gross:60,net:49,grp:5},
+      {name:'Dicky Peat',     team:3,hcp:17,gross:58,net:41,grp:5},
+      // Grp 6 — Card F
+      {name:'Vince Sanzotti', team:7,hcp:7, gross:39,net:32,grp:6},
+      {name:'Kevin Frye',     team:6,hcp:9, gross:38,net:29,grp:6},
+      {name:'Jim Frye',       team:2,hcp:1, gross:33,net:32,grp:6},
+      // Grp 7 — Card G
+      {name:'Kris Simmons',   team:1,hcp:4, gross:39,net:35,grp:7},
+      // Grp 8 — Card H
+      {name:'Jesse Hickman',  team:6,hcp:13,gross:47,net:34,grp:8},
+      {name:'Ken Long',       team:8,hcp:13,gross:45,net:32,grp:8},
+      // Grp 9 — Card I
+      {name:'Duck Julius',    team:3,hcp:1, gross:37,net:36,grp:9},
+      {name:'Larry Julius',   team:1,hcp:2, gross:38,net:36,grp:9},
+      // Grp 10 — Card J
+      {name:'Roger Hoffman',  team:4,hcp:7, gross:44,net:37,grp:10},
+      {name:'Jeff Hollobaugh',team:2,hcp:12,gross:48,net:36,grp:10},
+      // Grp 11 — Card K
+      {name:'Butch Griffith', team:1,hcp:12,gross:48,net:36,grp:11},
+      {name:'Dave Toy',       team:5,hcp:10,gross:49,net:39,grp:11},
+      {name:'Jim Goodman',    team:6,hcp:17,gross:53,net:36,grp:11},
+      // Grp 12 — Card L
+      {name:'Sam Long',       team:6,hcp:7, gross:47,net:40,grp:12},
+      // Grp 13 — Card M
+      {name:'Bill Long',      team:5,hcp:9, gross:47,net:38,grp:13},
+      {name:'Willie Powell',  team:3,hcp:10,gross:45,net:35,grp:13},
+      {name:'Patrick Weber',  team:8,hcp:15,gross:55,net:40,grp:13},
+      // Grp 14 — Card N
+      {name:'Eli Hickman',    team:5,hcp:8, gross:41,net:33,grp:14},
+      {name:'Skylar Grafton', team:2,hcp:8, gross:50,net:42,grp:14},
+      // Grp 15 — Card O (Jason Griffith excluded — team/HCP unknown)
+      {name:'Tyler Eroh',     team:5,hcp:8, gross:43,net:35,grp:15},
+      {name:'Andy Gallagher', team:1,hcp:16,gross:53,net:37,grp:15},
+      {name:'Nick Keefer',    team:2,hcp:9, gross:46,net:37,grp:15}
+    ]
+  }
+};
+
+function loadWeekResult(wk){
+  const el=document.getElementById('week-result-body');
+  buildWeek(wk,el);
+}
+
+function showScorecard(wk,grp,tapped){
+  const d=WK_DATA[wk];
+  if(!d)return;
+  const group=d.players.filter(p=>p.grp===grp).sort((a,b)=>a.net-b.net);
+  const modal=document.getElementById('sc-modal');
+  document.getElementById('sc-title').textContent=`Group ${grp} — ${d.label}`;
+  document.getElementById('sc-subtitle').textContent=`${d.date} · ${d.course}`;
+  const rows=group.map(p=>`
+    <tr style="border-bottom:1px solid #f0f0f0;background:${p.name===tapped?'#e8f5e9':'white'}">
+      <td style="padding:10px 8px;font-weight:${p.name===tapped?'700':'500'}">${p.name}<br><span style="font-size:11px;color:#888">Team ${p.team}</span></td>
+      <td style="padding:10px 6px;text-align:center;color:#888;font-size:13px">${p.hcp}</td>
+      <td style="padding:10px 6px;text-align:center;font-size:13px">${p.gross}</td>
+      <td style="padding:10px 6px;text-align:center;font-weight:700;color:#2e7d32;font-size:14px">${p.net}</td>
+    </tr>`).join('');
+  document.getElementById('sc-table').innerHTML=`
+    <thead><tr style="background:#f5f5f5">
+      <th style="text-align:left;padding:8px;font-size:11px;color:#555;font-weight:600">Player</th>
+      <th style="padding:8px 6px;font-size:11px;color:#555;font-weight:600;text-align:center">HCP</th>
+      <th style="padding:8px 6px;font-size:11px;color:#555;font-weight:600;text-align:center">Gross</th>
+      <th style="padding:8px 6px;font-size:11px;color:#555;font-weight:600;text-align:center">Net</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>`;
+  modal.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closeScModal(){
+  document.getElementById('sc-modal').style.display='none';
+  document.body.style.overflow='';
+}
+
+function buildWeek(wk,elOverride){
+  const d=WK_DATA[wk];
+  const el=elOverride||document.getElementById('week-result-body');
+  if(!d){el.innerHTML='<div class="card"><div style="padding:20px;text-align:center;color:#bbb;font-size:14px">No data for this week yet.</div></div>';return;}
+
+  // group by team
+  const teams={};
+  for(const p of d.players){
+    if(!teams[p.team])teams[p.team]={num:p.team,players:[]};
+    teams[p.team].players.push(p);
+  }
+
+  // WGL scoring: 4 lowest nets per team; +50 penalty if fewer than 4 scores submitted
+  for(const t of Object.values(teams)){
+    const sorted=[...t.players].sort((a,b)=>a.net-b.net);
+    const count=sorted.length;
+    t.counting=sorted.slice(0,4);
+    t.penalty=count<4;
+    t.total=t.counting.reduce((s,p)=>s+p.net,0)+(t.penalty?50:0);
+  }
+
+  // sort teams by total ascending (low net wins)
+  const sorted=Object.values(teams).sort((a,b)=>a.total-b.total);
+  const best=sorted[0].total;
+
+  let html=`<div class="card" style="margin-bottom:10px">
+    <div class="card-hdr">${d.label} · ${d.date}</div>
+    <div style="padding:8px 14px;font-size:13px;color:#555">${d.course} · 4 lowest nets count</div>
+  </div>`;
+
+  for(let i=0;i<sorted.length;i++){
+    const t=sorted[i];
+    const winner=t.total===best&&!t.penalty;
+    const bgHdr=winner?'#e8f5e9':t.penalty?'#fff3e0':'#f9f9f9';
+    const clrHdr=winner?'#1b5e20':t.penalty?'#e65100':'#333';
+    const countingNames=new Set(t.counting.map(p=>p.name));
+    const ps=[...t.players].sort((a,b)=>a.net-b.net);
+    const penaltyNote=t.penalty?` <span style="font-size:11px;font-weight:600;color:#e65100">(+50 penalty — only ${t.players.length} card${t.players.length!==1?'s':''} received)</span>`:'';
+    html+=`<div class="card" style="margin-bottom:10px">
+      <div class="card-hdr" style="background:${bgHdr};display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">
+        <span style="font-weight:700;color:${clrHdr}">Team ${t.num}${winner?' 🏆':t.penalty?' ⚠️':''}</span>
+        <span style="font-size:15px;font-weight:800;color:${clrHdr}">Net ${t.total}${penaltyNote}</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:#f5f5f5">
+            <th style="text-align:left;padding:6px 8px;font-size:11px;color:#555">Player</th>
+            <th style="padding:6px 4px;font-size:11px;color:#555;text-align:center">HCP</th>
+            <th style="padding:6px 4px;font-size:11px;color:#555;text-align:center">Gross</th>
+            <th style="padding:6px 4px;font-size:11px;color:#555;text-align:center">Net</th>
+          </tr></thead>
+          <tbody>
+            ${ps.map(p=>{
+              const counts=countingNames.has(p.name);
+              return `<tr style="border-bottom:1px solid #f5f5f5;opacity:${counts?1:.45}">
+                <td style="padding:7px 8px;font-weight:600">
+                  <span style="color:#1565c0;cursor:pointer;text-decoration:underline" onclick="showScorecard(${wk},${p.grp},'${p.name}')">${p.name}</span>
+                  ${counts?'':' <span style="font-size:10px;color:#aaa">non-counting</span>'}
+                </td>
+                <td style="padding:7px 4px;text-align:center;color:#888">${p.hcp}</td>
+                <td style="padding:7px 4px;text-align:center">${p.gross}</td>
+                <td style="padding:7px 4px;text-align:center;font-weight:700;color:${counts?'#2e7d32':'#aaa'}">${p.net}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  }
+  el.innerHTML=html;
+}
+
+// ── Bootstrap: fetch live data, fall back to MOCK_DATA ───────────────────────
+let D=MOCK_DATA;
+// Render immediately with default data so nothing is blank on load
+document.getElementById('app-subtitle').textContent=D.settings.subtitle;
+buildNews();buildOuting();buildDues();buildRoster();loadWeekResult(10);
+(async ()=>{
+  try {
+    const r=await fetch(DATA_URL);
+    if(r.ok){
+      const json=await r.json();
+      // Merge fetched data into D (players, settings, announcements, outings, buyins, duesPaid)
+      if(json.players)D.players=json.players;
+      if(json.settings)D.settings={...D.settings,...json.settings};
+      if(json.announcements)D.announcements=json.announcements;
+      if(json.outing)D.outing={...D.outing,...json.outing};
+      if(json.outing2)D.outing2={...D.outing2,...json.outing2};
+      if(json.buyins)D.buyins=json.buyins;
+      if(json.duesPaid)D.duesPaid=json.duesPaid;
+      document.getElementById('sync-label').textContent=`Live data · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+    } else {
+      document.getElementById('sync-label').textContent='Using cached data';
+    }
+  } catch(e){
+    document.getElementById('sync-label').textContent='Offline — using cached data';
+  }
+  // Re-render all dynamic sections with live data
+  document.getElementById('app-subtitle').textContent=D.settings.subtitle;
+  buildNews();
+  buildOuting();
+  buildDues();
+  buildRoster();
+  loadWeekResult(10);
+})();
+</script>
+</body>
+</html>
