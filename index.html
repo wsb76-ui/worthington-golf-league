@@ -170,7 +170,189 @@ table.standings { width:100%; border-collapse:collapse; font-size:13px; }
 .hcp-row:active { background:#f0faf0; }
 .hcp-name { font-size:13px; font-weight:600; }
 .hcp-val { font-size:18px; font-weight:800; color:#2e7d32; }
+
+/* Theme swatch buttons */
+.tswatch { border:2px solid transparent; border-radius:8px; padding:8px 4px; font-size:10px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; text-align:center; line-height:1.5; }
+.tswatch.active { box-shadow:0 0 0 2px white,0 0 0 4px rgba(0,0,0,.4); }
 </style>
+
+<style id="theme-css">
+/* ── Dark Gold ─────────────────────────────────────────────── */
+body.theme-dark-gold{--bg:#0d1117;--card:#161b22;--text:#e6edf3}
+body.theme-dark-gold .app-hdr{background:#161b22;border-bottom:1px solid #21262d}
+body.theme-dark-gold .hdr-inner h1,.theme-dark-gold .hdr-sub{color:#e6edf3}
+body.theme-dark-gold .tabs{border-top-color:#21262d}
+body.theme-dark-gold .tab{color:rgba(230,237,243,.4)}
+body.theme-dark-gold .tab.active{color:#c9a84c;border-bottom-color:#c9a84c}
+body.theme-dark-gold .sync-bar{background:#161b22;color:#c9a84c;border-bottom-color:#21262d}
+body.theme-dark-gold .sync-dot{background:#c9a84c}
+body.theme-dark-gold #gear-btn{background:#c9a84c;color:#0d1117}
+body.theme-dark-gold #settings-panel{background:#161b22;border-color:#30363d}
+body.theme-dark-gold .settings-title{color:#8b949e}
+body.theme-dark-gold .settings-row{border-bottom-color:#21262d}
+body.theme-dark-gold .settings-label{color:#e6edf3}
+body.theme-dark-gold .adj-btn{background:#21262d;border-color:#30363d;color:#e6edf3}
+body.theme-dark-gold .nav-btn{background:#21262d;border-color:#30363d;color:#e6edf3}
+body.theme-dark-gold .nav-btn.next{background:#c9a84c;color:#0d1117;border-color:#c9a84c}
+body.theme-dark-gold .nav-btn.review{background:#1565c0;color:white;border-color:#1565c0}
+body.theme-dark-gold .sc-btn{background:#c9a84c;color:#0d1117}
+body.theme-dark-gold .sc-btn:active{background:#b8960b}
+body.theme-dark-gold .sc-btn-ghost{color:#8b949e}
+body.theme-dark-gold .search-input{background:#21262d;border-color:#30363d;color:#e6edf3}
+body.theme-dark-gold .search-input:focus{border-color:#c9a84c}
+body.theme-dark-gold .search-drop,.theme-dark-gold .search-item{background:#161b22;border-color:#21262d;color:#e6edf3}
+body.theme-dark-gold .player-chip,.theme-dark-gold .score-row,.theme-dark-gold .rev-row,.theme-dark-gold .roster-player{border-bottom-color:#21262d}
+body.theme-dark-gold .hcp-val,.theme-dark-gold .rtotals,.theme-dark-gold .outing-lbl,.theme-dark-gold .ann-tag{color:#c9a84c}
+body.theme-dark-gold .toggle input:checked+.toggle-track{background:#c9a84c}
+body.theme-dark-gold .roster-team-hdr{background:#c9a84c;color:#0d1117}
+body.theme-dark-gold .call-btn{background:#21262d;color:#c9a84c}
+body.theme-dark-gold .call-big{background:#c9a84c;color:#0d1117}
+body.theme-dark-gold .badge-in{background:rgba(201,168,76,.15);color:#c9a84c}
+body.theme-dark-gold .ann-item{background:#161b22;border-left-color:#c9a84c}
+body.theme-dark-gold .ann-body,.theme-dark-gold .prize-desc,.theme-dark-gold .chip-meta,.theme-dark-gold .sc-note,.theme-dark-gold .empty-msg{color:#8b949e}
+body.theme-dark-gold .ann-date{color:#484f58}
+body.theme-dark-gold .card-hdr{background:#161b22;border-bottom-color:#21262d}
+body.theme-dark-gold .standings th{background:#21262d;color:#8b949e;border-bottom-color:#30363d}
+body.theme-dark-gold .standings td{border-bottom-color:#21262d}
+body.theme-dark-gold .modal{background:#161b22}
+body.theme-dark-gold .modal-row{border-bottom-color:#21262d}
+body.theme-dark-gold .modal-close{background:#21262d;color:#8b949e}
+body.theme-dark-gold #modal-hcp{color:#c9a84c!important}
+body.theme-dark-gold .hcp-row:active{background:#21262d}
+body.theme-dark-gold .dues-summary,.theme-dark-gold .modal-meta{color:#8b949e}
+body.theme-dark-gold .ann-info{border-left-color:#3b82f6}
+body.theme-dark-gold .ann-info .ann-tag{color:#3b82f6}
+
+/* ── Light Gold ────────────────────────────────────────────── */
+body.theme-light-gold{--bg:#faf8f0;--card:#fff;--text:#1a1200}
+body.theme-light-gold .app-hdr{background:#2d1c00}
+body.theme-light-gold .hdr-sub{opacity:.7}
+body.theme-light-gold .tab.active{color:#f0c040;border-bottom-color:#f0c040}
+body.theme-light-gold .tab{color:rgba(255,255,255,.55)}
+body.theme-light-gold .sync-bar{background:#fffdf0;color:#b8860b;border-bottom-color:#f0d060}
+body.theme-light-gold .sync-dot{background:#b8860b}
+body.theme-light-gold #gear-btn{background:#b8860b}
+body.theme-light-gold .nav-btn.next{background:#b8860b;border-color:#b8860b}
+body.theme-light-gold .sc-btn{background:#b8860b}
+body.theme-light-gold .sc-btn:active{background:#8b6508}
+body.theme-light-gold .search-input:focus{border-color:#b8860b}
+body.theme-light-gold .hcp-val,.theme-light-gold .rtotals,.theme-light-gold .outing-lbl,.theme-light-gold .ann-tag{color:#b8860b}
+body.theme-light-gold .toggle input:checked+.toggle-track{background:#b8860b}
+body.theme-light-gold .roster-team-hdr{background:#2d1c00}
+body.theme-light-gold .call-btn{background:#fffbe6;color:#b8860b}
+body.theme-light-gold .call-big{background:#b8860b}
+body.theme-light-gold .badge-in{background:#fffbe6;color:#b8860b}
+body.theme-light-gold .ann-item{border-left-color:#b8860b}
+body.theme-light-gold #modal-hcp{color:#b8860b!important}
+
+/* ── Dark Slate ────────────────────────────────────────────── */
+body.theme-dark-slate{--bg:#10141c;--card:#1e293b;--text:#f1f5f9}
+body.theme-dark-slate .app-hdr{background:#0f2744;border-bottom:1px solid #1e3a5f}
+body.theme-dark-slate .hdr-inner h1,.theme-dark-slate .hdr-sub{color:#f1f5f9}
+body.theme-dark-slate .tab{color:rgba(241,245,249,.4)}
+body.theme-dark-slate .tab.active{color:#38bdf8;border-bottom-color:#38bdf8}
+body.theme-dark-slate .tabs{border-top-color:#1e3a5f}
+body.theme-dark-slate .sync-bar{background:#1e293b;color:#38bdf8;border-bottom-color:#334155}
+body.theme-dark-slate .sync-dot{background:#38bdf8}
+body.theme-dark-slate #gear-btn{background:#0284c7;color:white}
+body.theme-dark-slate #settings-panel{background:#1e293b;border-color:#334155}
+body.theme-dark-slate .settings-title{color:#64748b}
+body.theme-dark-slate .settings-label{color:#f1f5f9}
+body.theme-dark-slate .adj-btn{background:#334155;border-color:#475569;color:#f1f5f9}
+body.theme-dark-slate .nav-btn{background:#334155;border-color:#475569;color:#f1f5f9}
+body.theme-dark-slate .nav-btn.next{background:#0284c7;color:white;border-color:#0284c7}
+body.theme-dark-slate .sc-btn{background:#0284c7;color:white}
+body.theme-dark-slate .sc-btn:active{background:#0369a1}
+body.theme-dark-slate .sc-btn-ghost{color:#64748b}
+body.theme-dark-slate .search-input{background:#334155;border-color:#475569;color:#f1f5f9}
+body.theme-dark-slate .search-input:focus{border-color:#38bdf8}
+body.theme-dark-slate .search-drop,.theme-dark-slate .search-item{background:#1e293b;border-color:#334155;color:#f1f5f9}
+body.theme-dark-slate .player-chip,.theme-dark-slate .score-row,.theme-dark-slate .rev-row,.theme-dark-slate .roster-player{border-bottom-color:#334155}
+body.theme-dark-slate .hcp-val,.theme-dark-slate .rtotals,.theme-dark-slate .outing-lbl,.theme-dark-slate .ann-tag{color:#38bdf8}
+body.theme-dark-slate .toggle input:checked+.toggle-track{background:#0284c7}
+body.theme-dark-slate .roster-team-hdr{background:#0f2744;color:#38bdf8}
+body.theme-dark-slate .call-btn{background:#334155;color:#38bdf8}
+body.theme-dark-slate .call-big{background:#0284c7;color:white}
+body.theme-dark-slate .badge-in{background:rgba(56,189,248,.12);color:#38bdf8}
+body.theme-dark-slate .ann-item{background:#1e293b;border-left-color:#0284c7}
+body.theme-dark-slate .ann-body,.theme-dark-slate .prize-desc,.theme-dark-slate .chip-meta,.theme-dark-slate .sc-note,.theme-dark-slate .empty-msg{color:#64748b}
+body.theme-dark-slate .ann-date{color:#475569}
+body.theme-dark-slate .card-hdr{background:#1e293b;border-bottom-color:#334155}
+body.theme-dark-slate .standings th{background:#334155;color:#64748b;border-bottom-color:#475569}
+body.theme-dark-slate .standings td{border-bottom-color:#334155}
+body.theme-dark-slate .modal{background:#1e293b}
+body.theme-dark-slate .modal-row{border-bottom-color:#334155}
+body.theme-dark-slate .modal-close{background:#334155;color:#94a3b8}
+body.theme-dark-slate #modal-hcp{color:#38bdf8!important}
+body.theme-dark-slate .hcp-row:active{background:#334155}
+body.theme-dark-slate .dues-summary,.theme-dark-slate .modal-meta{color:#94a3b8}
+
+/* ── Light Slate ───────────────────────────────────────────── */
+body.theme-light-slate{--bg:#f0f4f8;--card:#fff;--text:#1e293b}
+body.theme-light-slate .app-hdr{background:#0f2744}
+body.theme-light-slate .hdr-sub{opacity:.7}
+body.theme-light-slate .tab{color:rgba(255,255,255,.55)}
+body.theme-light-slate .tab.active{color:#38bdf8;border-bottom-color:#38bdf8}
+body.theme-light-slate .tabs{border-top-color:rgba(255,255,255,.2)}
+body.theme-light-slate .sync-bar{background:#e8f4fd;color:#0284c7;border-bottom-color:#bae6fd}
+body.theme-light-slate .sync-dot{background:#0284c7}
+body.theme-light-slate #gear-btn{background:#0284c7}
+body.theme-light-slate .nav-btn.next{background:#0284c7;border-color:#0284c7}
+body.theme-light-slate .sc-btn{background:#0284c7}
+body.theme-light-slate .sc-btn:active{background:#0369a1}
+body.theme-light-slate .search-input:focus{border-color:#0284c7}
+body.theme-light-slate .hcp-val,.theme-light-slate .rtotals,.theme-light-slate .outing-lbl,.theme-light-slate .ann-tag{color:#0284c7}
+body.theme-light-slate .toggle input:checked+.toggle-track{background:#0284c7}
+body.theme-light-slate .roster-team-hdr{background:#0f2744}
+body.theme-light-slate .call-btn{background:#e8f4fd;color:#0284c7}
+body.theme-light-slate .call-big{background:#0284c7}
+body.theme-light-slate .badge-in{background:#e8f4fd;color:#0284c7}
+body.theme-light-slate .ann-item{border-left-color:#0284c7}
+body.theme-light-slate #modal-hcp{color:#0284c7!important}
+
+/* ── Dark Turf ─────────────────────────────────────────────── */
+body.theme-dark-turf{--bg:#071507;--card:#0f2d0f;--text:#e8f5e8}
+body.theme-dark-turf .app-hdr{background:#071507;border-bottom:1px solid #1a4a1a}
+body.theme-dark-turf .hdr-inner h1,.theme-dark-turf .hdr-sub{color:#e8f5e8}
+body.theme-dark-turf .tab{color:rgba(232,245,232,.4)}
+body.theme-dark-turf .tab.active{color:#4ade80;border-bottom-color:#4ade80}
+body.theme-dark-turf .tabs{border-top-color:#1a4a1a}
+body.theme-dark-turf .sync-bar{background:#0f2d0f;color:#4ade80;border-bottom-color:#1a4a1a}
+body.theme-dark-turf .sync-dot{background:#4ade80}
+body.theme-dark-turf #gear-btn{background:#166534;color:#4ade80}
+body.theme-dark-turf #settings-panel{background:#0f2d0f;border-color:#1a4a1a}
+body.theme-dark-turf .settings-title{color:#4ade80}
+body.theme-dark-turf .settings-label{color:#e8f5e8}
+body.theme-dark-turf .adj-btn{background:#1a4a1a;border-color:#2d6a2d;color:#e8f5e8}
+body.theme-dark-turf .nav-btn{background:#1a4a1a;border-color:#2d6a2d;color:#e8f5e8}
+body.theme-dark-turf .nav-btn.next{background:#166534;color:#4ade80;border-color:#166534}
+body.theme-dark-turf .sc-btn{background:#166534;color:#4ade80}
+body.theme-dark-turf .sc-btn:active{background:#14532d}
+body.theme-dark-turf .sc-btn-ghost{color:#4ade80;opacity:.6}
+body.theme-dark-turf .search-input{background:#1a4a1a;border-color:#2d6a2d;color:#e8f5e8}
+body.theme-dark-turf .search-input:focus{border-color:#4ade80}
+body.theme-dark-turf .search-drop,.theme-dark-turf .search-item{background:#0f2d0f;border-color:#1a4a1a;color:#e8f5e8}
+body.theme-dark-turf .player-chip,.theme-dark-turf .score-row,.theme-dark-turf .rev-row,.theme-dark-turf .roster-player{border-bottom-color:#1a4a1a}
+body.theme-dark-turf .hcp-val,.theme-dark-turf .rtotals,.theme-dark-turf .outing-lbl,.theme-dark-turf .ann-tag{color:#4ade80}
+body.theme-dark-turf .toggle input:checked+.toggle-track{background:#166534}
+body.theme-dark-turf .roster-team-hdr{background:#071507;color:#4ade80;border-bottom:1px solid #1a4a1a}
+body.theme-dark-turf .call-btn{background:#1a4a1a;color:#4ade80}
+body.theme-dark-turf .call-big{background:#166534;color:#4ade80}
+body.theme-dark-turf .badge-in{background:rgba(74,222,128,.1);color:#4ade80}
+body.theme-dark-turf .ann-item{background:#0f2d0f;border-left-color:#4ade80}
+body.theme-dark-turf .ann-body,.theme-dark-turf .prize-desc,.theme-dark-turf .chip-meta,.theme-dark-turf .sc-note,.theme-dark-turf .empty-msg{color:#6abf69}
+body.theme-dark-turf .ann-date{color:#2d6a2d}
+body.theme-dark-turf .card-hdr{background:#0f2d0f;border-bottom-color:#1a4a1a}
+body.theme-dark-turf .standings th{background:#1a4a1a;color:#6abf69;border-bottom-color:#2d6a2d}
+body.theme-dark-turf .standings td{border-bottom-color:#1a4a1a}
+body.theme-dark-turf .modal{background:#0f2d0f}
+body.theme-dark-turf .modal-row{border-bottom-color:#1a4a1a}
+body.theme-dark-turf .modal-close{background:#1a4a1a;color:#6abf69}
+body.theme-dark-turf #modal-hcp{color:#4ade80!important}
+body.theme-dark-turf .hcp-row:active{background:#1a4a1a}
+body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
+</style>
+
 </head>
 <body>
 
@@ -444,10 +626,14 @@ table.standings { width:100%; border-collapse:collapse; font-size:13px; }
 <!-- Gear button -->
 <button id="gear-btn" onclick="toggleSettings()">⚙️</button>
 <div id="settings-panel">
-  <div class="settings-title">⚙️ Display</div>
-  <div class="settings-row">
-    <span class="settings-label">🌙 Dark Mode</span>
-    <label class="toggle"><input type="checkbox" onchange="setDark(this.checked)"><div class="toggle-track"></div></label>
+  <div class="settings-title">🎨 Theme</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px">
+    <button class="tswatch" id="sw-default" onclick="applyTheme('default')" style="background:#1b5e20;color:white">🌿<br>Turf</button>
+    <button class="tswatch" id="sw-dark-turf" onclick="applyTheme('dark-turf')" style="background:#071507;color:#4ade80">🌑<br>Night</button>
+    <button class="tswatch" id="sw-dark-gold" onclick="applyTheme('dark-gold')" style="background:#0d1117;color:#c9a84c">✨<br>Gold</button>
+    <button class="tswatch" id="sw-light-gold" onclick="applyTheme('light-gold')" style="background:#fffdf5;color:#b8860b;border:1px solid #e0d0a0">☀️<br>Amber</button>
+    <button class="tswatch" id="sw-dark-slate" onclick="applyTheme('dark-slate')" style="background:#10141c;color:#38bdf8">🌊<br>Slate</button>
+    <button class="tswatch" id="sw-light-slate" onclick="applyTheme('light-slate')" style="background:#f0f4f8;color:#0284c7;border:1px solid #bae6fd">💎<br>Sky</button>
   </div>
   <div class="settings-row">
     <span class="settings-label">🔤 Larger Text</span>
@@ -1192,10 +1378,17 @@ function closeSettings(){
   document.getElementById('settings-panel').classList.remove('open');
   document.getElementById('gear-btn').classList.remove('open');
 }
-function setDark(on){
-  if(on){document.documentElement.style.setProperty('--bg','#111');document.documentElement.style.setProperty('--card','#1e1e1e');document.documentElement.style.setProperty('--text','#f0f0f0');}
-  else {document.documentElement.style.removeProperty('--bg');document.documentElement.style.removeProperty('--card');document.documentElement.style.removeProperty('--text');}
+const THEMES=['default','dark-gold','light-gold','dark-slate','light-slate','dark-turf'];
+function applyTheme(name){
+  THEMES.forEach(t=>document.body.classList.remove('theme-'+t));
+  document.querySelectorAll('.tswatch').forEach(b=>b.style.outline='');
+  if(name&&name!=='default')document.body.classList.add('theme-'+name);
+  const btn=document.getElementById('sw-'+name);
+  if(btn)btn.style.outline='3px solid white';
+  try{localStorage.setItem('wgl-theme',name);}catch(e){}
 }
+// Restore saved theme on load
+(function(){try{applyTheme(localStorage.getItem('wgl-theme')||'default');}catch(e){applyTheme('default');}})();
 document.addEventListener('click',e=>{
   const panel=document.getElementById('settings-panel');
   if(panel.classList.contains('open')&&!panel.contains(e.target)&&!document.getElementById('gear-btn').contains(e.target))closeSettings();
