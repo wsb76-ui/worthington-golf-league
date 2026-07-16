@@ -331,6 +331,10 @@ tbody tr:last-child td { border-bottom:none; }
       <button id="otab-mid-btn" onclick="switchOuting('mid')" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#2e7d32;color:white">🏌️ Mid-Season</button>
       <button id="otab-end-btn" onclick="switchOuting('end')" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#eee;color:#555">🏆 End of Season</button>
     </div>
+    <!-- Publish reminder (shown briefly after Clear All) -->
+    <div id="clear-publish-reminder" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:13px;color:#856404">
+      ✅ Cleared locally — tap <strong>📤 Publish Changes Live</strong> to update the league app.
+    </div>
 
     <!-- Mid-Season Outing -->
     <div id="otab-mid">
@@ -861,7 +865,7 @@ function updHcp(name,val){
   saveST();
 }
 function removePlayer(name){
-  if(!confirm(`Remove ${name} from the roster? This cannot be undone.`))return;
+  // NOTE: confirm() is blocked in iOS PWA/WKWebView — action is intentional, no guard needed
   delete ST.players[name];
   delete ST.dues[name];
   delete ST.rollover[name];
@@ -990,7 +994,7 @@ function addAnn(){
   ST.anns.unshift({date:new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}),tag:'info',title:'',body:''});
   saveST();renderAnns();
 }
-function delAnn(i){if(!confirm('Delete?'))return;ST.anns.splice(i,1);saveST();renderAnns();}
+function delAnn(i){ST.anns.splice(i,1);saveST();renderAnns();} // confirm() removed — blocked on iOS PWA
 function updAnn(i,f,v){ST.anns[i][f]=v;saveST();}
 function renderAnns(){
   const el=document.getElementById('ann-list');
@@ -1151,6 +1155,18 @@ function clearOuting(n){
   ST.outings[n-1]=e();
   saveST();
   loadOutingUI();
+  // Belt-and-suspenders: directly wipe DOM in case renderSignups/renderAdminTeams misses
+  const sl=document.getElementById('o'+n+'-signup-list');
+  if(sl)sl.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:8px">No sign-ups yet.</div>';
+  const sc=document.getElementById('o'+n+'-signup-count');
+  if(sc)sc.textContent='0';
+  const tl=document.getElementById('o'+n+'-teams-list');
+  if(tl)tl.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:8px">No teams posted yet.</div>';
+  const tc=document.getElementById('o'+n+'-teams-count');
+  if(tc)tc.textContent='0';
+  // Remind admin to publish
+  const rem=document.getElementById('clear-publish-reminder');
+  if(rem){rem.style.display='block';setTimeout(()=>{rem.style.display='none';},8000);}
 }
 
 // ── Payouts ───────────────────────────────────────────────────────────────────
@@ -1295,24 +1311,34 @@ async function publishToGitHub(){
   btn.textContent='⏳ Publishing…'; btn.disabled=true;
   res.style.display='none';
   try {
-    // Get SHA of existing file
-    const getR=await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`,{
-      headers:{'Authorization':`token ${tok}`,'Accept':'application/vnd.github.v3+json'}
-    });
-    let sha='';
-    if(getR.ok){const d=await getR.json();sha=d.sha;}
+    // Helper: fetch current SHA (cache-busted so GitHub CDN never returns stale data)
+    const fetchSha=async()=>{
+      const r=await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}?t=${Date.now()}`,{
+        headers:{'Authorization':`token ${tok}`,'Accept':'application/vnd.github.v3+json','Cache-Control':'no-cache'}
+      });
+      if(r.ok){const d=await r.json();return d.sha||'';}
+      return '';
+    };
     // Build data payload
     const data=buildData();
     const json=JSON.stringify(data,null,2);
     // btoa for unicode
     const b64=btoa(unescape(encodeURIComponent(json)));
-    const body={message:`Admin update · ${new Date().toLocaleDateString()}`,content:b64,branch:BRANCH};
-    if(sha)body.sha=sha;
-    const putR=await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`,{
-      method:'PUT',
-      headers:{'Authorization':`token ${tok}`,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},
-      body:JSON.stringify(body)
-    });
+    // Try publish with auto-retry on SHA mismatch (GitHub CDN can serve stale SHA on first GET)
+    let sha=await fetchSha();
+    let putR;
+    for(let attempt=0;attempt<2;attempt++){
+      const body={message:`Admin update · ${new Date().toLocaleDateString()}`,content:b64,branch:BRANCH};
+      if(sha)body.sha=sha;
+      putR=await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`,{
+        method:'PUT',
+        headers:{'Authorization':`token ${tok}`,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},
+        body:JSON.stringify(body)
+      });
+      if(putR.ok||putR.status!==409)break; // success or non-conflict error — stop retrying
+      // 409 SHA mismatch — re-fetch fresh SHA and retry once
+      sha=await fetchSha();
+    }
     if(putR.ok){
       ST.lastPub=Date.now();ST.lastPubBy='admin';saveST();
       btn.textContent='✅ Published!';
