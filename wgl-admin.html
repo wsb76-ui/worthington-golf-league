@@ -153,12 +153,14 @@ tbody tr:last-child td { border-bottom:none; }
       <h1>⛳ WGL Admin · 2026</h1>
       <button class="lock-btn" onclick="lockApp()">🔒 Lock</button>
     </div>
+    <div id="live-seed-status" style="font-size:11px;color:#aaa;padding:2px 0 4px;min-height:16px;text-align:right"></div>
     <div class="tabs">
       <div class="tab active" onclick="showTab('dues')">💵 Dues</div>
       <div class="tab" onclick="showTab('players')">👥 Players</div>
       <div class="tab" onclick="showTab('settings')">⚙️ Settings</div>
       <div class="tab" onclick="showTab('announcements')">📣 News</div>
       <div class="tab" onclick="showTab('outing')">🏆 Outing</div>
+      <div class="tab" onclick="showTab('winners')">🏅 Winners</div>
       <div class="tab" onclick="showTab('payouts')">💰 Payouts</div>
       <div class="tab" onclick="showTab('publish')">📤 Publish</div>
       <div class="tab" onclick="showTab('season')">🔄 Season</div>
@@ -423,6 +425,37 @@ tbody tr:last-child td { border-bottom:none; }
   </div>
 
   <!-- ── PAYOUTS ─────────────────────────────────── -->
+  <!-- ── WINNERS (weekly skins + low net) ───────── -->
+  <div id="winners" class="tab-content">
+    <div style="margin-top:12px"></div>
+    <div class="section-lbl">Weekly Skins &amp; Low Net Winners</div>
+    <div class="card"><div class="card-body">
+      <div class="field" style="margin-bottom:12px">
+        <label>Week</label>
+        <select id="wp-week" onchange="renderWeeklyWinners(+this.value)" style="width:100%;padding:9px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;font-weight:600;background:white">
+          <option value="10">Week 10</option>
+          <option value="9">Week 9</option>
+          <option value="8">Week 8</option>
+          <option value="7">Week 7</option>
+          <option value="6">Week 6</option>
+          <option value="5">Week 5</option>
+          <option value="4">Week 4</option>
+          <option value="3">Week 3</option>
+          <option value="2">Week 2</option>
+          <option value="1">Week 1</option>
+        </select>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">🏆 Skins Winners</div>
+      <div id="wp-skins-rows"></div>
+      <button onclick="addSkinsRow(+document.getElementById('wp-week').value)" style="margin-top:6px;width:100%;padding:8px;border:1.5px dashed #c8e6c9;border-radius:8px;background:none;color:#2e7d32;font-size:13px;font-weight:600;cursor:pointer">+ Add Skins Winner</button>
+      <div style="height:1px;background:#f0f0f0;margin:14px 0"></div>
+      <div style="font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">⭐ Low Net Winner</div>
+      <div id="wp-lownet-row"></div>
+    </div></div>
+    <div style="padding:10px 4px;font-size:12px;color:#aaa">Data publishes with the rest of the admin — hit 📤 Publish when done.</div>
+  </div>
+
+  <!-- ── PAYOUTS ─────────────────────────────────── -->
   <div id="payouts" class="tab-content">
     <div style="margin-top:12px"></div>
     <div class="section-lbl">Season Pot</div>
@@ -477,7 +510,8 @@ tbody tr:last-child td { border-bottom:none; }
       ✅ Financial amounts (buy-in prices, pot)<br>
       ✅ Announcements<br>
       ✅ Outing details and sign-up sheet<br>
-      ✅ Season payouts and roll-over decisions
+      ✅ Season payouts and roll-over decisions<br>
+      ✅ Weekly skins &amp; low net winners
     </div></div>
 
     <div class="section-lbl">Last Published</div>
@@ -597,6 +631,8 @@ function defaultST() {
     anns:[],
     outing:{date:'Saturday, August 29, 2026',tee:'8:00 AM start',course:'Hiland Golf Course · Butler, PA',holes:'18 holes · starting on the back 9',format:'',cost:'',dinner:'The Farm · 150 Fox Rd, Worthington PA 16262',prizes:{p1:'',p2:'',p3:'',p4:'',p5:'Lowest season net total'},signups:[]},
     payouts:{total:'',pct1:50,pct2:30,pct3:20},
+    weeklyPayouts:{},
+    teamPayouts:{},
     lastPub:null
   };
 }
@@ -612,6 +648,65 @@ function loadST() {
   }
 }
 function saveST() { localStorage.setItem(LS,JSON.stringify(ST)); }
+
+// ── Live-data seed: pull current wgl-data.json and fill in anything missing ──
+const LIVE_URL='https://raw.githubusercontent.com/wsb76-ui/worthington-golf-league/main/wgl-data.json';
+
+async function seedFromLive(){
+  const statusEl=document.getElementById('live-seed-status');
+  if(statusEl)statusEl.textContent='🔄 Checking live data…';
+  try{
+    const r=await fetch(LIVE_URL+'?t='+Date.now(),{cache:'no-store'});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const json=await r.json();
+    let changed=false;
+
+    // Merge buyins → skins / lownet (only adds missing "true" values)
+    if(json.buyins){
+      for(const [name,b] of Object.entries(json.buyins)){
+        if(!ST.dues[name])ST.dues[name]={dues:false,outing:false,skins:false,lownet:false};
+        if(b.skins  && !ST.dues[name].skins) { ST.dues[name].skins=true;   changed=true; }
+        if(b.lownet && !ST.dues[name].lownet){ ST.dues[name].lownet=true; changed=true; }
+      }
+    }
+
+    // Merge duesPaid → dues / outing (only adds missing "true" values)
+    if(json.duesPaid){
+      for(const [name,d] of Object.entries(json.duesPaid)){
+        if(!ST.dues[name])ST.dues[name]={dues:false,outing:false,skins:false,lownet:false};
+        if(d.dues   && !ST.dues[name].dues)  { ST.dues[name].dues=true;   changed=true; }
+        if(d.outing && !ST.dues[name].outing){ ST.dues[name].outing=true; changed=true; }
+      }
+    }
+
+    // Merge outing details (fills empty fields only)
+    if(json.outing){
+      for(const [k,v] of Object.entries(json.outing)){
+        if(v && !ST.outing[k]){ ST.outing[k]=v; changed=true; }
+      }
+    }
+
+    // Merge settings (fills empty fields only)
+    if(json.settings){
+      for(const [k,v] of Object.entries(json.settings)){
+        if(v && !ST.settings[k]){ ST.settings[k]=v; changed=true; }
+      }
+    }
+
+    if(changed){
+      saveST();
+      buildDues(); buildSettings ? buildSettings() : loadSettingsUI(); loadOutingUI();
+      if(statusEl)statusEl.textContent='✅ Admin synced from live data';
+    } else {
+      if(statusEl)statusEl.textContent='✅ Admin matches live data';
+    }
+    if(statusEl)setTimeout(()=>{statusEl.textContent='';},4000);
+  }catch(e){
+    if(statusEl)statusEl.textContent='⚠️ Could not reach live data — using local';
+    setTimeout(()=>{if(statusEl)statusEl.textContent='';},4000);
+    console.log('seedFromLive error:',e);
+  }
+}
 
 // Sorted player list
 function sortedPlayers() {
@@ -650,6 +745,8 @@ function showTab(id){
   document.getElementById(id).classList.add('active');
   event.target.classList.add('active');
   if(id==='season')renderRolloverList();
+  if(id==='winners')renderWeeklyWinners(+document.getElementById('wp-week').value||10);
+  if(id==='payouts')renderRollover();
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
@@ -660,6 +757,8 @@ function initApp(){
   renderAnns();
   loadOutingUI();
   renderRollover();
+  renderWeeklyWinners(10);
+  seedFromLive(); // fill in anything missing from the live published data
   calcP();
   updatePublishStatus();
   if(ST.lastPub){
@@ -1019,6 +1118,58 @@ function renderAdminTeams(n){
 }
 
 // ── Payouts ───────────────────────────────────────────────────────────────────
+// ── Weekly Payouts (skins + low net winners per week) ──────────────────────
+function playerOptions(selected){
+  return sortedPlayers().map(p=>`<option value="${esc(p.name)}"${p.name===selected?' selected':''}>${esc(p.name)}</option>`).join('');
+}
+function renderWeeklyWinners(wk){
+  if(!ST.weeklyPayouts)ST.weeklyPayouts={};
+  const w=ST.weeklyPayouts[wk]||{skins:[],lowNet:{player:'',amount:''}};
+  // Skins rows
+  const skEl=document.getElementById('wp-skins-rows');
+  skEl.innerHTML=w.skins.map((s,i)=>`
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px" id="sk-row-${i}">
+      <select onchange="saveWeeklyPayouts(${wk})" id="sk-player-${i}" style="flex:2;padding:8px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;background:white">${playerOptions(s.player)}</select>
+      <input type="number" id="sk-hole-${i}" value="${s.hole||''}" placeholder="Hole#" onchange="saveWeeklyPayouts(${wk})" style="width:64px;padding:8px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;text-align:center">
+      <input type="number" id="sk-amt-${i}" value="${s.amount||''}" placeholder="$" onchange="saveWeeklyPayouts(${wk})" style="width:60px;padding:8px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;text-align:center">
+      <button onclick="removeSkinsRow(${wk},${i})" style="background:none;border:none;font-size:18px;color:#ccc;cursor:pointer;padding:0 4px">×</button>
+    </div>`).join('');
+  // Low Net row
+  const ln=w.lowNet||{player:'',amount:''};
+  document.getElementById('wp-lownet-row').innerHTML=`
+    <div style="display:flex;gap:6px;align-items:center">
+      <select onchange="saveWeeklyPayouts(${wk})" id="ln-player" style="flex:2;padding:8px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;background:white"><option value="">— None —</option>${playerOptions(ln.player)}</select>
+      <input type="number" id="ln-amt" value="${ln.amount||''}" placeholder="$" onchange="saveWeeklyPayouts(${wk})" style="width:72px;padding:8px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;text-align:center">
+    </div>`;
+}
+function addSkinsRow(wk){
+  if(!ST.weeklyPayouts)ST.weeklyPayouts={};
+  if(!ST.weeklyPayouts[wk])ST.weeklyPayouts[wk]={skins:[],lowNet:{player:'',amount:''}};
+  ST.weeklyPayouts[wk].skins.push({player:'',hole:'',amount:''});
+  saveST(); renderWeeklyWinners(wk);
+}
+function removeSkinsRow(wk,i){
+  if(!ST.weeklyPayouts||!ST.weeklyPayouts[wk])return;
+  ST.weeklyPayouts[wk].skins.splice(i,1);
+  saveST(); renderWeeklyWinners(wk);
+}
+function saveWeeklyPayouts(wk){
+  if(!ST.weeklyPayouts)ST.weeklyPayouts={};
+  if(!ST.weeklyPayouts[wk])ST.weeklyPayouts[wk]={skins:[],lowNet:{player:'',amount:''}};
+  const n=ST.weeklyPayouts[wk].skins.length;
+  const skins=[];
+  for(let i=0;i<n;i++){
+    const player=(document.getElementById(`sk-player-${i}`)||{}).value||'';
+    const hole=+(document.getElementById(`sk-hole-${i}`)||{}).value||'';
+    const amount=+(document.getElementById(`sk-amt-${i}`)||{}).value||'';
+    if(player)skins.push({player,hole,amount});
+  }
+  const lnPlayer=(document.getElementById('ln-player')||{}).value||'';
+  const lnAmt=+(document.getElementById('ln-amt')||{}).value||'';
+  ST.weeklyPayouts[wk]={skins,lowNet:{player:lnPlayer,amount:lnAmt}};
+  saveST();
+}
+
 function saveP(){
   ST.payouts={total:document.getElementById('p-total').value,pct1:+document.getElementById('p-p1').value||50,pct2:+document.getElementById('p-p2').value||30,pct3:+document.getElementById('p-p3').value||20};
   saveST();
@@ -1038,28 +1189,53 @@ function calcP(){
 }
 function renderRollover(){
   const el=document.getElementById('rollover-list');
-  let html='',cur=0;
+  if(!el)return;
+  if(!ST.teamPayouts)ST.teamPayouts={};
+  if(!ST.rollover)ST.rollover={};
+  // Group players by team
+  const teams={};
   for(const p of sortedPlayers()){
-    if(p.team!==cur){
-      cur=p.team;
-      html+=`<div style="background:#1b5e20;color:white;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:5px 14px">Team #${p.team}</div>`;
-    }
-    const rv=ST.rollover[p.name]||'';
-    const n=esc(p.name);
-    html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid #f5f5f5">
-      <span style="font-weight:600;font-size:13px">${p.name}</span>
-      <div class="rollover-opts">
-        <button class="ro-btn ${rv==='cash'?'active':''}" onclick="setRV('${n}','cash',this)">💵 Cash</button>
-        <button class="ro-btn ${rv==='rollover'?'active':''}" onclick="setRV('${n}','rollover',this)">🔄 Roll</button>
+    if(!teams[p.team])teams[p.team]=[];
+    teams[p.team].push(p);
+  }
+  let html='';
+  for(const [team,players] of Object.entries(teams).sort((a,b)=>+a[0]-+b[0])){
+    const amt=ST.teamPayouts[team]||'';
+    html+=`<div style="background:#1b5e20;color:white;padding:8px 14px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Team #${team}</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:12px;opacity:.8">Wins $</span>
+        <input type="number" value="${amt}" placeholder="0" onchange="saveTeamPayout(${team},this.value)"
+          style="width:70px;padding:4px 6px;border-radius:6px;border:none;font-size:14px;font-weight:700;text-align:center;background:rgba(255,255,255,.2);color:white">
       </div>
     </div>`;
+    for(const p of players){
+      const rv=ST.rollover[p.name]||'';
+      const n=esc(p.name);
+      html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid #f5f5f5">
+        <span style="font-weight:600;font-size:13px">${p.name}</span>
+        <div class="rollover-opts">
+          <button class="ro-btn ${rv==='cash'?'active':''}" onclick="setRV('${n}','cash',this)">💵 Cash</button>
+          <button class="ro-btn ${rv==='rollover'?'active':''}" onclick="setRV('${n}','rollover',this)">🔄 Roll</button>
+        </div>
+      </div>`;
+    }
   }
   el.innerHTML=html;
 }
 function setRV(name,val,btn){
-  ST.rollover[name]=val;saveST();
-  btn.closest('div.rollover-opts').querySelectorAll('.ro-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+  // Toggle off if already selected
+  const current=ST.rollover[name]||'';
+  ST.rollover[name]=(current===val)?'':val;
+  saveST();
+  const opts=btn.closest('div.rollover-opts');
+  opts.querySelectorAll('.ro-btn').forEach(b=>b.classList.remove('active'));
+  if(ST.rollover[name])btn.classList.add('active');
+}
+function saveTeamPayout(team,amount){
+  if(!ST.teamPayouts)ST.teamPayouts={};
+  ST.teamPayouts[team]=amount?+amount:'';
+  saveST();
 }
 
 // ── Publish ───────────────────────────────────────────────────────────────────
@@ -1133,8 +1309,9 @@ function buildData(){
   return {
     version:2,lastUpdated:new Date().toISOString(),updatedBy:'admin',
     settings:ST.settings,players:ST.players,buyins,duesPaid,
-    announcements:ST.anns,outing:ST.outing,
-    payouts:{...ST.payouts,rollover:ST.rollover}
+    announcements:ST.anns,outing:outingObj(1),outing2:outingObj(2),
+    payouts:{...ST.payouts,rollover:ST.rollover,teamPayouts:ST.teamPayouts||{}},
+    weeklyPayouts:ST.weeklyPayouts||{}
   };
 }
 
