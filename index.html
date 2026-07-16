@@ -872,7 +872,8 @@ const MOCK_DATA = {
     prizes:{p1:'',p2:'',p3:'',p4:'',p5:''},
     signups:[],
     teams:[]
-  }
+  },
+  weeklyPayouts:{}
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -1891,6 +1892,11 @@ function buildWeek(wk,elOverride){
   const el=elOverride||document.getElementById('week-result-body');
   if(!d){el.innerHTML='<div class="card"><div style="padding:20px;text-align:center;color:#bbb;font-size:14px">No data for this week yet.</div></div>';return;}
 
+  // ── Payout lookup for this week ──
+  const wp=(D.weeklyPayouts&&D.weeklyPayouts[wk])||null;
+  const skinners=new Set((wp&&wp.skins||[]).map(s=>s.player));
+  const lowNetWinner=(wp&&wp.lowNet&&wp.lowNet.player)||'';
+
   // Index scored players by name
   const scoredByName={};
   for(const p of d.players) scoredByName[p.name]=p;
@@ -1953,8 +1959,12 @@ function buildWeek(wk,elOverride){
               if(hasScore){
                 return `<tr style="border-bottom:1px solid #f5f5f5;opacity:${counts?1:.45}">
                   <td style="padding:7px 8px;font-weight:600">
-                    <span style="color:#1565c0;cursor:pointer;text-decoration:underline" onclick="showScorecard(${wk},${p.grp},'${p.name}')">${p.name}</span>
-                    ${counts?'':' <span style="font-size:10px;color:#aaa">non-counting</span>'}
+                    <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+                      <span style="color:#1565c0;cursor:pointer;text-decoration:underline" onclick="showScorecard(${wk},${p.grp},'${p.name}')">${p.name}</span>
+                      ${skinners.has(p.name)?'<span style="font-size:10px;font-weight:700;background:#fff3e0;color:#e65100;border-radius:3px;padding:1px 5px">SKINS</span>':''}
+                      ${p.name===lowNetWinner?'<span style="font-size:10px;font-weight:700;background:#e3f2fd;color:#0d47a1;border-radius:3px;padding:1px 5px">LOW NET</span>':''}
+                      ${counts?'':' <span style="font-size:10px;color:#aaa">non-counting</span>'}
+                    </div>
                   </td>
                   <td style="padding:7px 4px;text-align:center;color:#888">${p.hcp}</td>
                   <td style="padding:7px 4px;text-align:center">${p.gross}</td>
@@ -1974,6 +1984,33 @@ function buildWeek(wk,elOverride){
       </div>
     </div>`;
   }
+
+  // ── Payouts table (only if data exists for this week) ──
+  if(wp&&(wp.skins&&wp.skins.length>0||(wp.lowNet&&wp.lowNet.player))){
+    html+=`<div class="card" style="margin-bottom:10px">
+      <div class="card-hdr" style="background:#f9f9f9;font-size:13px;font-weight:700;color:#555">💰 Week ${wk} Payouts</div>`;
+    if(wp.skins&&wp.skins.length>0){
+      html+=`<div style="padding:6px 14px 2px;font-size:11px;font-weight:700;color:#e65100;text-transform:uppercase;letter-spacing:.05em">🏆 Skins</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">`;
+      for(const s of wp.skins){
+        html+=`<tr style="border-bottom:1px solid #f5f5f5">
+          <td style="padding:8px 14px;font-weight:600">${s.player}</td>
+          <td style="padding:8px 8px;color:#888;font-size:12px">Hole ${s.hole}</td>
+          <td style="padding:8px 14px;text-align:right;font-weight:700;color:#2e7d32">$${s.amount}</td>
+        </tr>`;
+      }
+      html+=`</table>`;
+    }
+    if(wp.lowNet&&wp.lowNet.player){
+      html+=`<div style="padding:6px 14px 2px;font-size:11px;font-weight:700;color:#0d47a1;text-transform:uppercase;letter-spacing:.05em;border-top:1px solid #f0f0f0;margin-top:4px">⭐ Low Net</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <tr><td style="padding:8px 14px;font-weight:600">${wp.lowNet.player}</td>
+        <td style="padding:8px 14px;text-align:right;font-weight:700;color:#2e7d32">$${wp.lowNet.amount}</td></tr>
+      </table>`;
+    }
+    html+=`</div>`;
+  }
+
   el.innerHTML=html;
 }
 
@@ -2008,6 +2045,7 @@ async function refreshData(force){
       if(json.outing2)D.outing2={...D.outing2,...json.outing2};
       if(json.buyins)D.buyins=json.buyins;
       if(json.duesPaid)D.duesPaid=json.duesPaid;
+      if(json.weeklyPayouts)D.weeklyPayouts=json.weeklyPayouts;
       document.getElementById('sync-label').textContent=`Live data · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
       // Re-render all dynamic sections with updated data
       document.getElementById('app-subtitle').textContent=D.settings.subtitle;
