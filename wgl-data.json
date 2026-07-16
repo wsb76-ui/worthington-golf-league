@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-16T00:09:51.119Z",
+  "lastUpdated": "2026-07-16T00:12:51.896Z",
   "updatedBy": "admin",
   "settings": {
     "greens": "",
@@ -300,7 +300,179 @@
     }
   },
   "buyins": {},
-  "duesPaid": {},
+  "duesPaid": {
+    "Larry Julius": {
+      "dues": true
+    },
+    "Kris Simmons": {
+      "dues": true
+    },
+    "Butch Griffith": {
+      "dues": true
+    },
+    "Mario Jenkins": {
+      "dues": true
+    },
+    "Frank Watt": {
+      "dues": true
+    },
+    "Paul Harmon": {
+      "dues": true
+    },
+    "Andy Gallagher": {
+      "dues": true
+    },
+    "Keith Clark": {
+      "dues": true
+    },
+    "Jim Frye": {
+      "dues": true
+    },
+    "Skylar Grafton": {
+      "dues": true
+    },
+    "Nick Keefer": {
+      "dues": true
+    },
+    "Jeff Hollobaugh": {
+      "dues": true
+    },
+    "Andy Patz": {
+      "dues": true
+    },
+    "Trent Brocious": {
+      "dues": true
+    },
+    "Wilbur Dudley": {
+      "dues": true
+    },
+    "Duck Julius": {
+      "dues": true
+    },
+    "Willie Powell": {
+      "dues": true
+    },
+    "Bruce Thomas": {
+      "dues": true
+    },
+    "Scott Barton": {
+      "dues": true
+    },
+    "Dave Cushey": {
+      "dues": true
+    },
+    "Dicky Peat": {
+      "dues": true
+    },
+    "Allan Voltz": {
+      "dues": true
+    },
+    "Clark Helm": {
+      "dues": true
+    },
+    "Harry Breski": {
+      "dues": true
+    },
+    "Roger Hoffman": {
+      "dues": true
+    },
+    "Chad Hollobaugh": {
+      "dues": true
+    },
+    "Blake Bowser": {
+      "dues": true
+    },
+    "Tom Stennett": {
+      "dues": true
+    },
+    "Landon Badac": {
+      "dues": true
+    },
+    "Eli Hickman": {
+      "dues": true
+    },
+    "Jaxon Smith": {
+      "dues": true
+    },
+    "Bill Long": {
+      "dues": true
+    },
+    "Tyler Eroh": {
+      "dues": true
+    },
+    "Denny Snyder": {
+      "dues": true
+    },
+    "Don Nulph": {
+      "dues": true
+    },
+    "Dave Toy": {
+      "dues": true
+    },
+    "Sam Long": {
+      "dues": true
+    },
+    "Jay Griffith": {
+      "dues": true
+    },
+    "Kevin Frye": {
+      "dues": true
+    },
+    "Jesse Hickman": {
+      "dues": true
+    },
+    "Jim Goodman": {
+      "dues": true
+    },
+    "Dylan Barton": {
+      "dues": true
+    },
+    "Matt Nulph": {
+      "dues": true
+    },
+    "Ed Bargerstock": {
+      "dues": true
+    },
+    "Vince Sanzotti": {
+      "dues": true
+    },
+    "Mike Hickman": {
+      "dues": true
+    },
+    "Chris Remaley": {
+      "dues": true
+    },
+    "Jason Smith": {
+      "dues": true
+    },
+    "Wes Barton": {
+      "dues": true
+    },
+    "Doug Anthony": {
+      "dues": true
+    },
+    "Brian Barton": {
+      "dues": true
+    },
+    "Logan Bowser": {
+      "dues": true
+    },
+    "Paul Bowser": {
+      "dues": true
+    },
+    "Ken Long": {
+      "dues": true
+    },
+    "Patric Weber": {
+      "dues": true
+    },
+    "Cole Clark": {
+      "dues": true
+    },
+    "Dylan Smith": {
+      "dues": true
+    }
+  },
   "announcements": [],
   "outing": {
     "date": "Saturday, August 29, 2026",
