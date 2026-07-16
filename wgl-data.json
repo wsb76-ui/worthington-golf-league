@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-16T20:39:27.469Z",
+  "lastUpdated": "2026-07-16T20:54:29.123Z",
   "updatedBy": "admin",
   "settings": {
     "greens": "",
@@ -509,13 +509,13 @@
     "teams": []
   },
   "outing2": {
-    "date": "August 29, 2026",
-    "tee": "8 am start",
-    "course": "Hiland Golf Course",
-    "holes": "18 starting on 10",
-    "format": "TBD",
+    "date": "Aug 29",
+    "tee": "8",
+    "course": "Hiland",
+    "holes": "",
+    "format": "",
     "cost": "",
-    "dinner": "Farm -150 Fox rd Worthington, Pa 16262",
+    "dinner": "",
     "prizes": {
       "p1": "",
       "p2": "",
