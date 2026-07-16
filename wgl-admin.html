@@ -700,6 +700,15 @@ async function seedFromLive(){
       changed=true;
     }
 
+    // Seed weeklyPayouts from published data if local has no actual winner data
+    // (prevents a fresh-device admin from wiping previously published winner data on next publish)
+    const localHasWinners=ST.weeklyPayouts&&Object.values(ST.weeklyPayouts).some(
+      w=>(w.lowNet&&w.lowNet.player)||(w.skins&&w.skins.length>0));
+    if(!localHasWinners&&json.weeklyPayouts&&Object.keys(json.weeklyPayouts).length>0){
+      ST.weeklyPayouts=json.weeklyPayouts;
+      changed=true;
+    }
+
     // Merge settings (fills empty fields only)
     if(json.settings){
       for(const [k,v] of Object.entries(json.settings)){
@@ -710,6 +719,7 @@ async function seedFromLive(){
     if(changed){
       saveST();
       buildDues(); buildSettings ? buildSettings() : loadSettingsUI(); loadOutingUI();
+      renderWeeklyWinners(+(document.getElementById('wp-week')||{}).value||10);
       if(statusEl)statusEl.textContent='✅ Admin synced from live data';
     } else {
       if(statusEl)statusEl.textContent='✅ Admin matches live data';
@@ -1135,8 +1145,7 @@ function renderAdminTeams(n){
 
 // ── Clear Outing ─────────────────────────────────────────────────────────────
 function clearOuting(n){
-  const lbl=n===1?'Midseason':'End of Season';
-  if(!confirm(`Clear all ${lbl} outing data?\n\nThis will erase the date, course, prizes, sign-up list, and teams. Cannot be undone.`))return;
+  // NOTE: confirm() is blocked in iOS PWA/WKWebView — never use it here.
   const e=()=>({date:'',tee:'',course:'',holes:'',format:'',cost:'',dinner:'',prizes:{p1:'',p2:'',p3:'',p4:'',p5:''},signups:[],teams:[]});
   if(!ST.outings)ST.outings=[e(),e()];
   ST.outings[n-1]=e();
