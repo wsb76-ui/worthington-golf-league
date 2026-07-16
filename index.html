@@ -392,7 +392,9 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
 
   <!-- ══ STEP 1: Build the group ══ -->
   <div id="sc-step-setup" class="sc-step active">
-    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;padding:16px 0 8px">Players on this card</div>
+    <!-- Resume / Favorites / History (populated by scRenderExtras) -->
+    <div id="sc-extras" style="padding-top:12px"></div>
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;padding:8px 0 8px">Players on this card</div>
     <div class="card">
       <div style="padding:14px 16px">
         <div class="search-wrap" style="margin-bottom:12px">
@@ -414,7 +416,10 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
     </div>
     <div style="padding:12px 0 0">
       <div id="sc-start-err" style="color:#c62828;font-size:12px;margin-bottom:8px;display:none">Add at least one player to start.</div>
-      <button class="sc-btn" onclick="scStart()">▶ Start Scoring</button>
+      <div style="display:flex;gap:8px;margin-bottom:0">
+        <button class="sc-btn" style="flex:1" onclick="scStart()">▶ Start Scoring</button>
+        <button onclick="scSaveFav()" style="padding:10px 14px;background:white;border:1.5px solid #ccc;border-radius:10px;font-size:18px;cursor:pointer;-webkit-tap-highlight-color:transparent" title="Save group as favorite">⭐</button>
+      </div>
       <div class="sc-note" style="margin-top:10px">Anyone in the playing group can be on one card.<br>Mixed teams are fine — scores sort automatically.</div>
     </div>
   </div>
@@ -865,6 +870,141 @@ const SC_FRONT_PARS = [4,4,3,4,4,4,5,4,3]; // Holes 1–9
 let scSess = { players:[], scores:{}, hole:0, side:'back' };
 let _scHits=[], _scMidHits=[];
 
+// ── Scorecard persistence (localStorage) ─────────────────────────────────────
+const SC_STORE = {
+  save(){
+    try{localStorage.setItem('wgl_sc_active',JSON.stringify(scSess));}catch(e){}
+  },
+  load(){
+    try{const s=localStorage.getItem('wgl_sc_active');return s?JSON.parse(s):null;}catch(e){return null;}
+  },
+  clear(){
+    try{localStorage.removeItem('wgl_sc_active');}catch(e){}
+  },
+  saveHistory(round){
+    try{
+      const h=JSON.parse(localStorage.getItem('wgl_sc_history')||'[]');
+      h.unshift(round);
+      if(h.length>3)h.length=3;
+      localStorage.setItem('wgl_sc_history',JSON.stringify(h));
+    }catch(e){}
+  },
+  loadHistory(){
+    try{return JSON.parse(localStorage.getItem('wgl_sc_history')||'[]');}catch(e){return[];}
+  },
+  saveFav(name,players,side){
+    try{
+      const f=JSON.parse(localStorage.getItem('wgl_sc_favs')||'[]');
+      const i=f.findIndex(x=>x.name===name);
+      if(i>-1)f.splice(i,1);
+      f.unshift({name,players,side});
+      if(f.length>5)f.length=5;
+      localStorage.setItem('wgl_sc_favs',JSON.stringify(f));
+    }catch(e){}
+  },
+  loadFavs(){
+    try{return JSON.parse(localStorage.getItem('wgl_sc_favs')||'[]');}catch(e){return[];}
+  },
+  deleteFav(name){
+    try{
+      const f=JSON.parse(localStorage.getItem('wgl_sc_favs')||'[]');
+      localStorage.setItem('wgl_sc_favs',JSON.stringify(f.filter(x=>x.name!==name)));
+    }catch(e){}
+  }
+};
+
+// Render Resume / Favorites / History in setup step
+function scRenderExtras(){
+  const el=document.getElementById('sc-extras');
+  if(!el)return;
+  let html='';
+
+  // 1 — Resume in-progress round
+  const active=SC_STORE.load();
+  if(active&&active.players&&active.players.length&&active.hole>=0){
+    const holes=active.side==='back'?[10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
+    const holeNum=holes[active.hole]||'?';
+    const names=active.players.map(p=>p.name.split(' ')[0]).join(', ');
+    html+=`<div style="background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:12px;padding:12px 14px;margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;color:#2e7d32;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">🔄 Resume Round</div>
+      <div style="font-size:14px;font-weight:600;color:#1a2e1a;margin-bottom:2px">${names}</div>
+      <div style="font-size:12px;color:#555;margin-bottom:10px">${active.side==='back'?'Back 9':'Front 9'} · on Hole ${holeNum}</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="scResumeSession()" style="flex:1;padding:9px;background:#2e7d32;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Resume →</button>
+        <button onclick="scDiscardSession()" style="padding:9px 14px;background:white;color:#888;border:1.5px solid #ddd;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Discard</button>
+      </div>
+    </div>`;
+  }
+
+  // 2 — Saved favorites
+  const favs=SC_STORE.loadFavs();
+  if(favs.length){
+    html+=`<div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">⭐ Favorites</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">`;
+    favs.forEach((fav,fi)=>{
+      html+=`<button onclick="scLoadFav(${fi})" style="padding:8px 12px;background:white;border:1.5px solid #2e7d32;color:#2e7d32;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">⭐ ${fav.name}</button>`;
+    });
+    html+=`</div>`;
+  }
+
+  // 3 — Recent rounds
+  const history=SC_STORE.loadHistory();
+  if(history.length){
+    html+=`<div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">📋 Recent Rounds</div>`;
+    history.forEach(r=>{
+      const names=r.players.map(n=>n.split(' ')[0]).join(', ');
+      html+=`<div style="background:white;border:1px solid #eee;border-radius:10px;padding:10px 14px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <div style="font-size:13px;font-weight:600;color:#1a2e1a">${names}</div>
+          <div style="font-size:11px;color:#aaa">${r.date||''}</div>
+        </div>
+        <div style="font-size:12px;color:#666;margin-top:2px">${r.side==='back'?'Back 9':'Front 9'}${r.summary?' · '+r.summary:''}</div>
+      </div>`;
+    });
+  }
+
+  el.innerHTML=html;
+}
+
+function scResumeSession(){
+  const saved=SC_STORE.load();
+  if(!saved)return;
+  scSess=saved;
+  scSetSide(scSess.side);
+  scShowStep('sc-step-scoring');
+  scRenderHole();
+}
+
+function scDiscardSession(){
+  SC_STORE.clear();
+  scRenderExtras();
+}
+
+function scLoadFav(fi){
+  const favs=SC_STORE.loadFavs();
+  const fav=favs[fi];
+  if(!fav)return;
+  // Reset session with favorite's players
+  scSess={players:[],scores:{},hole:0,side:fav.side};
+  scSetSide(fav.side);
+  const roster=scGetRoster();
+  for(const p of fav.players){
+    const info=roster[p.name]||{team:p.team,hcp:p.hcp};
+    scSess.players.push({name:p.name,team:info.team,hcp:info.hcp});
+    scSess.scores[p.name]=Array(9).fill(null);
+  }
+  scRenderAdded();
+  document.getElementById('sc-start-err').style.display='none';
+}
+
+function scSaveFav(){
+  if(!scSess.players.length){alert('Add players first, then save as a favorite.');return;}
+  const name=prompt('Name this favorite group (e.g. "Mon Group"):');
+  if(!name||!name.trim())return;
+  SC_STORE.saveFav(name.trim(),scSess.players.map(p=>({name:p.name,team:p.team,hcp:p.hcp})),scSess.side);
+  scRenderExtras();
+}
+
 function scGetPars()  { return scSess.side==='back'?SC_BACK_PARS:SC_FRONT_PARS; }
 function scGetHoles() { return scSess.side==='back'?[10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9]; }
 
@@ -946,6 +1086,7 @@ function scRenderAdded(){
 function scStart(){
   if(!scSess.players.length){document.getElementById('sc-start-err').style.display='block';return;}
   scSess.hole=0;
+  SC_STORE.save();
   scShowStep('sc-step-scoring');
   scRenderHole();
 }
@@ -1041,6 +1182,7 @@ function scAdj(pi,delta){
   const el=document.getElementById('sc-sv-'+pi);
   if(el){el.textContent=cur;el.style.color='#1a1a1a';}
   document.getElementById('sc-progress').innerHTML=scMkProgress();
+  SC_STORE.save();
 }
 
 function scHoleNav(dir){
@@ -1049,6 +1191,7 @@ function scHoleNav(dir){
   if(next>=scGetHoles().length){scShowReview();return;}
   scSess.hole=next;
   scRenderHole();
+  SC_STORE.save();
 }
 
 function scGoBack(){
@@ -1138,6 +1281,18 @@ async function scSubmit(){
     statusEl.textContent = '✅ Card submitted! Commissioner will review before it\'s official.';
     if(noteEl) noteEl.style.display = 'none';
     btn.style.display = 'none';
+    // Save to history and clear the active session
+    const summary = scSess.players.map(p=>{
+      const gross=scSess.scores[p.name].reduce((a,b)=>a+(b||0),0);
+      return p.name.split(' ')[0]+' net '+(gross-p.hcp);
+    }).join(' · ');
+    SC_STORE.saveHistory({
+      date:new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}),
+      players:scSess.players.map(p=>p.name),
+      side:scSess.side,
+      summary
+    });
+    SC_STORE.clear();
   } catch(err) {
     // Network error — fall back to email
     statusEl.style.background = '#fff3e0';
@@ -1708,6 +1863,9 @@ async function refreshData(force){
 
 // Initial fetch on load (always re-render)
 refreshData(true);
+
+// Populate resume / favorites / history in scorecard setup
+scRenderExtras();
 
 // Auto-refresh when app is foregrounded — only re-renders if file was updated
 document.addEventListener('visibilitychange',()=>{
