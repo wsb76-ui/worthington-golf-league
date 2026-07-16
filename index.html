@@ -688,7 +688,7 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
 
 <script>
 // ── Live data fetch ───────────────────────────────────────────────────────────
-const DATA_URL=`https://raw.githubusercontent.com/wsb76-ui/worthington-golf-league/main/wgl-data.json?t=${Date.now()}`;
+const DATA_BASE='https://raw.githubusercontent.com/wsb76-ui/worthington-golf-league/main/wgl-data.json';
 
 // ── Default/fallback data (used until wgl-data.json is fetched) ───────────────
 const MOCK_DATA = {
@@ -1668,12 +1668,25 @@ let D=MOCK_DATA;
 // Render immediately with default data so nothing is blank on load
 document.getElementById('app-subtitle').textContent=D.settings.subtitle;
 buildNews();buildOuting();buildDues();buildRoster();buildStandings();loadWeekResult(10);
-(async ()=>{
+
+let _lastRefresh=0;
+let _lastUpdatedTS='';
+async function refreshData(force){
+  // Throttle: don't re-fetch more than once per 60s unless forced
+  const now=Date.now();
+  if(!force&&(now-_lastRefresh)<60000)return;
+  _lastRefresh=now;
   try {
-    const r=await fetch(DATA_URL);
+    const r=await fetch(DATA_BASE+'?t='+now,{cache:'no-store'});
     if(r.ok){
       const json=await r.json();
-      // Merge fetched data into D (players, settings, announcements, outings, buyins, duesPaid)
+      // Only re-render if the file has actually changed since last fetch
+      if(!force&&json.lastUpdated&&json.lastUpdated===_lastUpdatedTS){
+        // File unchanged — update timestamp label only
+        document.getElementById('sync-label').textContent=`Live data · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+        return;
+      }
+      if(json.lastUpdated)_lastUpdatedTS=json.lastUpdated;
       if(json.players)D.players=json.players;
       if(json.settings)D.settings={...D.settings,...json.settings};
       if(json.announcements)D.announcements=json.announcements;
@@ -1682,21 +1695,24 @@ buildNews();buildOuting();buildDues();buildRoster();buildStandings();loadWeekRes
       if(json.buyins)D.buyins=json.buyins;
       if(json.duesPaid)D.duesPaid=json.duesPaid;
       document.getElementById('sync-label').textContent=`Live data · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+      // Re-render all dynamic sections with updated data
+      document.getElementById('app-subtitle').textContent=D.settings.subtitle;
+      buildNews();buildOuting();buildDues();buildRoster();buildStandings();loadWeekResult(10);
     } else {
       document.getElementById('sync-label').textContent='Using cached data';
     }
   } catch(e){
     document.getElementById('sync-label').textContent='Offline — using cached data';
   }
-  // Re-render all dynamic sections with live data
-  document.getElementById('app-subtitle').textContent=D.settings.subtitle;
-  buildNews();
-  buildOuting();
-  buildDues();
-  buildRoster();
-  buildStandings();
-  loadWeekResult(10);
-})();
+}
+
+// Initial fetch on load (always re-render)
+refreshData(true);
+
+// Auto-refresh when app is foregrounded — only re-renders if file was updated
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible')refreshData();
+});
 
 // ── GPS Distance ──────────────────────────────────────────────────────────────
 // Coordinates recorded 2026-07-15 with Garmin GLO 2 via Gaia GPS
