@@ -1217,6 +1217,8 @@ function clearOuting(n){
   ST.outings[n-1]=e();
   saveST();
   loadOutingUI();
+  // Hide inline add-forms if open
+  hideSignupForm(n);hideTeamForm(n);
   // Belt-and-suspenders: directly wipe DOM in case renderSignups/renderAdminTeams misses
   const sl=document.getElementById('o'+n+'-signup-list');
   if(sl)sl.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:8px">No sign-ups yet.</div>';
