@@ -334,7 +334,10 @@ tbody tr:last-child td { border-bottom:none; }
 
     <!-- Mid-Season Outing -->
     <div id="otab-mid">
-      <div class="section-lbl">Mid-Season Outing Details</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 7px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888">Mid-Season Outing Details</div>
+        <button class="btn btn-red" style="font-size:11px;padding:5px 12px" onclick="clearOuting(1)">🗑 Clear All</button>
+      </div>
       <div class="card"><div class="card-body">
         <div class="row2">
           <div class="field"><label>Date</label><input type="text" id="o1-date" oninput="saveO(1)"></div>
@@ -379,7 +382,10 @@ tbody tr:last-child td { border-bottom:none; }
 
     <!-- End of Season Outing -->
     <div id="otab-end" style="display:none">
-      <div class="section-lbl">End-of-Season Outing Details</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 7px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888">End-of-Season Outing Details</div>
+        <button class="btn btn-red" style="font-size:11px;padding:5px 12px" onclick="clearOuting(2)">🗑 Clear All</button>
+      </div>
       <div class="card"><div class="card-body">
         <div class="row2">
           <div class="field"><label>Date</label><input type="text" id="o2-date" oninput="saveO(2)"></div>
@@ -629,7 +635,7 @@ function defaultST() {
     players, dues, rollover,
     settings:{greens:'',dues:'',outingFee:'',skins:'',lownet:'',pot:'',week:11,subtitle:'Monday Nights · Hiland Golf Course, Butler PA · Week 11 Upcoming'},
     anns:[],
-    outing:{date:'Saturday, August 29, 2026',tee:'8:00 AM start',course:'Hiland Golf Course · Butler, PA',holes:'18 holes · starting on the back 9',format:'',cost:'',dinner:'The Farm · 150 Fox Rd, Worthington PA 16262',prizes:{p1:'',p2:'',p3:'',p4:'',p5:'Lowest season net total'},signups:[]},
+    outing:{date:'',tee:'',course:'',holes:'',format:'',cost:'',dinner:'',prizes:{p1:'',p2:'',p3:'',p4:'',p5:''},signups:[],teams:[]},
     payouts:{total:'',pct1:50,pct2:30,pct3:20},
     weeklyPayouts:{},
     teamPayouts:{},
@@ -679,11 +685,19 @@ async function seedFromLive(){
       }
     }
 
-    // Merge outing details (fills empty fields only)
-    if(json.outing){
-      for(const [k,v] of Object.entries(json.outing)){
-        if(v && !ST.outing[k]){ ST.outing[k]=v; changed=true; }
-      }
+    // Seed ST.outings from published data if missing (covers fresh install / new device)
+    if(!ST.outings && (json.outing||json.outing2)){
+      const e=()=>({date:'',tee:'',course:'',holes:'',format:'',cost:'',dinner:'',prizes:{p1:'',p2:'',p3:'',p4:'',p5:''},signups:[],teams:[]});
+      const o1=json.outing?{...e(),...json.outing}:e();
+      const o2=json.outing2?{...e(),...json.outing2}:e();
+      o1.prizes={...e().prizes,...(o1.prizes||{})};
+      o2.prizes={...e().prizes,...(o2.prizes||{})};
+      o1.signups=Array.isArray(o1.signups)?o1.signups:[];
+      o2.signups=Array.isArray(o2.signups)?o2.signups:[];
+      o1.teams=Array.isArray(o1.teams)?o1.teams:[];
+      o2.teams=Array.isArray(o2.teams)?o2.teams:[];
+      ST.outings=[o1,o2];
+      changed=true;
     }
 
     // Merge settings (fills empty fields only)
@@ -1038,8 +1052,10 @@ function switchOuting(which){
   document.getElementById('otab-end-btn').style.color=_curOuting===2?'white':'#555';
 }
 function outingObj(n){
-  // ST.outings is an array of 2 outing objects
-  if(!ST.outings)ST.outings=[{...ST.outing},{date:'',tee:'',course:'',holes:'',format:'',cost:'',dinner:'',prizes:{p1:'',p2:'',p3:'',p4:'',p5:''},signups:[]}];
+  if(!ST.outings){
+    const e=()=>({date:'',tee:'',course:'',holes:'',format:'',cost:'',dinner:'',prizes:{p1:'',p2:'',p3:'',p4:'',p5:''},signups:[],teams:[]});
+    ST.outings=[e(),e()];
+  }
   return ST.outings[n-1];
 }
 function loadOutingUI(){
@@ -1115,6 +1131,17 @@ function renderAdminTeams(n){
       </div>
       <button style="background:none;border:none;color:#ccc;font-size:18px;cursor:pointer" onclick="removeTeam(${n},${i})">×</button>
     </div>`).join('');
+}
+
+// ── Clear Outing ─────────────────────────────────────────────────────────────
+function clearOuting(n){
+  const lbl=n===1?'Midseason':'End of Season';
+  if(!confirm(`Clear all ${lbl} outing data?\n\nThis will erase the date, course, prizes, sign-up list, and teams. Cannot be undone.`))return;
+  const e=()=>({date:'',tee:'',course:'',holes:'',format:'',cost:'',dinner:'',prizes:{p1:'',p2:'',p3:'',p4:'',p5:''},signups:[],teams:[]});
+  if(!ST.outings)ST.outings=[e(),e()];
+  ST.outings[n-1]=e();
+  saveST();
+  loadOutingUI();
 }
 
 // ── Payouts ───────────────────────────────────────────────────────────────────
