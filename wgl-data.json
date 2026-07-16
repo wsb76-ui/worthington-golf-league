@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-16T16:41:58.723Z",
+  "lastUpdated": "2026-07-16T16:42:17.682Z",
   "updatedBy": "admin",
   "settings": {
     "greens": "",
@@ -299,7 +299,17 @@
       "phone": ""
     }
   },
-  "buyins": {},
+  "buyins": {
+    "Larry Julius": {
+      "skins": true
+    },
+    "Kris Simmons": {
+      "lownet": true
+    },
+    "Mario Jenkins": {
+      "skins": true
+    }
+  },
   "duesPaid": {
     "Larry Julius": {
       "dues": true
