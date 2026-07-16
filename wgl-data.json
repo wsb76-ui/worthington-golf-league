@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-16T17:40:00.452Z",
+  "lastUpdated": "2026-07-16T18:37:28.129Z",
   "updatedBy": "admin",
   "settings": {
     "greens": "",
@@ -306,7 +306,13 @@
     "Kris Simmons": {
       "lownet": true
     },
+    "Butch Griffith": {
+      "lownet": true
+    },
     "Mario Jenkins": {
+      "skins": true
+    },
+    "Paul Harmon": {
       "skins": true
     }
   },
