@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-16T19:37:09.413Z",
+  "lastUpdated": "2026-07-16T19:54:03.307Z",
   "updatedBy": "admin",
   "settings": {
     "greens": "",
@@ -491,19 +491,35 @@
   },
   "announcements": [],
   "outing": {
-    "date": "Saturday, August 29, 2026",
-    "tee": "8:00 AM start",
-    "course": "Hiland Golf Course · Butler, PA",
-    "holes": "18 holes · starting on the back 9",
+    "date": "",
+    "tee": "",
+    "course": "",
+    "holes": "",
     "format": "",
     "cost": "",
-    "dinner": "The Farm · 150 Fox Rd, Worthington PA 16262",
+    "dinner": "",
+    "prizes": {
+      "p1": "",
+      "p2": "",
+      "p3": "",
+      "p4": ""
+    },
+    "signups": []
+  },
+  "outing2": {
+    "date": "August 29,2026",
+    "tee": "8 am",
+    "course": "Hiland Golf Course",
+    "holes": "18",
+    "format": "18 starting on 10",
+    "cost": "",
+    "dinner": "Farm - 150 Fox rd Worthington, PA 16262",
     "prizes": {
       "p1": "",
       "p2": "",
       "p3": "",
       "p4": "",
-      "p5": "Lowest season net total"
+      "p5": ""
     },
     "signups": []
   },
@@ -521,7 +537,7 @@
       "Paul Harmon": "",
       "Andy Gallagher": "",
       "Keith Clark": "",
-      "Jim Frye": "cash",
+      "Jim Frye": "",
       "Skylar Grafton": "",
       "Nick Keefer": "",
       "Jeff Hollobaugh": "",
@@ -570,6 +586,16 @@
       "Patric Weber": "",
       "Cole Clark": "",
       "Dylan Smith": ""
+    },
+    "teamPayouts": {}
+  },
+  "weeklyPayouts": {
+    "10": {
+      "skins": [],
+      "lowNet": {
+        "player": "Kevin Frye",
+        "amount": 57
+      }
     }
   }
 }
