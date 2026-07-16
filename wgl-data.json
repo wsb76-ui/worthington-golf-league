@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-16T20:54:29.123Z",
+  "lastUpdated": "2026-07-16T20:57:03.624Z",
   "updatedBy": "admin",
   "settings": {
     "greens": "",
@@ -502,20 +502,18 @@
       "p1": "",
       "p2": "",
       "p3": "",
-      "p4": "",
-      "p5": ""
+      "p4": ""
     },
-    "signups": [],
-    "teams": []
+    "signups": []
   },
   "outing2": {
-    "date": "Aug 29",
-    "tee": "8",
-    "course": "Hiland",
-    "holes": "",
-    "format": "",
+    "date": "August 29,2026",
+    "tee": "8 am",
+    "course": "Hiland Golf Course",
+    "holes": "18",
+    "format": "18 starting on 10",
     "cost": "",
-    "dinner": "",
+    "dinner": "Farm - 150 Fox rd Worthington, PA 16262",
     "prizes": {
       "p1": "",
       "p2": "",
@@ -523,8 +521,7 @@
       "p4": "",
       "p5": ""
     },
-    "signups": [],
-    "teams": []
+    "signups": []
   },
   "payouts": {
     "total": "",
