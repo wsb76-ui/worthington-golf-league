@@ -1,4 +1,4 @@
-const CACHE = 'wgl-v1';
+const CACHE = 'wgl-v2'; // bumped 2026-07-16: fixed cross-origin fetch interception
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
@@ -22,6 +22,8 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // Only intercept same-origin requests — let cross-origin requests (GitHub API, etc.) pass through untouched
+  if (!e.request.url.startsWith(self.location.origin)) return;
   e.respondWith(
     caches.match(e.request).then(cached => {
       const network = fetch(e.request).then(res => {
