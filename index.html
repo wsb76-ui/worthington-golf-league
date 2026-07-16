@@ -1542,6 +1542,29 @@ function buildOuting(){
   renderOutingTeams(o.teams||[],'teams-card','teams-body');
   // End of season outing
   const o2=D.outing2||{};
+  const body2=document.getElementById('outing2-body');
+  if(body2){
+    if(o2.date||o2.course){
+      body2.innerHTML=`
+        ${o2.date?`<div class="outing-section"><div class="outing-lbl">📅 Date</div><div class="outing-val">${o2.date}</div></div>`:''}
+        ${o2.tee?`<div class="outing-section"><div class="outing-lbl">⏰ Tee Time</div><div class="outing-val">${o2.tee}</div></div>`:''}
+        ${o2.course?`<div class="outing-section"><div class="outing-lbl">📍 Course</div><div class="outing-val">${o2.course}</div></div>`:''}
+        ${(o2.holes||o2.format)?`<div class="outing-section"><div class="outing-lbl">⛳ Format</div><div class="outing-val">${o2.holes||''}${o2.holes&&o2.format?'<br>':''}${o2.format||''}</div></div>`:''}
+        ${o2.cost?`<div class="outing-section"><div class="outing-lbl">💵 Cost</div><div class="outing-val">${o2.cost}</div></div>`:''}
+        ${o2.dinner?`<div class="outing-section"><div class="outing-lbl">🍽️ Dinner</div><div class="outing-val">${o2.dinner}</div></div>`:''}`;
+    } else {
+      body2.innerHTML='<div style="color:#aaa;font-size:13px;text-align:center;padding:10px">Details coming soon — check back later.</div>';
+    }
+  }
+  const prizes2=o2.prizes;
+  if(prizes2){
+    const pc2=document.getElementById('prizes2-card');
+    const pb2=document.getElementById('prizes2-body');
+    if(pc2&&pb2){
+      const rows2=[['🥇 Low Gross',prizes2.p1],['🥈 Low Net',prizes2.p2],['📍 Closest to Pin',prizes2.p3],['🏌️ Long Drive',prizes2.p4],['🏆 Season Champion',prizes2.p5]].map(([pos,desc])=>desc?`<div class="prize-row"><span class="prize-pos">${pos}</span><span class="prize-desc">${desc}</span></div>`:'').join('');
+      if(rows2){pc2.style.display='';pb2.innerHTML=rows2;}
+    }
+  }
   if((o2.signups||[]).length){
     document.getElementById('signups2-card').style.display='';
     document.getElementById('signup2-cnt').textContent=o2.signups.length;
