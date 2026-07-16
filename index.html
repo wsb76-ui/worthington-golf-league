@@ -394,6 +394,25 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
   <div id="sc-step-setup" class="sc-step active">
     <!-- Resume / Favorites / History (populated by scRenderExtras) -->
     <div id="sc-extras" style="padding-top:12px"></div>
+    <!-- Card type selector -->
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;padding:8px 0 6px">Card Type</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+      <button id="sc-type-league-night" onclick="scSetCardType('league_night')"
+        style="padding:9px 6px;border:1.5px solid #2e7d32;border-radius:8px;font-size:12px;font-weight:700;background:#2e7d32;color:white;cursor:pointer;-webkit-tap-highlight-color:transparent">League Night ✓</button>
+      <button id="sc-type-play-ahead" onclick="scSetCardType('play_ahead')"
+        style="padding:9px 6px;border:1.5px solid #ddd;border-radius:8px;font-size:12px;font-weight:700;background:white;color:#555;cursor:pointer;-webkit-tap-highlight-color:transparent">Play Ahead</button>
+      <button id="sc-type-bank-card" onclick="scSetCardType('bank_card')"
+        style="padding:9px 6px;border:1.5px solid #ddd;border-radius:8px;font-size:12px;font-weight:700;background:white;color:#555;cursor:pointer;-webkit-tap-highlight-color:transparent">Bank Card</button>
+      <button id="sc-type-practice" onclick="scSetCardType('practice')"
+        style="padding:9px 6px;border:1.5px solid #ddd;border-radius:8px;font-size:12px;font-weight:700;background:white;color:#555;cursor:pointer;-webkit-tap-highlight-color:transparent">Practice</button>
+    </div>
+    <div id="sc-target-week-row" style="display:none;background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:13px;display:none">
+      <span style="font-weight:600;color:#555">Target Week: </span>
+      <input id="sc-target-week" type="number" min="1" max="20"
+        onchange="scSetTargetWeek(this.value)"
+        style="width:52px;padding:4px 6px;border:1.5px solid #2e7d32;border-radius:6px;font-size:14px;font-weight:700;text-align:center;margin-left:4px">
+      <span style="color:#888;font-size:11px;margin-left:6px">Players default to this week · change per-player below</span>
+    </div>
     <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;padding:8px 0 8px">Players on this card</div>
     <div class="card">
       <div style="padding:14px 16px">
@@ -483,6 +502,8 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
     <div id="sc-review-body"></div>
     <div style="padding:12px 0 0">
       <button id="sc-submit-btn" class="sc-btn" onclick="scSubmit()">📤 Submit Card to League</button>
+      <button id="sc-add-nine-btn" class="sc-btn-ghost" onclick="scAddSecondNine()"
+        style="margin-top:6px;border:1.5px solid #2e7d32;color:#2e7d32;font-weight:700">+ Play Another 9</button>
       <div id="sc-submit-status" style="display:none;padding:10px;border-radius:8px;font-size:14px;font-weight:600;text-align:center;margin:8px 0"></div>
       <button class="sc-btn-ghost" onclick="scGoBack()">← Back to Scoring</button>
       <div id="sc-submit-note" class="sc-note">Sends scores directly to the WGL system · Commissioner reviews before official</div>
@@ -867,7 +888,7 @@ const SCRIPT_URL    = 'https://script.google.com/macros/s/AKfycbx4vADa-QnAHP7QeH
 const SC_BACK_PARS  = [5,4,4,4,4,3,4,3,4]; // Holes 10–18 Hiland GC
 const SC_FRONT_PARS = [4,4,3,4,4,4,5,4,3]; // Holes 1–9
 
-let scSess = { players:[], scores:{}, hole:0, side:'back' };
+let scSess = { players:[], scores:{}, hole:0, side:'back', cardType:'league_night', targetWeek:null, completedSegments:[] };
 let _scHits=[], _scMidHits=[];
 
 // ── Scorecard persistence (localStorage) ─────────────────────────────────────
@@ -985,13 +1006,13 @@ function scLoadFav(fi){
   const fav=favs[fi];
   if(!fav)return;
   // Reset session with favorite's players
-  scSess={players:[],scores:{},hole:0,side:fav.side};
+  scSess={players:[],scores:{},hole:0,side:fav.side,cardType:'league_night',targetWeek:null,completedSegments:[]};
   scSetSide(fav.side);
   const roster=scGetRoster();
   for(const p of fav.players){
     const info=roster[p.name]||{team:p.team,hcp:p.hcp};
-    scSess.players.push({name:p.name,team:info.team,hcp:info.hcp});
-    scSess.scores[p.name]=Array(9).fill(null);
+    scSess.players.push({name:p.name,team:info.team,hcp:info.hcp,purpose:'league_night',targetWeek:null});
+    scSess.scores[p.name]=Array(scGetHoles().length).fill(null);
   }
   scRenderAdded();
   document.getElementById('sc-start-err').style.display='none';
@@ -1003,6 +1024,69 @@ function scSaveFav(){
   if(!name||!name.trim())return;
   SC_STORE.saveFav(name.trim(),scSess.players.map(p=>({name:p.name,team:p.team,hcp:p.hcp})),scSess.side);
   scRenderExtras();
+}
+
+// Card-type selector — sets default for all players, updates button styles
+const SC_TYPE_LABELS = {
+  league_night:'League Night', play_ahead:'Play Ahead',
+  bank_card:'Bank Card', practice:'Practice'
+};
+function scSetCardType(type){
+  scSess.cardType = type;
+  const defaultWk = (D.settings&&D.settings.week ? +D.settings.week+1 : null);
+  if(type==='play_ahead' && !scSess.targetWeek) scSess.targetWeek = defaultWk;
+  // Propagate to all players (override will be per-player after this)
+  for(const p of scSess.players){
+    p.purpose = type;
+    p.targetWeek = type==='play_ahead' ? (scSess.targetWeek||defaultWk) : null;
+  }
+  // Toggle target-week row
+  const twr = document.getElementById('sc-target-week-row');
+  if(twr){
+    twr.style.display = type==='play_ahead' ? 'block' : 'none';
+    const twi = document.getElementById('sc-target-week');
+    if(twi && scSess.targetWeek) twi.value = scSess.targetWeek;
+  }
+  // Button highlight
+  for(const t of Object.keys(SC_TYPE_LABELS)){
+    const btn = document.getElementById('sc-type-'+t.replace(/_/g,'-'));
+    if(!btn)continue;
+    const active = t===type;
+    btn.style.background = active?'#2e7d32':'white';
+    btn.style.color = active?'white':'#555';
+    btn.style.borderColor = active?'#2e7d32':'#ddd';
+    btn.textContent = SC_TYPE_LABELS[t]+(active?' ✓':'');
+  }
+  scRenderAdded();
+  SC_STORE.save();
+}
+
+function scSetTargetWeek(val){
+  scSess.targetWeek = parseInt(val)||null;
+  // Update all play_ahead players
+  for(const p of scSess.players){
+    if(p.purpose==='play_ahead') p.targetWeek = scSess.targetWeek;
+  }
+  SC_STORE.save();
+}
+
+function scSetPlayerPurpose(pi, purpose){
+  const p = scSess.players[pi];
+  if(!p)return;
+  p.purpose = purpose;
+  if(purpose==='play_ahead'){
+    p.targetWeek = p.targetWeek || scSess.targetWeek || (D.settings&&+D.settings.week+1) || null;
+  } else {
+    p.targetWeek = null;
+  }
+  SC_STORE.save();
+  scRenderAdded();
+}
+
+function scSetPlayerTargetWeek(pi, val){
+  const p = scSess.players[pi];
+  if(p) p.targetWeek = parseInt(val)||null;
+  SC_STORE.save();
 }
 
 function scGetPars()  { return scSess.side==='back'?SC_BACK_PARS:SC_FRONT_PARS; }
@@ -1056,8 +1140,10 @@ function scSearch(val){
 function scAddPlayer(i){
   const [name,info]=_scHits[i]||[];
   if(!name||!info||scSess.players.find(p=>p.name===name))return;
-  scSess.players.push({name,team:info.team,hcp:info.hcp});
-  scSess.scores[name]=Array(9).fill(null);
+  const purpose=scSess.cardType||'league_night';
+  const targetWeek=purpose==='play_ahead'?(scSess.targetWeek||null):null;
+  scSess.players.push({name,team:info.team,hcp:info.hcp,purpose,targetWeek});
+  scSess.scores[name]=Array(scGetHoles().length).fill(null);
   _scHits=[];
   document.getElementById('sc-search').value='';
   document.getElementById('sc-drop').style.display='none';
@@ -1072,15 +1158,32 @@ function scRemovePlayer(i){
   scRenderAdded();
 }
 
+function scPurposeOpts(pi, cur){
+  return ['league_night','play_ahead','bank_card','practice'].map(v=>
+    `<option value="${v}"${cur===v?' selected':''}>${SC_TYPE_LABELS[v]||v}</option>`
+  ).join('');
+}
 function scRenderAdded(){
   const el=document.getElementById('sc-added');
   if(!scSess.players.length){el.innerHTML='<div class="empty-msg">No players added yet</div>';return;}
-  el.innerHTML=scSess.players.map((p,i)=>
-    `<div class="player-chip">
-      <span class="chip-name">${p.name}<span class="chip-meta"> T${p.team} · HCP ${p.hcp}</span></span>
+  el.innerHTML=scSess.players.map((p,i)=>{
+    const purpose = p.purpose||'league_night';
+    const twk = purpose==='play_ahead'
+      ? `<input type="number" min="1" max="20" value="${p.targetWeek||''}"
+           onchange="scSetPlayerTargetWeek(${i},this.value)"
+           placeholder="Wk"
+           style="width:44px;padding:3px 4px;border:1.5px solid #2e7d32;border-radius:6px;font-size:12px;font-weight:700;text-align:center;margin-left:4px">`
+      : '';
+    return `<div class="player-chip" style="flex-wrap:wrap;row-gap:4px">
+      <span class="chip-name" style="flex:1">${p.name}<span class="chip-meta"> T${p.team} · HCP ${p.hcp}</span></span>
+      <select onchange="scSetPlayerPurpose(${i},this.value)"
+        style="font-size:11px;padding:3px 5px;border:1px solid #ddd;border-radius:6px;background:white;color:#333;cursor:pointer;-webkit-tap-highlight-color:transparent">
+        ${scPurposeOpts(i, purpose)}
+      </select>
+      ${twk}
       <button class="chip-remove" onclick="scRemovePlayer(${i})">×</button>
-    </div>`
-  ).join('');
+    </div>`;
+  }).join('');
 }
 
 function scStart(){
@@ -1114,8 +1217,10 @@ function scMidSearch(val){
 function scMidAdd(i){
   const [name,info]=_scMidHits[i]||[];
   if(!name||!info||scSess.players.find(p=>p.name===name))return;
-  scSess.players.push({name,team:info.team,hcp:info.hcp});
-  scSess.scores[name]=Array(9).fill(null);
+  const purpose=scSess.cardType||'league_night';
+  const targetWeek=purpose==='play_ahead'?(scSess.targetWeek||null):null;
+  scSess.players.push({name,team:info.team,hcp:info.hcp,purpose,targetWeek});
+  scSess.scores[name]=Array(scGetHoles().length).fill(null);
   _scMidHits=[];
   document.getElementById('sc-mid-search').value='';
   document.getElementById('sc-mid-drop').style.display='none';
@@ -1244,6 +1349,30 @@ function scShowReview(){
     html+='</div></div>';
   }
   document.getElementById('sc-review-body').innerHTML=html;
+  // Update "Play Another 9" button label dynamically
+  const addBtn=document.getElementById('sc-add-nine-btn');
+  if(addBtn){
+    const otherSide=scSess.side==='back'?'Front':'Back';
+    addBtn.textContent=`+ Play ${otherSide} 9 Too`;
+    addBtn.style.display=scSess.completedSegments.length>=1?'none':'block';
+  }
+}
+
+function scAddSecondNine(){
+  // Archive current 9-hole segment
+  scSess.completedSegments.push({
+    side: scSess.side,
+    scores: JSON.parse(JSON.stringify(scSess.scores))
+  });
+  // Switch to other side, reset active scores
+  const newSide = scSess.side==='back'?'front':'back';
+  scSess.side = newSide;
+  scSess.hole = 0;
+  for(const p of scSess.players) scSess.scores[p.name]=Array(9).fill(null);
+  scSetSide(newSide);
+  SC_STORE.save();
+  scShowStep('sc-step-scoring');
+  scRenderHole();
 }
 
 async function scSubmit(){
@@ -1259,18 +1388,60 @@ async function scSubmit(){
 
   const today = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   const wk = D.settings&&D.settings.week ? D.settings.week : '?';
-  const holes = scGetHoles();
 
-  const entries = scSess.players.map(p => {
-    const s = scSess.scores[p.name];
-    const gross = s.reduce((a,b) => a+(b||0), 0);
-    const net = gross - p.hcp;
-    const scores = {};
-    holes.forEach((h,i) => { scores[h] = s[i] ?? null; });
-    return { name:p.name, team:p.team, hcp:p.hcp, side:scSess.side, gross, net, scores };
-  });
+  // Build segments array — completed segments + current active segment
+  function buildSegment(side, scoreMap){
+    const segHoles = side==='back'?[10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
+    return {
+      side,
+      entries: scSess.players.map(p=>{
+        const s = scoreMap[p.name]||Array(9).fill(null);
+        const gross = s.reduce((a,b)=>a+(b||0),0);
+        const net = gross - p.hcp;
+        const scores = {};
+        segHoles.forEach((h,i)=>{ scores[h]=s[i]??null; });
+        return {
+          name:p.name, team:p.team, hcp:p.hcp,
+          purpose: p.purpose||'league_night',
+          targetWeek: p.targetWeek||null,
+          side, gross, net, scores
+        };
+      })
+    };
+  }
 
-  const payload = { week: wk, date: today, entries };
+  const allSegs = [
+    ...scSess.completedSegments.map(seg=>buildSegment(seg.side, seg.scores)),
+    buildSegment(scSess.side, scSess.scores)
+  ];
+
+  const payload = {
+    week: wk,
+    date: today,
+    cardType: scSess.cardType||'league_night',
+    segments: allSegs
+  };
+
+  // Also build flat email body for fallback
+  function buildEmailBody(){
+    let body = `WGL Card — Week ${wk}\nDate: ${today}\n\n`;
+    for(const seg of allSegs){
+      const sideLbl = seg.side==='back'?'BACK 9 (Holes 10–18)':'FRONT 9 (Holes 1–9)';
+      body += `=== ${sideLbl} ===\n`;
+      const byTeam = {};
+      for(const e of seg.entries)(byTeam[e.team]=byTeam[e.team]||[]).push(e);
+      for(const team of Object.keys(byTeam).sort((a,b)=>+a-+b)){
+        body += `--- Team ${team} ---\n`;
+        for(const e of byTeam[team]){
+          const hNums = seg.side==='back'?[10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
+          const hstr = hNums.map(h=>`H${h}:${e.scores[h]??'?'}`).join('  ');
+          const purpStr = e.purpose!=='league_night'?` [${SC_TYPE_LABELS[e.purpose]||e.purpose}${e.targetWeek?' Wk'+e.targetWeek:''}]`:'';
+          body += `${e.name}  HCP ${e.hcp}${purpStr}\n${hstr}\nGross:${e.gross}  Net:${e.net}\n\n`;
+        }
+      }
+    }
+    return body;
+  }
 
   try {
     const form = new URLSearchParams();
@@ -1281,6 +1452,7 @@ async function scSubmit(){
     statusEl.textContent = '✅ Card submitted! Commissioner will review before it\'s official.';
     if(noteEl) noteEl.style.display = 'none';
     btn.style.display = 'none';
+    document.getElementById('sc-add-nine-btn').style.display='none';
     // Save to history and clear the active session
     const summary = scSess.players.map(p=>{
       const gross=scSess.scores[p.name].reduce((a,b)=>a+(b||0),0);
@@ -1301,21 +1473,8 @@ async function scSubmit(){
     btn.disabled = false;
     console.error('Submit error:', err);
     setTimeout(() => {
-      const side = scSess.side==='back'?'BACK 9 (Holes 10–18)':'FRONT 9 (Holes 1–9)';
-      let body = `WGL Card — Week ${wk} · ${side}\nDate: ${today}\n\n`;
-      const byTeam = {};
-      for(const p of scSess.players)(byTeam[p.team]=byTeam[p.team]||[]).push(p);
-      for(const team of Object.keys(byTeam).sort((a,b)=>+a-+b)){
-        body += `--- Team ${team} ---\n`;
-        for(const p of byTeam[team]){
-          const s = scSess.scores[p.name];
-          const gross = s.reduce((a,b) => a+(b||0), 0);
-          const net = gross - p.hcp;
-          const hstr = holes.map((h,i) => `H${h}:${s[i]??'?'}`).join('  ');
-          body += `${p.name}  HCP ${p.hcp}\n${hstr}\nGross:${gross}  Net:${net}\n\n`;
-        }
-      }
-      const sub = encodeURIComponent(`WGL Card Wk${wk} ${scSess.side==='back'?'Back9':'Front9'} – ${today}`);
+      const body = buildEmailBody();
+      const sub = encodeURIComponent(`WGL Card Wk${wk} – ${today}`);
       window.location.href = `mailto:${SC_EMAIL}?subject=${sub}&body=${encodeURIComponent(body)}`;
     }, 1500);
   }
