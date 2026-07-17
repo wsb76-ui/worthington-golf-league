@@ -1,4 +1,4 @@
-const CACHE = 'wgl-v14'; // bumped 2026-07-17: first-run name picker, per-admin PINs + audit trail
+const CACHE = 'wgl-v15'; // bumped 2026-07-17: notification opt-in prompt
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',

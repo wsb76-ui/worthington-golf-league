@@ -521,6 +521,11 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
 
 <!-- NEWS (dynamic from wgl-data.json) -->
 <div id="news" class="tab-content">
+  <div id="push-banner" style="display:none;background:var(--tint-soft,rgba(46,125,50,.12));border:1.5px solid var(--tint,#2e7d32);border-radius:12px;padding:12px 14px;margin-top:12px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:2px">🔔 Get league updates</div>
+    <div style="font-size:12px;color:#777;margin-bottom:10px">Results, announcements, and outing news — right on your phone.</div>
+    <button onclick="enablePush()" style="width:100%;padding:11px;background:var(--tint,#2e7d32);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">Enable Notifications</button>
+  </div>
   <div style="margin-top:12px" id="news-list"></div>
   <div style="font-size:11px;color:#bbb;text-align:center;padding:8px">Posted by WGL Admin · Data from wgl-data.json</div>
 </div>
@@ -710,6 +715,9 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
     <button id="sp-size-lg" onclick="setPref('size','lg')" style="font-size:14px">A</button>
     <button id="sp-size-xl" onclick="setPref('size','xl')" style="font-size:16px">A</button>
   </div>
+  <div class="settings-title" style="margin-top:14px">Notifications</div>
+  <button id="sp-push-btn" onclick="enablePush()" style="width:100%;padding:10px;border:1.5px solid var(--tint,#2e7d32);border-radius:10px;background:none;color:var(--tint,#2e7d32);font-size:13px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">🔔 Enable Notifications</button>
+
   <div class="settings-title" style="margin-top:14px">This Is Me</div>
   <select id="sp-identity" onchange="setIdentity(this.value)" style="width:100%;padding:10px 12px;border:1.5px solid #ccc;border-radius:10px;font-size:14px;background:var(--card,#fff);color:var(--text,#111)"></select>
   <div style="font-size:11px;color:#999;margin-top:5px">Powers the ⭐ My tab & one-tap outing removal.</div>
@@ -1807,6 +1815,36 @@ function buildMyTab(){
   el.innerHTML=html;
 }
 
+// ── Push notifications opt-in ─────────────────────────────────────────────────
+function enablePush(){
+  if(!('Notification' in window)){
+    alert('Notifications need the app installed to your Home Screen (iOS 16.4+). Add it from Safari: Share → Add to Home Screen.');
+    return;
+  }
+  try{
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal){
+      await OneSignal.Notifications.requestPermission();
+      setTimeout(updatePushUI, 600);
+    });
+  }catch(e){}
+  // Fallback if OneSignal SDK failed to load
+  try{ if(!window.OneSignal) Notification.requestPermission().then(()=>updatePushUI()); }catch(e){}
+}
+function updatePushUI(){
+  const supported = ('Notification' in window);
+  const state = supported ? Notification.permission : 'unsupported';
+  const banner = document.getElementById('push-banner');
+  if(banner) banner.style.display = (state==='default') ? '' : 'none';
+  const btn = document.getElementById('sp-push-btn');
+  if(btn){
+    if(state==='granted'){ btn.textContent='🔔 Notifications On'; btn.disabled=true; btn.style.opacity=.6; }
+    else if(state==='denied'){ btn.textContent='🔕 Blocked — allow in iPhone Settings → Notifications'; btn.disabled=true; btn.style.opacity=.6; }
+    else if(state==='unsupported'){ btn.textContent='🔔 Install to Home Screen to enable'; btn.disabled=true; btn.style.opacity=.6; }
+    else { btn.textContent='🔔 Enable Notifications'; btn.disabled=false; btn.style.opacity=1; }
+  }
+}
+
 // ── First-run welcome ─────────────────────────────────────────────────────────
 function maybeShowWelcome(){
   try{ if(getIdentity()||localStorage.getItem('wgl_welcome_done')) return; }catch(e){ return; }
@@ -2354,7 +2392,7 @@ function buildWeek(wk,elOverride){
 let D=MOCK_DATA;
 // Render immediately with default data so nothing is blank on load
 document.getElementById('app-subtitle').textContent=D.settings.subtitle;
-buildWeekDropdown();buildNews();buildOuting();buildDues();buildRoster();buildStandings();renderIdentitySetting();buildMyTab();maybeShowWelcome();loadWeekResult(Math.max(...Object.keys(WK_DATA).map(Number)));
+buildWeekDropdown();buildNews();buildOuting();buildDues();buildRoster();buildStandings();renderIdentitySetting();buildMyTab();maybeShowWelcome();updatePushUI();loadWeekResult(Math.max(...Object.keys(WK_DATA).map(Number)));
 
 let _lastRefresh=0;
 let _lastUpdatedTS='';
@@ -2387,7 +2425,7 @@ async function refreshData(force){
       document.getElementById('sync-label').textContent=`Live data · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
       // Re-render all dynamic sections with updated data
       document.getElementById('app-subtitle').textContent=D.settings.subtitle;
-      buildNews();buildOuting();buildDues();buildRoster();buildStandings();renderIdentitySetting();buildMyTab();maybeShowWelcome();loadWeekResult(Math.max(...Object.keys(WK_DATA).map(Number)));
+      buildNews();buildOuting();buildDues();buildRoster();buildStandings();renderIdentitySetting();buildMyTab();maybeShowWelcome();updatePushUI();loadWeekResult(Math.max(...Object.keys(WK_DATA).map(Number)));
     } else {
       document.getElementById('sync-label').textContent='Using cached data';
     }
