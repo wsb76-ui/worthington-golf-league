@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-17T15:08:54.735Z",
+  "lastUpdated": "2026-07-17T15:15:52.537Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -932,6 +932,11 @@
   },
   "banked": {},
   "changeLog": [
+    {
+      "when": "2026-07-17T15:15:52.537Z",
+      "who": "Scoring Engine",
+      "what": "Weekly scores published — through Week 10"
+    },
     {
       "when": "2026-07-17T15:08:54.736Z",
       "who": "Scoring Engine",
