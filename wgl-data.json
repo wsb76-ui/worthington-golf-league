@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-16T22:26:17.269Z",
+  "lastUpdated": "2026-07-17T01:28:12.007Z",
   "updatedBy": "admin",
   "settings": {
     "greens": "",
@@ -509,13 +509,13 @@
     "teams": []
   },
   "outing2": {
-    "date": "",
-    "tee": "",
-    "course": "",
-    "holes": "",
-    "format": "",
+    "date": "Sat, August 29",
+    "tee": "8 am",
+    "course": "Hiland",
+    "holes": "18 starting on 10",
+    "format": "TBD",
     "cost": "",
-    "dinner": "",
+    "dinner": "Farm -150 Fox Rd Worthington",
     "prizes": {
       "p1": "",
       "p2": "",
