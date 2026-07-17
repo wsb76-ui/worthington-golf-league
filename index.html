@@ -985,14 +985,15 @@ function scRenderExtras(){
   const history=SC_STORE.loadHistory();
   if(history.length){
     html+=`<div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">📋 Recent Rounds</div>`;
-    history.forEach(r=>{
+    history.forEach((r,hi)=>{
       const names=r.players.map(n=>n.split(' ')[0]).join(', ');
-      html+=`<div style="background:white;border:1px solid #eee;border-radius:10px;padding:10px 14px;margin-bottom:8px">
+      html+=`<div onclick="scLoadRecent(${hi})" style="background:white;border:1px solid #eee;border-radius:10px;padding:10px 14px;margin-bottom:8px;cursor:pointer;-webkit-tap-highlight-color:transparent">
         <div style="display:flex;justify-content:space-between;align-items:baseline">
           <div style="font-size:13px;font-weight:600;color:#1a2e1a">${names}</div>
           <div style="font-size:11px;color:#aaa">${r.date||''}</div>
         </div>
         <div style="font-size:12px;color:#666;margin-top:2px">${r.side==='back'?'Back 9':'Front 9'}${r.summary?' · '+r.summary:''}</div>
+        <div style="font-size:11px;color:#2e7d32;font-weight:600;margin-top:4px">↻ Tap to start a new card with this group</div>
       </div>`;
     });
   }
@@ -1029,6 +1030,24 @@ function scLoadFav(fi){
   }
   scRenderAdded();
   document.getElementById('sc-start-err').style.display='none';
+}
+
+function scLoadRecent(hi){
+  const history=SC_STORE.loadHistory();
+  const r=history[hi];
+  if(!r)return;
+  // Reset session with this recent group (current roster team/HCP)
+  scSess={players:[],scores:{},hole:0,side:r.side||'back',cardType:'league_night',targetWeek:null,completedSegments:[]};
+  scSetSide(scSess.side);
+  const roster=scGetRoster();
+  for(const name of r.players){
+    const info=roster[name]||{team:'',hcp:0};
+    scSess.players.push({name:name,team:info.team,hcp:info.hcp,purpose:'league_night',targetWeek:null});
+    scSess.scores[name]=Array(scGetHoles().length).fill(null);
+  }
+  scRenderAdded();
+  const err=document.getElementById('sc-start-err');
+  if(err)err.style.display='none';
 }
 
 function scSaveFav(){

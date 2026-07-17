@@ -1,4 +1,4 @@
-const CACHE = 'wgl-v11'; // bumped 2026-07-17: week-select DOM fix + season tab fix
+const CACHE = 'wgl-v12'; // bumped 2026-07-17: recent rounds tap-to-load group
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
