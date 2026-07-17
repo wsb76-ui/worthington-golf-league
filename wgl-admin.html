@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>WGL Admin</title>
 <style>
@@ -13,6 +13,8 @@ body.font-serif { font-family:ui-serif,'New York',Georgia,serif; }
 body.text-lg .tab-content { zoom:1.12; }
 body.text-xl .tab-content { zoom:1.25; }
 
+html,body{touch-action:manipulation}
+button,input,select{touch-action:manipulation}
 /* PIN */
 #pin-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:90vh; padding:24px; }
 .pin-logo { font-size:42px; margin-bottom:8px; }
@@ -149,7 +151,7 @@ body.theme-dark-slate{--bg:#10141c;--card:#1e293b;--card-hdr:#233044;--input:#33
 <div id="pin-screen">
   <div class="pin-logo">⛳</div>
   <div class="pin-title">WGL Admin</div>
-  <div class="pin-sub">Default PIN: 7777</div>
+  <div class="pin-sub">Enter your admin PIN</div>
   <div class="pin-display" id="pin-disp">····</div>
   <div class="pin-grid">
     <button class="pin-btn" onclick="pk(1)">1</button>
@@ -361,7 +363,8 @@ body.theme-dark-slate{--bg:#10141c;--card:#1e293b;--card-hdr:#233044;--input:#33
 
     <div class="section-lbl">Security</div>
     <div class="card"><div class="card-body">
-      <div class="field"><label>Change Admin PIN (4 digits)</label><input type="number" id="s-pin" placeholder="Current: 7777" oninput="saveS()"></div>
+      <div style="font-size:13px;color:#555;line-height:1.5">Each admin has their own PIN, so published changes are tracked by name (see 🕘 Recent Changes on the Publish tab). PINs live in the app code — see README-WGL-SYSTEM.md to add or change admins.</div>
+      <div id="admin-who" style="font-size:12px;color:#999;margin-top:8px"></div>
     </div></div>
   </div>
 
@@ -594,6 +597,11 @@ body.theme-dark-slate{--bg:#10141c;--card:#1e293b;--card-hdr:#233044;--input:#33
       </div>
     </div>
 
+    <div class="card" id="changelog-card" style="display:none">
+      <div class="card-hdr">🕘 Recent Changes</div>
+      <div class="card-body" id="changelog-body" style="font-size:13px"></div>
+    </div>
+
     <button class="btn btn-green btn-block" style="font-size:15px;padding:14px" id="pub-btn" onclick="publishToGitHub()">
       📤 Publish Changes Live
     </button>
@@ -735,6 +743,10 @@ function defaultST() {
   };
 }
 
+const ADMINS = { '7777':'Wes Barton', '2374':'Bill Long', '8365':'Tom Stennett', '9884':'Brian Barton' };
+let _admin = '';
+try{ _admin = sessionStorage.getItem('wgl_admin')||''; }catch(e){}
+
 function loadST() {
   try { const s=localStorage.getItem(LS); ST=s?JSON.parse(s):defaultST(); }
   catch(e) { ST=defaultST(); }
@@ -838,10 +850,14 @@ function pd(){pe=pe.slice(0,-1);upd();}
 function pc(){pe='';upd();}
 function upd(){document.getElementById('pin-disp').textContent='●'.repeat(pe.length)+'·'.repeat(4-pe.length);}
 function ck(){
-  if(pe===(ST.pin||'7777')){
+  const who=ADMINS[pe];
+  if(who){
+    _admin=who;
+    try{ sessionStorage.setItem('wgl_admin',who); }catch(e){}
     document.getElementById('pin-screen').style.display='none';
     document.getElementById('app').style.display='block';
     document.getElementById('pin-err').style.display='none';
+    const wt=document.getElementById('admin-who'); if(wt) wt.textContent='Signed in as '+who;
     initApp();
   } else {
     document.getElementById('pin-err').style.display='block';
@@ -1046,8 +1062,6 @@ function saveS(){
     week:document.getElementById('s-week').value||11,
     subtitle:document.getElementById('s-subtitle').value
   };
-  const np=document.getElementById('s-pin').value;
-  if(np&&np.length===4&&/^\d{4}$/.test(np))ST.pin=np;
   saveST();
 }
 function saveToken(){
@@ -1148,9 +1162,37 @@ async function postAnnouncement(i){
     const getR=await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`,{
       headers:{'Authorization':`token ${tok}`,'Accept':'application/vnd.github.v3+json'}
     });
-    let sha='';
-    if(getR.ok){const d=await getR.json();sha=d.sha;}
+    let sha='', live=null;
+    if(getR.ok){
+      const d=await getR.json();sha=d.sha;
+      try{live=JSON.parse(decodeURIComponent(escape(atob((d.content||'').replace(/\n/g,'')))));}catch(e){}
+    }
     const data=buildData();
+    // Preserve scoring-engine data (same rules as Publish)
+    if(live){
+      if(live.weeks)data.weeks=live.weeks;
+      if(live.banked)data.banked=live.banked;
+      if(live.weeklyPayouts){
+        data.weeklyPayouts=data.weeklyPayouts||{};
+        for(const[w,v]of Object.entries(live.weeklyPayouts)){
+          const ex=data.weeklyPayouts[w];
+          const has=ex&&((ex.skins&&ex.skins.length)||(ex.lowNet&&ex.lowNet.player));
+          if(!has)data.weeklyPayouts[w]=v;
+        }
+      }
+      if(live.settings&&live.settings.week&&data.settings){
+        data.settings.week=Math.max(+data.settings.week||0,+live.settings.week||0);
+      }
+      if(live.updatedBy==='sheets-engine'&&live.players&&data.players){
+        for(const[nm,pl]of Object.entries(live.players)){
+          if(data.players[nm]&&typeof pl.hcp==='number')data.players[nm].hcp=pl.hcp;
+        }
+      }
+      try{
+        data.changeLog=(live.changeLog||[]).slice(0,29);
+        data.changeLog.unshift({when:new Date().toISOString(),who:(_admin||'admin'),what:'Posted announcement: '+(a.title||'update')});
+      }catch(e){}
+    }
     const b64=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
     const body={message:`Announcement: ${a.title||'update'} · ${new Date().toLocaleDateString()}`,content:b64,branch:BRANCH};
     if(sha)body.sha=sha;
@@ -1160,7 +1202,7 @@ async function postAnnouncement(i){
       body:JSON.stringify(body)
     });
     if(!putR.ok){const e=await putR.json();throw new Error(e.message||'GitHub error');}
-    ST.lastPub=Date.now();ST.lastPubBy='admin';saveST();
+    ST.lastPub=Date.now();ST.lastPubBy=(_admin||'admin');saveST();
     // Send push notification
     await sendPushNotification(a.title||'WGL Update', a.body||'New league announcement posted.');
     btn.textContent='✅ Posted!';
@@ -1454,6 +1496,20 @@ function updatePublishStatus(){
   else {dot.className='status-dot yellow';txt.textContent='No token set. Go to Settings → GitHub Sync.';}
 }
 
+function renderChangeLog(list){
+  const card=document.getElementById('changelog-card'),body=document.getElementById('changelog-body');
+  if(!card||!body)return;
+  if(!list||!list.length){card.style.display='none';return;}
+  card.style.display='';
+  body.innerHTML=list.slice(0,10).map(e=>{
+    const d=new Date(e.when);
+    return `<div style="padding:7px 0;border-bottom:1px solid rgba(120,120,128,.15)">
+      <div style="font-weight:600">${e.who} <span style="color:#999;font-weight:400;font-size:11px">· ${d.toLocaleDateString()} ${d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</span></div>
+      <div style="color:#777;font-size:12px">${e.what}</div>
+    </div>`;
+  }).join('');
+}
+
 async function publishToGitHub(){
   const tok=localStorage.getItem('wgl_token')||'';
   if(!tok){alert('Enter your GitHub token in Settings first.');return;}
@@ -1502,6 +1558,18 @@ async function publishToGitHub(){
         }
       }
     }
+    // ── Audit trail: who changed what ──
+    try{
+      const SECTIONS={settings:'Settings',players:'Players',buyins:'Buy-ins',duesPaid:'Dues',announcements:'Announcements',outing:'Mid-Season Outing',outing2:'End-of-Season Outing',payouts:'Payouts',weeklyPayouts:'Weekly Winners'};
+      const changed=[];
+      for(const [k,label] of Object.entries(SECTIONS)){
+        const was=JSON.stringify((live&&live[k])!==undefined?live[k]:null);
+        const now=JSON.stringify(data[k]!==undefined?data[k]:null);
+        if(was!==now)changed.push(label);
+      }
+      data.changeLog=((live&&live.changeLog)||[]).slice(0,29);
+      data.changeLog.unshift({when:new Date().toISOString(),who:(_admin||'admin'),what:changed.length?('Updated: '+changed.join(', ')):'Re-published (no section changes)'});
+    }catch(e){}
     const json=JSON.stringify(data,null,2);
     // btoa for unicode
     const b64=btoa(unescape(encodeURIComponent(json)));
@@ -1521,11 +1589,12 @@ async function publishToGitHub(){
       sha=await fetchSha();
     }
     if(putR.ok){
-      ST.lastPub=Date.now();ST.lastPubBy='admin';saveST();
+      ST.lastPub=Date.now();ST.lastPubBy=(_admin||'admin');saveST();
       btn.textContent='✅ Published!';
       res.style.display='block';res.style.background='#e8f5e9';res.style.color='#2e7d32';
       res.textContent='✅ Changes are live! The league app updates in ~60 seconds.';
       document.getElementById('last-pub-info').textContent=`Last published ${new Date().toLocaleString()}`;
+      renderChangeLog(data.changeLog||[]);
       // Fire OneSignal push notification if configured
       const latestAnn=ST.anns&&ST.anns.length?ST.anns[0]:null;
       const pushHeading='WGL Update';
@@ -1550,7 +1619,7 @@ function buildData(){
     if(d.dues||d.outing){duesPaid[n]={};if(d.dues)duesPaid[n].dues=true;if(d.outing)duesPaid[n].outing=true;}
   }
   return {
-    version:2,lastUpdated:new Date().toISOString(),updatedBy:'admin',
+    version:2,lastUpdated:new Date().toISOString(),updatedBy:(_admin||'admin'),
     settings:ST.settings,players:ST.players,buyins,duesPaid,
     announcements:ST.anns,outing:outingObj(1),outing2:outingObj(2),
     payouts:{...ST.payouts,rollover:ST.rollover,teamPayouts:ST.teamPayouts||{}},

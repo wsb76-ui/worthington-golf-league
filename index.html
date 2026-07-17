@@ -29,6 +29,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
 .hdr-inner { padding:10px 14px 0; }
 .hdr-inner h1 { font-size:17px; font-weight:700; }
 .hdr-sub { font-size:11px; opacity:.75; margin:1px 0 8px; }
+html,body{touch-action:manipulation}
+button,.tab,.pin-btn,input,select{touch-action:manipulation}
 .tabs { position:fixed; bottom:0; left:0; right:0; z-index:150; display:flex; background:var(--tabbar-bg,rgba(255,255,255,.88)); -webkit-backdrop-filter:blur(20px) saturate(180%); backdrop-filter:blur(20px) saturate(180%); border-top:.5px solid var(--tabbar-line,rgba(0,0,0,.12)); padding-bottom:env(safe-area-inset-bottom); }
 .tab { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:2px; padding:7px 1px 6px; font-size:9px; font-weight:600; color:var(--tabbar-inactive,#8e8e93); cursor:pointer; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
 .tab .ticon { font-size:22px; line-height:1; opacity:.85; padding:2px 11px; border-radius:12px; transition:transform .15s ease, background .15s ease; }
@@ -389,6 +391,7 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
   <div class="tab" onclick="showTab('roster',this)"><span class="ticon">👥</span>Roster</div>
   <div class="tab" onclick="showTab('outing',this)"><span class="ticon">🏆</span>Outing</div>
   <div class="tab" onclick="showTab('dues',this)"><span class="ticon">💵</span>Dues</div>
+  <div class="tab" onclick="showTab('mytab',this);buildMyTab()"><span class="ticon">⭐</span>My</div>
 </div>
 
 <!-- SCORE CARD — 3-step prototype -->
@@ -542,9 +545,10 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
         <div class="card-hdr">Prizes & Awards</div>
         <div style="padding:8px 14px" id="prizes-body"></div>
       </div>
-      <button onclick="openSignupForm('mid')" style="width:100%;padding:15px;background:#2e7d32;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;-webkit-tap-highlight-color:transparent">
+      <button onclick="openSignupForm('mid')" style="width:100%;padding:15px;background:#2e7d32;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:6px;-webkit-tap-highlight-color:transparent">
         ✉️ Sign Up for Mid-Season Outing
       </button>
+      <div style="text-align:center;margin-bottom:12px"><span onclick="requestOutingRemoval('mid')" style="font-size:12px;color:#c62828;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">🚫 Signed up but can't make it? Request removal</span></div>
       <div class="card" id="signups-card" style="display:none">
         <div class="card-hdr">Who's In <span id="signup-cnt" style="background:#e8f5e9;color:#2e7d32;border-radius:20px;font-size:11px;font-weight:700;padding:2px 9px;margin-left:6px">0</span></div>
         <div style="padding:8px 14px;font-size:13px" id="signups-body"></div>
@@ -567,9 +571,10 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
         <div class="card-hdr">Prizes & Awards</div>
         <div style="padding:8px 14px" id="prizes2-body"></div>
       </div>
-      <button onclick="openSignupForm('end')" style="width:100%;padding:15px;background:#1565c0;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;-webkit-tap-highlight-color:transparent">
+      <button onclick="openSignupForm('end')" style="width:100%;padding:15px;background:#1565c0;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:6px;-webkit-tap-highlight-color:transparent">
         ✉️ Sign Up for End-of-Season Outing
       </button>
+      <div style="text-align:center;margin-bottom:12px"><span onclick="requestOutingRemoval('end')" style="font-size:12px;color:#c62828;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">🚫 Signed up but can't make it? Request removal</span></div>
       <div class="card" id="signups2-card" style="display:none">
         <div class="card-hdr">Who's In <span id="signup2-cnt" style="background:#e8f5e9;color:#2e7d32;border-radius:20px;font-size:11px;font-weight:700;padding:2px 9px;margin-left:6px">0</span></div>
         <div style="padding:8px 14px;font-size:13px" id="signups2-body"></div>
@@ -665,6 +670,20 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
   </div>
 </div>
 
+<div id="mytab" class="tab-content"><div id="my-body" style="margin-top:12px"></div></div>
+
+<!-- First-run welcome (pick your name) -->
+<div id="welcome-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--card,#fff);color:var(--text,#111);border-radius:20px;padding:26px 22px;width:100%;max-width:360px;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,.3)">
+    <div style="font-size:42px">⛳</div>
+    <div style="font-size:19px;font-weight:800;margin:6px 0 4px">Welcome to WGL</div>
+    <div style="font-size:13px;color:#888;margin-bottom:16px;line-height:1.5">Pick your name so the app knows it's you — it unlocks your ⭐ My tab and one-tap outing sign-ups. Stored only on this phone.</div>
+    <select id="welcome-identity" style="width:100%;padding:12px;border:1.5px solid #ccc;border-radius:10px;font-size:15px;background:var(--card,#fff);color:var(--text,#111);margin-bottom:14px"></select>
+    <button onclick="welcomeSave()" style="width:100%;padding:13px;background:var(--tint,#2e7d32);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;-webkit-tap-highlight-color:transparent">That's Me</button>
+    <button onclick="welcomeSkip()" style="width:100%;padding:11px;background:none;border:none;color:#999;font-size:13px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">Skip for now</button>
+  </div>
+</div>
+
 <!-- Settings panel (gear is in the header) -->
 <div id="settings-panel">
   <div class="settings-title">Appearance</div>
@@ -691,6 +710,9 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
     <button id="sp-size-lg" onclick="setPref('size','lg')" style="font-size:14px">A</button>
     <button id="sp-size-xl" onclick="setPref('size','xl')" style="font-size:16px">A</button>
   </div>
+  <div class="settings-title" style="margin-top:14px">This Is Me</div>
+  <select id="sp-identity" onchange="setIdentity(this.value)" style="width:100%;padding:10px 12px;border:1.5px solid #ccc;border-radius:10px;font-size:14px;background:var(--card,#fff);color:var(--text,#111)"></select>
+  <div style="font-size:11px;color:#999;margin-top:5px">Powers the ⭐ My tab & one-tap outing removal.</div>
   <button onclick="location.href='wgl-admin.html'" style="width:100%;margin-top:14px;padding:11px;border:1.5px solid var(--tint,#2e7d32);border-radius:10px;background:none;color:var(--tint,#2e7d32);font-size:13px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">🔐 Commissioner Login</button>
   <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(120,120,128,.2);font-size:11px;color:#999">WGL 2026 · Proto v2</div>
 </div>
@@ -1688,6 +1710,146 @@ async function submitSignup(){
   }
 }
 
+// ── Identity ("This Is Me") ───────────────────────────────────────────────────
+function getIdentity(){ try{ return localStorage.getItem('wgl_identity')||''; }catch(e){ return ''; } }
+function setIdentity(name){
+  try{ if(name) localStorage.setItem('wgl_identity',name); else localStorage.removeItem('wgl_identity'); }catch(e){}
+  buildMyTab(); renderIdentitySetting();
+}
+function renderIdentitySetting(){
+  const sel=document.getElementById('sp-identity'); if(!sel) return;
+  const me=getIdentity();
+  const names=Object.keys(D.players||{}).sort((a,b)=>a.localeCompare(b));
+  sel.innerHTML='<option value="">— Not set —</option>'+names.map(n=>`<option value="${n}"${n===me?' selected':''}>${n}</option>`).join('');
+}
+
+// ── ⭐ My tab ─────────────────────────────────────────────────────────────────
+function buildMyTab(){
+  const el=document.getElementById('my-body'); if(!el) return;
+  const me=getIdentity();
+  const p=(D.players||{})[me];
+  if(!me||!p){
+    el.innerHTML=`<div class="card"><div style="padding:26px 18px;text-align:center">
+      <div style="font-size:40px;margin-bottom:8px">⛳</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:6px">Make it yours</div>
+      <div style="font-size:13px;color:#888;margin-bottom:16px">Pick your name once in Settings and this tab becomes your personal season dashboard — scores, trends, and winnings.</div>
+      <button onclick="toggleSettings()" style="padding:12px 22px;background:var(--tint,#2e7d32);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">⚙️ Set “This Is Me”</button>
+    </div></div>`;
+    return;
+  }
+  // rounds from published weeks
+  const rounds=[];
+  Object.keys(WK_DATA).map(Number).sort((a,b)=>a-b).forEach(wk=>{
+    const d=WK_DATA[wk]; if(!d) return;
+    const r=(d.players||[]).find(x=>x.name===me);
+    if(r) rounds.push({wk:wk, gross:+r.gross, net:+r.net, hcp:+r.hcp});
+  });
+  const nets=rounds.map(r=>r.net), grosses=rounds.map(r=>r.gross);
+  const bestNet=nets.length?Math.min(...nets):null;
+  const bestGross=grosses.length?Math.min(...grosses):null;
+  const avgNet=nets.length?(nets.reduce((a,b)=>a+b,0)/nets.length):null;
+  // winnings
+  const wins=[];
+  for(const [wk,val] of Object.entries(D.weeklyPayouts||{})){
+    (val.skins||[]).forEach(s=>{ if(s.player===me) wins.push({wk:+wk,label:'💰 Skin — Hole '+s.hole,amount:s.amount||''}); });
+    if(val.lowNet&&val.lowNet.player===me) wins.push({wk:+wk,label:'⭐ Low Net',amount:val.lowNet.amount||''});
+  }
+  wins.sort((a,b)=>a.wk-b.wk);
+  const bank=(D.banked||{})[me]||[];
+  // sparkline (net trend)
+  let spark='';
+  if(rounds.length>=2){
+    const W=300,H=64,PAD=6;
+    const lo=Math.min(...nets), hi=Math.max(...nets), span=(hi-lo)||1;
+    const pts=rounds.map((r,i)=>{
+      const x=PAD+i*(W-2*PAD)/(rounds.length-1);
+      const y=PAD+(r.net-lo)*(H-2*PAD)/span;
+      return [x.toFixed(1),y.toFixed(1)];
+    });
+    spark=`<svg viewBox="0 0 ${W} ${H+16}" style="width:100%;height:auto;display:block">
+      <polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="var(--tint,#2e7d32)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      ${pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="var(--tint,#2e7d32)"/><text x="${p[0]}" y="${H+12}" text-anchor="middle" font-size="9" fill="#999">W${rounds[i].wk}</text>`).join('')}
+    </svg>
+    <div style="font-size:11px;color:#999;text-align:center;margin-top:2px">Net by week — lower is better</div>`;
+  }
+  const stat=(v,l)=>`<div style="flex:1;text-align:center;padding:10px 4px"><div style="font-size:22px;font-weight:800;color:var(--tint,#2e7d32)">${v}</div><div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em">${l}</div></div>`;
+  let html=`
+  <div class="card"><div style="padding:16px 14px">
+    <div style="font-size:20px;font-weight:800">${me}</div>
+    <div style="font-size:13px;color:#888;margin-top:2px">Team #${p.team}</div>
+    <div style="display:flex;margin-top:10px;border-top:1px solid rgba(120,120,128,.15)">
+      ${stat(p.hcp,'Handicap')}${stat(rounds.length,'Rounds')}${stat(bestNet!=null?bestNet:'—','Best Net')}${stat(avgNet!=null?avgNet.toFixed(1):'—','Avg Net')}
+    </div>
+  </div></div>`;
+  if(spark) html+=`<div class="card"><div class="card-hdr">📈 Trend</div><div style="padding:14px">${spark}</div></div>`;
+  if(rounds.length){
+    html+=`<div class="card"><div class="card-hdr">🗓 My Rounds</div><div style="padding:6px 14px">`+
+      rounds.slice().reverse().map(r=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(120,120,128,.12);font-size:14px">
+        <span style="font-weight:600">Week ${r.wk}</span>
+        <span style="color:#888">Gross ${r.gross} · HCP ${r.hcp}</span>
+        <span style="font-weight:800;color:var(--tint,#2e7d32)">Net ${r.net}</span>
+      </div>`).join('')+`</div></div>`;
+  } else {
+    html+=`<div class="card"><div style="padding:18px;text-align:center;font-size:13px;color:#999">No published rounds yet this season — check back after Monday night.</div></div>`;
+  }
+  if(wins.length){
+    html+=`<div class="card"><div class="card-hdr">🏆 My Winnings</div><div style="padding:6px 14px">`+
+      wins.map(w=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(120,120,128,.12);font-size:14px">
+        <span>${w.label}</span><span style="color:#888">Wk ${w.wk}</span><span style="font-weight:800;color:var(--tint,#2e7d32)">${w.amount?('$'+String(w.amount).replace(/^\$/,'')):'—'}</span>
+      </div>`).join('')+`</div></div>`;
+  }
+  if(bank.length){
+    html+=`<div class="card"><div class="card-hdr">🏦 My Banked Cards</div><div style="padding:6px 14px">`+
+      bank.map(b=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(120,120,128,.12);font-size:13px">
+        <span style="color:#888">${b.side==='front'?'Front':'Back'} 9 · played ${b.played}</span><span style="font-weight:700">Gross ${b.gross}</span>
+      </div>`).join('')+`</div></div>`;
+  }
+  el.innerHTML=html;
+}
+
+// ── First-run welcome ─────────────────────────────────────────────────────────
+function maybeShowWelcome(){
+  try{ if(getIdentity()||localStorage.getItem('wgl_welcome_done')) return; }catch(e){ return; }
+  const sel=document.getElementById('welcome-identity'); if(!sel) return;
+  const names=Object.keys(D.players||{}).sort((a,b)=>a.localeCompare(b));
+  if(!names.length) return;
+  sel.innerHTML='<option value="">— Pick your name —</option>'+names.map(n=>`<option>${n}</option>`).join('');
+  document.getElementById('welcome-modal-bg').style.display='flex';
+}
+function welcomeSave(){
+  const v=document.getElementById('welcome-identity').value;
+  if(!v){ document.getElementById('welcome-identity').style.borderColor='#c62828'; return; }
+  try{ localStorage.setItem('wgl_welcome_done','1'); }catch(e){}
+  document.getElementById('welcome-modal-bg').style.display='none';
+  setIdentity(v);
+}
+function welcomeSkip(){
+  try{ localStorage.setItem('wgl_welcome_done','1'); }catch(e){}
+  document.getElementById('welcome-modal-bg').style.display='none';
+}
+
+// ── Outing removal request ────────────────────────────────────────────────────
+async function requestOutingRemoval(which){
+  const isMid=which==='mid';
+  const label=isMid?'Mid-Season':'End-of-Season';
+  let name=getIdentity();
+  if(!name){ name=(window.prompt('Your name (First Last):')||'').trim(); }
+  if(!name) return;
+  if(!window.confirm('Ask the commissioner to remove '+name+' from the '+label+' outing list?')) return;
+  const o=isMid?D.outing:(D.outing2||{});
+  try{
+    const form=new URLSearchParams();
+    form.append('data',JSON.stringify({
+      type:'outing_remove', outing:isMid?'mid':'end', outingLabel:label,
+      outingDate:(o&&o.date)||'', name:name, submitted:new Date().toISOString()
+    }));
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:form});
+    alert('✅ Request sent — you\'ll be taken off the '+label+' list.');
+  }catch(err){
+    window.location.href='mailto:wglscore@gmail.com?subject='+encodeURIComponent('WGL '+label+' Outing REMOVAL: '+name)+'&body='+encodeURIComponent(name+' asking to be removed from the '+label+' outing sign-up list.');
+  }
+}
+
 // ── Dues ──────────────────────────────────────────────────────────────────────
 function buildDues(){
   const tbody=document.getElementById('dues-tbody');
@@ -2192,7 +2354,7 @@ function buildWeek(wk,elOverride){
 let D=MOCK_DATA;
 // Render immediately with default data so nothing is blank on load
 document.getElementById('app-subtitle').textContent=D.settings.subtitle;
-buildWeekDropdown();buildNews();buildOuting();buildDues();buildRoster();buildStandings();loadWeekResult(Math.max(...Object.keys(WK_DATA).map(Number)));
+buildWeekDropdown();buildNews();buildOuting();buildDues();buildRoster();buildStandings();renderIdentitySetting();buildMyTab();maybeShowWelcome();loadWeekResult(Math.max(...Object.keys(WK_DATA).map(Number)));
 
 let _lastRefresh=0;
 let _lastUpdatedTS='';
@@ -2225,7 +2387,7 @@ async function refreshData(force){
       document.getElementById('sync-label').textContent=`Live data · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
       // Re-render all dynamic sections with updated data
       document.getElementById('app-subtitle').textContent=D.settings.subtitle;
-      buildNews();buildOuting();buildDues();buildRoster();buildStandings();loadWeekResult(Math.max(...Object.keys(WK_DATA).map(Number)));
+      buildNews();buildOuting();buildDues();buildRoster();buildStandings();renderIdentitySetting();buildMyTab();maybeShowWelcome();loadWeekResult(Math.max(...Object.keys(WK_DATA).map(Number)));
     } else {
       document.getElementById('sync-label').textContent='Using cached data';
     }
