@@ -1,4 +1,4 @@
-const CACHE = 'wgl-v2'; // bumped 2026-07-16: fixed cross-origin fetch interception
+const CACHE = 'wgl-v9'; // bumped 2026-07-16: banked card badges on roster
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',

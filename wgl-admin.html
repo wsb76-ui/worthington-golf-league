@@ -7,66 +7,81 @@
 <title>WGL Admin</title>
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#f0f2f5; color:#1a1a1a; min-height:100vh; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg,#f0f2f5); color:var(--text,#1a1a1a); min-height:100vh; }
+body.font-rounded { font-family:ui-rounded,'SF Pro Rounded',-apple-system,BlinkMacSystemFont,sans-serif; }
+body.font-serif { font-family:ui-serif,'New York',Georgia,serif; }
+body.text-lg .tab-content { zoom:1.12; }
+body.text-xl .tab-content { zoom:1.25; }
 
 /* PIN */
 #pin-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:90vh; padding:24px; }
 .pin-logo { font-size:42px; margin-bottom:8px; }
-.pin-title { font-size:22px; font-weight:700; color:#1b5e20; margin-bottom:4px; }
+.pin-title { font-size:22px; font-weight:700; color:var(--tint,#1b5e20); margin-bottom:4px; }
 .pin-sub { font-size:13px; color:#888; margin-bottom:32px; }
 .pin-display { font-size:36px; font-weight:800; letter-spacing:12px; min-height:52px; margin-bottom:24px; text-align:center; }
 .pin-grid { display:grid; grid-template-columns:repeat(3,76px); gap:10px; justify-content:center; }
-.pin-btn { width:76px; height:76px; border-radius:50%; border:none; background:white; font-size:22px; font-weight:600; cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,.15); -webkit-tap-highlight-color:transparent; }
+.pin-btn { width:76px; height:76px; border-radius:50%; border:none; background:var(--card,white); color:var(--text,#1a1a1a); font-size:22px; font-weight:600; cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,.15); -webkit-tap-highlight-color:transparent; }
 .pin-btn:active { background:#f0f0f0; transform:scale(.9); }
 .pin-btn.del { font-size:18px; color:#888; }
 .pin-error { color:#c62828; font-size:13px; margin-top:12px; display:none; }
 
 /* App */
 #app { display:none; }
-.app-header { background:#1b5e20; color:white; padding:12px 14px 0; position:sticky; top:0; z-index:50; }
+.app-header { background:var(--hdr,#1b5e20); padding-top:calc(env(safe-area-inset-top) + 12px) !important; color:white; padding:12px 14px 0; position:sticky; top:0; z-index:50; }
 .header-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
 .header-row h1 { font-size:16px; font-weight:700; }
 .lock-btn { background:rgba(255,255,255,.2); border:none; color:white; border-radius:8px; padding:5px 11px; font-size:12px; font-weight:600; cursor:pointer; }
 
-/* Tabs */
-.tabs { display:flex; overflow-x:auto; scrollbar-width:none; border-top:1px solid rgba(255,255,255,.2); }
-.tabs::-webkit-scrollbar { display:none; }
-.tab { flex-shrink:0; padding:9px 13px; font-size:11px; font-weight:600; color:rgba(255,255,255,.6); cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
-.tab.active { color:white; border-bottom-color:white; }
-.tab-content { display:none; padding:12px 12px 100px; max-width:720px; margin:0 auto; }
+/* Bottom tab bar */
+.tabs { position:fixed; bottom:0; left:0; right:0; z-index:150; display:flex; background:var(--tabbar-bg,rgba(255,255,255,.88)); -webkit-backdrop-filter:blur(20px) saturate(180%); backdrop-filter:blur(20px) saturate(180%); border-top:.5px solid var(--line,rgba(0,0,0,.12)); padding-bottom:env(safe-area-inset-bottom); }
+.tab { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:2px; padding:7px 1px 6px; font-size:9px; font-weight:600; color:var(--tabbar-inactive,#8e8e93); cursor:pointer; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
+.tab .ticon { font-size:22px; line-height:1; opacity:.85; padding:2px 11px; border-radius:12px; transition:transform .15s ease, background .15s ease; }
+.tab.active { color:var(--tint,#2e7d32); }
+.tab.active .ticon { opacity:1; transform:scale(1.08); background:var(--tint-soft,rgba(46,125,50,.14)); }
+.tab:active .ticon { transform:scale(.88); }
+.tab-content { display:none; padding:12px 12px calc(80px + env(safe-area-inset-bottom)); max-width:720px; margin:0 auto; }
+/* More menu */
+.more-row { display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid var(--line-soft,#f0f0f0); font-size:15px; font-weight:600; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.more-row:last-child { border-bottom:none; }
+.more-row:active { background:var(--line-soft,#f5f5f5); }
+.more-row .mchev { margin-left:auto; opacity:.35; font-size:14px; }
+/* Segmented control */
+.seg { display:flex; background:rgba(120,120,128,.16); border-radius:9px; padding:2px; margin-bottom:14px; }
+.seg button { flex:1; border:none; background:none; padding:7px 2px; border-radius:7px; font-size:12px; font-weight:600; color:inherit; opacity:.65; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.seg button.on { background:var(--card,white); box-shadow:0 1px 3px rgba(0,0,0,.18); color:var(--tint,#2e7d32); opacity:1; }
 .tab-content.active { display:block; }
 
 /* Cards */
-.card { background:white; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.1); margin-bottom:12px; overflow:hidden; }
-.card-hdr { padding:11px 14px; font-weight:600; font-size:13px; border-bottom:1px solid #f0f0f0; background:#fafafa; display:flex; justify-content:space-between; align-items:center; }
+.card { background:var(--card,white); border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.1); margin-bottom:12px; overflow:hidden; }
+.card-hdr { padding:11px 14px; font-weight:600; font-size:13px; border-bottom:1px solid var(--line-soft,#f0f0f0); background:var(--card-hdr,#fafafa); display:flex; justify-content:space-between; align-items:center; }
 .card-body { padding:14px; }
 .section-lbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#888; margin:14px 0 7px; }
 
 /* Form */
 .field { margin-bottom:12px; }
 .field label { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#888; margin-bottom:4px; }
-.field input, .field select, .field textarea { width:100%; padding:9px 11px; border:1.5px solid #ddd; border-radius:8px; font-size:14px; font-family:inherit; background:white; -webkit-appearance:none; }
+.field input, .field select, .field textarea { width:100%; padding:9px 11px; border:1.5px solid var(--line,#ddd); border-radius:8px; font-size:14px; font-family:inherit; background:var(--input,white); color:var(--text,#1a1a1a); -webkit-appearance:none; }
 .field textarea { min-height:72px; resize:vertical; }
-.field input:focus, .field select:focus, .field textarea:focus { border-color:#2e7d32; outline:none; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color:var(--tint,#2e7d32); outline:none; }
 .row2 { display:flex; gap:8px; }
 .row2 .field { flex:1; }
 
 /* Table */
 table { width:100%; border-collapse:collapse; font-size:13px; }
-thead th { background:#f5f5f5; padding:7px 8px; text-align:center; font-size:11px; font-weight:700; color:#555; border-bottom:2px solid #eee; white-space:nowrap; }
+thead th { background:var(--th,#f5f5f5); padding:7px 8px; text-align:center; font-size:11px; font-weight:700; color:var(--muted,#555); border-bottom:2px solid var(--line-soft,#eee); white-space:nowrap; }
 thead th.lft { text-align:left; }
-tbody td { padding:7px 8px; border-bottom:1px solid #f5f5f5; text-align:center; }
+tbody td { padding:7px 8px; border-bottom:1px solid var(--line-soft,#f5f5f5); text-align:center; font-variant-numeric:tabular-nums; }
 tbody td.lft { text-align:left; }
 tbody tr:last-child td { border-bottom:none; }
-.team-hdr td { background:#1b5e20; color:white; font-size:11px; font-weight:700; text-transform:uppercase; padding:5px 8px; }
+.team-hdr td { background:var(--hdr,#1b5e20); color:white; font-size:11px; font-weight:700; text-transform:uppercase; padding:5px 8px; }
 
 /* Checkbox */
-.chk { width:20px; height:20px; cursor:pointer; accent-color:#2e7d32; }
+.chk { width:20px; height:20px; cursor:pointer; accent-color:var(--tint,#2e7d32); }
 
 /* Buttons */
 .btn { padding:10px 16px; border:none; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:opacity .15s; }
 .btn:active { opacity:.8; }
-.btn-green { background:#2e7d32; color:white; }
+.btn-green { background:var(--tint-btn,#2e7d32); color:var(--tint-btn-text,white); }
 .btn-blue { background:#1565c0; color:white; }
 .btn-red { background:#c62828; color:white; }
 .btn-gray { background:#eee; color:#555; }
@@ -85,26 +100,26 @@ tbody tr:last-child td { border-bottom:none; }
 .toggle input:checked + .toggle-track:before { transform:translateX(18px); }
 
 /* Announcement editor */
-.ann-card { border:1.5px solid #eee; border-radius:10px; padding:12px; margin-bottom:10px; }
+.ann-card { border:1.5px solid var(--line-soft,#eee); border-radius:10px; padding:12px; margin-bottom:10px; }
 .ann-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
 .ann-del { background:none; border:none; color:#ccc; font-size:20px; cursor:pointer; }
 .ann-del:active { color:#c62828; }
 
 /* Player list */
-.player-row { display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid #f5f5f5; }
+.player-row { display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid var(--line-soft,#f5f5f5); }
 .player-row:last-child { border-bottom:none; }
 .player-name { font-weight:600; font-size:14px; min-width:120px; }
 .player-meta { font-size:11px; color:#888; }
-.phone-input { flex:1; padding:6px 9px; border:1.5px solid #ddd; border-radius:7px; font-size:13px; min-width:0; }
+.phone-input { flex:1; padding:6px 9px; border:1.5px solid var(--line,#ddd); border-radius:7px; font-size:13px; min-width:0; background:var(--input,white); color:var(--text,#1a1a1a); }
 .phone-input:focus { border-color:#2e7d32; outline:none; }
 .rm-btn { background:none; border:none; color:#ddd; font-size:20px; cursor:pointer; flex-shrink:0; -webkit-tap-highlight-color:transparent; }
 .rm-btn:active { color:#c62828; }
 
 /* Add player form */
-.add-player-form { background:#f8f8f8; border-radius:10px; padding:14px; margin-top:10px; }
+.add-player-form { background:var(--th,#f8f8f8); border-radius:10px; padding:14px; margin-top:10px; }
 
 /* Publish panel */
-.publish-status { display:flex; align-items:center; gap:10px; padding:12px; background:#f5f5f5; border-radius:10px; font-size:13px; }
+.publish-status { display:flex; align-items:center; gap:10px; padding:12px; background:var(--th,#f5f5f5); border-radius:10px; font-size:13px; }
 .status-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
 .status-dot.green { background:#43a047; }
 .status-dot.yellow { background:#ffa000; }
@@ -114,11 +129,18 @@ tbody tr:last-child td { border-bottom:none; }
 .export-box { background:#1a1a1a; color:#4caf50; border-radius:8px; padding:12px; font-family:monospace; font-size:11px; line-height:1.6; max-height:240px; overflow-y:auto; margin-bottom:8px; white-space:pre-wrap; word-break:break-all; }
 
 /* Payout row */
-.payout-row { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid #f5f5f5; font-size:14px; }
+.payout-row { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--line-soft,#f5f5f5); font-size:14px; }
 .payout-row:last-child { border-bottom:none; }
 .rollover-opts { display:flex; gap:6px; flex-wrap:wrap; }
-.ro-btn { padding:4px 11px; border:1.5px solid #ddd; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; background:white; color:#555; -webkit-tap-highlight-color:transparent; }
-.ro-btn.active { background:#2e7d32; color:white; border-color:#2e7d32; }
+.ro-btn { padding:4px 11px; border:1.5px solid var(--line,#ddd); border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; background:var(--input,white); color:var(--muted,#555); -webkit-tap-highlight-color:transparent; }
+.ro-btn.active { background:var(--tint-btn,#2e7d32); color:var(--tint-btn-text,white); border-color:var(--tint-btn,#2e7d32); }
+
+/* ── Theme palettes (shared prefs with the league app) ── */
+body.theme-light-gold{--bg:#faf8f0;--card:#fff;--card-hdr:#fdfaf2;--input:#fff;--text:#1a1200;--muted:#6b6046;--line:#ddd2b8;--line-soft:#f0e9d8;--th:#f5efdf;--hdr:#2d1c00;--tint:#b8860b;--tint-soft:rgba(184,134,11,.14);--tint-btn:#b8860b;--tint-btn-text:#fff;--tabbar-bg:rgba(255,253,245,.9);--tabbar-inactive:#a89c78}
+body.theme-light-slate{--bg:#f0f4f8;--card:#fff;--card-hdr:#f7fafc;--input:#fff;--text:#1e293b;--muted:#64748b;--line:#cbd5e1;--line-soft:#e8eef4;--th:#eef3f8;--hdr:#0f2744;--tint:#0284c7;--tint-soft:rgba(2,132,199,.12);--tint-btn:#0284c7;--tint-btn-text:#fff;--tabbar-bg:rgba(240,244,248,.9);--tabbar-inactive:#94a3b8}
+body.theme-dark-turf{--bg:#071507;--card:#0f2d0f;--card-hdr:#123512;--input:#1a4a1a;--text:#e8f5e8;--muted:#6abf69;--line:#2d6a2d;--line-soft:#1a4a1a;--th:#1a4a1a;--hdr:#071507;--tint:#4ade80;--tint-soft:rgba(74,222,128,.18);--tint-btn:#166534;--tint-btn-text:#4ade80;--tabbar-bg:rgba(7,21,7,.88);--tabbar-inactive:#4a7a4a}
+body.theme-dark-gold{--bg:#0d1117;--card:#161b22;--card-hdr:#1b212a;--input:#21262d;--text:#e6edf3;--muted:#8b949e;--line:#30363d;--line-soft:#21262d;--th:#21262d;--hdr:#161b22;--tint:#c9a84c;--tint-soft:rgba(201,168,76,.18);--tint-btn:#c9a84c;--tint-btn-text:#0d1117;--tabbar-bg:rgba(13,17,23,.88);--tabbar-inactive:#6e7681}
+body.theme-dark-slate{--bg:#10141c;--card:#1e293b;--card-hdr:#233044;--input:#334155;--text:#f1f5f9;--muted:#94a3b8;--line:#475569;--line-soft:#334155;--th:#334155;--hdr:#0f2744;--tint:#38bdf8;--tint-soft:rgba(56,189,248,.18);--tint-btn:#0284c7;--tint-btn-text:#fff;--tabbar-bg:rgba(16,20,28,.88);--tabbar-inactive:#64748b}
 </style>
 </head>
 <body>
@@ -151,20 +173,56 @@ tbody tr:last-child td { border-bottom:none; }
   <div class="app-header">
     <div class="header-row">
       <h1>⛳ WGL Admin · 2026</h1>
-      <button class="lock-btn" onclick="lockApp()">🔒 Lock</button>
+      <div style="display:flex;gap:8px">
+        <button class="lock-btn" onclick="location.href='index.html'">📱 App</button>
+        <button class="lock-btn" onclick="lockApp()">🔒 Lock</button>
+      </div>
     </div>
     <div id="live-seed-status" style="font-size:11px;color:#aaa;padding:2px 0 4px;min-height:16px;text-align:right"></div>
-    <div class="tabs">
-      <div class="tab active" onclick="showTab('dues')">💵 Dues</div>
-      <div class="tab" onclick="showTab('players')">👥 Players</div>
-      <div class="tab" onclick="showTab('settings')">⚙️ Settings</div>
-      <div class="tab" onclick="showTab('announcements')">📣 News</div>
-      <div class="tab" onclick="showTab('outing')">🏆 Outing</div>
-      <div class="tab" onclick="showTab('winners')">🏅 Winners</div>
-      <div class="tab" onclick="showTab('payouts')">💰 Payouts</div>
-      <div class="tab" onclick="showTab('publish')">📤 Publish</div>
-      <div class="tab" onclick="showTab('season')">🔄 Season</div>
+  </div>
+
+  <!-- Bottom tab bar -->
+  <div class="tabs">
+    <div class="tab active" data-tab="dues" onclick="showTab('dues',this)"><span class="ticon">💵</span>Dues</div>
+    <div class="tab" data-tab="winners" onclick="showTab('winners',this)"><span class="ticon">🏅</span>Winners</div>
+    <div class="tab" data-tab="announcements" onclick="showTab('announcements',this)"><span class="ticon">📣</span>News</div>
+    <div class="tab" data-tab="publish" onclick="showTab('publish',this)"><span class="ticon">📤</span>Publish</div>
+    <div class="tab" data-tab="more" onclick="showTab('more',this)"><span class="ticon">⚙️</span>More</div>
+  </div>
+
+  <!-- MORE menu -->
+  <div id="more" class="tab-content">
+    <div class="card" style="margin-top:12px">
+      <div class="more-row" onclick="showTab('players')">👥 <span>Players &amp; Roster</span><span class="mchev">›</span></div>
+      <div class="more-row" onclick="showTab('outing')">🏆 <span>Outings</span><span class="mchev">›</span></div>
+      <div class="more-row" onclick="showTab('payouts')">💰 <span>Payouts</span><span class="mchev">›</span></div>
+      <div class="more-row" onclick="showTab('settings')">⚙️ <span>League Settings</span><span class="mchev">›</span></div>
+      <div class="more-row" onclick="showTab('season')">🔄 <span>Season Archive &amp; Reset</span><span class="mchev">›</span></div>
     </div>
+    <div class="section-lbl">Appearance</div>
+    <div class="card"><div class="card-body">
+      <div class="seg">
+        <button id="sp-mode-light" onclick="setPref('mode','light')">☀️ Light</button>
+        <button id="sp-mode-dark" onclick="setPref('mode','dark')">🌙 Dark</button>
+        <button id="sp-mode-auto" onclick="setPref('mode','auto')">Auto</button>
+      </div>
+      <div class="seg">
+        <button id="sp-color-turf" onclick="setPref('color','turf')">🌿 Turf</button>
+        <button id="sp-color-gold" onclick="setPref('color','gold')">✨ Gold</button>
+        <button id="sp-color-slate" onclick="setPref('color','slate')">🌊 Slate</button>
+      </div>
+      <div class="seg" style="margin-bottom:0">
+        <button id="sp-font-classic" onclick="setPref('font','classic')">Classic</button>
+        <button id="sp-font-rounded" onclick="setPref('font','rounded')" style="font-family:ui-rounded,-apple-system,sans-serif">Rounded</button>
+        <button id="sp-font-serif" onclick="setPref('font','serif')" style="font-family:ui-serif,Georgia,serif">Serif</button>
+      </div>
+      <div class="seg" style="margin:14px 0 0">
+        <button id="sp-size-md" onclick="setPref('size','md')" style="font-size:12px">A</button>
+        <button id="sp-size-lg" onclick="setPref('size','lg')" style="font-size:14px">A</button>
+        <button id="sp-size-xl" onclick="setPref('size','xl')" style="font-size:16px">A</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted,#999);margin-top:10px">Shared with the league app — set it once, applies to both.</div>
+    </div></div>
   </div>
 
   <!-- ── DUES & BUY-INS ─────────────────────────── -->
@@ -797,15 +855,44 @@ function lockApp(){
 }
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
-function showTab(id){
+const MORE_TABS=['more','players','outing','payouts','settings','season'];
+function showTab(id,el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  event.target.classList.add('active');
+  const barId=MORE_TABS.includes(id)?'more':id;
+  const barTab=document.querySelector('.tab[data-tab="'+barId+'"]');
+  if(barTab)barTab.classList.add('active');
+  window.scrollTo(0,0);
   if(id==='season')renderRolloverList();
   if(id==='winners')renderWeeklyWinners(+document.getElementById('wp-week').value||10);
   if(id==='payouts')renderRollover();
 }
+
+// ── Appearance prefs (shared localStorage keys with the league app) ──
+const THEME_MAP={turf:{light:'default',dark:'dark-turf'},gold:{light:'light-gold',dark:'dark-gold'},slate:{light:'light-slate',dark:'dark-slate'}};
+const PREF={
+  mode:localStorage.getItem('wgl-mode')||'auto',
+  color:localStorage.getItem('wgl-color')||'turf',
+  font:localStorage.getItem('wgl-font')||'classic',
+  size:localStorage.getItem('wgl-size')||'md'
+};
+const _sysDark=window.matchMedia('(prefers-color-scheme: dark)');
+if(_sysDark.addEventListener)_sysDark.addEventListener('change',()=>{if(PREF.mode==='auto')applyPrefs();});
+function setPref(k,v){PREF[k]=v;try{localStorage.setItem('wgl-'+k,v);}catch(e){}applyPrefs();}
+function applyPrefs(){
+  const dark=PREF.mode==='dark'||(PREF.mode==='auto'&&_sysDark.matches);
+  const cls=(THEME_MAP[PREF.color]||THEME_MAP.turf)[dark?'dark':'light'];
+  document.body.className='';
+  if(cls!=='default')document.body.classList.add('theme-'+cls);
+  if(PREF.font!=='classic')document.body.classList.add('font-'+PREF.font);
+  if(PREF.size!=='md')document.body.classList.add('text-'+PREF.size);
+  ['light','dark','auto'].forEach(m=>{const b=document.getElementById('sp-mode-'+m);if(b)b.classList.toggle('on',PREF.mode===m);});
+  ['turf','gold','slate'].forEach(c=>{const b=document.getElementById('sp-color-'+c);if(b)b.classList.toggle('on',PREF.color===c);});
+  ['classic','rounded','serif'].forEach(f=>{const b=document.getElementById('sp-font-'+f);if(b)b.classList.toggle('on',PREF.font===f);});
+  ['md','lg','xl'].forEach(z=>{const b=document.getElementById('sp-size-'+z);if(b)b.classList.toggle('on',PREF.size===z);});
+}
+applyPrefs();
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 function initApp(){
