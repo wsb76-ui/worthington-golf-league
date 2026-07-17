@@ -29,25 +29,39 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
 .hdr-inner { padding:10px 14px 0; }
 .hdr-inner h1 { font-size:17px; font-weight:700; }
 .hdr-sub { font-size:11px; opacity:.75; margin:1px 0 8px; }
-.tabs { display:flex; overflow-x:auto; scrollbar-width:none; border-top:1px solid rgba(255,255,255,.2); }
-.tabs::-webkit-scrollbar { display:none; }
-.tab { flex-shrink:0; padding:9px 12px; font-size:11px; font-weight:600; color:rgba(255,255,255,.6); cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
-.tab.active { color:white; border-bottom-color:white; }
-.tab-content { display:none; padding:12px 12px 90px; max-width:700px; margin:0 auto; }
+.tabs { position:fixed; bottom:0; left:0; right:0; z-index:150; display:flex; background:var(--tabbar-bg,rgba(255,255,255,.88)); -webkit-backdrop-filter:blur(20px) saturate(180%); backdrop-filter:blur(20px) saturate(180%); border-top:.5px solid var(--tabbar-line,rgba(0,0,0,.12)); padding-bottom:env(safe-area-inset-bottom); }
+.tab { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:2px; padding:7px 1px 6px; font-size:9px; font-weight:600; color:var(--tabbar-inactive,#8e8e93); cursor:pointer; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
+.tab .ticon { font-size:22px; line-height:1; opacity:.85; padding:2px 11px; border-radius:12px; transition:transform .15s ease, background .15s ease; }
+.tab.active { color:var(--tint,#2e7d32); }
+.tab.active .ticon { opacity:1; transform:scale(1.08); background:var(--tint-soft,rgba(46,125,50,.14)); }
+.tab:active .ticon { transform:scale(.88); }
+.tab-content { display:none; padding:12px 12px calc(76px + env(safe-area-inset-bottom)); max-width:700px; margin:0 auto; }
 .tab-content.active { display:block; }
 
 /* Cards */
 .card { background:var(--card,white); border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.1); margin-bottom:12px; overflow:hidden; }
 .card-hdr { padding:11px 14px; font-weight:700; font-size:13px; border-bottom:1px solid #f0f0f0; background:var(--card,white); }
 
-/* Settings gear */
-#gear-btn { position:fixed; bottom:28px; left:20px; width:50px; height:50px; border-radius:50%; background:#2e7d32; color:white; border:none; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 12px rgba(0,0,0,.25); z-index:100; -webkit-tap-highlight-color:transparent; transition:transform .3s; }
+/* Settings gear (in header) */
+#gear-btn { background:none; border:none; color:white; font-size:20px; cursor:pointer; padding:4px 2px 4px 10px; -webkit-tap-highlight-color:transparent; transition:transform .3s; opacity:.85; }
 #gear-btn.open { transform:rotate(90deg); }
-#settings-panel { position:fixed; bottom:90px; left:16px; width:240px; background:white; border-radius:16px; box-shadow:0 4px 24px rgba(0,0,0,.15); z-index:99; padding:16px; display:none; border:1px solid #ddd; }
+#settings-panel { position:fixed; top:calc(env(safe-area-inset-top) + 62px); right:12px; width:252px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,.22); z-index:200; padding:16px; display:none; border:1px solid #ddd; }
 #settings-panel.open { display:block; }
-.settings-title { font-size:12px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.06em; margin-bottom:12px; }
+.settings-title { font-size:11px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+.seg { display:flex; background:rgba(120,120,128,.16); border-radius:9px; padding:2px; margin-bottom:14px; }
+.seg button { flex:1; border:none; background:none; padding:7px 2px; border-radius:7px; font-size:12px; font-weight:600; color:inherit; opacity:.65; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.seg button.on { background:var(--card,white); box-shadow:0 1px 3px rgba(0,0,0,.18); color:var(--tint,#2e7d32); opacity:1; }
 .settings-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
 .settings-label { font-size:14px; }
+
+/* Font schemes */
+body.font-rounded { font-family:ui-rounded,'SF Pro Rounded',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
+body.font-serif { font-family:ui-serif,'New York',Georgia,'Times New Roman',serif; }
+table.standings td, .gps-dist-val, .score-val, .hcp-val, .rtotals { font-variant-numeric:tabular-nums; }
+
+/* Text size */
+body.text-lg .tab-content, body.text-lg .modal, body.text-lg #signup-modal, body.text-lg #sc-modal>div { zoom:1.12; }
+body.text-xl .tab-content, body.text-xl .modal, body.text-xl #signup-modal, body.text-xl #sc-modal>div { zoom:1.25; }
 .toggle { position:relative; width:44px; height:26px; flex-shrink:0; }
 .toggle input { opacity:0; width:0; height:0; }
 .toggle-track { position:absolute; inset:0; background:#ccc; border-radius:26px; cursor:pointer; transition:.2s; }
@@ -172,8 +186,6 @@ table.standings { width:100%; border-collapse:collapse; font-size:13px; }
 .hcp-val { font-size:18px; font-weight:800; color:#2e7d32; }
 
 /* Theme swatch buttons */
-.tswatch { border:2px solid transparent; border-radius:8px; padding:8px 4px; font-size:10px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; text-align:center; line-height:1.5; }
-.tswatch.active { box-shadow:0 0 0 2px white,0 0 0 4px rgba(0,0,0,.4); }
 
 /* GPS Distance tab */
 .gps-hole-btn { padding:9px 4px; border:1.5px solid #ddd; border-radius:8px; background:white; font-size:14px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; color:#333; }
@@ -187,12 +199,9 @@ table.standings { width:100%; border-collapse:collapse; font-size:13px; }
 
 <style id="theme-css">
 /* ── Dark Gold ─────────────────────────────────────────────── */
-body.theme-dark-gold{--bg:#0d1117;--card:#161b22;--text:#e6edf3}
+body.theme-dark-gold{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--tint:#c9a84c;--tabbar-bg:rgba(13,17,23,.88);--tabbar-line:#21262d;--tabbar-inactive:#6e7681;--tint-soft:rgba(201,168,76,.18)}
 body.theme-dark-gold .app-hdr{background:#161b22;border-bottom:1px solid #21262d}
 body.theme-dark-gold .hdr-inner h1,.theme-dark-gold .hdr-sub{color:#e6edf3}
-body.theme-dark-gold .tabs{border-top-color:#21262d}
-body.theme-dark-gold .tab{color:rgba(230,237,243,.4)}
-body.theme-dark-gold .tab.active{color:#c9a84c;border-bottom-color:#c9a84c}
 body.theme-dark-gold .sync-bar{background:#161b22;color:#c9a84c;border-bottom-color:#21262d}
 body.theme-dark-gold .sync-dot{background:#c9a84c}
 body.theme-dark-gold #gear-btn{background:#c9a84c;color:#0d1117}
@@ -233,11 +242,9 @@ body.theme-dark-gold .ann-info{border-left-color:#3b82f6}
 body.theme-dark-gold .ann-info .ann-tag{color:#3b82f6}
 
 /* ── Light Gold ────────────────────────────────────────────── */
-body.theme-light-gold{--bg:#faf8f0;--card:#fff;--text:#1a1200}
+body.theme-light-gold{--bg:#faf8f0;--card:#fff;--text:#1a1200;--tint:#b8860b;--tabbar-bg:rgba(255,253,245,.9);--tabbar-line:#e8dcc0;--tabbar-inactive:#a89c78;--tint-soft:rgba(184,134,11,.14)}
 body.theme-light-gold .app-hdr{background:#2d1c00}
 body.theme-light-gold .hdr-sub{opacity:.7}
-body.theme-light-gold .tab.active{color:#f0c040;border-bottom-color:#f0c040}
-body.theme-light-gold .tab{color:rgba(255,255,255,.55)}
 body.theme-light-gold .sync-bar{background:#fffdf0;color:#b8860b;border-bottom-color:#f0d060}
 body.theme-light-gold .sync-dot{background:#b8860b}
 body.theme-light-gold #gear-btn{background:#b8860b}
@@ -255,12 +262,9 @@ body.theme-light-gold .ann-item{border-left-color:#b8860b}
 body.theme-light-gold #modal-hcp{color:#b8860b!important}
 
 /* ── Dark Slate ────────────────────────────────────────────── */
-body.theme-dark-slate{--bg:#10141c;--card:#1e293b;--text:#f1f5f9}
+body.theme-dark-slate{--bg:#10141c;--card:#1e293b;--text:#f1f5f9;--tint:#38bdf8;--tabbar-bg:rgba(16,20,28,.88);--tabbar-line:#1e3a5f;--tabbar-inactive:#64748b;--tint-soft:rgba(56,189,248,.18)}
 body.theme-dark-slate .app-hdr{background:#0f2744;border-bottom:1px solid #1e3a5f}
 body.theme-dark-slate .hdr-inner h1,.theme-dark-slate .hdr-sub{color:#f1f5f9}
-body.theme-dark-slate .tab{color:rgba(241,245,249,.4)}
-body.theme-dark-slate .tab.active{color:#38bdf8;border-bottom-color:#38bdf8}
-body.theme-dark-slate .tabs{border-top-color:#1e3a5f}
 body.theme-dark-slate .sync-bar{background:#1e293b;color:#38bdf8;border-bottom-color:#334155}
 body.theme-dark-slate .sync-dot{background:#38bdf8}
 body.theme-dark-slate #gear-btn{background:#0284c7;color:white}
@@ -297,12 +301,9 @@ body.theme-dark-slate .hcp-row:active{background:#334155}
 body.theme-dark-slate .dues-summary,.theme-dark-slate .modal-meta{color:#94a3b8}
 
 /* ── Light Slate ───────────────────────────────────────────── */
-body.theme-light-slate{--bg:#f0f4f8;--card:#fff;--text:#1e293b}
+body.theme-light-slate{--bg:#f0f4f8;--card:#fff;--text:#1e293b;--tint:#0284c7;--tabbar-bg:rgba(240,244,248,.9);--tabbar-line:#cbd5e1;--tabbar-inactive:#94a3b8;--tint-soft:rgba(2,132,199,.12)}
 body.theme-light-slate .app-hdr{background:#0f2744}
 body.theme-light-slate .hdr-sub{opacity:.7}
-body.theme-light-slate .tab{color:rgba(255,255,255,.55)}
-body.theme-light-slate .tab.active{color:#38bdf8;border-bottom-color:#38bdf8}
-body.theme-light-slate .tabs{border-top-color:rgba(255,255,255,.2)}
 body.theme-light-slate .sync-bar{background:#e8f4fd;color:#0284c7;border-bottom-color:#bae6fd}
 body.theme-light-slate .sync-dot{background:#0284c7}
 body.theme-light-slate #gear-btn{background:#0284c7}
@@ -320,12 +321,9 @@ body.theme-light-slate .ann-item{border-left-color:#0284c7}
 body.theme-light-slate #modal-hcp{color:#0284c7!important}
 
 /* ── Dark Turf ─────────────────────────────────────────────── */
-body.theme-dark-turf{--bg:#071507;--card:#0f2d0f;--text:#e8f5e8}
+body.theme-dark-turf{--bg:#071507;--card:#0f2d0f;--text:#e8f5e8;--tint:#4ade80;--tabbar-bg:rgba(7,21,7,.88);--tabbar-line:#1a4a1a;--tabbar-inactive:#4a7a4a;--tint-soft:rgba(74,222,128,.18)}
 body.theme-dark-turf .app-hdr{background:#071507;border-bottom:1px solid #1a4a1a}
 body.theme-dark-turf .hdr-inner h1,.theme-dark-turf .hdr-sub{color:#e8f5e8}
-body.theme-dark-turf .tab{color:rgba(232,245,232,.4)}
-body.theme-dark-turf .tab.active{color:#4ade80;border-bottom-color:#4ade80}
-body.theme-dark-turf .tabs{border-top-color:#1a4a1a}
 body.theme-dark-turf .sync-bar{background:#0f2d0f;color:#4ade80;border-bottom-color:#1a4a1a}
 body.theme-dark-turf .sync-dot{background:#4ade80}
 body.theme-dark-turf #gear-btn{background:#166534;color:#4ade80}
@@ -373,18 +371,24 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
 
 <!-- Header -->
 <div class="app-hdr">
-  <div class="hdr-inner">
-    <h1>⛳ Worthington Golf League</h1>
-    <div class="hdr-sub" id="app-subtitle">Monday Nights · Hiland Golf Course · Week 11 Upcoming</div>
+  <div class="hdr-inner" style="display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:10px">
+    <div>
+      <h1>⛳ Worthington Golf League</h1>
+      <div class="hdr-sub" id="app-subtitle">Monday Nights · Hiland Golf Course · Week 11 Upcoming</div>
+    </div>
+    <button id="gear-btn" onclick="toggleSettings()">⚙️</button>
   </div>
-  <div class="tabs">
-    <div class="tab active" onclick="showTab('scorecard',this)">📝 Score Card</div>
-    <div class="tab" onclick="showTab('results',this)">📋 Results</div>
-    <div class="tab" onclick="showTab('standings',this)">📊 Standings</div>
-    <div class="tab" onclick="showTab('news',this)">📣 News</div>
-    <div class="tab" onclick="showTab('outing',this)">🏆 Outing</div>
-    <div class="tab" onclick="showTab('dues',this)">💵 Dues</div>
-  </div>
+</div>
+
+<!-- Bottom tab bar -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab('scorecard',this)"><span class="ticon">📝</span>Score</div>
+  <div class="tab" onclick="showTab('results',this)"><span class="ticon">📋</span>Results</div>
+  <div class="tab" onclick="showTab('standings',this)"><span class="ticon">📊</span>Standings</div>
+  <div class="tab" onclick="showTab('news',this)"><span class="ticon">📣</span>News</div>
+  <div class="tab" onclick="showTab('roster',this)"><span class="ticon">👥</span>Roster</div>
+  <div class="tab" onclick="showTab('outing',this)"><span class="ticon">🏆</span>Outing</div>
+  <div class="tab" onclick="showTab('dues',this)"><span class="ticon">💵</span>Dues</div>
 </div>
 
 <!-- SCORE CARD — 3-step prototype -->
@@ -406,7 +410,7 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
       <button id="sc-type-practice" onclick="scSetCardType('practice')"
         style="padding:9px 6px;border:1.5px solid #ddd;border-radius:8px;font-size:12px;font-weight:700;background:white;color:#555;cursor:pointer;-webkit-tap-highlight-color:transparent">Practice</button>
     </div>
-    <div id="sc-target-week-row" style="display:none;background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:13px;display:none">
+    <div id="sc-target-week-row" style="display:none;background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:13px">
       <span style="font-weight:600;color:#555">Target Week: </span>
       <input id="sc-target-week" type="number" min="1" max="20"
         onchange="scSetTargetWeek(this.value)"
@@ -580,7 +584,7 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
 
 <!-- Sign-up modal (shared for both outings) -->
 <div id="signup-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;align-items:flex-end;justify-content:center" onclick="closeSignupForm(event)">
-  <div id="signup-modal" style="background:white;border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:500px">
+  <div id="signup-modal" style="background:white;color:#1a1a1a;border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:500px">
     <div style="font-size:18px;font-weight:700;margin-bottom:4px" id="signup-modal-title">Sign Up for the Outing</div>
     <div style="font-size:13px;color:#888;margin-bottom:18px" id="signup-modal-sub"></div>
     <div style="margin-bottom:14px">
@@ -608,18 +612,7 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
     <div style="padding:12px 14px;display:flex;align-items:center;gap:12px">
       <label style="font-size:13px;font-weight:600;color:#555;white-space:nowrap">📋 View Week</label>
       <select id="week-select" onchange="loadWeekResult(+this.value)"
-        style="flex:1;padding:9px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;font-weight:600;background:white;-webkit-appearance:none;appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22%23888%22 d=%22M6 8L1 3h10z%22/></svg>');background-repeat:no-repeat;background-position:right 10px center">
-        <option value="10">Week 10 — July 13</option>
-        <option value="9">Week 9 — June 30</option>
-        <option value="8">Week 8 — June 23</option>
-        <option value="7">Week 7 — June 16</option>
-        <option value="6">Week 6 — June 9</option>
-        <option value="5">Week 5 — June 2</option>
-        <option value="4">Week 4 — May 26</option>
-        <option value="3">Week 3 — May 19</option>
-        <option value="2">Week 2 — May 12</option>
-        <option value="1">Week 1 — May 5</option>
-      </select>
+        style="flex:1;padding:9px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;font-weight:600;background:white;-webkit-appearance:none;appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22></select>
     </div>
   </div>
   <div id="week-result-body"></div>
@@ -627,7 +620,7 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
 
 <!-- Scorecard Modal -->
 <div id="sc-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:999;align-items:flex-end;justify-content:center" onclick="if(event.target===this)closeScModal()">
-  <div style="background:white;border-radius:18px 18px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:0 0 24px">
+  <div style="background:white;color:#1a1a1a;border-radius:18px 18px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:0 0 24px">
     <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 16px 10px">
       <div>
         <div id="sc-title" style="font-size:16px;font-weight:700;color:#1b5e20"></div>
@@ -672,19 +665,34 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
   </div>
 </div>
 
-<!-- Gear button -->
-<button id="gear-btn" onclick="toggleSettings()">⚙️</button>
+<!-- Settings panel (gear is in the header) -->
 <div id="settings-panel">
-  <div class="settings-title">🎨 Theme</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px">
-    <button class="tswatch" id="sw-default" onclick="applyTheme('default')" style="background:#1b5e20;color:white">🌿<br>Turf</button>
-    <button class="tswatch" id="sw-dark-turf" onclick="applyTheme('dark-turf')" style="background:#071507;color:#4ade80">🌑<br>Night</button>
-    <button class="tswatch" id="sw-dark-gold" onclick="applyTheme('dark-gold')" style="background:#0d1117;color:#c9a84c">✨<br>Gold</button>
-    <button class="tswatch" id="sw-light-gold" onclick="applyTheme('light-gold')" style="background:#fffdf5;color:#b8860b;border:1px solid #e0d0a0">☀️<br>Amber</button>
-    <button class="tswatch" id="sw-dark-slate" onclick="applyTheme('dark-slate')" style="background:#10141c;color:#38bdf8">🌊<br>Slate</button>
-    <button class="tswatch" id="sw-light-slate" onclick="applyTheme('light-slate')" style="background:#f0f4f8;color:#0284c7;border:1px solid #bae6fd">💎<br>Sky</button>
+  <div class="settings-title">Appearance</div>
+  <div class="seg">
+    <button id="sp-mode-light" onclick="setPref('mode','light')">☀️ Light</button>
+    <button id="sp-mode-dark" onclick="setPref('mode','dark')">🌙 Dark</button>
+    <button id="sp-mode-auto" onclick="setPref('mode','auto')">Auto</button>
   </div>
-  <div style="margin-top:4px;padding-top:12px;border-top:1px solid #eee;font-size:11px;color:#999">WGL 2026 · Proto v1</div>
+  <div class="settings-title">Color</div>
+  <div class="seg">
+    <button id="sp-color-turf" onclick="setPref('color','turf')">🌿 Turf</button>
+    <button id="sp-color-gold" onclick="setPref('color','gold')">✨ Gold</button>
+    <button id="sp-color-slate" onclick="setPref('color','slate')">🌊 Slate</button>
+  </div>
+  <div class="settings-title">Font</div>
+  <div class="seg">
+    <button id="sp-font-classic" onclick="setPref('font','classic')">Classic</button>
+    <button id="sp-font-rounded" onclick="setPref('font','rounded')" style="font-family:ui-rounded,-apple-system,sans-serif">Rounded</button>
+    <button id="sp-font-serif" onclick="setPref('font','serif')" style="font-family:ui-serif,Georgia,serif">Serif</button>
+  </div>
+  <div class="settings-title">Text Size</div>
+  <div class="seg">
+    <button id="sp-size-md" onclick="setPref('size','md')" style="font-size:12px">A</button>
+    <button id="sp-size-lg" onclick="setPref('size','lg')" style="font-size:14px">A</button>
+    <button id="sp-size-xl" onclick="setPref('size','xl')" style="font-size:16px">A</button>
+  </div>
+  <button onclick="location.href='wgl-admin.html'" style="width:100%;margin-top:14px;padding:11px;border:1.5px solid var(--tint,#2e7d32);border-radius:10px;background:none;color:var(--tint,#2e7d32);font-size:13px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">🔐 Commissioner Login</button>
+  <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(120,120,128,.2);font-size:11px;color:#999">WGL 2026 · Proto v2</div>
 </div>
 
 <!-- Player Modal -->
@@ -703,6 +711,10 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
     <div class="modal-row">
       <span>👥 Team</span>
       <span id="modal-team">—</span>
+    </div>
+    <div id="modal-bank-row" style="display:none;padding:11px 0;border-bottom:1px solid #f5f5f5">
+      <div style="font-size:11px;font-weight:700;color:var(--tint,#2e7d32);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Banked Cards</div>
+      <div id="modal-bank-list"></div>
     </div>
     <div class="modal-row" id="modal-call-row" style="display:none">
       <span>Call / Text</span>
@@ -1621,24 +1633,40 @@ function closeSignupForm(e){
     document.getElementById('signup-modal-bg').style.display='none';
   }
 }
-function submitSignup(){
+async function submitSignup(){
   const name=document.getElementById('signup-name').value.trim();
   const notes=document.getElementById('signup-notes').value.trim();
   if(!name){document.getElementById('signup-name').style.borderColor='#c62828';document.getElementById('signup-name').focus();return;}
   document.getElementById('signup-name').style.borderColor='';
   const isMid=_signupForOuting==='mid';
   const label=isMid?'Mid-Season':'End-of-Season';
-  const o=D.outing;
-  const subject=encodeURIComponent('WGL '+label+' Outing Sign-Up: '+name);
-  const body=encodeURIComponent(
-    'Hi,\n\nI would like to sign up for the WGL '+label+' Outing.\n\n'+
-    'Name: '+name+'\n'+
-    (isMid&&o.date?'Date: '+o.date+'\n':'')+
-    (notes?'Notes: '+notes+'\n':'')+
-    '\nThanks!'
-  );
-  window.location.href='mailto:wglscore@gmail.com?subject='+subject+'&body='+body;
-  document.getElementById('signup-modal-bg').style.display='none';
+  const o=isMid?D.outing:(D.outing2||{});
+  try{
+    const form=new URLSearchParams();
+    form.append('data',JSON.stringify({
+      type:'outing_signup',
+      outing:isMid?'mid':'end',
+      outingLabel:label,
+      outingDate:o.date||'',
+      name, notes,
+      submitted:new Date().toISOString()
+    }));
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:form});
+    document.getElementById('signup-modal-bg').style.display='none';
+    alert('✅ You\'re signed up for the '+label+' Outing, '+name+'!');
+  }catch(err){
+    // Network error — fall back to email
+    const subject=encodeURIComponent('WGL '+label+' Outing Sign-Up: '+name);
+    const body=encodeURIComponent(
+      'Hi,\n\nI would like to sign up for the WGL '+label+' Outing.\n\n'+
+      'Name: '+name+'\n'+
+      (o.date?'Date: '+o.date+'\n':'')+
+      (notes?'Notes: '+notes+'\n':'')+
+      '\nThanks!'
+    );
+    window.location.href='mailto:wglscore@gmail.com?subject='+subject+'&body='+body;
+    document.getElementById('signup-modal-bg').style.display='none';
+  }
 }
 
 // ── Dues ──────────────────────────────────────────────────────────────────────
@@ -1679,9 +1707,11 @@ function buildRoster(){
       html+=`<div class="roster-team"><div class="roster-team-hdr">Team #${p.team}</div><div class="card" style="border-radius:0 0 12px 12px;margin-bottom:12px">`;
     }
     const hasPhone=!!(p.phone);
+    const bank=(D.banked&&D.banked[p.name])||[];
+    const bankBadge=bank.length?` <span style="background:var(--tint-soft,rgba(46,125,50,.14));color:var(--tint,#2e7d32);border-radius:12px;font-size:11px;font-weight:800;padding:1px 8px;vertical-align:1px">🏦 ${bank.length}</span>`:'';
     html+=`<div class="roster-player" onclick="openModal(${i})">
       <div style="flex:1">
-        <div class="rp-name">${p.name}</div>
+        <div class="rp-name">${p.name}${bankBadge}</div>
         <div class="rp-hcp">HCP ${p.hcp} · ${hasPhone?'📞 '+p.phone:'no phone on file'}</div>
       </div>
       <span class="${hasPhone?'call-btn':'call-btn no-phone'}">${hasPhone?'📞 Info':'Info'}</span>
@@ -1708,6 +1738,17 @@ function openModal(i){
     document.getElementById('modal-phone').textContent='Not on file';
     document.getElementById('modal-call-row').style.display='none';
   }
+  // Banked cards for this player
+  const bankRow=document.getElementById('modal-bank-row');
+  const bank=(D.banked&&D.banked[p.name])||[];
+  if(bank.length){
+    bankRow.style.display='block';
+    document.getElementById('modal-bank-list').innerHTML=bank.map(b=>
+      `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px">
+        <span style="opacity:.7">🏦 ${b.side==='front'?'Front':'Back'} 9 · played ${b.played}</span>
+        <span style="font-weight:700">Gross ${b.gross} <span style="opacity:.55;font-weight:600">(HCP ${b.hcp})</span></span>
+      </div>`).join('');
+  } else bankRow.style.display='none';
   document.getElementById('player-modal').classList.add('open');
 }
 function closeModal(e){
@@ -1738,17 +1779,39 @@ function closeSettings(){
   document.getElementById('settings-panel').classList.remove('open');
   document.getElementById('gear-btn').classList.remove('open');
 }
-const THEMES=['default','dark-gold','light-gold','dark-slate','light-slate','dark-turf'];
-function applyTheme(name){
-  THEMES.forEach(t=>document.body.classList.remove('theme-'+t));
-  document.querySelectorAll('.tswatch').forEach(b=>b.style.outline='');
-  if(name&&name!=='default')document.body.classList.add('theme-'+name);
-  const btn=document.getElementById('sw-'+name);
-  if(btn)btn.style.outline='3px solid white';
-  try{localStorage.setItem('wgl-theme',name);}catch(e){}
+const THEME_MAP={turf:{light:'default',dark:'dark-turf'},gold:{light:'light-gold',dark:'dark-gold'},slate:{light:'light-slate',dark:'dark-slate'}};
+const PREF={
+  mode:localStorage.getItem('wgl-mode')||'auto',
+  color:localStorage.getItem('wgl-color')||'turf',
+  font:localStorage.getItem('wgl-font')||'classic',
+  size:localStorage.getItem('wgl-size')||'md'
+};
+// Migrate old single-theme setting (pre-v2)
+(function(){
+  try{
+    const old=localStorage.getItem('wgl-theme');
+    if(old&&!localStorage.getItem('wgl-color')){
+      const m={'default':['turf','light'],'dark-turf':['turf','dark'],'dark-gold':['gold','dark'],'light-gold':['gold','light'],'dark-slate':['slate','dark'],'light-slate':['slate','light']}[old];
+      if(m){PREF.color=m[0];PREF.mode=m[1];localStorage.setItem('wgl-color',m[0]);localStorage.setItem('wgl-mode',m[1]);}
+    }
+  }catch(e){}
+})();
+const _sysDark=window.matchMedia('(prefers-color-scheme: dark)');
+if(_sysDark.addEventListener)_sysDark.addEventListener('change',()=>{if(PREF.mode==='auto')applyPrefs();});
+function setPref(k,v){PREF[k]=v;try{localStorage.setItem('wgl-'+k,v);}catch(e){}applyPrefs();}
+function applyPrefs(){
+  const dark=PREF.mode==='dark'||(PREF.mode==='auto'&&_sysDark.matches);
+  const cls=(THEME_MAP[PREF.color]||THEME_MAP.turf)[dark?'dark':'light'];
+  document.body.className='';
+  if(cls!=='default')document.body.classList.add('theme-'+cls);
+  if(PREF.font!=='classic')document.body.classList.add('font-'+PREF.font);
+  if(PREF.size!=='md')document.body.classList.add('text-'+PREF.size);
+  ['light','dark','auto'].forEach(m=>{const b=document.getElementById('sp-mode-'+m);if(b)b.classList.toggle('on',PREF.mode===m);});
+  ['turf','gold','slate'].forEach(c=>{const b=document.getElementById('sp-color-'+c);if(b)b.classList.toggle('on',PREF.color===c);});
+  ['classic','rounded','serif'].forEach(f=>{const b=document.getElementById('sp-font-'+f);if(b)b.classList.toggle('on',PREF.font===f);});
+  ['md','lg','xl'].forEach(z=>{const b=document.getElementById('sp-size-'+z);if(b)b.classList.toggle('on',PREF.size===z);});
 }
-// Restore saved theme on load
-(function(){try{applyTheme(localStorage.getItem('wgl-theme')||'default');}catch(e){applyTheme('default');}})();
+applyPrefs();
 document.addEventListener('click',e=>{
   const panel=document.getElementById('settings-panel');
   if(panel.classList.contains('open')&&!panel.contains(e.target)&&!document.getElementById('gear-btn').contains(e.target))closeSettings();
@@ -1873,41 +1936,79 @@ function buildStandings(){
   html+=`</tbody></table></div></div>
   <div style="font-size:11px;color:#aaa;text-align:center;padding:4px">Lower total = better · 4 lowest nets count · ⚠ = short team (+50 penalty)</div>`;
 
-  // ── Recent week payouts (shown at bottom of Standings tab) ──
+  // ── Skins & Low Net results — all weeks, newest first ──
   const _wpData=D.weeklyPayouts||{};
-  const _wpWeeks=Object.keys(_wpData).map(Number).sort((a,b)=>b-a);
-  const _recentWk=_wpWeeks.find(w=>{const p=_wpData[w];return(p.skins&&p.skins.length>0)||(p.lowNet&&p.lowNet.player);});
-  if(_recentWk!==undefined){
-    const wp=_wpData[_recentWk];
-    html+=`<div class="card" style="margin-top:12px">
-      <div class="card-hdr" style="background:#f9f9f9;font-size:13px;font-weight:700;color:#555">💰 Week ${_recentWk} Payouts</div>`;
-    if(wp.skins&&wp.skins.length>0){
-      html+=`<div style="padding:6px 14px 2px;font-size:11px;font-weight:700;color:#e65100;text-transform:uppercase;letter-spacing:.05em">🏆 Skins</div>
+  const _wpWeeks=Object.keys(_wpData).map(Number)
+    .filter(w=>{const p=_wpData[w];return(p.skins&&p.skins.length>0)||(p.lowNet&&p.lowNet.player);})
+    .sort((a,b)=>b-a);
+  if(_wpWeeks.length){
+    html+=`<div class="card" style="margin-top:12px"><div class="card-hdr">💰 Skins & Low Net</div>`;
+    _wpWeeks.forEach((wk,wi)=>{
+      const wp=_wpData[wk];
+      html+=`<div style="padding:9px 14px 3px;font-size:11px;font-weight:800;color:var(--tint,#2e7d32);text-transform:uppercase;letter-spacing:.06em${wi>0?';border-top:1px solid rgba(120,120,128,.18);margin-top:4px':''}">Week ${wk}</div>
       <table style="width:100%;border-collapse:collapse;font-size:13px">`;
-      for(const s of wp.skins){
-        html+=`<tr style="border-bottom:1px solid #f5f5f5">
-          <td style="padding:8px 14px;font-weight:600">${s.player}</td>
-          <td style="padding:8px 8px;color:#888;font-size:12px">Hole ${s.hole}</td>
-          <td style="padding:8px 14px;text-align:right;font-weight:700;color:#2e7d32">$${s.amount}</td>
+      for(const sk of (wp.skins||[])){
+        html+=`<tr>
+          <td style="padding:7px 14px;font-weight:600">${sk.player}</td>
+          <td style="padding:7px 4px;opacity:.6;font-size:12px;white-space:nowrap">🏆 Skin · H${sk.hole}</td>
+          <td style="padding:7px 14px;text-align:right;font-weight:700;color:var(--tint,#2e7d32);font-variant-numeric:tabular-nums">${sk.amount?'$'+sk.amount:''}</td>
+        </tr>`;
+      }
+      if(wp.lowNet&&wp.lowNet.player){
+        html+=`<tr>
+          <td style="padding:7px 14px;font-weight:600">${wp.lowNet.player}</td>
+          <td style="padding:7px 4px;opacity:.6;font-size:12px;white-space:nowrap">⭐ Low Net</td>
+          <td style="padding:7px 14px;text-align:right;font-weight:700;color:var(--tint,#2e7d32);font-variant-numeric:tabular-nums">${wp.lowNet.amount?'$'+wp.lowNet.amount:''}</td>
         </tr>`;
       }
       html+=`</table>`;
-    }
-    if(wp.lowNet&&wp.lowNet.player){
-      html+=`<div style="padding:6px 14px 2px;font-size:11px;font-weight:700;color:#0d47a1;text-transform:uppercase;letter-spacing:.05em;border-top:1px solid #f0f0f0;margin-top:4px">⭐ Low Net</div>
-      <table style="width:100%;border-collapse:collapse;font-size:13px">
-        <tr><td style="padding:8px 14px;font-weight:600">${wp.lowNet.player}</td>
-        <td style="padding:8px 14px;text-align:right;font-weight:700;color:#2e7d32">${wp.lowNet.amount?'$'+wp.lowNet.amount:''}</td></tr>
-      </table>`;
-    }
+    });
     html+=`</div>`;
+
+    // ── Season money leaders (only once 2+ weeks have results) ──
+    if(_wpWeeks.length>1){
+      const money={};
+      const add=(name,amt)=>{const v=parseFloat(String(amt||'').replace(/[^0-9.]/g,''));if(name&&v>0)money[name]=(money[name]||0)+v;};
+      for(const wk of _wpWeeks){
+        const wp=_wpData[wk];
+        for(const sk of (wp.skins||[]))add(sk.player,sk.amount);
+        if(wp.lowNet)add(wp.lowNet.player,wp.lowNet.amount);
+      }
+      const leaders=Object.entries(money).sort((a,b)=>b[1]-a[1]).slice(0,10);
+      if(leaders.length){
+        html+=`<div class="card" style="margin-top:12px"><div class="card-hdr">💵 Season Money Leaders</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">`;
+        leaders.forEach(([name,amt],i)=>{
+          const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`<span style="opacity:.4;font-size:12px">${i+1}</span>`;
+          html+=`<tr>
+            <td style="padding:8px 14px;width:34px;text-align:center">${medal}</td>
+            <td style="padding:8px 4px;font-weight:600">${name}</td>
+            <td style="padding:8px 14px;text-align:right;font-weight:700;color:var(--tint,#2e7d32);font-variant-numeric:tabular-nums">$${amt%1===0?amt:amt.toFixed(2)}</td>
+          </tr>`;
+        });
+        html+=`</table></div>`;
+      }
+    }
   }
 
   el.innerHTML=html;
 }
 
+function buildWeekDropdown(){
+  const sel=document.getElementById('week-select');
+  if(!sel)return;
+  const cur=+sel.value||0;
+  const wks=Object.keys(WK_DATA).map(Number).sort((a,b)=>b-a);
+  sel.innerHTML=wks.map(w=>{
+    const d=WK_DATA[w]||{};
+    return `<option value="${w}">Week ${w}${d.date?' — '+d.date.replace(/^\w+, /,''):''}</option>`;
+  }).join('');
+  if(cur&&wks.includes(cur))sel.value=cur;
+}
 function loadWeekResult(wk){
   const el=document.getElementById('week-result-body');
+  const sel=document.getElementById('week-select');
+  if(sel&&+sel.value!==+wk)sel.value=wk;
   buildWeek(wk,el);
 }
 
@@ -2072,7 +2173,7 @@ function buildWeek(wk,elOverride){
 let D=MOCK_DATA;
 // Render immediately with default data so nothing is blank on load
 document.getElementById('app-subtitle').textContent=D.settings.subtitle;
-buildNews();buildOuting();buildDues();buildRoster();buildStandings();loadWeekResult(10);
+buildWeekDropdown();buildNews();buildOuting();buildDues();buildRoster();buildStandings();loadWeekResult(Math.max(...Object.keys(WK_DATA).map(Number)));
 
 let _lastRefresh=0;
 let _lastUpdatedTS='';
@@ -2100,10 +2201,12 @@ async function refreshData(force){
       if(json.buyins)D.buyins=json.buyins;
       if(json.duesPaid)D.duesPaid=json.duesPaid;
       if(json.weeklyPayouts)D.weeklyPayouts=json.weeklyPayouts;
+      if(json.weeks){for(const[k,v]of Object.entries(json.weeks))WK_DATA[+k]=v;buildWeekDropdown();}
+      D.banked=json.banked||{};
       document.getElementById('sync-label').textContent=`Live data · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
       // Re-render all dynamic sections with updated data
       document.getElementById('app-subtitle').textContent=D.settings.subtitle;
-      buildNews();buildOuting();buildDues();buildRoster();buildStandings();loadWeekResult(10);
+      buildNews();buildOuting();buildDues();buildRoster();buildStandings();loadWeekResult(Math.max(...Object.keys(WK_DATA).map(Number)));
     } else {
       document.getElementById('sync-label').textContent='Using cached data';
     }
@@ -2190,7 +2293,10 @@ function gpsGetDistance(){
       const{latitude:lat,longitude:lon,accuracy:acc}=pos.coords;
       const g=GREENS[holeNum];
       if(!g){status.textContent='No green data for hole '+holeNum+'.';btn.textContent='📍 Locate';btn.disabled=false;return;}
-      document.getElementById('gps-front').textContent=haversineYards(lat,lon,g.f[0],g.f[1]);
+      // Front = closest edge of green (front, left, or right waypoint — whichever is nearest)
+      const edges=[g.f,g.l,g.rt].filter(Boolean);
+      const frontYds=Math.min(...edges.map(e=>haversineYards(lat,lon,e[0],e[1])));
+      document.getElementById('gps-front').textContent=frontYds;
       document.getElementById('gps-center').textContent=haversineYards(lat,lon,g.c[0],g.c[1]);
       document.getElementById('gps-back').textContent=haversineYards(lat,lon,g.r[0],g.r[1]);
       status.textContent='±'+Math.round(acc)+' m'+(acc>15?' · move to open sky':'');
