@@ -1,4 +1,4 @@
-const CACHE = 'wgl-v9'; // bumped 2026-07-16: banked card badges on roster
+const CACHE = 'wgl-v10'; // bumped 2026-07-16: read-only styling on results
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',

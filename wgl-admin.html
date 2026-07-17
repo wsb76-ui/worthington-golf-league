@@ -1462,21 +1462,51 @@ async function publishToGitHub(){
   btn.textContent='⏳ Publishing…'; btn.disabled=true;
   res.style.display='none';
   try {
-    // Helper: fetch current SHA (cache-busted so GitHub CDN never returns stale data)
-    const fetchSha=async()=>{
+    // Helper: fetch current SHA + live content (cache-busted so GitHub CDN never returns stale data)
+    const fetchMeta=async()=>{
       const r=await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}?t=${Date.now()}`,{
         headers:{'Authorization':`token ${tok}`,'Accept':'application/vnd.github.v3+json','Cache-Control':'no-cache'}
       });
-      if(r.ok){const d=await r.json();return d.sha||'';}
-      return '';
+      if(r.ok){
+        const d=await r.json();
+        let live=null;
+        try{live=JSON.parse(decodeURIComponent(escape(atob((d.content||'').replace(/\n/g,'')))));}catch(e){}
+        return {sha:d.sha||'',live};
+      }
+      return {sha:'',live:null};
     };
+    const fetchSha=async()=>(await fetchMeta()).sha;
     // Build data payload
     const data=buildData();
+    // ── Preserve scoring-engine data (the sheet owns these keys) ──
+    const meta0=await fetchMeta();
+    const live=meta0.live;
+    if(live){
+      if(live.weeks)data.weeks=live.weeks;
+      if(live.banked)data.banked=live.banked;
+      if(live.weeklyPayouts){
+        data.weeklyPayouts=data.weeklyPayouts||{};
+        for(const[w,v]of Object.entries(live.weeklyPayouts)){
+          const ex=data.weeklyPayouts[w];
+          const has=ex&&((ex.skins&&ex.skins.length)||(ex.lowNet&&ex.lowNet.player));
+          if(!has)data.weeklyPayouts[w]=v;   // admin-entered winners/amounts always win
+        }
+      }
+      if(live.settings&&live.settings.week&&data.settings){
+        data.settings.week=Math.max(+data.settings.week||0,+live.settings.week||0);
+      }
+      // Engine keeps handicaps current — don't let stale admin HCPs roll them back
+      if(live.updatedBy==='sheets-engine'&&live.players&&data.players){
+        for(const[nm,pl]of Object.entries(live.players)){
+          if(data.players[nm]&&typeof pl.hcp==='number')data.players[nm].hcp=pl.hcp;
+        }
+      }
+    }
     const json=JSON.stringify(data,null,2);
     // btoa for unicode
     const b64=btoa(unescape(encodeURIComponent(json)));
     // Try publish with auto-retry on SHA mismatch (GitHub CDN can serve stale SHA on first GET)
-    let sha=await fetchSha();
+    let sha=meta0.sha||await fetchSha();
     let putR;
     for(let attempt=0;attempt<2;attempt++){
       const body={message:`Admin update · ${new Date().toLocaleDateString()}`,content:b64,branch:BRANCH};
