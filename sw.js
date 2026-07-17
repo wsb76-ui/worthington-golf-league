@@ -1,4 +1,4 @@
-const CACHE = 'wgl-v10'; // bumped 2026-07-16: read-only styling on results
+const CACHE = 'wgl-v11'; // bumped 2026-07-17: week-select DOM fix + season tab fix
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
