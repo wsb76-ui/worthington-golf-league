@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-18T16:37:15.579Z",
+  "lastUpdated": "2026-07-18T16:57:19.366Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -646,6 +646,326 @@
           "gross": 39,
           "net": 33,
           "grp": 3
+        },
+        {
+          "name": "Tom Stennett",
+          "team": 4,
+          "hcp": 14,
+          "gross": 55,
+          "net": 41,
+          "grp": 4
+        },
+        {
+          "name": "Paul Bowser",
+          "team": 8,
+          "hcp": 8,
+          "gross": 43,
+          "net": 35,
+          "grp": 4
+        },
+        {
+          "name": "Dylan Barton",
+          "team": 6,
+          "hcp": 20,
+          "gross": 62,
+          "net": 42,
+          "grp": 4
+        },
+        {
+          "name": "Wes Barton",
+          "team": 7,
+          "hcp": 12,
+          "gross": 49,
+          "net": 37,
+          "grp": 4
+        },
+        {
+          "name": "Jaxon Smith",
+          "team": 5,
+          "hcp": 9,
+          "gross": 45,
+          "net": 36,
+          "grp": 5
+        },
+        {
+          "name": "Jason Smith",
+          "team": 7,
+          "hcp": 11,
+          "gross": 48,
+          "net": 37,
+          "grp": 5
+        },
+        {
+          "name": "Andy Patz",
+          "team": 2,
+          "hcp": 14,
+          "gross": 54,
+          "net": 40,
+          "grp": 5
+        },
+        {
+          "name": "Bruce Thomas",
+          "team": 3,
+          "hcp": 10,
+          "gross": 45,
+          "net": 35,
+          "grp": 5
+        },
+        {
+          "name": "Chris Remaley",
+          "team": 7,
+          "hcp": 11,
+          "gross": 50,
+          "net": 39,
+          "grp": 6
+        },
+        {
+          "name": "Denny Snyder",
+          "team": 5,
+          "hcp": 9,
+          "gross": 47,
+          "net": 38,
+          "grp": 6
+        },
+        {
+          "name": "Frank Watt",
+          "team": 1,
+          "hcp": 16,
+          "gross": 53,
+          "net": 37,
+          "grp": 7
+        },
+        {
+          "name": "Wilbur Dudley",
+          "team": 2,
+          "hcp": 18,
+          "gross": 53,
+          "net": 35,
+          "grp": 7
+        },
+        {
+          "name": "Ed Bargerstock",
+          "team": 7,
+          "hcp": 4,
+          "gross": 42,
+          "net": 38,
+          "grp": 7
+        },
+        {
+          "name": "Chad Hollobaugh",
+          "team": 4,
+          "hcp": 10,
+          "gross": 43,
+          "net": 33,
+          "grp": 8
+        },
+        {
+          "name": "Allan Voltz",
+          "team": 3,
+          "hcp": 20,
+          "gross": 66,
+          "net": 46,
+          "grp": 8
+        },
+        {
+          "name": "Don Nulph",
+          "team": 5,
+          "hcp": 11,
+          "gross": 60,
+          "net": 49,
+          "grp": 8
+        },
+        {
+          "name": "Dicky Peat",
+          "team": 3,
+          "hcp": 17,
+          "gross": 58,
+          "net": 41,
+          "grp": 8
+        },
+        {
+          "name": "Vince Sanzotti",
+          "team": 7,
+          "hcp": 7,
+          "gross": 39,
+          "net": 32,
+          "grp": 9
+        },
+        {
+          "name": "Kevin Frye",
+          "team": 6,
+          "hcp": 9,
+          "gross": 38,
+          "net": 29,
+          "grp": 9
+        },
+        {
+          "name": "Jim Frye",
+          "team": 2,
+          "hcp": 1,
+          "gross": 33,
+          "net": 32,
+          "grp": 9
+        },
+        {
+          "name": "Kris Simmons",
+          "team": 1,
+          "hcp": 4,
+          "gross": 39,
+          "net": 35,
+          "grp": 10
+        },
+        {
+          "name": "Jesse Hickman",
+          "team": 6,
+          "hcp": 13,
+          "gross": 47,
+          "net": 34,
+          "grp": 11
+        },
+        {
+          "name": "Ken Long",
+          "team": 8,
+          "hcp": 13,
+          "gross": 45,
+          "net": 32,
+          "grp": 11
+        },
+        {
+          "name": "Duck Julius",
+          "team": 3,
+          "hcp": 1,
+          "gross": 37,
+          "net": 36,
+          "grp": 12
+        },
+        {
+          "name": "Larry Julius",
+          "team": 1,
+          "hcp": 2,
+          "gross": 38,
+          "net": 36,
+          "grp": 12
+        },
+        {
+          "name": "Roger Hoffman",
+          "team": 4,
+          "hcp": 7,
+          "gross": 44,
+          "net": 37,
+          "grp": 13
+        },
+        {
+          "name": "Jeff Hollobaugh",
+          "team": 2,
+          "hcp": 12,
+          "gross": 48,
+          "net": 36,
+          "grp": 13
+        },
+        {
+          "name": "Butch Griffith",
+          "team": 1,
+          "hcp": 12,
+          "gross": 48,
+          "net": 36,
+          "grp": 14
+        },
+        {
+          "name": "Dave Toy",
+          "team": 5,
+          "hcp": 10,
+          "gross": 49,
+          "net": 39,
+          "grp": 14
+        },
+        {
+          "name": "Jim Goodman",
+          "team": 6,
+          "hcp": 17,
+          "gross": 53,
+          "net": 36,
+          "grp": 14
+        },
+        {
+          "name": "Sam Long",
+          "team": 6,
+          "hcp": 7,
+          "gross": 47,
+          "net": 40,
+          "grp": 15
+        },
+        {
+          "name": "Bill Long",
+          "team": 5,
+          "hcp": 9,
+          "gross": 47,
+          "net": 38,
+          "grp": 16
+        },
+        {
+          "name": "Willie Powell",
+          "team": 3,
+          "hcp": 10,
+          "gross": 45,
+          "net": 35,
+          "grp": 16
+        },
+        {
+          "name": "Patric Weber",
+          "team": 8,
+          "hcp": 15,
+          "gross": 55,
+          "net": 40,
+          "grp": 16
+        },
+        {
+          "name": "Eli Hickman",
+          "team": 5,
+          "hcp": 8,
+          "gross": 41,
+          "net": 33,
+          "grp": 17
+        },
+        {
+          "name": "Skylar Grafton",
+          "team": 2,
+          "hcp": 8,
+          "gross": 50,
+          "net": 42,
+          "grp": 17
+        },
+        {
+          "name": "Jay Griffith",
+          "team": 6,
+          "hcp": 9,
+          "gross": 49,
+          "net": 40,
+          "grp": 18
+        },
+        {
+          "name": "Tyler Eroh",
+          "team": 5,
+          "hcp": 8,
+          "gross": 43,
+          "net": 35,
+          "grp": 18
+        },
+        {
+          "name": "Andy Gallagher",
+          "team": 1,
+          "hcp": 16,
+          "gross": 53,
+          "net": 37,
+          "grp": 18
+        },
+        {
+          "name": "Nick Keefer",
+          "team": 2,
+          "hcp": 9,
+          "gross": 46,
+          "net": 37,
+          "grp": 18
         }
       ]
     }
