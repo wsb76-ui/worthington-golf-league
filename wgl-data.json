@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-18T16:57:19.366Z",
+  "lastUpdated": "2026-07-18T17:07:09.218Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -50,7 +50,7 @@
     },
     "Keith Clark": {
       "team": 1,
-      "hcp": 21,
+      "hcp": 20,
       "phone": ""
     },
     "Jim Frye": {
@@ -80,7 +80,7 @@
     },
     "Trent Brocious": {
       "team": 2,
-      "hcp": 14,
+      "hcp": 15,
       "phone": ""
     },
     "Wilbur Dudley": {
@@ -150,12 +150,12 @@
     },
     "Tom Stennett": {
       "team": 4,
-      "hcp": 14,
+      "hcp": 15,
       "phone": ""
     },
     "Landon Badac": {
       "team": 4,
-      "hcp": 18,
+      "hcp": 17,
       "phone": ""
     },
     "Eli Hickman": {
@@ -265,12 +265,12 @@
     },
     "Brian Barton": {
       "team": 8,
-      "hcp": 5,
+      "hcp": 6,
       "phone": ""
     },
     "Logan Bowser": {
       "team": 8,
-      "hcp": 11,
+      "hcp": 10,
       "phone": ""
     },
     "Paul Bowser": {
@@ -290,7 +290,7 @@
     },
     "Cole Clark": {
       "team": 8,
-      "hcp": 14,
+      "hcp": 15,
       "phone": ""
     },
     "Dylan Smith": {
