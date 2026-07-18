@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-17T15:15:52.537Z",
+  "lastUpdated": "2026-07-18T15:47:08.951Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -930,7 +930,24 @@
       ]
     }
   },
-  "banked": {},
+  "banked": {
+    "Wes Barton": [
+      {
+        "side": "back",
+        "gross": 45,
+        "hcp": 12,
+        "played": "7/17"
+      }
+    ],
+    "Bill Long": [
+      {
+        "side": "back",
+        "gross": 41,
+        "hcp": 9,
+        "played": "7/17"
+      }
+    ]
+  },
   "changeLog": [
     {
       "when": "2026-07-17T15:15:52.537Z",
