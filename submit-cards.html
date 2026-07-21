@@ -2,32 +2,38 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WGL Card Submitter — Week 11</title>
 <style>
-body { font-family: -apple-system, sans-serif; background: #141a15; color: #e8e2cf; padding: 24px; max-width: 600px; margin: 0 auto; }
-h2 { color: #e8d99a; margin-bottom: 6px; }
-.sub { color: #9fb37a; font-size: 13px; margin-bottom: 24px; }
-.card { background: #232b24; border-radius: 12px; padding: 16px; margin-bottom: 16px; border-left: 4px solid #bf5327; }
-.card h3 { margin: 0 0 8px; font-size: 15px; color: #e8d99a; }
-.status { font-size: 13px; padding: 6px 10px; border-radius: 6px; margin-top: 10px; background: #2e372c; color: #9fb37a; }
-.status.ok { background: #1a3d1e; color: #4ade80; }
-.status.err { background: #3d1a1a; color: #f87171; }
-.status.warn { background: #3d2e1a; color: #fbbf24; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, sans-serif; background: #141a15; color: #e8e2cf; padding: 20px; max-width: 640px; margin: 0 auto; }
+h2 { color: #e8d99a; margin-bottom: 4px; }
+.sub { color: #9fb37a; font-size: 13px; margin-bottom: 6px; }
+.note { color: #c9b87a; font-size: 12px; background: #2a2a1a; border-left: 3px solid #c9b87a; padding: 8px 12px; border-radius: 4px; margin-bottom: 20px; }
+.card { background: #232b24; border-radius: 12px; padding: 16px; margin-bottom: 20px; border-left: 4px solid #bf5327; }
+.card h3 { margin: 0 0 10px; font-size: 15px; color: #e8d99a; }
 .player { font-size: 12px; color: #9aa284; margin: 2px 0; }
+.submit-btn { display: inline-block; margin-top: 12px; padding: 10px 20px; background: #3a7d44; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.submit-btn:disabled { background: #555; color: #888; cursor: not-allowed; }
+.resp-label { font-size: 11px; color: #7a8a6a; margin-top: 10px; margin-bottom: 4px; }
+iframe.resp { width: 100%; height: 80px; background: #1a2a1a; border: 1px solid #3a4a3a; border-radius: 6px; display: none; }
+iframe.resp.visible { display: block; }
+.scores { font-size: 11px; color: #8a9a7a; margin-top: 6px; font-family: monospace; }
 </style>
 </head>
 <body>
 <h2>WGL Card Submitter</h2>
 <div class="sub">Week 11 · Jul 20, 2026 · Back 9 · 3 cards</div>
+<div class="note">Click Submit on each card. The GAS response appears in the box below — <strong style="color:#e8d99a">look for {"ok":true}</strong>. If you see an error, copy it for debugging.</div>
 
 <div id="cards"></div>
-<div id="summary" style="margin-top:20px; font-size:13px; color:#9fb37a;"></div>
 
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx4vADa-QnAHP7QeHz6mN7lxA1Q24Ny7Z0GiDzFFg7nMqY35Uh54kS2C61JUYU87pj23g/exec';
 
 const CARDS = [
   {
+    id: 1,
     label: 'Card 1 — Powell, B.Long, S.Long, Weber',
     players: [
       { name:'Willie Powell',  team:3, hcp:10, scores:[7,6,4,5,6,4,5,4,7] },
@@ -37,6 +43,7 @@ const CARDS = [
     ]
   },
   {
+    id: 2,
     label: 'Card 2 — F.Watt, Patz, Dudley, D.Barton, Wes',
     players: [
       { name:'Frank Watt',    team:1, hcp:16, scores:[7,5,4,5,6,3,6,4,7] },
@@ -47,8 +54,8 @@ const CARDS = [
     ]
   },
   {
+    id: 3,
     label: 'Card 3 — Stennett, K.Frye, Sanzotti, P.Bowser',
-    warn: '',
     players: [
       { name:'Tom Stennett',   team:4, hcp:14, scores:[5,4,7,3,6,3,5,4,5] },
       { name:'Kevin Frye',     team:6, hcp:9,  scores:[6,4,4,4,4,3,5,3,5] },
@@ -62,60 +69,53 @@ const holes = [10,11,12,13,14,15,16,17,18];
 
 function buildPayload(card) {
   const entries = card.players.map(p => {
-    const gross = p.grossOverride !== undefined ? p.grossOverride : p.scores.reduce((a,b)=>a+b,0);
-    const net   = p.netOverride   !== undefined ? p.netOverride   : gross - p.hcp;
-    const scores = {};
-    holes.forEach((h,i) => scores[h] = p.scores[i]);
-    return { name:p.name, team:p.team, hcp:p.hcp, purpose:'league_night', targetWeek:null, side:'back', gross, net, scores };
+    const gross = p.scores.reduce((a,b)=>a+b,0);
+    const net   = gross - p.hcp;
+    const sc = {};
+    holes.forEach((h,i) => sc[h] = p.scores[i]);
+    return { name:p.name, team:p.team, hcp:p.hcp, purpose:'league_night', targetWeek:null, side:'back', gross, net, scores:sc };
   });
   return { week:11, date:'Jul 20, 2026', cardType:'league_night', segments:[{ side:'back', entries }] };
 }
 
-async function submitCard(card, el, warnEl) {
+function makePlayerLine(p) {
+  const gross = p.scores.reduce((a,b)=>a+b,0);
+  const net   = gross - p.hcp;
+  return `${p.name}  T${p.team}  HCP ${p.hcp}  ${p.scores.join('-')}  Gross:${gross}  Net:${net}`;
+}
+
+const container = document.getElementById('cards');
+
+CARDS.forEach(card => {
   const payload = buildPayload(card);
-  const form = new URLSearchParams();
-  form.append('data', JSON.stringify(payload));
-  try {
-    await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', body: form });
-    el.className = 'status ok';
-    el.textContent = '✅ Submitted successfully';
-    if (card.warn && warnEl) { warnEl.className = 'status warn'; warnEl.textContent = '⚠️ ' + card.warn; }
-  } catch(e) {
-    el.className = 'status err';
-    el.textContent = '❌ Error: ' + e.message;
-  }
-}
+  const dataJson = JSON.stringify(payload);
+  const iframeId = 'resp' + card.id;
+  const formId   = 'form' + card.id;
+  const btnId    = 'btn'  + card.id;
 
-async function run() {
-  const container = document.getElementById('cards');
-  const statusEls = [];
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.innerHTML = `
+    <h3>${card.label}</h3>
+    ${card.players.map(p => `<div class="player scores">${makePlayerLine(p)}</div>`).join('')}
+    <form id="${formId}" method="POST" action="${SCRIPT_URL}" target="${iframeId}" style="margin:0">
+      <input type="hidden" name="data" value='${dataJson.replace(/'/g,"&#39;")}'>
+      <button type="submit" class="submit-btn" id="${btnId}">Submit Card ${card.id}</button>
+    </form>
+    <div class="resp-label" id="lbl${card.id}" style="display:none">GAS response:</div>
+    <iframe name="${iframeId}" id="${iframeId}" class="resp"></iframe>
+  `;
+  container.appendChild(div);
 
-  for (const card of CARDS) {
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.innerHTML = `<h3>${card.label}</h3>` +
-      card.players.map(p => `<div class="player">${p.name} — T${p.team} HCP ${p.hcp}</div>`).join('') +
-      `<div class="status" id="s${CARDS.indexOf(card)}">⏳ Submitting…</div>` +
-      (card.warn ? `<div id="w${CARDS.indexOf(card)}"></div>` : '');
-    container.appendChild(div);
-  }
-
-  let ok = 0;
-  for (let i = 0; i < CARDS.length; i++) {
-    const el = document.getElementById('s' + i);
-    const warnEl = document.getElementById('w' + i);
-    await submitCard(CARDS[i], el, warnEl);
-    if (el.classList.contains('ok')) ok++;
-    await new Promise(r => setTimeout(r, 600));
-  }
-
-  document.getElementById('summary').textContent =
-    ok === CARDS.length
-      ? `✅ All ${CARDS.length} cards submitted. You can close this tab.`
-      : `⚠️ ${ok}/${CARDS.length} cards submitted — check errors above.`;
-}
-
-run();
+  // Show iframe + label when form is submitted
+  const form = div.querySelector(`#${formId}`);
+  form.addEventListener('submit', () => {
+    document.getElementById(iframeId).classList.add('visible');
+    document.getElementById('lbl' + card.id).style.display = 'block';
+    document.getElementById(btnId).disabled = true;
+    document.getElementById(btnId).textContent = '⏳ Sent — check response below';
+  });
+});
 </script>
 </body>
 </html>
