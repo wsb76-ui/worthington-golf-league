@@ -33,7 +33,10 @@ html,body{touch-action:manipulation}
 button,.tab,.pin-btn,input,select{touch-action:manipulation}
 .tabs { position:fixed; bottom:0; left:0; right:0; z-index:150; display:flex; background:var(--tabbar-bg,rgba(255,255,255,.88)); -webkit-backdrop-filter:blur(20px) saturate(180%); backdrop-filter:blur(20px) saturate(180%); border-top:.5px solid var(--tabbar-line,rgba(0,0,0,.12)); padding-bottom:env(safe-area-inset-bottom); }
 .tab { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:2px; padding:7px 1px 6px; font-size:9px; font-weight:600; color:var(--tabbar-inactive,#8e8e93); cursor:pointer; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
-.tab .ticon { font-size:22px; line-height:1; opacity:.85; padding:2px 11px; border-radius:12px; transition:transform .15s ease, background .15s ease; }
+.tab .ticon { display:inline-flex; align-items:center; justify-content:center; opacity:.85; padding:4px 10px; border-radius:12px; transition:transform .15s ease, background .15s ease; }
+.tab .ticon svg { width:22px; height:22px; display:block; }
+.tab.active .ticon svg { stroke-width:2.2; }
+#tab-my.active .ticon svg { fill:currentColor; }
 .tab.active { color:var(--tint,#2e7d32); }
 .tab.active .ticon { opacity:1; transform:scale(1.08); background:var(--tint-soft,rgba(46,125,50,.14)); }
 .tab:active .ticon { transform:scale(.88); }
@@ -201,7 +204,7 @@ table.standings { width:100%; border-collapse:collapse; font-size:13px; }
 
 <style id="theme-css">
 /* ── Dark Gold ─────────────────────────────────────────────── */
-body.theme-dark-gold{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--tint:#c9a84c;--tabbar-bg:rgba(13,17,23,.88);--tabbar-line:#21262d;--tabbar-inactive:#6e7681;--tint-soft:rgba(201,168,76,.18)}
+body.theme-dark-gold{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--tint:#c9a84c;--tabbar-bg:rgba(13,17,23,.88);--tabbar-line:#21262d;--tabbar-inactive:#6e7681;--tint-soft:rgba(201,168,76,.18);--sel-bg:#c9a84c;--sel-fg:#0d1117;--unsel-bg:#21262d;--unsel-fg:#8b949e;--unsel-line:#30363d}
 body.theme-dark-gold .app-hdr{background:#161b22;border-bottom:1px solid #21262d}
 body.theme-dark-gold .hdr-inner h1,.theme-dark-gold .hdr-sub{color:#e6edf3}
 body.theme-dark-gold .sync-bar{background:#161b22;color:#c9a84c;border-bottom-color:#21262d}
@@ -244,7 +247,7 @@ body.theme-dark-gold .ann-info{border-left-color:#3b82f6}
 body.theme-dark-gold .ann-info .ann-tag{color:#3b82f6}
 
 /* ── Light Gold ────────────────────────────────────────────── */
-body.theme-light-gold{--bg:#faf8f0;--card:#fff;--text:#1a1200;--tint:#b8860b;--tabbar-bg:rgba(255,253,245,.9);--tabbar-line:#e8dcc0;--tabbar-inactive:#a89c78;--tint-soft:rgba(184,134,11,.14)}
+body.theme-light-gold{--bg:#faf8f0;--card:#fff;--text:#1a1200;--tint:#b8860b;--tabbar-bg:rgba(255,253,245,.9);--tabbar-line:#e8dcc0;--tabbar-inactive:#a89c78;--tint-soft:rgba(184,134,11,.14);--sel-bg:#b8860b;--sel-fg:#fff;--unsel-bg:#fff;--unsel-fg:#777;--unsel-line:#ddd}
 body.theme-light-gold .app-hdr{background:#2d1c00}
 body.theme-light-gold .hdr-sub{opacity:.7}
 body.theme-light-gold .sync-bar{background:#fffdf0;color:#b8860b;border-bottom-color:#f0d060}
@@ -264,7 +267,7 @@ body.theme-light-gold .ann-item{border-left-color:#b8860b}
 body.theme-light-gold #modal-hcp{color:#b8860b!important}
 
 /* ── Dark Slate ────────────────────────────────────────────── */
-body.theme-dark-slate{--bg:#10141c;--card:#1e293b;--text:#f1f5f9;--tint:#38bdf8;--tabbar-bg:rgba(16,20,28,.88);--tabbar-line:#1e3a5f;--tabbar-inactive:#64748b;--tint-soft:rgba(56,189,248,.18)}
+body.theme-dark-slate{--bg:#10141c;--card:#1e293b;--text:#f1f5f9;--tint:#38bdf8;--tabbar-bg:rgba(16,20,28,.88);--tabbar-line:#1e3a5f;--tabbar-inactive:#64748b;--tint-soft:rgba(56,189,248,.18);--sel-bg:#0284c7;--sel-fg:#fff;--unsel-bg:#334155;--unsel-fg:#94a3b8;--unsel-line:#475569}
 body.theme-dark-slate .app-hdr{background:#0f2744;border-bottom:1px solid #1e3a5f}
 body.theme-dark-slate .hdr-inner h1,.theme-dark-slate .hdr-sub{color:#f1f5f9}
 body.theme-dark-slate .sync-bar{background:#1e293b;color:#38bdf8;border-bottom-color:#334155}
@@ -303,7 +306,7 @@ body.theme-dark-slate .hcp-row:active{background:#334155}
 body.theme-dark-slate .dues-summary,.theme-dark-slate .modal-meta{color:#94a3b8}
 
 /* ── Light Slate ───────────────────────────────────────────── */
-body.theme-light-slate{--bg:#f0f4f8;--card:#fff;--text:#1e293b;--tint:#0284c7;--tabbar-bg:rgba(240,244,248,.9);--tabbar-line:#cbd5e1;--tabbar-inactive:#94a3b8;--tint-soft:rgba(2,132,199,.12)}
+body.theme-light-slate{--bg:#f0f4f8;--card:#fff;--text:#1e293b;--tint:#0284c7;--tabbar-bg:rgba(240,244,248,.9);--tabbar-line:#cbd5e1;--tabbar-inactive:#94a3b8;--tint-soft:rgba(2,132,199,.12);--sel-bg:#0284c7;--sel-fg:#fff;--unsel-bg:#fff;--unsel-fg:#777;--unsel-line:#ddd}
 body.theme-light-slate .app-hdr{background:#0f2744}
 body.theme-light-slate .hdr-sub{opacity:.7}
 body.theme-light-slate .sync-bar{background:#e8f4fd;color:#0284c7;border-bottom-color:#bae6fd}
@@ -323,7 +326,7 @@ body.theme-light-slate .ann-item{border-left-color:#0284c7}
 body.theme-light-slate #modal-hcp{color:#0284c7!important}
 
 /* ── Dark Turf ─────────────────────────────────────────────── */
-body.theme-dark-turf{--bg:#071507;--card:#0f2d0f;--text:#e8f5e8;--tint:#4ade80;--tabbar-bg:rgba(7,21,7,.88);--tabbar-line:#1a4a1a;--tabbar-inactive:#4a7a4a;--tint-soft:rgba(74,222,128,.18)}
+body.theme-dark-turf{--bg:#071507;--card:#0f2d0f;--text:#e8f5e8;--tint:#4ade80;--tabbar-bg:rgba(7,21,7,.88);--tabbar-line:#1a4a1a;--tabbar-inactive:#4a7a4a;--tint-soft:rgba(74,222,128,.18);--sel-bg:#166534;--sel-fg:#4ade80;--unsel-bg:#1a4a1a;--unsel-fg:#6abf69;--unsel-line:#2d6a2d}
 body.theme-dark-turf .app-hdr{background:#071507;border-bottom:1px solid #1a4a1a}
 body.theme-dark-turf .hdr-inner h1,.theme-dark-turf .hdr-sub{color:#e8f5e8}
 body.theme-dark-turf .sync-bar{background:#0f2d0f;color:#4ade80;border-bottom-color:#1a4a1a}
@@ -360,6 +363,81 @@ body.theme-dark-turf .modal-close{background:#1a4a1a;color:#6abf69}
 body.theme-dark-turf #modal-hcp{color:#4ade80!important}
 body.theme-dark-turf .hcp-row:active{background:#1a4a1a}
 body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
+
+/* ── Earth Dark ─ deep pine, olive cards, burnt-orange accents ── */
+body.theme-earth-dark{--bg:#141a15;--card:#232b24;--text:#e8e2cf;--tint:#e0a43c;--tabbar-bg:rgba(18,23,18,.92);--tabbar-line:#2e372e;--tabbar-inactive:#7d846d;--tint-soft:rgba(224,164,60,.16);--sel-bg:#bf5327;--sel-fg:#f5ead9;--unsel-bg:#2e372c;--unsel-fg:#b8bfa6;--unsel-line:#3a453a}
+body.theme-earth-dark .app-hdr{background:#24402c;border-bottom:1px solid #2e372e}
+body.theme-earth-dark .hdr-inner h1{color:#e8d99a}
+body.theme-earth-dark .hdr-sub{color:#cfe3c2;opacity:.85}
+body.theme-earth-dark .sync-bar{background:#1b241c;color:#9fb37a;border-bottom-color:#2e372e}
+body.theme-earth-dark .sync-dot{background:#9fb37a}
+body.theme-earth-dark #gear-btn{background:#bf5327;color:#f5ead9}
+body.theme-earth-dark #settings-panel{background:#232b24;border-color:#3a453a}
+body.theme-earth-dark .settings-title{color:#8c927c}
+body.theme-earth-dark .settings-label{color:#e8e2cf}
+body.theme-earth-dark .adj-btn{background:#2e372c;border-color:#46523f;color:#e8e2cf}
+body.theme-earth-dark .nav-btn{background:#2e372c;border-color:#46523f;color:#e8e2cf}
+body.theme-earth-dark .nav-btn.next{background:#bf5327;color:#f5ead9;border-color:#bf5327}
+body.theme-earth-dark .sc-btn{background:#bf5327;color:#f5ead9}
+body.theme-earth-dark .sc-btn:active{background:#a8431f}
+body.theme-earth-dark .sc-btn-ghost{color:#8c927c}
+body.theme-earth-dark .search-input{background:#2e372c;border-color:#46523f;color:#e8e2cf}
+body.theme-earth-dark .search-input:focus{border-color:#e0a43c}
+body.theme-earth-dark .search-drop,.theme-earth-dark .search-item{background:#232b24;border-color:#2e372e;color:#e8e2cf}
+body.theme-earth-dark .player-chip,.theme-earth-dark .score-row,.theme-earth-dark .rev-row,.theme-earth-dark .roster-player{border-bottom-color:#2e372e}
+body.theme-earth-dark .hcp-val,.theme-earth-dark .rtotals,.theme-earth-dark .outing-lbl,.theme-earth-dark .ann-tag{color:#e0a43c}
+body.theme-earth-dark .toggle input:checked+.toggle-track{background:#bf5327}
+body.theme-earth-dark .roster-team-hdr{background:#24402c;color:#e8d99a}
+body.theme-earth-dark .call-btn{background:#2e372c;color:#e0a43c}
+body.theme-earth-dark .call-big{background:#bf5327;color:#f5ead9}
+body.theme-earth-dark .badge-in{background:rgba(224,164,60,.14);color:#e0a43c}
+body.theme-earth-dark .ann-item{background:#232b24;border-left-color:#bf5327}
+body.theme-earth-dark .ann-body,.theme-earth-dark .prize-desc,.theme-earth-dark .chip-meta,.theme-earth-dark .sc-note,.theme-earth-dark .empty-msg{color:#8c927c}
+body.theme-earth-dark .ann-date{color:#565c48}
+body.theme-earth-dark .card-hdr{background:#232b24;border-bottom-color:#2e372e}
+body.theme-earth-dark .standings th{background:#2e372c;color:#9aa284;border-bottom-color:#3a453a}
+body.theme-earth-dark .standings td{border-bottom-color:#2e372e}
+body.theme-earth-dark .modal{background:#232b24}
+body.theme-earth-dark .modal-row{border-bottom-color:#2e372e}
+body.theme-earth-dark .modal-close{background:#2e372c;color:#9aa284}
+body.theme-earth-dark #modal-hcp{color:#e0a43c!important}
+body.theme-earth-dark .hcp-row:active{background:#2e372c}
+body.theme-earth-dark .dues-summary,.theme-earth-dark .modal-meta{color:#9aa284}
+
+/* ── Earth Light ─ cream, sage, forest green, burnt-orange accents ── */
+body.theme-earth-light{--bg:#eae4cf;--card:#f8f4e4;--text:#33301f;--tint:#47714b;--tabbar-bg:rgba(238,232,213,.92);--tabbar-line:#cfc7a8;--tabbar-inactive:#99946f;--tint-soft:rgba(71,113,75,.16);--sel-bg:#b64f22;--sel-fg:#f7ecd9;--unsel-bg:#dcd6bd;--unsel-fg:#6d6a52;--unsel-line:#c8c1a2}
+body.theme-earth-light .app-hdr{background:#3d6a46}
+body.theme-earth-light .hdr-inner h1{color:#f2e9c9}
+body.theme-earth-light .hdr-sub{opacity:.8}
+body.theme-earth-light .sync-bar{background:#f1ecd8;color:#47714b;border-bottom-color:#d8d0b0}
+body.theme-earth-light .sync-dot{background:#47714b}
+body.theme-earth-light #gear-btn{background:#b64f22}
+body.theme-earth-light #settings-panel{background:#f8f4e4;border-color:#c8c1a2}
+body.theme-earth-light .adj-btn{background:#f8f4e4;border-color:#c8c1a2;color:#33301f}
+body.theme-earth-light .nav-btn{background:#f8f4e4;border-color:#c8c1a2;color:#33301f}
+body.theme-earth-light .nav-btn.next{background:#b64f22;color:#f7ecd9;border-color:#b64f22}
+body.theme-earth-light .sc-btn{background:#b64f22;color:#f7ecd9}
+body.theme-earth-light .sc-btn:active{background:#98401a}
+body.theme-earth-light .search-input{background:#f4efdc;border-color:#c8c1a2;color:#33301f}
+body.theme-earth-light .search-input:focus{border-color:#47714b}
+body.theme-earth-light .search-drop,.theme-earth-light .search-item{background:#f8f4e4;border-color:#d8d0b0;color:#33301f}
+body.theme-earth-light .player-chip,.theme-earth-light .score-row,.theme-earth-light .rev-row,.theme-earth-light .roster-player{border-bottom-color:#e4ddc4}
+body.theme-earth-light .hcp-val,.theme-earth-light .rtotals,.theme-earth-light .outing-lbl,.theme-earth-light .ann-tag{color:#a1531f}
+body.theme-earth-light .toggle input:checked+.toggle-track{background:#47714b}
+body.theme-earth-light .roster-team-hdr{background:#3d6a46;color:#f2e9c9}
+body.theme-earth-light .call-btn{background:#e4ddc4;color:#47714b}
+body.theme-earth-light .call-big{background:#b64f22}
+body.theme-earth-light .badge-in{background:rgba(71,113,75,.12);color:#47714b}
+body.theme-earth-light .ann-item{background:#f8f4e4;border-left-color:#b64f22}
+body.theme-earth-light .ann-body,.theme-earth-light .prize-desc,.theme-earth-light .chip-meta,.theme-earth-light .sc-note,.theme-earth-light .empty-msg{color:#84805f}
+body.theme-earth-light .ann-date{color:#a9a37c}
+body.theme-earth-light .card-hdr{background:#f8f4e4;border-bottom-color:#e4ddc4}
+body.theme-earth-light .standings th{background:#e4ddc4;color:#7c7758;border-bottom-color:#c8c1a2}
+body.theme-earth-light .standings td{border-bottom-color:#e4ddc4}
+body.theme-earth-light .modal{background:#f8f4e4}
+body.theme-earth-light .modal-close{background:#e4ddc4;color:#7c7758}
+body.theme-earth-light #modal-hcp{color:#47714b!important}
+body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 </style>
 
 </head>
@@ -384,14 +462,14 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
 
 <!-- Bottom tab bar -->
 <div class="tabs">
-  <div class="tab active" onclick="showTab('scorecard',this)"><span class="ticon">📝</span>Score</div>
-  <div class="tab" onclick="showTab('results',this)"><span class="ticon">📋</span>Results</div>
-  <div class="tab" onclick="showTab('standings',this)"><span class="ticon">📊</span>Standings</div>
-  <div class="tab" onclick="showTab('news',this)"><span class="ticon">📣</span>News</div>
-  <div class="tab" onclick="showTab('roster',this)"><span class="ticon">👥</span>Roster</div>
-  <div class="tab" onclick="showTab('outing',this)"><span class="ticon">🏆</span>Outing</div>
-  <div class="tab" onclick="showTab('dues',this)"><span class="ticon">💵</span>Dues</div>
-  <div class="tab" onclick="showTab('mytab',this);buildMyTab()"><span class="ticon">⭐</span>My</div>
+  <div class="tab active" onclick="showTab('scorecard',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5l2 2L12 13H10v-2z"/></svg></span>Score</div>
+  <div class="tab" onclick="showTab('results',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span>Results</div>
+  <div class="tab" onclick="showTab('standings',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>Standings</div>
+  <div class="tab" onclick="showTab('news',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg></span>News</div>
+  <div class="tab" onclick="showTab('roster',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span>Roster</div>
+  <div class="tab" onclick="showTab('outing',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 4H4.5A1.5 1.5 0 003 5.5v1A4.5 4.5 0 007.5 11M17 4h2.5A1.5 1.5 0 0121 5.5v1A4.5 4.5 0 0116.5 11"/><path d="M7 4h10v7a5 5 0 01-10 0V4z"/></svg></span>Outing</div>
+  <div class="tab" onclick="showTab('dues',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="13" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M3 10v5M21 10v5"/></svg></span>Dues</div>
+  <div class="tab" id="tab-my" onclick="showTab('mytab',this);buildMyTab()"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>My</div>
 </div>
 
 <!-- SCORE CARD — 3-step prototype -->
@@ -405,13 +483,13 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
     <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;padding:8px 0 6px">Card Type</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
       <button id="sc-type-league-night" onclick="scSetCardType('league_night')"
-        style="padding:9px 6px;border:1.5px solid #2e7d32;border-radius:8px;font-size:12px;font-weight:700;background:#2e7d32;color:white;cursor:pointer;-webkit-tap-highlight-color:transparent">League Night ✓</button>
+        style="padding:9px 6px;border:1.5px solid var(--sel-bg,#2e7d32);border-radius:8px;font-size:12px;font-weight:700;background:var(--sel-bg,#2e7d32);color:var(--sel-fg,white);cursor:pointer;-webkit-tap-highlight-color:transparent">League Night ✓</button>
       <button id="sc-type-play-ahead" onclick="scSetCardType('play_ahead')"
-        style="padding:9px 6px;border:1.5px solid #ddd;border-radius:8px;font-size:12px;font-weight:700;background:white;color:#555;cursor:pointer;-webkit-tap-highlight-color:transparent">Play Ahead</button>
+        style="padding:9px 6px;border:1.5px solid var(--unsel-line,#ddd);border-radius:8px;font-size:12px;font-weight:700;background:var(--unsel-bg,white);color:var(--unsel-fg,#555);cursor:pointer;-webkit-tap-highlight-color:transparent">Play Ahead</button>
       <button id="sc-type-bank-card" onclick="scSetCardType('bank_card')"
-        style="padding:9px 6px;border:1.5px solid #ddd;border-radius:8px;font-size:12px;font-weight:700;background:white;color:#555;cursor:pointer;-webkit-tap-highlight-color:transparent">Bank Card</button>
+        style="padding:9px 6px;border:1.5px solid var(--unsel-line,#ddd);border-radius:8px;font-size:12px;font-weight:700;background:var(--unsel-bg,white);color:var(--unsel-fg,#555);cursor:pointer;-webkit-tap-highlight-color:transparent">Bank Card</button>
       <button id="sc-type-practice" onclick="scSetCardType('practice')"
-        style="padding:9px 6px;border:1.5px solid #ddd;border-radius:8px;font-size:12px;font-weight:700;background:white;color:#555;cursor:pointer;-webkit-tap-highlight-color:transparent">Practice</button>
+        style="padding:9px 6px;border:1.5px solid var(--unsel-line,#ddd);border-radius:8px;font-size:12px;font-weight:700;background:var(--unsel-bg,white);color:var(--unsel-fg,#555);cursor:pointer;-webkit-tap-highlight-color:transparent">Practice</button>
     </div>
     <div id="sc-target-week-row" style="display:none;background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:13px">
       <span style="font-weight:600;color:#555">Target Week: </span>
@@ -702,6 +780,7 @@ body.theme-dark-turf .dues-summary,.theme-dark-turf .modal-meta{color:#6abf69}
     <button id="sp-color-turf" onclick="setPref('color','turf')">🌿 Turf</button>
     <button id="sp-color-gold" onclick="setPref('color','gold')">✨ Gold</button>
     <button id="sp-color-slate" onclick="setPref('color','slate')">🌊 Slate</button>
+    <button id="sp-color-earth" onclick="setPref('color','earth')">🏜️ Earth</button>
   </div>
   <div class="settings-title">Font</div>
   <div class="seg">
@@ -1035,6 +1114,7 @@ function scResumeSession(){
   const saved=SC_STORE.load();
   if(!saved)return;
   scSess=saved;
+  scSess.completedSegments=scSess.completedSegments||[]; // guard for sessions saved before this field existed
   scSetSide(scSess.side);
   scShowStep('sc-step-scoring');
   scRenderHole();
@@ -1114,9 +1194,9 @@ function scSetCardType(type){
     const btn = document.getElementById('sc-type-'+t.replace(/_/g,'-'));
     if(!btn)continue;
     const active = t===type;
-    btn.style.background = active?'#2e7d32':'white';
-    btn.style.color = active?'white':'#555';
-    btn.style.borderColor = active?'#2e7d32':'#ddd';
+    btn.style.background = active?'var(--sel-bg,#2e7d32)':'var(--unsel-bg,white)';
+    btn.style.color = active?'var(--sel-fg,white)':'var(--unsel-fg,#555)';
+    btn.style.borderColor = active?'var(--sel-bg,#2e7d32)':'var(--unsel-line,#ddd)';
     btn.textContent = SC_TYPE_LABELS[t]+(active?' ✓':'');
   }
   scRenderAdded();
@@ -1321,7 +1401,7 @@ function scRenderHole(){
   document.getElementById('sc-inputs').innerHTML=scSess.players.map((p,pi)=>{
     const val=scSess.scores[p.name][hi];
     const disp=val!==null?val:'—';
-    const clr=val!==null?'#1a1a1a':'#bbb';
+    const clr=val!==null?'var(--text,#1a1a1a)':'var(--tabbar-inactive,#bbb)';
     return `<div class="score-row">
       <span class="sname">${scShortName(p.name)}</span>
       <div class="score-ctrl">
@@ -1375,28 +1455,34 @@ function scHdClass(val,par){
   return 'double';
 }
 
-function scRenderSegmentBlock(side, scoreMap, purposes){
-  // Renders one 9-hole segment (used for both completed and active segments)
-  const pars = side==='back'?SC_BACK_PARS:SC_FRONT_PARS;
+function scShowReview(){
+  scShowStep('sc-step-review');
+  const pars=scGetPars();
+  const holes=scGetHoles();
   const byTeam={};
   for(const p of scSess.players){
-    const s=scoreMap[p.name]||Array(9).fill(null);
+    const s=scSess.scores[p.name];
     const filled=s.every(v=>v!==null);
     const gross=s.reduce((a,b)=>a+(b||0),0);
     const net=filled?gross-p.hcp:null;
-    const purp=(purposes&&purposes[p.name]&&purposes[p.name].purpose)||p.purpose||'league_night';
-    (byTeam[p.team]=byTeam[p.team]||[]).push({...p,scores:s,gross:filled?gross:null,net,purp});
+    (byTeam[p.team]=byTeam[p.team]||[]).push({...p,scores:s,gross:filled?gross:null,net});
   }
-  let html='';
+  const sideLabel=scSess.side==='back'?'Back 9 (Holes 10–18)':'Front 9 (Holes 1–9)';
+  const wk=D.settings&&D.settings.week?D.settings.week:'?';
+  let html=`<div class="card" style="margin-bottom:4px;background:#f0f7f0">
+    <div style="padding:10px 14px">
+      <span style="font-size:13px;color:#2e7d32;font-weight:600">Week ${wk} · ${sideLabel}</span>
+      <span style="font-size:12px;color:#666;margin-left:8px">${scSess.players.length} player${scSess.players.length!==1?'s':''}</span>
+    </div>
+  </div>`;
   for(const team of Object.keys(byTeam).sort((a,b)=>+a-+b)){
     html+=`<div class="card"><div style="padding:14px 16px"><div class="sc-team-hdr">Team ${team}</div>`;
     for(const p of byTeam[team]){
       const dots=p.scores.map((s,i)=>`<span class="hd ${scHdClass(s,pars[i])}">${s??'?'}</span>`).join('');
       const totStr=p.gross!==null?`${p.gross} gross · ${p.net} net`:'⚠ incomplete';
-      const purpTag=p.purp!=='league_night'?` <span style="font-size:11px;color:#8a6d3b;background:#fdf6e3;border-radius:6px;padding:1px 6px">${(typeof SC_TYPE_LABELS!=='undefined'&&SC_TYPE_LABELS[p.purp])||p.purp}</span>`:'';
       html+=`<div class="rev-row">
         <div class="rev-name-row">
-          <span class="rname">${p.name}${purpTag}</span>
+          <span class="rname">${p.name}</span>
           <span class="rtotals${p.gross===null?' warn':''}">${totStr}</span>
         </div>
         <div class="hole-dots">${dots}</div>
@@ -1404,30 +1490,6 @@ function scRenderSegmentBlock(side, scoreMap, purposes){
     }
     html+='</div></div>';
   }
-  return html;
-}
-
-function scShowReview(){
-  scShowStep('sc-step-review');
-  const wk=D.settings&&D.settings.week?D.settings.week:'?';
-  const sideLbl=s=>s==='back'?'Back 9 (Holes 10–18)':'Front 9 (Holes 1–9)';
-  const totalSegs=scSess.completedSegments.length+1;
-  const hdrLabel=totalSegs>1?'18 Holes ('+scSess.completedSegments.map(s=>sideLbl(s.side).split(' ')[0]).join(' + ')+' + '+sideLbl(scSess.side).split(' ')[0]+')':sideLbl(scSess.side);
-  let html=`<div class="card" style="margin-bottom:4px;background:#f0f7f0">
-    <div style="padding:10px 14px">
-      <span style="font-size:13px;color:#2e7d32;font-weight:600">Week ${wk} · ${hdrLabel}</span>
-      <span style="font-size:12px;color:#666;margin-left:8px">${scSess.players.length} player${scSess.players.length!==1?'s':''}</span>
-    </div>
-  </div>`;
-  // Completed segments first, so an 18-hole card shows BOTH nines before submitting
-  scSess.completedSegments.forEach((seg,i)=>{
-    html+=`<div style="font-size:12px;font-weight:600;color:#666;padding:8px 4px 2px">✅ ${sideLbl(seg.side)} — submitted with this card</div>`;
-    html+=scRenderSegmentBlock(seg.side, seg.scores, seg.purposes);
-  });
-  if(scSess.completedSegments.length){
-    html+=`<div style="font-size:12px;font-weight:600;color:#666;padding:8px 4px 2px">📝 ${sideLbl(scSess.side)}</div>`;
-  }
-  html+=scRenderSegmentBlock(scSess.side, scSess.scores, null);
   document.getElementById('sc-review-body').innerHTML=html;
   // Update "Play Another 9" button label dynamically
   const addBtn=document.getElementById('sc-add-nine-btn');
@@ -1439,14 +1501,10 @@ function scShowReview(){
 }
 
 function scAddSecondNine(){
-  // Archive current 9-hole segment WITH each player's purpose at time of play,
-  // so the second 9 can have a different card type (league vs practice vs bank)
-  const purposes={};
-  for(const p of scSess.players) purposes[p.name]={purpose:p.purpose||'league_night',targetWeek:p.targetWeek||null};
+  // Archive current 9-hole segment
   scSess.completedSegments.push({
     side: scSess.side,
-    scores: JSON.parse(JSON.stringify(scSess.scores)),
-    purposes
+    scores: JSON.parse(JSON.stringify(scSess.scores))
   });
   // Switch to other side, reset active scores
   const newSide = scSess.side==='back'?'front':'back';
@@ -1454,33 +1512,6 @@ function scAddSecondNine(){
   scSess.hole = 0;
   for(const p of scSess.players) scSess.scores[p.name]=Array(9).fill(null);
   scSetSide(newSide);
-  SC_STORE.save();
-  scAskSecondNinePurpose(newSide);
-}
-
-function scAskSecondNinePurpose(newSide){
-  // Lightweight chooser: what is this second 9 for?
-  const sideLbl=newSide==='back'?'Back 9':'Front 9';
-  const old=document.getElementById('sc-purpose-modal'); if(old)old.remove();
-  const bg=document.createElement('div');
-  bg.id='sc-purpose-modal';
-  bg.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px';
-  bg.innerHTML=`<div style="background:#fff;border-radius:14px;max-width:340px;width:100%;padding:20px 18px;box-shadow:0 8px 30px rgba(0,0,0,.25)">
-    <div style="font-weight:700;font-size:16px;margin-bottom:4px">What's the ${sideLbl} for?</div>
-    <div style="font-size:13px;color:#666;margin-bottom:14px">Your first 9 is saved. Pick a card type for this second 9.</div>
-    <button class="sc-btn-primary" style="width:100%;margin-bottom:8px" onclick="scPickSecondNinePurpose('same')">Same as first 9</button>
-    <button class="sc-btn-ghost" style="width:100%;margin-bottom:8px" onclick="scPickSecondNinePurpose('league_night')">🏌️ League Night</button>
-    <button class="sc-btn-ghost" style="width:100%;margin-bottom:8px" onclick="scPickSecondNinePurpose('bank_card')">🏦 Bank for Later</button>
-    <button class="sc-btn-ghost" style="width:100%" onclick="scPickSecondNinePurpose('practice')">⛳ Practice Only</button>
-  </div>`;
-  document.body.appendChild(bg);
-}
-
-function scPickSecondNinePurpose(choice){
-  const m=document.getElementById('sc-purpose-modal'); if(m)m.remove();
-  if(choice!=='same'){
-    for(const p of scSess.players){ p.purpose=choice; p.targetWeek=null; }
-  }
   SC_STORE.save();
   scShowStep('sc-step-scoring');
   scRenderHole();
@@ -1501,7 +1532,7 @@ async function scSubmit(){
   const wk = D.settings&&D.settings.week ? D.settings.week : '?';
 
   // Build segments array — completed segments + current active segment
-  function buildSegment(side, scoreMap, purposes){
+  function buildSegment(side, scoreMap){
     const segHoles = side==='back'?[10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
     return {
       side,
@@ -1511,12 +1542,10 @@ async function scSubmit(){
         const net = gross - p.hcp;
         const scores = {};
         segHoles.forEach((h,i)=>{ scores[h]=s[i]??null; });
-        // Per-segment purpose: completed segments carry the purpose they were played under
-        const pp = purposes && purposes[p.name] ? purposes[p.name] : {purpose:p.purpose||'league_night', targetWeek:p.targetWeek||null};
         return {
           name:p.name, team:p.team, hcp:p.hcp,
-          purpose: pp.purpose||'league_night',
-          targetWeek: pp.targetWeek||null,
+          purpose: p.purpose||'league_night',
+          targetWeek: p.targetWeek||null,
           side, gross, net, scores
         };
       })
@@ -1524,8 +1553,8 @@ async function scSubmit(){
   }
 
   const allSegs = [
-    ...scSess.completedSegments.map(seg=>buildSegment(seg.side, seg.scores, seg.purposes)),
-    buildSegment(scSess.side, scSess.scores, null)
+    ...(scSess.completedSegments||[]).map(seg=>buildSegment(seg.side, seg.scores)),
+    buildSegment(scSess.side, scSess.scores)
   ];
 
   const payload = {
@@ -1559,15 +1588,10 @@ async function scSubmit(){
   try {
     const form = new URLSearchParams();
     form.append('data', JSON.stringify(payload));
-    const resp = await fetch(SCRIPT_URL, { method:'POST', body: form });
-    let out = null;
-    try { out = await resp.json(); } catch(_){}
-    if (out && out.ok === false) throw new Error(out.error || 'Server rejected the card');
+    await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', body: form });
     statusEl.style.background = '#e8f5e9';
     statusEl.style.color = '#2e7d32';
-    statusEl.textContent = out && out.ok
-      ? '✅ Card received — ' + (out.rows||0) + ' score' + (out.rows===1?'':'s') + ' recorded.' + (out.dupes ? ' ⚠️ ' + out.dupes + ' flagged as possible duplicate for the commissioner.' : '')
-      : '✅ Card submitted!';
+    statusEl.textContent = '✅ Card submitted! Commissioner will review before it\'s official.';
     if(noteEl) noteEl.style.display = 'none';
     btn.style.display = 'none';
     document.getElementById('sc-add-nine-btn').style.display='none';
@@ -1756,9 +1780,7 @@ async function submitSignup(){
       name, notes,
       submitted:new Date().toISOString()
     }));
-    const resp=await fetch(SCRIPT_URL,{method:'POST',body:form});
-    let out=null; try{ out=await resp.json(); }catch(_){}
-    if(out && out.ok===false) throw new Error(out.error||'Sign-up not recorded');
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:form});
     document.getElementById('signup-modal-bg').style.display='none';
     alert('✅ You\'re signed up for the '+label+' Outing, '+name+'!');
   }catch(err){
@@ -1939,9 +1961,7 @@ async function requestOutingRemoval(which){
       type:'outing_remove', outing:isMid?'mid':'end', outingLabel:label,
       outingDate:(o&&o.date)||'', name:name, submitted:new Date().toISOString()
     }));
-    const resp=await fetch(SCRIPT_URL,{method:'POST',body:form});
-    let out=null; try{ out=await resp.json(); }catch(_){}
-    if(out && out.ok===false) throw new Error(out.error||'Request not recorded');
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:form});
     alert('✅ Request sent — you\'ll be taken off the '+label+' list.');
   }catch(err){
     window.location.href='mailto:wglscore@gmail.com?subject='+encodeURIComponent('WGL '+label+' Outing REMOVAL: '+name)+'&body='+encodeURIComponent(name+' asking to be removed from the '+label+' outing sign-up list.');
@@ -2058,10 +2078,10 @@ function closeSettings(){
   document.getElementById('settings-panel').classList.remove('open');
   document.getElementById('gear-btn').classList.remove('open');
 }
-const THEME_MAP={turf:{light:'default',dark:'dark-turf'},gold:{light:'light-gold',dark:'dark-gold'},slate:{light:'light-slate',dark:'dark-slate'}};
+const THEME_MAP={turf:{light:'default',dark:'dark-turf'},gold:{light:'light-gold',dark:'dark-gold'},slate:{light:'light-slate',dark:'dark-slate'},earth:{light:'earth-light',dark:'earth-dark'}};
 const PREF={
   mode:localStorage.getItem('wgl-mode')||'auto',
-  color:localStorage.getItem('wgl-color')||'turf',
+  color:localStorage.getItem('wgl-color')||'earth',
   font:localStorage.getItem('wgl-font')||'classic',
   size:localStorage.getItem('wgl-size')||'md'
 };
@@ -2086,7 +2106,7 @@ function applyPrefs(){
   if(PREF.font!=='classic')document.body.classList.add('font-'+PREF.font);
   if(PREF.size!=='md')document.body.classList.add('text-'+PREF.size);
   ['light','dark','auto'].forEach(m=>{const b=document.getElementById('sp-mode-'+m);if(b)b.classList.toggle('on',PREF.mode===m);});
-  ['turf','gold','slate'].forEach(c=>{const b=document.getElementById('sp-color-'+c);if(b)b.classList.toggle('on',PREF.color===c);});
+  ['turf','gold','slate','earth'].forEach(c=>{const b=document.getElementById('sp-color-'+c);if(b)b.classList.toggle('on',PREF.color===c);});
   ['classic','rounded','serif'].forEach(f=>{const b=document.getElementById('sp-font-'+f);if(b)b.classList.toggle('on',PREF.font===f);});
   ['md','lg','xl'].forEach(z=>{const b=document.getElementById('sp-size-'+z);if(b)b.classList.toggle('on',PREF.size===z);});
 }
@@ -2546,19 +2566,12 @@ function gpsResetStrip(holeNum,par){
   const info=HOLE_INFO[holeNum]||{};
   document.getElementById('gps-strip-hole').textContent=
     '📍 Hole '+holeNum+' · Par '+par+(info.yds?' · '+info.yds+' yds':'');
+  document.getElementById('gps-front').textContent='—';
+  document.getElementById('gps-center').textContent='—';
+  document.getElementById('gps-back').textContent='—';
+  document.getElementById('gps-status').textContent='';
   const btn=document.getElementById('gps-btn');
-  if(gpsWatchId!==null && gpsLastPos){
-    // Live watch running — recompute against the new hole's green instantly
-    gpsLastRender=Date.now();
-    gpsRender(gpsLastPos);
-    btn.disabled=false; gpsSetBtnLabel();
-  }else{
-    document.getElementById('gps-front').textContent='—';
-    document.getElementById('gps-center').textContent='—';
-    document.getElementById('gps-back').textContent='—';
-    document.getElementById('gps-status').textContent='';
-    btn.textContent='📍 Locate';btn.disabled=false;
-  }
+  btn.textContent='📍 Locate';btn.disabled=false;
 }
 
 function haversineYards(lat1,lon1,lat2,lon2){
@@ -2568,128 +2581,34 @@ function haversineYards(lat1,lon1,lat2,lon2){
   return Math.round(R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))*1.09361);
 }
 
-// ── Live GPS rangefinder ─────────────────────────────────────────────────────
-// Continuous watchPosition. Yardages redraw every 5s normally; tapping the
-// button ("Refresh") boosts to every fix (~1s) for 15s, then settles back.
-let gpsWatchId=null, gpsLastPos=null, gpsLastRender=0, gpsBoostUntil=0, gpsBoostTimer=null, gpsWakeLock=null, gpsWasWatching=false;
-
-function gpsRender(pos){
-  const status=document.getElementById('gps-status');
-  const holeNum=scGetHoles()[scSess.hole];
-  const{latitude:lat,longitude:lon,accuracy:acc}=pos.coords;
-  const g=GREENS[holeNum];
-  if(!g){status.textContent='No green data for hole '+holeNum+'.';return;}
-  // Front = closest edge of green (front, left, or right waypoint — whichever is nearest)
-  const edges=[g.f,g.l,g.rt].filter(Boolean);
-  const frontYds=Math.min(...edges.map(e=>haversineYards(lat,lon,e[0],e[1])));
-  document.getElementById('gps-front').textContent=frontYds;
-  document.getElementById('gps-center').textContent=haversineYards(lat,lon,g.c[0],g.c[1]);
-  document.getElementById('gps-back').textContent=haversineYards(lat,lon,g.r[0],g.r[1]);
-  status.textContent='±'+Math.round(acc)+' m'+(acc>15?' · move to open sky':'')+(Date.now()<gpsBoostUntil?' · ⚡ live':'');
-}
-
-function gpsOnFix(pos){
-  gpsLastPos=pos;
-  const btn=document.getElementById('gps-btn');
-  if(btn && btn.disabled){ btn.disabled=false; gpsSetBtnLabel(); }
-  const now=Date.now();
-  const interval = now<gpsBoostUntil ? 0 : 5000;   // boost: every fix (~1s); normal: every 5s
-  if(now-gpsLastRender>=interval){ gpsLastRender=now; gpsRender(pos); }
-}
-
-function gpsOnError(err){
-  const status=document.getElementById('gps-status');
-  const btn=document.getElementById('gps-btn');
-  if(status) status.textContent=err.code===1?'Location denied — check Settings.':'Could not get location. Try again.';
-  if(btn){ btn.textContent='📍 Locate'; btn.disabled=false; }
-  gpsStopWatch();
-}
-
-function gpsSetBtnLabel(){
-  const btn=document.getElementById('gps-btn');
-  if(!btn) return;
-  btn.textContent = gpsWatchId===null ? '📍 Locate' : (Date.now()<gpsBoostUntil ? '⚡ Live' : '🔄 Refresh');
-}
-
-function gpsStartWatch(){
-  if(gpsWatchId!==null || !navigator.geolocation) return;
-  gpsWatchId=navigator.geolocation.watchPosition(gpsOnFix, gpsOnError,
-    {enableHighAccuracy:true, timeout:15000, maximumAge:1000});
-  window.__gpsWatchStarted=true;
-  // Keep the screen awake while the rangefinder is live (golfers want this mid-hole)
-  if('wakeLock' in navigator){
-    navigator.wakeLock.request('screen').then(wl=>{gpsWakeLock=wl;}).catch(()=>{});
-  }
-}
-
-function gpsStopWatch(){
-  if(gpsWatchId!==null){ navigator.geolocation.clearWatch(gpsWatchId); gpsWatchId=null; }
-  if(gpsWakeLock){ gpsWakeLock.release().catch(()=>{}); gpsWakeLock=null; }
-  gpsBoostUntil=0; clearTimeout(gpsBoostTimer);
-}
-
 function gpsGetDistance(){
   const btn=document.getElementById('gps-btn');
   const status=document.getElementById('gps-status');
   if(!navigator.geolocation){status.textContent='GPS not available on this device.';return;}
-  if(gpsWatchId===null){
-    // First tap: start the live watch
-    btn.textContent='⏳ …'; btn.disabled=true; status.textContent='';
-    gpsLastRender=0;
-    gpsStartWatch();
-  }else{
-    // Already live: boost to ~1s updates for 15 seconds
-    gpsBoostUntil=Date.now()+15000;
-    if(gpsLastPos){ gpsLastRender=Date.now(); gpsRender(gpsLastPos); }
-    gpsSetBtnLabel();
-    clearTimeout(gpsBoostTimer);
-    gpsBoostTimer=setTimeout(gpsSetBtnLabel,15100);
-  }
-}
-
-// Pause GPS when the app is backgrounded / screen locks (Safari cuts it anyway);
-// resume automatically when the user comes back.
-document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='hidden'){
-    gpsWasWatching = gpsWatchId!==null;
-    gpsStopWatch(); gpsSetBtnLabel();
-  }else if(gpsWasWatching){
-    gpsLastRender=0;
-    gpsStartWatch(); gpsSetBtnLabel();
-  }
-});
-
-// ── Service worker: register + "new version available" toast ────────────────
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').then(reg=>{
-    function watchWorker(worker){
-      worker.addEventListener('statechange',()=>{
-        if(worker.state==='installed' && navigator.serviceWorker.controller){
-          swShowUpdateToast(worker);
-        }
-      });
-    }
-    if(reg.waiting && navigator.serviceWorker.controller) swShowUpdateToast(reg.waiting);
-    reg.addEventListener('updatefound',()=>{ if(reg.installing) watchWorker(reg.installing); });
-    // Check for a new version whenever the app is foregrounded
-    document.addEventListener('visibilitychange',()=>{
-      if(document.visibilityState==='visible') reg.update().catch(()=>{});
-    });
-  }).catch(()=>{});
-  let swReloading=false;
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{
-    if(swReloading) return; swReloading=true; location.reload();
-  });
-}
-
-function swShowUpdateToast(worker){
-  if(document.getElementById('sw-update-toast')) return;
-  const t=document.createElement('div');
-  t.id='sw-update-toast';
-  t.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:76px;background:#1b5e20;color:#fff;padding:10px 16px;border-radius:24px;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.3);z-index:9998;cursor:pointer;display:flex;align-items:center;gap:8px';
-  t.innerHTML='🔄 New version available · <span style="text-decoration:underline">Tap to update</span>';
-  t.onclick=()=>{ worker.postMessage({type:'SKIP_WAITING'}); t.textContent='⏳ Updating…'; };
-  document.body.appendChild(t);
+  const holeNum=scGetHoles()[scSess.hole];
+  btn.textContent='⏳ …';btn.disabled=true;status.textContent='';
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const{latitude:lat,longitude:lon,accuracy:acc}=pos.coords;
+      const g=GREENS[holeNum];
+      if(!g){status.textContent='No green data for hole '+holeNum+'.';btn.textContent='📍 Locate';btn.disabled=false;return;}
+      // Front = nearest point on green edge; Back = farthest edge point (all 4 edge waypoints)
+      const edgePts=[g.f,g.l,g.rt,g.r].filter(Boolean);
+      const edgeDists=edgePts.map(e=>haversineYards(lat,lon,e[0],e[1]));
+      const frontYds=Math.min(...edgeDists);
+      const backYds=Math.max(...edgeDists);
+      document.getElementById('gps-front').textContent=frontYds;
+      document.getElementById('gps-center').textContent=haversineYards(lat,lon,g.c[0],g.c[1]);
+      document.getElementById('gps-back').textContent=backYds;
+      status.textContent='±'+Math.round(acc)+' m'+(acc>15?' · move to open sky':'');
+      btn.textContent='📍 Update';btn.disabled=false;
+    },
+    err=>{
+      status.textContent=err.code===1?'Location denied — check Settings.':'Could not get location. Try again.';
+      btn.textContent='📍 Locate';btn.disabled=false;
+    },
+    {enableHighAccuracy:true,timeout:12000,maximumAge:5000}
+  );
 }
 </script>
 </body>
