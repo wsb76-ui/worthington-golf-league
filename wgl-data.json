@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-21T22:27:05.597Z",
+  "lastUpdated": "2026-07-21T22:37:10.961Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -746,6 +746,78 @@
           "gross": 57,
           "net": 42,
           "grp": 1
+        },
+        {
+          "name": "Frank Watt",
+          "team": 1,
+          "hcp": 15,
+          "gross": 47,
+          "net": 32,
+          "grp": 2
+        },
+        {
+          "name": "Andy Patz",
+          "team": 2,
+          "hcp": 15,
+          "gross": 49,
+          "net": 34,
+          "grp": 2
+        },
+        {
+          "name": "Wilbur Dudley",
+          "team": 2,
+          "hcp": 17,
+          "gross": 55,
+          "net": 38,
+          "grp": 2
+        },
+        {
+          "name": "Dylan Barton",
+          "team": 6,
+          "hcp": 20,
+          "gross": 66,
+          "net": 46,
+          "grp": 2
+        },
+        {
+          "name": "Wes Barton",
+          "team": 7,
+          "hcp": 11,
+          "gross": 47,
+          "net": 36,
+          "grp": 2
+        },
+        {
+          "name": "Tom Stennett",
+          "team": 4,
+          "hcp": 16,
+          "gross": 42,
+          "net": 26,
+          "grp": 3
+        },
+        {
+          "name": "Kevin Frye",
+          "team": 6,
+          "hcp": 8,
+          "gross": 38,
+          "net": 30,
+          "grp": 3
+        },
+        {
+          "name": "Vince Sanzotti",
+          "team": 7,
+          "hcp": 6,
+          "gross": 37,
+          "net": 31,
+          "grp": 3
+        },
+        {
+          "name": "Paul Bowser",
+          "team": 8,
+          "hcp": 7,
+          "gross": 43,
+          "net": 36,
+          "grp": 3
         }
       ]
     }
