@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>WGL Card Submitter — Week 11</title>
+<style>
+body { font-family: -apple-system, sans-serif; background: #141a15; color: #e8e2cf; padding: 24px; max-width: 600px; margin: 0 auto; }
+h2 { color: #e8d99a; margin-bottom: 6px; }
+.sub { color: #9fb37a; font-size: 13px; margin-bottom: 24px; }
+.card { background: #232b24; border-radius: 12px; padding: 16px; margin-bottom: 16px; border-left: 4px solid #bf5327; }
+.card h3 { margin: 0 0 8px; font-size: 15px; color: #e8d99a; }
+.status { font-size: 13px; padding: 6px 10px; border-radius: 6px; margin-top: 10px; background: #2e372c; color: #9fb37a; }
+.status.ok { background: #1a3d1e; color: #4ade80; }
+.status.err { background: #3d1a1a; color: #f87171; }
+.status.warn { background: #3d2e1a; color: #fbbf24; }
+.player { font-size: 12px; color: #9aa284; margin: 2px 0; }
+</style>
+</head>
+<body>
+<h2>WGL Card Submitter</h2>
+<div class="sub">Week 11 · Jul 20, 2026 · Back 9 · 3 cards</div>
+
+<div id="cards"></div>
+<div id="summary" style="margin-top:20px; font-size:13px; color:#9fb37a;"></div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx4vADa-QnAHP7QeHz6mN7lxA1Q24Ny7Z0GiDzFFg7nMqY35Uh54kS2C61JUYU87pj23g/exec';
+
+const CARDS = [
+  {
+    label: 'Card 1 — Powell, B.Long, S.Long, Weber',
+    players: [
+      { name:'Willie Powell',  team:3, hcp:10, scores:[7,6,4,5,6,4,5,4,7] },
+      { name:'Bill Long',      team:5, hcp:9,  scores:[7,5,7,5,7,3,4,4,6] },
+      { name:'Sam Long',       team:6, hcp:7,  scores:[6,5,4,6,5,3,6,3,6] },
+      { name:'Patric Weber',   team:8, hcp:15, scores:[7,6,5,8,8,5,5,6,7] },
+    ]
+  },
+  {
+    label: 'Card 2 — F.Watt, Patz, Dudley, D.Barton, Wes',
+    players: [
+      { name:'Frank Watt',    team:1, hcp:16, scores:[7,5,4,5,6,3,6,4,7] },
+      { name:'Andy Patz',     team:2, hcp:14, scores:[6,6,6,6,5,4,5,4,7] },
+      { name:'Wilbur Dudley', team:2, hcp:18, scores:[6,6,6,8,7,4,7,5,6] },
+      { name:'Dylan Barton',  team:6, hcp:20, scores:[8,7,8,8,8,5,8,6,8] },
+      { name:'Wes Barton',    team:7, hcp:12, scores:[7,5,6,4,5,4,7,4,5] },
+    ]
+  },
+  {
+    label: 'Card 3 — Stennett, K.Frye, Sanzotti, P.Bowser',
+    warn: '',
+    players: [
+      { name:'Tom Stennett',   team:4, hcp:14, scores:[5,4,7,3,6,3,5,4,5] },
+      { name:'Kevin Frye',     team:6, hcp:9,  scores:[6,4,4,4,4,3,5,3,5] },
+      { name:'Vince Sanzotti', team:7, hcp:7,  scores:[5,5,3,3,6,3,4,3,5] },
+      { name:'Paul Bowser',    team:8, hcp:8,  scores:[6,4,4,4,8,5,5,3,4] },
+    ]
+  }
+];
+
+const holes = [10,11,12,13,14,15,16,17,18];
+
+function buildPayload(card) {
+  const entries = card.players.map(p => {
+    const gross = p.grossOverride !== undefined ? p.grossOverride : p.scores.reduce((a,b)=>a+b,0);
+    const net   = p.netOverride   !== undefined ? p.netOverride   : gross - p.hcp;
+    const scores = {};
+    holes.forEach((h,i) => scores[h] = p.scores[i]);
+    return { name:p.name, team:p.team, hcp:p.hcp, purpose:'league_night', targetWeek:null, side:'back', gross, net, scores };
+  });
+  return { week:11, date:'Jul 20, 2026', cardType:'league_night', segments:[{ side:'back', entries }] };
+}
+
+async function submitCard(card, el, warnEl) {
+  const payload = buildPayload(card);
+  const form = new URLSearchParams();
+  form.append('data', JSON.stringify(payload));
+  try {
+    await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', body: form });
+    el.className = 'status ok';
+    el.textContent = '✅ Submitted successfully';
+    if (card.warn && warnEl) { warnEl.className = 'status warn'; warnEl.textContent = '⚠️ ' + card.warn; }
+  } catch(e) {
+    el.className = 'status err';
+    el.textContent = '❌ Error: ' + e.message;
+  }
+}
+
+async function run() {
+  const container = document.getElementById('cards');
+  const statusEls = [];
+
+  for (const card of CARDS) {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<h3>${card.label}</h3>` +
+      card.players.map(p => `<div class="player">${p.name} — T${p.team} HCP ${p.hcp}</div>`).join('') +
+      `<div class="status" id="s${CARDS.indexOf(card)}">⏳ Submitting…</div>` +
+      (card.warn ? `<div id="w${CARDS.indexOf(card)}"></div>` : '');
+    container.appendChild(div);
+  }
+
+  let ok = 0;
+  for (let i = 0; i < CARDS.length; i++) {
+    const el = document.getElementById('s' + i);
+    const warnEl = document.getElementById('w' + i);
+    await submitCard(CARDS[i], el, warnEl);
+    if (el.classList.contains('ok')) ok++;
+    await new Promise(r => setTimeout(r, 600));
+  }
+
+  document.getElementById('summary').textContent =
+    ok === CARDS.length
+      ? `✅ All ${CARDS.length} cards submitted. You can close this tab.`
+      : `⚠️ ${ok}/${CARDS.length} cards submitted — check errors above.`;
+}
+
+run();
+</script>
+</body>
+</html>
