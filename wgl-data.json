@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-22T16:21:56.081Z",
+  "lastUpdated": "2026-07-22T16:33:39.831Z",
   "updatedBy": "Wes Barton",
   "settings": {
     "greens": "TBD",
@@ -496,13 +496,13 @@
     "teams": []
   },
   "outing2": {
-    "date": "",
-    "tee": "",
-    "course": "",
-    "holes": "",
-    "format": "",
+    "date": "August 29",
+    "tee": "8am",
+    "course": "Hiland",
+    "holes": "18",
+    "format": "TBD",
     "cost": "",
-    "dinner": "",
+    "dinner": "Farm - 150 Fox Rd Worthington Pa 16262",
     "prizes": {
       "p1": "",
       "p2": "",
@@ -589,6 +589,11 @@
     }
   },
   "changeLog": [
+    {
+      "when": "2026-07-22T16:33:40.146Z",
+      "who": "Wes Barton",
+      "what": "Updated: End-of-Season Outing"
+    },
     {
       "when": "2026-07-22T16:21:56.419Z",
       "who": "Wes Barton",
