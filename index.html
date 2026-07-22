@@ -18,20 +18,21 @@
 </script>
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg,#f5f5f5); color:var(--text,#1a1a1a); min-height:100vh; font-size:14px; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg,#f5f5f5); color:var(--text,#1a1a1a); font-size:14px; height:100dvh; display:flex; flex-direction:column; overflow:hidden; }
 
 /* Sync badge */
-.sync-bar { display:flex; align-items:center; justify-content:center; gap:6px; padding:5px 12px; font-size:11px; color:#2e7d32; background:#e8f5e9; border-bottom:1px solid #c8e6c9; }
+.sync-bar { display:flex; align-items:center; justify-content:center; gap:6px; padding:5px 12px; font-size:11px; color:#2e7d32; background:#e8f5e9; border-bottom:1px solid #c8e6c9; flex-shrink:0; order:0; }
 .sync-dot { width:7px; height:7px; border-radius:50%; background:#43a047; flex-shrink:0; }
 
 /* Header */
-.app-hdr { background:#1b5e20; color:white; padding-top:env(safe-area-inset-top); position:sticky; top:0; z-index:100; }
+.app-hdr { background:#1b5e20; color:white; padding-top:env(safe-area-inset-top); flex-shrink:0; order:1; }
 .hdr-inner { padding:10px 14px 0; }
 .hdr-inner h1 { font-size:17px; font-weight:700; }
 .hdr-sub { font-size:11px; opacity:.75; margin:1px 0 8px; }
 html,body{touch-action:manipulation}
 button,.tab,.pin-btn,input,select{touch-action:manipulation}
-.tabs { position:fixed; bottom:0; left:0; right:0; z-index:150; display:flex; background:var(--tabbar-bg,rgba(255,255,255,.88)); -webkit-backdrop-filter:blur(20px) saturate(180%); backdrop-filter:blur(20px) saturate(180%); border-top:.5px solid var(--tabbar-line,rgba(0,0,0,.12)); padding-bottom:env(safe-area-inset-bottom); }
+.tabs { flex-shrink:0; order:3; display:flex; background:var(--tabbar-bg,rgba(255,255,255,.88)); -webkit-backdrop-filter:blur(20px) saturate(180%); backdrop-filter:blur(20px) saturate(180%); border-top:.5px solid var(--tabbar-line,rgba(0,0,0,.12)); padding-bottom:env(safe-area-inset-bottom); }
+#main-scroll { order:2; flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
 .tab { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:2px; padding:7px 1px 6px; font-size:9px; font-weight:600; color:var(--tabbar-inactive,#8e8e93); cursor:pointer; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
 .tab .ticon { display:inline-flex; align-items:center; justify-content:center; opacity:.85; padding:4px 10px; border-radius:12px; transition:transform .15s ease, background .15s ease; }
 .tab .ticon svg { width:22px; height:22px; display:block; }
@@ -40,7 +41,7 @@ button,.tab,.pin-btn,input,select{touch-action:manipulation}
 .tab.active { color:var(--tint,#2e7d32); }
 .tab.active .ticon { opacity:1; transform:scale(1.08); background:var(--tint-soft,rgba(46,125,50,.14)); }
 .tab:active .ticon { transform:scale(.88); }
-.tab-content { display:none; padding:12px 12px calc(76px + env(safe-area-inset-bottom)); max-width:700px; margin:0 auto; }
+.tab-content { display:none; padding:12px 12px 20px; max-width:700px; margin:0 auto; }
 .tab-content.active { display:block; }
 
 /* Cards */
@@ -472,6 +473,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
   <div class="tab" id="tab-my" onclick="showTab('mytab',this);buildMyTab()"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>My</div>
 </div>
 
+<div id="main-scroll">
 <!-- SCORE CARD — 3-step prototype -->
 <div id="scorecard" class="tab-content active">
 
@@ -1650,22 +1652,28 @@ function buildNews(){
 function buildOuting(){
   const o=D.outing;
   const body=document.getElementById('outing-body');
-  body.innerHTML=`
-    <div class="outing-section"><div class="outing-lbl">📅 Date</div><div class="outing-val">${o.date}</div></div>
-    <div class="outing-section"><div class="outing-lbl">⏰ Tee Time</div><div class="outing-val">${o.tee}</div></div>
-    <div class="outing-section"><div class="outing-lbl">📍 Course</div><div class="outing-val">${o.course}</div></div>
-    <div class="outing-section"><div class="outing-lbl">⛳ Format</div><div class="outing-val">${o.holes}<br>${o.format}</div></div>
-    <div class="outing-section"><div class="outing-lbl">💵 Cost</div><div class="outing-val">${o.cost}</div></div>
-    <div class="outing-section"><div class="outing-lbl">🍽️ Dinner</div><div class="outing-val">${o.dinner}</div></div>`;
+  if(o.date||o.course){
+    body.innerHTML=`
+      ${o.date?`<div class="outing-section"><div class="outing-lbl">📅 Date</div><div class="outing-val">${o.date}</div></div>`:''}
+      ${o.tee?`<div class="outing-section"><div class="outing-lbl">⏰ Tee Time</div><div class="outing-val">${o.tee}</div></div>`:''}
+      ${o.course?`<div class="outing-section"><div class="outing-lbl">📍 Course</div><div class="outing-val">${o.course}</div></div>`:''}
+      ${(o.holes||o.format)?`<div class="outing-section"><div class="outing-lbl">⛳ Format</div><div class="outing-val">${o.holes||''}${o.holes&&o.format?'<br>':''}${o.format||''}</div></div>`:''}
+      ${o.cost?`<div class="outing-section"><div class="outing-lbl">💵 Cost</div><div class="outing-val">${o.cost}</div></div>`:''}
+      ${o.dinner?`<div class="outing-section"><div class="outing-lbl">🍽️ Dinner</div><div class="outing-val">${o.dinner}</div></div>`:''}`;
+  } else {
+    body.innerHTML='<div style="color:#aaa;font-size:13px;text-align:center;padding:10px">Details coming soon — check back later.</div>';
+  }
   const prizes=o.prizes;
+  const pcard=document.getElementById('prizes-card');
   if(prizes){
-    const pcard=document.getElementById('prizes-card');
     pcard.style.display='';
     document.getElementById('prizes-body').innerHTML=[
       ['🥇 Low Gross',prizes.p1],['🥈 Low Net',prizes.p2],
       ['📍 Closest to Pin',prizes.p3],['🏌️ Long Drive',prizes.p4],
       ['🏆 Season Champion',prizes.p5]
     ].map(([pos,desc])=>desc?`<div class="prize-row"><span class="prize-pos">${pos}</span><span class="prize-desc">${desc}</span></div>`:'').join('');
+  } else {
+    pcard.style.display='none';
   }
   const sups=o.signups||[];
   // Update sign-up modal subtitle with outing date
@@ -1678,6 +1686,8 @@ function buildOuting(){
       <div style="padding:9px 0;border-bottom:1px solid #f5f5f5;font-size:14px;font-weight:500">
         ${s.name}
       </div>`).join('');
+  } else {
+    document.getElementById('signups-card').style.display='none';
   }
   // Teams
   renderOutingTeams(o.teams||[],'teams-card','teams-body');
@@ -1713,6 +1723,9 @@ function buildOuting(){
       <div style="padding:9px 0;border-bottom:1px solid #f5f5f5;font-size:14px;font-weight:500">
         ${s.name}
       </div>`).join('');
+  } else {
+    const sc2=document.getElementById('signups2-card');
+    if(sc2) sc2.style.display='none';
   }
   renderOutingTeams(o2.teams||[],'teams2-card','teams2-body');
 }
@@ -1902,14 +1915,26 @@ function enablePush(){
     return;
   }
   try{
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    OneSignalDeferred.push(async function(OneSignal){
-      await OneSignal.Notifications.requestPermission();
-      setTimeout(updatePushUI, 600);
-    });
-  }catch(e){}
-  // Fallback if OneSignal SDK failed to load
-  try{ if(!window.OneSignal) Notification.requestPermission().then(()=>updatePushUI()); }catch(e){}
+    if(window.OneSignal){
+      // SDK already initialized — call directly
+      window.OneSignal.Notifications.requestPermission().then(()=>setTimeout(updatePushUI,600)).catch(()=>{});
+    } else {
+      // Still loading — queue it
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal){
+        await OneSignal.Notifications.requestPermission();
+        setTimeout(updatePushUI, 600);
+      });
+      // Fallback if OneSignal never loads
+      setTimeout(function(){
+        if(Notification.permission==='default'){
+          Notification.requestPermission().then(()=>updatePushUI());
+        }
+      }, 3000);
+    }
+  }catch(e){
+    try{ Notification.requestPermission().then(()=>updatePushUI()); }catch(e2){}
+  }
 }
 function updatePushUI(){
   const supported = ('Notification' in window);
@@ -2611,5 +2636,6 @@ function gpsGetDistance(){
   );
 }
 </script>
+</div><!-- /main-scroll -->
 </body>
 </html>
