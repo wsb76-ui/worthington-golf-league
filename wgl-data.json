@@ -1,137 +1,140 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-21T22:37:10.961Z",
-  "updatedBy": "sheets-engine",
+  "lastUpdated": "2026-07-22T15:15:36.277Z",
+  "updatedBy": "Wes Barton",
   "settings": {
     "greens": "TBD",
-    "duesAmt": "TBD",
+    "dues": "",
     "outingFee": "TBD",
-    "skinsBuyin": "TBD",
-    "lownetBuyin": "TBD",
+    "skins": "",
+    "lownet": "",
     "pot": "TBD",
     "week": 12,
-    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Through Week 11"
+    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Week 11 Upcoming",
+    "duesAmt": "TBD",
+    "skinsBuyin": "TBD",
+    "lownetBuyin": "TBD"
   },
   "players": {
     "Larry Julius": {
       "team": 1,
       "hcp": 2,
-      "phone": "(724) 841-9445"
+      "phone": ""
     },
     "Kris Simmons": {
       "team": 1,
       "hcp": 3,
-      "phone": "(412) 334-6459"
+      "phone": ""
     },
     "Butch Griffith": {
       "team": 1,
       "hcp": 11,
-      "phone": "(724) 859-7691"
+      "phone": ""
     },
     "Mario Jenkins": {
       "team": 1,
       "hcp": 10,
-      "phone": "(412) 478-5065"
+      "phone": ""
     },
     "Frank Watt": {
       "team": 1,
       "hcp": 15,
-      "phone": "(724) 793-0715"
+      "phone": ""
     },
     "Paul Harmon": {
       "team": 1,
       "hcp": 15,
-      "phone": "(724) 212-5943"
+      "phone": ""
     },
     "Andy Gallagher": {
       "team": 1,
       "hcp": 15,
-      "phone": "(724) 859-4650"
+      "phone": ""
     },
     "Keith Clark": {
       "team": 1,
       "hcp": 20,
-      "phone": "(724) 968-6432"
+      "phone": ""
     },
     "Jim Frye": {
       "team": 2,
       "hcp": 0,
-      "phone": "(724) 822-3945"
+      "phone": ""
     },
     "Skylar Grafton": {
       "team": 2,
       "hcp": 9,
-      "phone": "(724) 954-2534"
+      "phone": ""
     },
     "Nick Keefer": {
       "team": 2,
       "hcp": 9,
-      "phone": "(724) 859-1323"
+      "phone": ""
     },
     "Jeff Hollobaugh": {
       "team": 2,
       "hcp": 11,
-      "phone": "(724) 290-7067"
+      "phone": ""
     },
     "Andy Patz": {
       "team": 2,
       "hcp": 15,
-      "phone": "(412) 215-7703"
+      "phone": ""
     },
     "Trent Brocious": {
       "team": 2,
       "hcp": 14,
-      "phone": "(724) 959-6854"
+      "phone": ""
     },
     "Wilbur Dudley": {
       "team": 2,
       "hcp": 17,
-      "phone": "(724) 664-6853"
+      "phone": ""
     },
     "Duck Julius": {
       "team": 3,
       "hcp": 2,
-      "phone": "(724) 954-7157"
+      "phone": ""
     },
     "Willie Powell": {
       "team": 3,
       "hcp": 9,
-      "phone": "(724) 766-4569"
+      "phone": ""
     },
     "Bruce Thomas": {
       "team": 3,
       "hcp": 9,
-      "phone": "(724) 954-8347"
+      "phone": ""
     },
     "Scott Barton": {
       "team": 3,
       "hcp": 11,
-      "phone": "(724) 679-9129"
+      "phone": ""
     },
     "Dave Cushey": {
       "team": 3,
       "hcp": 12,
-      "phone": "(724) 859-3004"
+      "phone": ""
     },
     "Dicky Peat": {
       "team": 3,
       "hcp": 18,
-      "phone": "(724) 543-1362"
+      "phone": ""
     },
     "Allan Voltz": {
       "team": 3,
       "hcp": 20,
-      "phone": "(724) 712-1354"
+      "phone": ""
     },
     "Clark Helm": {
       "team": 4,
       "hcp": 5,
-      "phone": "(724) 689-4419"
+      "phone": ""
     },
     "Harry Breski": {
       "team": 4,
       "hcp": 7,
-      "phone": "(724) 859-3947"
+      "phone": ""
     },
     "Roger Hoffman": {
       "team": 4,
@@ -141,52 +144,52 @@
     "Chad Hollobaugh": {
       "team": 4,
       "hcp": 9,
-      "phone": "(724) 954-0689"
+      "phone": ""
     },
     "Blake Bowser": {
       "team": 4,
       "hcp": 16,
-      "phone": "(724) 954-6963"
+      "phone": ""
     },
     "Tom Stennett": {
       "team": 4,
       "hcp": 16,
-      "phone": "(724) 664-0765"
+      "phone": ""
     },
     "Landon Badac": {
       "team": 4,
       "hcp": 18,
-      "phone": "(724) 859-5177"
+      "phone": ""
     },
     "Eli Hickman": {
       "team": 5,
       "hcp": 7,
-      "phone": "(724) 954-9901"
+      "phone": ""
     },
     "Jaxon Smith": {
       "team": 5,
       "hcp": 8,
-      "phone": "(724) 664-1891"
+      "phone": ""
     },
     "Bill Long": {
       "team": 5,
       "hcp": 10,
-      "phone": "(724) 290-3184"
+      "phone": ""
     },
     "Tyler Eroh": {
       "team": 5,
       "hcp": 7,
-      "phone": "(724) 664-6462"
+      "phone": ""
     },
     "Denny Snyder": {
       "team": 5,
       "hcp": 10,
-      "phone": "(724) 525-4030"
+      "phone": ""
     },
     "Don Nulph": {
       "team": 5,
       "hcp": 12,
-      "phone": "(724) 664-6299"
+      "phone": ""
     },
     "Dave Toy": {
       "team": 5,
@@ -196,32 +199,32 @@
     "Sam Long": {
       "team": 6,
       "hcp": 8,
-      "phone": "(724) 919-3154"
+      "phone": ""
     },
     "Jay Griffith": {
       "team": 6,
       "hcp": 10,
-      "phone": "(724) 859-7693"
+      "phone": ""
     },
     "Kevin Frye": {
       "team": 6,
       "hcp": 8,
-      "phone": "(724) 841-5904"
+      "phone": ""
     },
     "Jesse Hickman": {
       "team": 6,
       "hcp": 12,
-      "phone": "(412) 549-0733"
+      "phone": ""
     },
     "Jim Goodman": {
       "team": 6,
       "hcp": 16,
-      "phone": "(425) 280-9124"
+      "phone": ""
     },
     "Dylan Barton": {
       "team": 6,
       "hcp": 20,
-      "phone": "(724) 525-6964"
+      "phone": ""
     },
     "Matt Nulph": {
       "team": 6,
@@ -231,100 +234,359 @@
     "Ed Bargerstock": {
       "team": 7,
       "hcp": 5,
-      "phone": "(724) 859-7075"
+      "phone": ""
     },
     "Vince Sanzotti": {
       "team": 7,
       "hcp": 6,
-      "phone": "(724) 679-6886"
+      "phone": ""
     },
     "Mike Hickman": {
       "team": 7,
       "hcp": 5,
-      "phone": "(724) 859-4342"
+      "phone": ""
     },
     "Chris Remaley": {
       "team": 7,
       "hcp": 12,
-      "phone": "(724) 525-7224"
+      "phone": ""
     },
     "Jason Smith": {
       "team": 7,
       "hcp": 10,
-      "phone": "(724) 664-2006"
+      "phone": ""
     },
     "Wes Barton": {
       "team": 7,
       "hcp": 11,
-      "phone": "(724) 664-5699"
+      "phone": ""
     },
     "Doug Anthony": {
       "team": 7,
       "hcp": 10,
-      "phone": "(724) 664-0208"
+      "phone": ""
     },
     "Brian Barton": {
       "team": 8,
       "hcp": 5,
-      "phone": "(724) 859-5421"
+      "phone": ""
     },
     "Logan Bowser": {
       "team": 8,
       "hcp": 11,
-      "phone": "(724) 954-0369"
+      "phone": ""
     },
     "Paul Bowser": {
       "team": 8,
       "hcp": 7,
-      "phone": "(724) 954-4413"
+      "phone": ""
     },
     "Ken Long": {
       "team": 8,
       "hcp": 12,
-      "phone": "(724) 841-6038"
+      "phone": ""
     },
     "Patric Weber": {
       "team": 8,
       "hcp": 16,
-      "phone": "(724) 954-4430"
+      "phone": ""
     },
     "Cole Clark": {
       "team": 8,
       "hcp": 14,
-      "phone": "(724) 841-7038"
+      "phone": ""
     },
     "Dylan Smith": {
       "team": 8,
       "hcp": 16,
-      "phone": "(724) 954-0988"
+      "phone": ""
     }
   },
   "buyins": {},
-  "duesPaid": {},
+  "duesPaid": {
+    "Larry Julius": {
+      "dues": true
+    },
+    "Kris Simmons": {
+      "dues": true
+    },
+    "Butch Griffith": {
+      "dues": true
+    },
+    "Mario Jenkins": {
+      "dues": true
+    },
+    "Frank Watt": {
+      "dues": true
+    },
+    "Paul Harmon": {
+      "dues": true
+    },
+    "Andy Gallagher": {
+      "dues": true
+    },
+    "Keith Clark": {
+      "dues": true
+    },
+    "Jim Frye": {
+      "dues": true
+    },
+    "Skylar Grafton": {
+      "dues": true
+    },
+    "Nick Keefer": {
+      "dues": true
+    },
+    "Jeff Hollobaugh": {
+      "dues": true
+    },
+    "Andy Patz": {
+      "dues": true
+    },
+    "Trent Brocious": {
+      "dues": true
+    },
+    "Wilbur Dudley": {
+      "dues": true
+    },
+    "Duck Julius": {
+      "dues": true
+    },
+    "Willie Powell": {
+      "dues": true
+    },
+    "Bruce Thomas": {
+      "dues": true
+    },
+    "Scott Barton": {
+      "dues": true
+    },
+    "Dave Cushey": {
+      "dues": true
+    },
+    "Dicky Peat": {
+      "dues": true
+    },
+    "Allan Voltz": {
+      "dues": true
+    },
+    "Clark Helm": {
+      "dues": true
+    },
+    "Harry Breski": {
+      "dues": true
+    },
+    "Roger Hoffman": {
+      "dues": true
+    },
+    "Chad Hollobaugh": {
+      "dues": true
+    },
+    "Blake Bowser": {
+      "dues": true
+    },
+    "Tom Stennett": {
+      "dues": true
+    },
+    "Landon Badac": {
+      "dues": true
+    },
+    "Eli Hickman": {
+      "dues": true
+    },
+    "Jaxon Smith": {
+      "dues": true
+    },
+    "Bill Long": {
+      "dues": true
+    },
+    "Tyler Eroh": {
+      "dues": true
+    },
+    "Denny Snyder": {
+      "dues": true
+    },
+    "Don Nulph": {
+      "dues": true
+    },
+    "Dave Toy": {
+      "dues": true
+    },
+    "Sam Long": {
+      "dues": true
+    },
+    "Jay Griffith": {
+      "dues": true
+    },
+    "Kevin Frye": {
+      "dues": true
+    },
+    "Jesse Hickman": {
+      "dues": true
+    },
+    "Jim Goodman": {
+      "dues": true
+    },
+    "Dylan Barton": {
+      "dues": true
+    },
+    "Matt Nulph": {
+      "dues": true
+    },
+    "Ed Bargerstock": {
+      "dues": true
+    },
+    "Vince Sanzotti": {
+      "dues": true
+    },
+    "Mike Hickman": {
+      "dues": true
+    },
+    "Chris Remaley": {
+      "dues": true
+    },
+    "Jason Smith": {
+      "dues": true
+    },
+    "Wes Barton": {
+      "dues": true
+    },
+    "Doug Anthony": {
+      "dues": true
+    },
+    "Brian Barton": {
+      "dues": true
+    },
+    "Logan Bowser": {
+      "dues": true
+    },
+    "Paul Bowser": {
+      "dues": true
+    },
+    "Ken Long": {
+      "dues": true
+    },
+    "Patric Weber": {
+      "dues": true
+    },
+    "Cole Clark": {
+      "dues": true
+    },
+    "Dylan Smith": {
+      "dues": true
+    }
+  },
   "announcements": [],
   "outing": {
-    "date": "Saturday, August 29, 2026",
-    "tee": "8:00 AM start",
-    "course": "Hiland Golf Course · Butler, PA",
-    "holes": "18 holes · starting on the back 9",
-    "format": "TBD",
-    "cost": "TBD",
-    "dinner": "The Farm · 150 Fox Rd, Worthington PA 16262",
+    "date": "",
+    "tee": "",
+    "course": "",
+    "holes": "",
+    "format": "",
+    "cost": "",
+    "dinner": "",
     "prizes": {
       "p1": "",
       "p2": "",
       "p3": "",
       "p4": "",
-      "p5": "Lowest season net total"
+      "p5": ""
     },
-    "signups": []
+    "signups": [],
+    "teams": []
+  },
+  "outing2": {
+    "date": "",
+    "tee": "",
+    "course": "",
+    "holes": "",
+    "format": "",
+    "cost": "",
+    "dinner": "",
+    "prizes": {
+      "p1": "",
+      "p2": "",
+      "p3": "",
+      "p4": "",
+      "p5": ""
+    },
+    "signups": [],
+    "teams": []
   },
   "payouts": {
     "total": "",
     "pct1": 50,
     "pct2": 30,
     "pct3": 20,
-    "rollover": {}
+    "rollover": {
+      "Larry Julius": "",
+      "Kris Simmons": "",
+      "Butch Griffith": "",
+      "Mario Jenkins": "",
+      "Frank Watt": "",
+      "Paul Harmon": "",
+      "Andy Gallagher": "",
+      "Keith Clark": "",
+      "Jim Frye": "",
+      "Skylar Grafton": "",
+      "Nick Keefer": "",
+      "Jeff Hollobaugh": "",
+      "Andy Patz": "",
+      "Trent Brocious": "",
+      "Wilbur Dudley": "",
+      "Duck Julius": "",
+      "Willie Powell": "",
+      "Bruce Thomas": "",
+      "Scott Barton": "",
+      "Dave Cushey": "",
+      "Dicky Peat": "",
+      "Allan Voltz": "",
+      "Clark Helm": "",
+      "Harry Breski": "",
+      "Roger Hoffman": "",
+      "Chad Hollobaugh": "",
+      "Blake Bowser": "",
+      "Tom Stennett": "",
+      "Landon Badac": "",
+      "Eli Hickman": "",
+      "Jaxon Smith": "",
+      "Bill Long": "",
+      "Tyler Eroh": "",
+      "Denny Snyder": "",
+      "Don Nulph": "",
+      "Dave Toy": "",
+      "Sam Long": "",
+      "Jay Griffith": "",
+      "Kevin Frye": "",
+      "Jesse Hickman": "",
+      "Jim Goodman": "",
+      "Dylan Barton": "",
+      "Matt Nulph": "",
+      "Ed Bargerstock": "",
+      "Vince Sanzotti": "",
+      "Mike Hickman": "",
+      "Chris Remaley": "",
+      "Jason Smith": "",
+      "Wes Barton": "",
+      "Doug Anthony": "",
+      "Brian Barton": "",
+      "Logan Bowser": "",
+      "Paul Bowser": "",
+      "Ken Long": "",
+      "Patric Weber": "",
+      "Cole Clark": "",
+      "Dylan Smith": ""
+    },
+    "teamPayouts": {}
+  },
+  "weeklyPayouts": {
+    "10": {
+      "skins": [],
+      "lowNet": {
+        "player": "Kevin Frye",
+        "amount": 57
+      }
+    }
   },
   "weeks": {
     "10": {
@@ -840,5 +1102,11 @@
       }
     ]
   },
-  "weeklyPayouts": {}
+  "changeLog": [
+    {
+      "when": "2026-07-22T15:15:36.603Z",
+      "who": "Wes Barton",
+      "what": "Updated: Settings, Players, Dues, Mid-Season Outing, End-of-Season Outing, Payouts, Weekly Winners"
+    }
+  ]
 }
