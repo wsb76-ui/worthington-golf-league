@@ -1,4 +1,4 @@
-const CACHE = 'wgl-v16'; // bumped 2026-07-23: Garmin GLO2 resurveyed green coordinates
+const CACHE = 'wgl-v17'; // bumped 2026-07-23: restore live GPS, update toast, CORS submits + GLO2 coords
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
@@ -8,9 +8,13 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
-  );
+  // NOTE: no skipWaiting here — the page shows a "New version" toast and the
+  // user opts in. Tapping the toast sends SKIP_WAITING below.
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+});
+
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
@@ -22,8 +26,8 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Only intercept same-origin requests — let cross-origin requests (GitHub API, etc.) pass through untouched
-  if (!e.request.url.startsWith(self.location.origin)) return;
+  // Only intercept same-origin GETs — let cross-origin (GitHub API, Apps Script) pass through
+  if (e.request.method !== 'GET' || !e.request.url.startsWith(self.location.origin)) return;
   e.respondWith(
     caches.match(e.request).then(cached => {
       const network = fetch(e.request).then(res => {
