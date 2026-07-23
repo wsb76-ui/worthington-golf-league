@@ -1,4 +1,4 @@
-const CACHE = 'wgl-v15'; // bumped 2026-07-17: notification opt-in prompt
+const CACHE = 'wgl-v16'; // bumped 2026-07-23: Garmin GLO2 resurveyed green coordinates
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
