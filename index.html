@@ -1457,34 +1457,28 @@ function scHdClass(val,par){
   return 'double';
 }
 
-function scShowReview(){
-  scShowStep('sc-step-review');
-  const pars=scGetPars();
-  const holes=scGetHoles();
+function scRenderSegmentBlock(side, scoreMap, purposes){
+  // Renders one 9-hole segment (used for both completed and active segments)
+  const pars = side==='back'?SC_BACK_PARS:SC_FRONT_PARS;
   const byTeam={};
   for(const p of scSess.players){
-    const s=scSess.scores[p.name];
+    const s=scoreMap[p.name]||Array(9).fill(null);
     const filled=s.every(v=>v!==null);
     const gross=s.reduce((a,b)=>a+(b||0),0);
     const net=filled?gross-p.hcp:null;
-    (byTeam[p.team]=byTeam[p.team]||[]).push({...p,scores:s,gross:filled?gross:null,net});
+    const purp=(purposes&&purposes[p.name]&&purposes[p.name].purpose)||p.purpose||'league_night';
+    (byTeam[p.team]=byTeam[p.team]||[]).push({...p,scores:s,gross:filled?gross:null,net,purp});
   }
-  const sideLabel=scSess.side==='back'?'Back 9 (Holes 10–18)':'Front 9 (Holes 1–9)';
-  const wk=D.settings&&D.settings.week?D.settings.week:'?';
-  let html=`<div class="card" style="margin-bottom:4px;background:#f0f7f0">
-    <div style="padding:10px 14px">
-      <span style="font-size:13px;color:#2e7d32;font-weight:600">Week ${wk} · ${sideLabel}</span>
-      <span style="font-size:12px;color:#666;margin-left:8px">${scSess.players.length} player${scSess.players.length!==1?'s':''}</span>
-    </div>
-  </div>`;
+  let html='';
   for(const team of Object.keys(byTeam).sort((a,b)=>+a-+b)){
     html+=`<div class="card"><div style="padding:14px 16px"><div class="sc-team-hdr">Team ${team}</div>`;
     for(const p of byTeam[team]){
       const dots=p.scores.map((s,i)=>`<span class="hd ${scHdClass(s,pars[i])}">${s??'?'}</span>`).join('');
       const totStr=p.gross!==null?`${p.gross} gross · ${p.net} net`:'⚠ incomplete';
+      const purpTag=p.purp!=='league_night'?` <span style="font-size:11px;color:#8a6d3b;background:#fdf6e3;border-radius:6px;padding:1px 6px">${(typeof SC_TYPE_LABELS!=='undefined'&&SC_TYPE_LABELS[p.purp])||p.purp}</span>`:'';
       html+=`<div class="rev-row">
         <div class="rev-name-row">
-          <span class="rname">${p.name}</span>
+          <span class="rname">${p.name}${purpTag}</span>
           <span class="rtotals${p.gross===null?' warn':''}">${totStr}</span>
         </div>
         <div class="hole-dots">${dots}</div>
@@ -1492,6 +1486,30 @@ function scShowReview(){
     }
     html+='</div></div>';
   }
+  return html;
+}
+
+function scShowReview(){
+  scShowStep('sc-step-review');
+  const wk=D.settings&&D.settings.week?D.settings.week:'?';
+  const sideLbl=s=>s==='back'?'Back 9 (Holes 10–18)':'Front 9 (Holes 1–9)';
+  const totalSegs=scSess.completedSegments.length+1;
+  const hdrLabel=totalSegs>1?'18 Holes ('+scSess.completedSegments.map(s=>sideLbl(s.side).split(' ')[0]).join(' + ')+' + '+sideLbl(scSess.side).split(' ')[0]+')':sideLbl(scSess.side);
+  let html=`<div class="card" style="margin-bottom:4px;background:#f0f7f0">
+    <div style="padding:10px 14px">
+      <span style="font-size:13px;color:#2e7d32;font-weight:600">Week ${wk} · ${hdrLabel}</span>
+      <span style="font-size:12px;color:#666;margin-left:8px">${scSess.players.length} player${scSess.players.length!==1?'s':''}</span>
+    </div>
+  </div>`;
+  // Completed segments first, so an 18-hole card shows BOTH nines before submitting
+  scSess.completedSegments.forEach((seg,i)=>{
+    html+=`<div style="font-size:12px;font-weight:600;color:#666;padding:8px 4px 2px">✅ ${sideLbl(seg.side)} — submitted with this card</div>`;
+    html+=scRenderSegmentBlock(seg.side, seg.scores, seg.purposes);
+  });
+  if(scSess.completedSegments.length){
+    html+=`<div style="font-size:12px;font-weight:600;color:#666;padding:8px 4px 2px">📝 ${sideLbl(scSess.side)}</div>`;
+  }
+  html+=scRenderSegmentBlock(scSess.side, scSess.scores, null);
   document.getElementById('sc-review-body').innerHTML=html;
   // Update "Play Another 9" button label dynamically
   const addBtn=document.getElementById('sc-add-nine-btn');
@@ -1503,10 +1521,14 @@ function scShowReview(){
 }
 
 function scAddSecondNine(){
-  // Archive current 9-hole segment
+  // Archive current 9-hole segment WITH each player's purpose at time of play,
+  // so the second 9 can have a different card type (league vs practice vs bank)
+  const purposes={};
+  for(const p of scSess.players) purposes[p.name]={purpose:p.purpose||'league_night',targetWeek:p.targetWeek||null};
   scSess.completedSegments.push({
     side: scSess.side,
-    scores: JSON.parse(JSON.stringify(scSess.scores))
+    scores: JSON.parse(JSON.stringify(scSess.scores)),
+    purposes
   });
   // Switch to other side, reset active scores
   const newSide = scSess.side==='back'?'front':'back';
@@ -1514,6 +1536,33 @@ function scAddSecondNine(){
   scSess.hole = 0;
   for(const p of scSess.players) scSess.scores[p.name]=Array(9).fill(null);
   scSetSide(newSide);
+  SC_STORE.save();
+  scAskSecondNinePurpose(newSide);
+}
+
+function scAskSecondNinePurpose(newSide){
+  // Lightweight chooser: what is this second 9 for?
+  const sideLbl=newSide==='back'?'Back 9':'Front 9';
+  const old=document.getElementById('sc-purpose-modal'); if(old)old.remove();
+  const bg=document.createElement('div');
+  bg.id='sc-purpose-modal';
+  bg.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px';
+  bg.innerHTML=`<div style="background:#fff;border-radius:14px;max-width:340px;width:100%;padding:20px 18px;box-shadow:0 8px 30px rgba(0,0,0,.25)">
+    <div style="font-weight:700;font-size:16px;margin-bottom:4px">What's the ${sideLbl} for?</div>
+    <div style="font-size:13px;color:#666;margin-bottom:14px">Your first 9 is saved. Pick a card type for this second 9.</div>
+    <button class="sc-btn-primary" style="width:100%;margin-bottom:8px" onclick="scPickSecondNinePurpose('same')">Same as first 9</button>
+    <button class="sc-btn-ghost" style="width:100%;margin-bottom:8px" onclick="scPickSecondNinePurpose('league_night')">🏌️ League Night</button>
+    <button class="sc-btn-ghost" style="width:100%;margin-bottom:8px" onclick="scPickSecondNinePurpose('bank_card')">🏦 Bank for Later</button>
+    <button class="sc-btn-ghost" style="width:100%" onclick="scPickSecondNinePurpose('practice')">⛳ Practice Only</button>
+  </div>`;
+  document.body.appendChild(bg);
+}
+
+function scPickSecondNinePurpose(choice){
+  const m=document.getElementById('sc-purpose-modal'); if(m)m.remove();
+  if(choice!=='same'){
+    for(const p of scSess.players){ p.purpose=choice; p.targetWeek=null; }
+  }
   SC_STORE.save();
   scShowStep('sc-step-scoring');
   scRenderHole();
@@ -1534,7 +1583,7 @@ async function scSubmit(){
   const wk = D.settings&&D.settings.week ? D.settings.week : '?';
 
   // Build segments array — completed segments + current active segment
-  function buildSegment(side, scoreMap){
+  function buildSegment(side, scoreMap, purposes){
     const segHoles = side==='back'?[10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
     return {
       side,
@@ -1544,10 +1593,12 @@ async function scSubmit(){
         const net = gross - p.hcp;
         const scores = {};
         segHoles.forEach((h,i)=>{ scores[h]=s[i]??null; });
+        // Per-segment purpose: completed segments carry the purpose they were played under
+        const pp = purposes && purposes[p.name] ? purposes[p.name] : {purpose:p.purpose||'league_night', targetWeek:p.targetWeek||null};
         return {
           name:p.name, team:p.team, hcp:p.hcp,
-          purpose: p.purpose||'league_night',
-          targetWeek: p.targetWeek||null,
+          purpose: pp.purpose||'league_night',
+          targetWeek: pp.targetWeek||null,
           side, gross, net, scores
         };
       })
@@ -1555,8 +1606,8 @@ async function scSubmit(){
   }
 
   const allSegs = [
-    ...(scSess.completedSegments||[]).map(seg=>buildSegment(seg.side, seg.scores)),
-    buildSegment(scSess.side, scSess.scores)
+    ...scSess.completedSegments.map(seg=>buildSegment(seg.side, seg.scores, seg.purposes)),
+    buildSegment(scSess.side, scSess.scores, null)
   ];
 
   const payload = {
@@ -1590,10 +1641,15 @@ async function scSubmit(){
   try {
     const form = new URLSearchParams();
     form.append('data', JSON.stringify(payload));
-    await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', body: form });
+    const resp = await fetch(SCRIPT_URL, { method:'POST', body: form });
+    let out = null;
+    try { out = await resp.json(); } catch(_){}
+    if (out && out.ok === false) throw new Error(out.error || 'Server rejected the card');
     statusEl.style.background = '#e8f5e9';
     statusEl.style.color = '#2e7d32';
-    statusEl.textContent = '✅ Card submitted! Commissioner will review before it\'s official.';
+    statusEl.textContent = out && out.ok
+      ? '✅ Card received — ' + (out.rows||0) + ' score' + (out.rows===1?'':'s') + ' recorded.' + (out.dupes ? ' ⚠️ ' + out.dupes + ' flagged as possible duplicate for the commissioner.' : '')
+      : '✅ Card submitted!';
     if(noteEl) noteEl.style.display = 'none';
     btn.style.display = 'none';
     document.getElementById('sc-add-nine-btn').style.display='none';
@@ -1793,7 +1849,9 @@ async function submitSignup(){
       name, notes,
       submitted:new Date().toISOString()
     }));
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:form});
+    const resp=await fetch(SCRIPT_URL,{method:'POST',body:form});
+    let out=null; try{ out=await resp.json(); }catch(_){}
+    if(out && out.ok===false) throw new Error(out.error||'Sign-up not recorded');
     document.getElementById('signup-modal-bg').style.display='none';
     alert('✅ You\'re signed up for the '+label+' Outing, '+name+'!');
   }catch(err){
@@ -1986,7 +2044,9 @@ async function requestOutingRemoval(which){
       type:'outing_remove', outing:isMid?'mid':'end', outingLabel:label,
       outingDate:(o&&o.date)||'', name:name, submitted:new Date().toISOString()
     }));
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:form});
+    const resp=await fetch(SCRIPT_URL,{method:'POST',body:form});
+    let out=null; try{ out=await resp.json(); }catch(_){}
+    if(out && out.ok===false) throw new Error(out.error||'Request not recorded');
     alert('✅ Request sent — you\'ll be taken off the '+label+' list.');
   }catch(err){
     window.location.href='mailto:wglscore@gmail.com?subject='+encodeURIComponent('WGL '+label+' Outing REMOVAL: '+name)+'&body='+encodeURIComponent(name+' asking to be removed from the '+label+' outing sign-up list.');
@@ -2592,12 +2652,19 @@ function gpsResetStrip(holeNum,par){
   const info=HOLE_INFO[holeNum]||{};
   document.getElementById('gps-strip-hole').textContent=
     '📍 Hole '+holeNum+' · Par '+par+(info.yds?' · '+info.yds+' yds':'');
-  document.getElementById('gps-front').textContent='—';
-  document.getElementById('gps-center').textContent='—';
-  document.getElementById('gps-back').textContent='—';
-  document.getElementById('gps-status').textContent='';
   const btn=document.getElementById('gps-btn');
-  btn.textContent='📍 Locate';btn.disabled=false;
+  if(gpsWatchId!==null && gpsLastPos){
+    // Live watch running — recompute against the new hole's green instantly
+    gpsLastRender=Date.now();
+    gpsRender(gpsLastPos);
+    btn.disabled=false; gpsSetBtnLabel();
+  }else{
+    document.getElementById('gps-front').textContent='—';
+    document.getElementById('gps-center').textContent='—';
+    document.getElementById('gps-back').textContent='—';
+    document.getElementById('gps-status').textContent='';
+    btn.textContent='📍 Locate';btn.disabled=false;
+  }
 }
 
 function haversineYards(lat1,lon1,lat2,lon2){
@@ -2607,34 +2674,128 @@ function haversineYards(lat1,lon1,lat2,lon2){
   return Math.round(R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))*1.09361);
 }
 
+// ── Live GPS rangefinder ─────────────────────────────────────────────────────
+// Continuous watchPosition. Yardages redraw every 5s normally; tapping the
+// button ("Refresh") boosts to every fix (~1s) for 15s, then settles back.
+let gpsWatchId=null, gpsLastPos=null, gpsLastRender=0, gpsBoostUntil=0, gpsBoostTimer=null, gpsWakeLock=null, gpsWasWatching=false;
+
+function gpsRender(pos){
+  const status=document.getElementById('gps-status');
+  const holeNum=scGetHoles()[scSess.hole];
+  const{latitude:lat,longitude:lon,accuracy:acc}=pos.coords;
+  const g=GREENS[holeNum];
+  if(!g){status.textContent='No green data for hole '+holeNum+'.';return;}
+  // Front = closest edge of green (front, left, or right waypoint — whichever is nearest)
+  const edges=[g.f,g.l,g.rt].filter(Boolean);
+  const frontYds=Math.min(...edges.map(e=>haversineYards(lat,lon,e[0],e[1])));
+  document.getElementById('gps-front').textContent=frontYds;
+  document.getElementById('gps-center').textContent=haversineYards(lat,lon,g.c[0],g.c[1]);
+  document.getElementById('gps-back').textContent=haversineYards(lat,lon,g.r[0],g.r[1]);
+  status.textContent='±'+Math.round(acc)+' m'+(acc>15?' · move to open sky':'')+(Date.now()<gpsBoostUntil?' · ⚡ live':'');
+}
+
+function gpsOnFix(pos){
+  gpsLastPos=pos;
+  const btn=document.getElementById('gps-btn');
+  if(btn && btn.disabled){ btn.disabled=false; gpsSetBtnLabel(); }
+  const now=Date.now();
+  const interval = now<gpsBoostUntil ? 0 : 5000;   // boost: every fix (~1s); normal: every 5s
+  if(now-gpsLastRender>=interval){ gpsLastRender=now; gpsRender(pos); }
+}
+
+function gpsOnError(err){
+  const status=document.getElementById('gps-status');
+  const btn=document.getElementById('gps-btn');
+  if(status) status.textContent=err.code===1?'Location denied — check Settings.':'Could not get location. Try again.';
+  if(btn){ btn.textContent='📍 Locate'; btn.disabled=false; }
+  gpsStopWatch();
+}
+
+function gpsSetBtnLabel(){
+  const btn=document.getElementById('gps-btn');
+  if(!btn) return;
+  btn.textContent = gpsWatchId===null ? '📍 Locate' : (Date.now()<gpsBoostUntil ? '⚡ Live' : '🔄 Refresh');
+}
+
+function gpsStartWatch(){
+  if(gpsWatchId!==null || !navigator.geolocation) return;
+  gpsWatchId=navigator.geolocation.watchPosition(gpsOnFix, gpsOnError,
+    {enableHighAccuracy:true, timeout:15000, maximumAge:1000});
+  window.__gpsWatchStarted=true;
+  // Keep the screen awake while the rangefinder is live (golfers want this mid-hole)
+  if('wakeLock' in navigator){
+    navigator.wakeLock.request('screen').then(wl=>{gpsWakeLock=wl;}).catch(()=>{});
+  }
+}
+
+function gpsStopWatch(){
+  if(gpsWatchId!==null){ navigator.geolocation.clearWatch(gpsWatchId); gpsWatchId=null; }
+  if(gpsWakeLock){ gpsWakeLock.release().catch(()=>{}); gpsWakeLock=null; }
+  gpsBoostUntil=0; clearTimeout(gpsBoostTimer);
+}
+
 function gpsGetDistance(){
   const btn=document.getElementById('gps-btn');
   const status=document.getElementById('gps-status');
   if(!navigator.geolocation){status.textContent='GPS not available on this device.';return;}
-  const holeNum=scGetHoles()[scSess.hole];
-  btn.textContent='⏳ …';btn.disabled=true;status.textContent='';
-  navigator.geolocation.getCurrentPosition(
-    pos=>{
-      const{latitude:lat,longitude:lon,accuracy:acc}=pos.coords;
-      const g=GREENS[holeNum];
-      if(!g){status.textContent='No green data for hole '+holeNum+'.';btn.textContent='📍 Locate';btn.disabled=false;return;}
-      // Front = nearest point on green edge; Back = farthest edge point (all 4 edge waypoints)
-      const edgePts=[g.f,g.l,g.rt,g.r].filter(Boolean);
-      const edgeDists=edgePts.map(e=>haversineYards(lat,lon,e[0],e[1]));
-      const frontYds=Math.min(...edgeDists);
-      const backYds=Math.max(...edgeDists);
-      document.getElementById('gps-front').textContent=frontYds;
-      document.getElementById('gps-center').textContent=haversineYards(lat,lon,g.c[0],g.c[1]);
-      document.getElementById('gps-back').textContent=backYds;
-      status.textContent='±'+Math.round(acc)+' m'+(acc>15?' · move to open sky':'');
-      btn.textContent='📍 Update';btn.disabled=false;
-    },
-    err=>{
-      status.textContent=err.code===1?'Location denied — check Settings.':'Could not get location. Try again.';
-      btn.textContent='📍 Locate';btn.disabled=false;
-    },
-    {enableHighAccuracy:true,timeout:12000,maximumAge:5000}
-  );
+  if(gpsWatchId===null){
+    // First tap: start the live watch
+    btn.textContent='⏳ …'; btn.disabled=true; status.textContent='';
+    gpsLastRender=0;
+    gpsStartWatch();
+  }else{
+    // Already live: boost to ~1s updates for 15 seconds
+    gpsBoostUntil=Date.now()+15000;
+    if(gpsLastPos){ gpsLastRender=Date.now(); gpsRender(gpsLastPos); }
+    gpsSetBtnLabel();
+    clearTimeout(gpsBoostTimer);
+    gpsBoostTimer=setTimeout(gpsSetBtnLabel,15100);
+  }
+}
+
+// Pause GPS when the app is backgrounded / screen locks (Safari cuts it anyway);
+// resume automatically when the user comes back.
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden'){
+    gpsWasWatching = gpsWatchId!==null;
+    gpsStopWatch(); gpsSetBtnLabel();
+  }else if(gpsWasWatching){
+    gpsLastRender=0;
+    gpsStartWatch(); gpsSetBtnLabel();
+  }
+});
+
+// ── Service worker: register + "new version available" toast ────────────────
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    function watchWorker(worker){
+      worker.addEventListener('statechange',()=>{
+        if(worker.state==='installed' && navigator.serviceWorker.controller){
+          swShowUpdateToast(worker);
+        }
+      });
+    }
+    if(reg.waiting && navigator.serviceWorker.controller) swShowUpdateToast(reg.waiting);
+    reg.addEventListener('updatefound',()=>{ if(reg.installing) watchWorker(reg.installing); });
+    // Check for a new version whenever the app is foregrounded
+    document.addEventListener('visibilitychange',()=>{
+      if(document.visibilityState==='visible') reg.update().catch(()=>{});
+    });
+  }).catch(()=>{});
+  let swReloading=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(swReloading) return; swReloading=true; location.reload();
+  });
+}
+
+function swShowUpdateToast(worker){
+  if(document.getElementById('sw-update-toast')) return;
+  const t=document.createElement('div');
+  t.id='sw-update-toast';
+  t.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:76px;background:#1b5e20;color:#fff;padding:10px 16px;border-radius:24px;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.3);z-index:9998;cursor:pointer;display:flex;align-items:center;gap:8px';
+  t.innerHTML='🔄 New version available · <span style="text-decoration:underline">Tap to update</span>';
+  t.onclick=()=>{ worker.postMessage({type:'SKIP_WAITING'}); t.textContent='⏳ Updating…'; };
+  document.body.appendChild(t);
 }
 </script>
 </div><!-- /main-scroll -->
