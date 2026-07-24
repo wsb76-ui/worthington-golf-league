@@ -1,5 +1,5 @@
-// WGL v18 · 2026-07-24 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v18'; // bumped 2026-07-24: new WGL medallion app icons
+// WGL v19 · 2026-07-24 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v19'; // bumped 2026-07-24: one-tap outing sign-up + roster/guest picker
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
