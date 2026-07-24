@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-24T20:47:12.487Z",
+  "lastUpdated": "2026-07-24T20:53:38.156Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -4866,7 +4866,7 @@
           "team": 5,
           "hcp": 10,
           "gross": 44,
-          "net": 36,
+          "net": 34,
           "grp": 5
         },
         {
@@ -4952,9 +4952,9 @@
         {
           "name": "Don Nulph",
           "team": 5,
-          "hcp": 11,
+          "hcp": 10,
           "gross": 60,
-          "net": 49,
+          "net": 50,
           "grp": 8
         },
         {
@@ -5056,9 +5056,9 @@
         {
           "name": "Dave Toy",
           "team": 5,
-          "hcp": 10,
+          "hcp": 11,
           "gross": 49,
-          "net": 39,
+          "net": 38,
           "grp": 14
         },
         {
