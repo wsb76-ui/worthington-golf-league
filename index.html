@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL v18 · 2026-07-24 · v17 merged build + new WGL medallion app icons + apple-touch-icon link (see WGL-MASTER.md) -->
+<!-- WGL v19 · 2026-07-24 · one-tap outing sign-up (identity) + roster picker w/ guest entry + engine-fed signed-up lists (see WGL-MASTER.md) -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -632,8 +632,11 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
         <div class="card-hdr">Prizes & Awards</div>
         <div style="padding:8px 14px" id="prizes-body"></div>
       </div>
-      <button onclick="openSignupForm('mid')" style="width:100%;padding:15px;background:#2e7d32;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:6px;-webkit-tap-highlight-color:transparent">
-        ✉️ Sign Up for Mid-Season Outing
+      <button onclick="signupQuick('mid')" style="width:100%;padding:15px;background:#2e7d32;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:6px;-webkit-tap-highlight-color:transparent">
+        ✅ Sign Me Up — Mid-Season Outing
+      </button>
+      <button onclick="openSignupForm('mid')" style="width:100%;padding:11px;background:transparent;color:#2e7d32;border:1.5px dashed #2e7d32;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:6px;-webkit-tap-highlight-color:transparent">
+        ➕ Sign Up Someone Else / Guest
       </button>
       <div style="text-align:center;margin-bottom:12px"><span onclick="requestOutingRemoval('mid')" style="font-size:12px;color:#c62828;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">🚫 Signed up but can't make it? Request removal</span></div>
       <div class="card" id="signups-card" style="display:none">
@@ -658,8 +661,11 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
         <div class="card-hdr">Prizes & Awards</div>
         <div style="padding:8px 14px" id="prizes2-body"></div>
       </div>
-      <button onclick="openSignupForm('end')" style="width:100%;padding:15px;background:#1565c0;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:6px;-webkit-tap-highlight-color:transparent">
-        ✉️ Sign Up for End-of-Season Outing
+      <button onclick="signupQuick('end')" style="width:100%;padding:15px;background:#1565c0;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:6px;-webkit-tap-highlight-color:transparent">
+        ✅ Sign Me Up — End-of-Season Outing
+      </button>
+      <button onclick="openSignupForm('end')" style="width:100%;padding:11px;background:transparent;color:#1565c0;border:1.5px dashed #1565c0;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:6px;-webkit-tap-highlight-color:transparent">
+        ➕ Sign Up Someone Else / Guest
       </button>
       <div style="text-align:center;margin-bottom:12px"><span onclick="requestOutingRemoval('end')" style="font-size:12px;color:#c62828;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">🚫 Signed up but can't make it? Request removal</span></div>
       <div class="card" id="signups2-card" style="display:none">
@@ -681,7 +687,9 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
     <div style="font-size:13px;color:#888;margin-bottom:18px" id="signup-modal-sub"></div>
     <div style="margin-bottom:14px">
       <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;display:block;margin-bottom:5px">Your Name</label>
-      <input id="signup-name" type="text" placeholder="First Last" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:10px;font-size:15px">
+      <input id="signup-name" type="text" list="league-names" autocomplete="off" placeholder="Pick a league name or type a guest's name" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:10px;font-size:15px">
+      <datalist id="league-names"></datalist>
+      <div style="font-size:11px;color:#999;margin-top:4px">League players appear as you type — or enter any name. Outside guests are welcome at outings.</div>
     </div>
     <div style="margin-bottom:18px">
       <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;display:block;margin-bottom:5px">Notes (optional)</label>
@@ -1817,7 +1825,22 @@ function switchLeagueOuting(which){
 
 // ── Outing Sign-Up ────────────────────────────────────────────────────────────
 let _signupForOuting='mid';
+function signupQuick(which){
+  // One-tap sign-up using the "This Is Me" identity; falls back to the form if none set
+  const me=getIdentity();
+  if(!me){ openSignupForm(which); return; }
+  const label=(which==='mid')?'Mid-Season':'End-of-Season';
+  if(!window.confirm('Sign up '+me+' for the '+label+' Outing?')) return;
+  _signupForOuting=which||'mid';
+  submitSignup(me,'');
+}
+function populateLeagueNames(){
+  const dl=document.getElementById('league-names');
+  if(!dl||!D.players) return;
+  dl.innerHTML=Object.keys(D.players).sort((a,b)=>a.localeCompare(b)).map(n=>`<option value="${n}">`).join('');
+}
 function openSignupForm(which){
+  populateLeagueNames();
   _signupForOuting=which||'mid';
   const isMid=_signupForOuting==='mid';
   const o=D.outing;
@@ -1833,9 +1856,9 @@ function closeSignupForm(e){
     document.getElementById('signup-modal-bg').style.display='none';
   }
 }
-async function submitSignup(){
-  const name=document.getElementById('signup-name').value.trim();
-  const notes=document.getElementById('signup-notes').value.trim();
+async function submitSignup(directName, directNotes){
+  const name=(directName!==undefined?directName:document.getElementById('signup-name').value).trim();
+  const notes=(directNotes!==undefined?directNotes:document.getElementById('signup-notes').value).trim();
   if(!name){document.getElementById('signup-name').style.borderColor='#c62828';document.getElementById('signup-name').focus();return;}
   document.getElementById('signup-name').style.borderColor='';
   const isMid=_signupForOuting==='mid';
@@ -1855,7 +1878,7 @@ async function submitSignup(){
     let out=null; try{ out=await resp.json(); }catch(_){}
     if(out && out.ok===false) throw new Error(out.error||'Sign-up not recorded');
     document.getElementById('signup-modal-bg').style.display='none';
-    alert('✅ You\'re signed up for the '+label+' Outing, '+name+'!');
+    alert('✅ You\'re signed up for the '+label+' Outing, '+name+'! The signed-up list in the app updates within the hour.');
   }catch(err){
     // Network error — fall back to email
     const subject=encodeURIComponent('WGL '+label+' Outing Sign-Up: '+name);
