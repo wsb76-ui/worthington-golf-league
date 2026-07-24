@@ -1,10 +1,12 @@
-const CACHE = 'wgl-v17'; // bumped 2026-07-23: restore live GPS, update toast, CORS submits + GLO2 coords
+// WGL v18 · 2026-07-24 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v18'; // bumped 2026-07-24: new WGL medallion app icons
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
   '/worthington-golf-league/manifest.json',
   '/worthington-golf-league/icon-192.png',
-  '/worthington-golf-league/icon-512.png'
+  '/worthington-golf-league/icon-512.png',
+  '/worthington-golf-league/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', e => {
