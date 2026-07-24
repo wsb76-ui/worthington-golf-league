@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL v21 · 2026-07-24 · v20 fixes + CORRECT +50-per-missing-card penalty in app standings/results + season backfill baseline auto-deduct (see WGL-MASTER.md) -->
+<!-- WGL v22 · 2026-07-24 · rangefinder elevation: per-green GLO2 elevations, smoothed phone altitude, ▲/▼ plays-like line + ⛳ green-elevation popup (see WGL-MASTER.md) -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -563,13 +563,17 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
     <div id="gps-strip" style="background:#1b5e20;border-radius:12px;padding:12px 14px;margin:8px 0 10px;display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.07em" id="gps-strip-hole">📍 Distance</div>
-        <button id="gps-btn" onclick="gpsGetDistance()" style="background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:white;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer">📍 Locate</button>
+        <div style="display:flex;gap:6px">
+          <button id="gps-elev-btn" onclick="gpsShowElevPopup()" title="Green elevation" style="background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:white;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer">⛳</button>
+          <button id="gps-btn" onclick="gpsGetDistance()" style="background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:white;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer">📍 Locate</button>
+        </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
         <div class="gps-dist-box" style="background:rgba(255,255,255,.12)"><div class="gps-dist-lbl" style="color:rgba(255,255,255,.6)">Front</div><div class="gps-dist-val" id="gps-front" style="color:white">—</div><div class="gps-dist-unit" style="color:rgba(255,255,255,.4)">yds</div></div>
         <div class="gps-dist-box" style="background:rgba(255,255,255,.22)"><div class="gps-dist-lbl" style="color:rgba(255,255,255,.6)">Center</div><div class="gps-dist-val" id="gps-center" style="color:white">—</div><div class="gps-dist-unit" style="color:rgba(255,255,255,.4)">yds</div></div>
         <div class="gps-dist-box" style="background:rgba(255,255,255,.12)"><div class="gps-dist-lbl" style="color:rgba(255,255,255,.6)">Back</div><div class="gps-dist-val" id="gps-back" style="color:white">—</div><div class="gps-dist-unit" style="color:rgba(255,255,255,.4)">yds</div></div>
       </div>
+      <div id="gps-elev" style="display:none;font-size:12px;font-weight:700;color:rgba(255,255,255,.85);text-align:center;margin-top:7px"></div>
       <div id="gps-status" style="font-size:10px;color:rgba(255,255,255,.45);text-align:center;margin-top:6px"></div>
     </div>
 
@@ -697,6 +701,16 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
     </div>
     <button onclick="submitSignup()" style="width:100%;padding:14px;background:#2e7d32;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">Send Sign-Up Email</button>
     <button onclick="closeSignupForm()" style="width:100%;padding:12px;background:#f5f5f5;color:#555;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
+  </div>
+</div>
+
+<!-- Green Elevation popup (v22) -->
+<div id="elev-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:320;align-items:flex-end;justify-content:center" onclick="if(event.target===this)closeElevPopup()">
+  <div style="background:var(--card,#fff);color:var(--text,#1a1a1a);border-radius:20px 20px 0 0;padding:22px 20px 30px;width:100%;max-width:500px">
+    <div style="font-size:17px;font-weight:700;margin-bottom:2px" id="elev-title">⛳ Green Elevation</div>
+    <div style="font-size:12px;opacity:.6;margin-bottom:14px" id="elev-sub"></div>
+    <div id="elev-body"></div>
+    <button onclick="closeElevPopup()" style="width:100%;padding:12px;background:var(--tint,#2e7d32);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:14px">Close</button>
   </div>
 </div>
 
@@ -2672,28 +2686,29 @@ document.addEventListener('visibilitychange',()=>{
 // ── GPS Distance ──────────────────────────────────────────────────────────────
 // Coordinates resurveyed 2026-07-19 on-course with Garmin GLO 2 (HilandGIS.gpx)
 // Hole 11 B-green (2027+) points retained from 2026-07-15 survey
+// e: green elevation in FEET (GLO2 survey, median of the 5 points per green)
 // Each hole: f=front, c=center, r=back, rt=right, l=left
 // H11 has two greens: primary = 2026 in-play green; _b = 2027+ new green
 const GREENS = {
-  1:{f:[40.883456,-79.811061],c:[40.883358,-79.811058],r:[40.883247,-79.811053],rt:[40.883358,-79.811177],l:[40.883337,-79.810930]},
-  2:{f:[40.881382,-79.810896],c:[40.881279,-79.810925],r:[40.881171,-79.810914],rt:[40.881273,-79.811010],l:[40.881289,-79.810839]},
-  3:{f:[40.882251,-79.811561],c:[40.882359,-79.811553],r:[40.882447,-79.811588],rt:[40.882372,-79.811447],l:[40.882334,-79.811630]},
-  4:{f:[40.885704,-79.811864],c:[40.885835,-79.811874],r:[40.885952,-79.811876],rt:[40.885848,-79.811774],l:[40.885830,-79.811969]},
-  5:{f:[40.882645,-79.812263],c:[40.882469,-79.812276],r:[40.882343,-79.812270],rt:[40.882437,-79.812360],l:[40.882449,-79.812173]},
-  6:{f:[40.879461,-79.812466],c:[40.879420,-79.812584],r:[40.879328,-79.812674],rt:[40.879479,-79.812656],l:[40.879346,-79.812507]},
-  7:{f:[40.883623,-79.813058],c:[40.883708,-79.813070],r:[40.883813,-79.813066],rt:[40.883726,-79.812948],l:[40.883715,-79.813181]},
-  8:{f:[40.886142,-79.813231],c:[40.886270,-79.813217],r:[40.886399,-79.813207],rt:[40.886265,-79.813089],l:[40.886289,-79.813348]},
-  9:{f:[40.886654,-79.811050],c:[40.886664,-79.810942],r:[40.886667,-79.810806],rt:[40.886508,-79.810937],l:[40.886783,-79.810904]},
-  10:{f:[40.882063,-79.809924],c:[40.881932,-79.809937],r:[40.881831,-79.809942],rt:[40.881916,-79.810063],l:[40.881927,-79.809849]},
+  1:{f:[40.883456,-79.811061],c:[40.883358,-79.811058],r:[40.883247,-79.811053],rt:[40.883358,-79.811177],l:[40.883337,-79.810930],e:1374,ee:{l:1374.3,r:1374.3,c:1372.7,f:1372.4}},
+  2:{f:[40.881382,-79.810896],c:[40.881279,-79.810925],r:[40.881171,-79.810914],rt:[40.881273,-79.811010],l:[40.881289,-79.810839],e:1351,ee:{f:1350.0,l:1353.7,r:1350.1,c:1351.0,rt:1350.7}},
+  3:{f:[40.882251,-79.811561],c:[40.882359,-79.811553],r:[40.882447,-79.811588],rt:[40.882372,-79.811447],l:[40.882334,-79.811630],e:1367,ee:{l:1360.2,f:1363.8,c:1366.8,r:1369.8,rt:1371.1}},
+  4:{f:[40.885704,-79.811864],c:[40.885835,-79.811874],r:[40.885952,-79.811876],rt:[40.885848,-79.811774],l:[40.885830,-79.811969],e:1373,ee:{f:1369.8,rt:1372.7,c:1372.0,l:1375.3,r:1376.3}},
+  5:{f:[40.882645,-79.812263],c:[40.882469,-79.812276],r:[40.882343,-79.812270],rt:[40.882437,-79.812360],l:[40.882449,-79.812173],e:1339,ee:{f:1327.3,c:1339.2,rt:1338.3,r:1339.9,l:1338.6}},
+  6:{f:[40.879461,-79.812466],c:[40.879420,-79.812584],r:[40.879328,-79.812674],rt:[40.879479,-79.812656],l:[40.879346,-79.812507],e:1309,ee:{f:1300.2,l:1303.1,c:1312.0,r:1311.0,rt:1309.4}},
+  7:{f:[40.883623,-79.813058],c:[40.883708,-79.813070],r:[40.883813,-79.813066],rt:[40.883726,-79.812948],l:[40.883715,-79.813181],e:1360,ee:{rt:1352.0,f:1357.6,l:1360.2,r:1363.2,c:1360.9}},
+  8:{f:[40.886142,-79.813231],c:[40.886270,-79.813217],r:[40.886399,-79.813207],rt:[40.886265,-79.813089],l:[40.886289,-79.813348],e:1365,ee:{rt:1367.5,c:1367.8,r:1360.2,l:1361.9,f:1365.2}},
+  9:{f:[40.886654,-79.811050],c:[40.886664,-79.810942],r:[40.886667,-79.810806],rt:[40.886508,-79.810937],l:[40.886783,-79.810904],e:1365,ee:{f:1354.3,l:1362.2,r:1365.5,c:1365.5,rt:1365.2}},
+  10:{f:[40.882063,-79.809924],c:[40.881932,-79.809937],r:[40.881831,-79.809942],rt:[40.881916,-79.810063],l:[40.881927,-79.809849],e:1320,ee:{f:1325.0,c:1320.7,r:1314.7,l:1317.5,rt:1319.5}},
   11:{f:[40.879182,-79.811157],c:[40.879003,-79.811256],r:[40.878914,-79.811393],rt:[40.879057,-79.811339],l:[40.878976,-79.811202],
-      fb:[40.878513,-79.811797],cb:[40.878391,-79.811885],rb:[40.878274,-79.811964],rtb:[40.878424,-79.811955],lb:[40.878354,-79.811807]},
-  12:{f:[40.878785,-79.808851],c:[40.878756,-79.808751],r:[40.878692,-79.808645],rt:[40.878697,-79.808802],l:[40.878815,-79.808653]},
-  13:{f:[40.880099,-79.809841],c:[40.880156,-79.809937],r:[40.880234,-79.810009],rt:[40.880213,-79.809900],l:[40.880097,-79.809988]},
-  14:{f:[40.880882,-79.806277],c:[40.880802,-79.806164],r:[40.880704,-79.806087],rt:[40.880746,-79.806233],l:[40.880839,-79.806105]},
-  15:{f:[40.882740,-79.806516],c:[40.882817,-79.806591],r:[40.882910,-79.806627],rt:[40.882884,-79.806491],l:[40.882732,-79.806681]},
-  16:{f:[40.882426,-79.808887],c:[40.882390,-79.808990],r:[40.882349,-79.809128],rt:[40.882462,-79.809010],l:[40.882329,-79.808948]},
-  17:{f:[40.883468,-79.807968],c:[40.883489,-79.807868],r:[40.883504,-79.807739],rt:[40.883412,-79.807845],l:[40.883581,-79.807891]},
-  18:{f:[40.885923,-79.809815],c:[40.885977,-79.809888],r:[40.886044,-79.809892],rt:[40.885980,-79.809767],l:[40.885939,-79.810003]}
+      fb:[40.878513,-79.811797],cb:[40.878391,-79.811885],rb:[40.878274,-79.811964],rtb:[40.878424,-79.811955],lb:[40.878354,-79.811807],e:1344,ee:{f:1379.0,rt:1349.0,c:1343.8,l:1336.3,r:1330.7}},
+  12:{f:[40.878785,-79.808851],c:[40.878756,-79.808751],r:[40.878692,-79.808645],rt:[40.878697,-79.808802],l:[40.878815,-79.808653],e:1303,ee:{rt:1298.6,r:1300.9,l:1303.1,c:1306.8,f:1305.8}},
+  13:{f:[40.880099,-79.809841],c:[40.880156,-79.809937],r:[40.880234,-79.810009],rt:[40.880213,-79.809900],l:[40.880097,-79.809988],e:1334,ee:{f:1334.0,l:1339.9,c:1336.3,r:1330.4,rt:1329.1}},
+  14:{f:[40.880882,-79.806277],c:[40.880802,-79.806164],r:[40.880704,-79.806087],rt:[40.880746,-79.806233],l:[40.880839,-79.806105],e:1314,ee:{l:1312.3,r:1311.0,rt:1314.6,c:1314.0,f:1316.3}},
+  15:{f:[40.882740,-79.806516],c:[40.882817,-79.806591],r:[40.882910,-79.806627],rt:[40.882884,-79.806491],l:[40.882732,-79.806681],e:1331,ee:{f:1323.8,rt:1325.5,r:1330.7,c:1333.0,l:1331.0}},
+  16:{f:[40.882426,-79.808887],c:[40.882390,-79.808990],r:[40.882349,-79.809128],rt:[40.882462,-79.809010],l:[40.882329,-79.808948],e:1346,ee:{f:1344.2,l:1345.8,r:1347.1,c:1347.4,rt:1343.5}},
+  17:{f:[40.883468,-79.807968],c:[40.883489,-79.807868],r:[40.883504,-79.807739],rt:[40.883412,-79.807845],l:[40.883581,-79.807891],e:1329,ee:{rt:1332.3,r:1328.7,l:1328.1,c:1329.4,f:1330.7}},
+  18:{f:[40.885923,-79.809815],c:[40.885977,-79.809888],r:[40.886044,-79.809892],rt:[40.885980,-79.809767],l:[40.885939,-79.810003],e:1353,ee:{f:1354.0,rt:1351.7,r:1353.0,c:1350.7,l:1354.7}}
 };
 
 // Hole par and white-tee yardage — used in GPS strip label
@@ -2722,6 +2737,7 @@ function gpsResetStrip(holeNum,par){
     document.getElementById('gps-center').textContent='—';
     document.getElementById('gps-back').textContent='—';
     document.getElementById('gps-status').textContent='';
+    const _ev=document.getElementById('gps-elev'); if(_ev)_ev.style.display='none';
     btn.textContent='📍 Locate';btn.disabled=false;
   }
 }
@@ -2737,6 +2753,7 @@ function haversineYards(lat1,lon1,lat2,lon2){
 // Continuous watchPosition. Yardages redraw every 5s normally; tapping the
 // button ("Refresh") boosts to every fix (~1s) for 15s, then settles back.
 let gpsWatchId=null, gpsLastPos=null, gpsLastRender=0, gpsBoostUntil=0, gpsBoostTimer=null, gpsWakeLock=null, gpsWasWatching=false;
+let gpsAltEmaM=null;   // smoothed phone altitude (m) — iPhones fuse barometer+GPS; we smooth the rest
 
 function gpsRender(pos){
   const status=document.getElementById('gps-status');
@@ -2748,13 +2765,32 @@ function gpsRender(pos){
   const edges=[g.f,g.l,g.rt].filter(Boolean);
   const frontYds=Math.min(...edges.map(e=>haversineYards(lat,lon,e[0],e[1])));
   document.getElementById('gps-front').textContent=frontYds;
-  document.getElementById('gps-center').textContent=haversineYards(lat,lon,g.c[0],g.c[1]);
+  const centerYds=haversineYards(lat,lon,g.c[0],g.c[1]);
+  document.getElementById('gps-center').textContent=centerYds;
   document.getElementById('gps-back').textContent=haversineYards(lat,lon,g.r[0],g.r[1]);
+  // v22: elevation + "plays like" (1 yd per 3 ft of rise/drop). Shown only when the phone's
+  // altitude is trustworthy (barometer-fused, smoothed). Rounded to 5 ft for honesty.
+  const ev=document.getElementById('gps-elev');
+  if(ev){
+    if(g.e && gpsAltEmaM!=null){
+      const deltaFt=Math.round((g.e - gpsAltEmaM*3.28084)/5)*5;
+      if(Math.abs(deltaFt)>=5){
+        const plays=centerYds+Math.round(deltaFt/3);
+        ev.textContent=(deltaFt>0?'\u25b2 ':'\u25bc ')+Math.abs(deltaFt)+' ft \u00b7 plays like '+plays;
+        ev.style.display='block';
+      } else { ev.textContent='\u2248 level'; ev.style.display='block'; }
+    } else ev.style.display='none';
+  }
   status.textContent='±'+Math.round(acc)+' m'+(acc>15?' · move to open sky':'')+(Date.now()<gpsBoostUntil?' · ⚡ live':'');
 }
 
 function gpsOnFix(pos){
   gpsLastPos=pos;
+  // v22: smooth altitude across fixes (EMA). Only trust tight fixes.
+  const _alt=pos.coords.altitude, _aa=pos.coords.altitudeAccuracy;
+  if(_alt!=null && (_aa==null || _aa<=20)){
+    gpsAltEmaM = (gpsAltEmaM==null) ? _alt : (0.7*gpsAltEmaM + 0.3*_alt);
+  }
   const btn=document.getElementById('gps-btn');
   if(btn && btn.disabled){ btn.disabled=false; gpsSetBtnLabel(); }
   const now=Date.now();
@@ -2811,6 +2847,119 @@ function gpsGetDistance(){
     gpsBoostTimer=setTimeout(gpsSetBtnLabel,15100);
   }
 }
+
+// v22: top-down green map — real shape/size from the 4 edge survey points, overall tilt
+// from a least-squares plane over the 5 elevations. Contours are the plane's level lines.
+// With only 5 points this shows the green's OVERALL slope, not tiers/ridges.
+function renderGreenTopo(g){
+  const keys=['f','rt','r','l'];
+  if(!g.ee||keys.some(k=>!g[k])) return '';
+  const lat0=g.c[0], mPerLat=110540, mPerLon=111320*Math.cos(lat0*Math.PI/180);
+  const P={}; ['f','rt','r','l','c'].forEach(k=>{ if(g[k]) P[k]=[(g[k][1]-g.c[1])*mPerLon,(g[k][0]-g.c[0])*mPerLat]; });
+  const ang=Math.atan2(P.r[1]-P.f[1],P.r[0]-P.f[0])-Math.PI/2;
+  const rot=([x,y])=>[x*Math.cos(-ang)-y*Math.sin(-ang), x*Math.sin(-ang)+y*Math.cos(-ang)];
+  const Q={}; Object.keys(P).forEach(k=>{const r0=rot(P[k]); Q[k]=[r0[0],-r0[1]];});
+  const pts=Object.keys(Q).filter(k=>g.ee[k]!=null).map(k=>[Q[k][0],Q[k][1],g.ee[k]]);
+  let sxx=0,sxy=0,syy=0,sx=0,sy=0,sxz=0,syz=0,sz=0,n=pts.length;
+  pts.forEach(([x,y,z])=>{sxx+=x*x;sxy+=x*y;syy+=y*y;sx+=x;sy+=y;sxz+=x*z;syz+=y*z;sz+=z;});
+  const M=[[sxx,sxy,sx],[sxy,syy,sy],[sx,sy,n]], V=[sxz,syz,sz];
+  const det=m3=>m3[0][0]*(m3[1][1]*m3[2][2]-m3[1][2]*m3[2][1])-m3[0][1]*(m3[1][0]*m3[2][2]-m3[1][2]*m3[2][0])+m3[0][2]*(m3[1][0]*m3[2][1]-m3[1][1]*m3[2][0]);
+  const D=det(M); if(!D) return '';
+  const rep=(mm,i,v)=>mm.map((row,r)=>row.map((c,j)=>j===i?v[r]:c));
+  const A=det(rep(M,0,V))/D, B=det(rep(M,1,V))/D, C=det(rep(M,2,V))/D;
+  const gradeFtPerM=Math.hypot(A,B), gradePct=gradeFtPerM/3.28084*100;
+  const xs=keys.map(k=>Q[k][0]), ys=keys.map(k=>Q[k][1]);
+  const minX=Math.min(...xs)-4,maxX=Math.max(...xs)+4,minY=Math.min(...ys)-4,maxY=Math.max(...ys)+4;
+  const W=280,H=190,sc=Math.min(W/(maxX-minX),H/(maxY-minY));
+  const tx=([x,y])=>[((x-minX)*sc+(W-(maxX-minX)*sc)/2),((y-minY)*sc+(H-(maxY-minY)*sc)/2)];
+  const cc0=tx(Q.c);
+  const O=keys.map(k=>tx(Q[k]));
+  let path='M '+O[0][0].toFixed(1)+' '+O[0][1].toFixed(1);
+  for(let i=0;i<O.length;i++){
+    const p0=O[(i-1+O.length)%O.length],p1=O[i],p2=O[(i+1)%O.length],p3=O[(i+2)%O.length];
+    const c1=[p1[0]+(p2[0]-p0[0])/5,p1[1]+(p2[1]-p0[1])/5], c2=[p2[0]-(p3[0]-p1[0])/5,p2[1]-(p3[1]-p1[1])/5];
+    path+=' C '+c1[0].toFixed(1)+' '+c1[1].toFixed(1)+', '+c2[0].toFixed(1)+' '+c2[1].toFixed(1)+', '+p2[0].toFixed(1)+' '+p2[1].toFixed(1);
+  }
+  path+=' Z';
+  const zs=pts.map(p=>A*p[0]+B*p[1]+C), zMin=Math.min(...zs), zMax=Math.max(...zs);
+  const span=zMax-zMin, step=span>6?Math.ceil(span/6):1;
+  let contours='';
+  if(span>=1 && gradeFtPerM>0.001){
+    for(let L=Math.ceil(zMin);L<=Math.floor(zMax);L+=step){
+      const gx=A/gradeFtPerM, gy=B/gradeFtPerM, px=-gy, py=gx, d=(L-C)/gradeFtPerM, R=200;
+      const a=tx([gx*d-px*R,gy*d-py*R]), b=tx([gx*d+px*R,gy*d+py*R]);
+      contours+='<line x1="'+a[0].toFixed(1)+'" y1="'+a[1].toFixed(1)+'" x2="'+b[0].toFixed(1)+'" y2="'+b[1].toFixed(1)+'" stroke="rgba(255,255,255,.5)" stroke-width="1" stroke-dasharray="1 3"/>';
+    }
+  }
+  const cc=cc0; let arrow='';
+  if(gradeFtPerM>0.001){
+    const dx=-A/gradeFtPerM, dy=-B/gradeFtPerM, len=26;
+    arrow='<defs><marker id="ah" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#fff"/></marker></defs>'+
+      '<line x1="'+cc[0].toFixed(1)+'" y1="'+cc[1].toFixed(1)+'" x2="'+(cc[0]+dx*len).toFixed(1)+'" y2="'+(cc[1]+dy*len).toFixed(1)+'" stroke="#fff" stroke-width="2.5" marker-end="url(#ah)" opacity=".9"/>';
+  }
+  // v22.1: relative elevation labels — center = 0, edges show surveyed offset in ft
+  let elabels='';
+  if(g.ee && g.ee.c!=null){
+    keys.forEach(k=>{
+      if(g.ee[k]==null) return;
+      const rel=Math.round(g.ee[k]-g.ee.c);
+      const p=tx(Q[k]);
+      let vx=p[0]-cc0[0], vy=p[1]-cc0[1]; const vl=Math.hypot(vx,vy)||1; vx/=vl; vy/=vl;
+      const lx=Math.min(272,Math.max(8,p[0]+vx*13)), ly=Math.min(196,Math.max(8,p[1]+vy*13+3));
+      elabels+='<text x="'+lx.toFixed(0)+'" y="'+ly.toFixed(0)+'" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor" opacity=".85">'+(rel>0?'+':'')+rel+'</text>';
+    });
+    elabels+='<text x="'+(cc0[0]+7).toFixed(0)+'" y="'+(cc0[1]-6).toFixed(0)+'" font-size="9" fill="#fff" opacity=".8">0</text>';
+  }
+  const yd=(k1,k2)=>Math.round(Math.hypot(Q[k1][0]-Q[k2][0],Q[k1][1]-Q[k2][1])*1.09361);
+  const gradeTxt=gradePct>10?'10%+ (rough GPS est.)':gradePct.toFixed(1)+'% grade';
+  return '<svg viewBox="0 0 280 210" style="width:100%;height:auto;display:block;margin:2px 0 8px">'+
+    '<g transform="translate(0,12)">'+
+    '<path d="'+path+'" fill="#3a7d44" stroke="#a5d6a7" stroke-width="2"/>'+
+    '<clipPath id="gclip"><path d="'+path+'"/></clipPath>'+
+    '<g clip-path="url(#gclip)">'+contours+'</g>'+arrow+elabels+
+    '<circle cx="'+cc[0].toFixed(1)+'" cy="'+cc[1].toFixed(1)+'" r="3" fill="#fff"/>'+
+    '<text x="140" y="4" text-anchor="middle" font-size="9" fill="currentColor" opacity=".55">BACK · '+yd('f','r')+' yds deep · '+yd('l','rt')+' yds wide</text>'+
+    '<text x="140" y="204" text-anchor="middle" font-size="9" fill="currentColor" opacity=".55">FRONT · arrow = downhill · '+gradeTxt+'</text>'+
+    '</g></svg>';
+}
+
+function gpsShowElevPopup(){
+  const holeNum=scGetHoles()[scSess.hole];
+  const g=GREENS[holeNum];
+  document.getElementById('elev-title').textContent='⛳ Hole '+holeNum+' — Green Elevation';
+  const body=document.getElementById('elev-body');
+  if(!g||!g.e){
+    document.getElementById('elev-sub').textContent='';
+    body.innerHTML='<div style="text-align:center;opacity:.6;padding:16px 0;font-size:14px">No elevation data for this hole.</div>';
+  } else if(gpsAltEmaM==null||!gpsLastPos){
+    document.getElementById('elev-sub').textContent='Green sits at '+g.e+' ft (GLO2 survey)';
+    body.innerHTML='<div style="text-align:center;opacity:.6;padding:16px 0;font-size:14px">Waiting for your altitude…<br><span style="font-size:12px">Tap 📍 Locate and give it a few seconds in open sky.</span></div>';
+  } else {
+    const youFt=Math.round(gpsAltEmaM*3.28084);
+    const deltaFt=Math.round((g.e-youFt)/5)*5;
+    const{latitude:lat,longitude:lon}=gpsLastPos.coords;
+    const adj=Math.round(deltaFt/3);
+    const rows=[['Front',[g.f,g.l,g.rt].filter(Boolean).map(e=>haversineYards(lat,lon,e[0],e[1])).sort((a,b)=>a-b)[0]],
+                ['Center',haversineYards(lat,lon,g.c[0],g.c[1])],
+                ['Back',haversineYards(lat,lon,g.r[0],g.r[1])]];
+    const arrow=deltaFt>0?'▲':'▼';
+    const word=Math.abs(deltaFt)<5?'≈ level with you':(deltaFt>0?'above you':'below you');
+    document.getElementById('elev-sub').textContent='You: '+youFt+' ft · Green: '+g.e+' ft';
+    const svg=renderGreenTopo(g);
+    body.innerHTML=svg+
+      '<div style="text-align:center;font-size:22px;font-weight:800;margin-bottom:2px">'+(Math.abs(deltaFt)<5?'≈ 0 ft':arrow+' '+Math.abs(deltaFt)+' ft')+'</div>'+
+      '<div style="text-align:center;font-size:12px;opacity:.6;margin-bottom:12px">green is '+word+(Math.abs(deltaFt)>=5?' · add '+(adj>0?'+':'')+adj+' yds':'')+'</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">'+
+      rows.map(function(r){return '<div style="background:var(--tint-soft,rgba(46,125,50,.12));border-radius:10px;padding:8px 4px;text-align:center">'+
+        '<div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;opacity:.6">'+r[0]+'</div>'+
+        '<div style="font-size:18px;font-weight:800">'+(r[1]+adj)+'</div>'+
+        '<div style="font-size:10px;opacity:.5">plays like · gps '+r[1]+'</div></div>';}).join('')+
+      '</div>'+
+      '<div style="font-size:10px;opacity:.45;text-align:center;margin-top:10px">Phone altitude is barometer-assisted; treat as guidance (±10–30 ft)</div>';
+  }
+  document.getElementById('elev-modal-bg').style.display='flex';
+}
+function closeElevPopup(){ document.getElementById('elev-modal-bg').style.display='none'; }
 
 // Pause GPS when the app is backgrounded / screen locks (Safari cuts it anyway);
 // resume automatically when the user comes back.
