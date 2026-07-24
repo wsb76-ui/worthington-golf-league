@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-24T20:37:07.773Z",
+  "lastUpdated": "2026-07-24T20:47:12.487Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -4840,9 +4840,9 @@
         {
           "name": "Paul Bowser",
           "team": 8,
-          "hcp": 8,
+          "hcp": 9,
           "gross": 43,
-          "net": 35,
+          "net": 34,
           "grp": 4
         },
         {
@@ -4864,8 +4864,8 @@
         {
           "name": "Jaxon Smith",
           "team": 5,
-          "hcp": 9,
-          "gross": 45,
+          "hcp": 10,
+          "gross": 44,
           "net": 36,
           "grp": 5
         },
@@ -5001,8 +5001,8 @@
           "name": "Jesse Hickman",
           "team": 6,
           "hcp": 13,
-          "gross": 47,
-          "net": 34,
+          "gross": 48,
+          "net": 35,
           "grp": 11
         },
         {
@@ -5064,9 +5064,9 @@
         {
           "name": "Jim Goodman",
           "team": 6,
-          "hcp": 17,
+          "hcp": 14,
           "gross": 53,
-          "net": 36,
+          "net": 39,
           "grp": 14
         },
         {
@@ -5104,9 +5104,9 @@
         {
           "name": "Eli Hickman",
           "team": 5,
-          "hcp": 8,
+          "hcp": 7,
           "gross": 41,
-          "net": 33,
+          "net": 34,
           "grp": 17
         },
         {
@@ -5137,8 +5137,8 @@
           "name": "Andy Gallagher",
           "team": 1,
           "hcp": 16,
-          "gross": 53,
-          "net": 37,
+          "gross": 48,
+          "net": 32,
           "grp": 18
         },
         {
