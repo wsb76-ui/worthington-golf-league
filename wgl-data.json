@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-24T14:18:53.526Z",
+  "lastUpdated": "2026-07-24T16:07:05.741Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -510,7 +510,11 @@
       "p4": "",
       "p5": ""
     },
-    "signups": [],
+    "signups": [
+      {
+        "name": "Wes Barton"
+      }
+    ],
     "teams": []
   },
   "payouts": {
@@ -1103,6 +1107,12 @@
         "gross": 45,
         "hcp": 12,
         "played": "7/17"
+      },
+      {
+        "side": "front",
+        "gross": 46,
+        "hcp": 11,
+        "played": "7/24"
       }
     ],
     "Bill Long": [
@@ -1111,6 +1121,14 @@
         "gross": 41,
         "hcp": 9,
         "played": "7/17"
+      }
+    ],
+    "Andy Patz": [
+      {
+        "side": "front",
+        "gross": 52,
+        "hcp": 15,
+        "played": "7/24"
       }
     ]
   }
