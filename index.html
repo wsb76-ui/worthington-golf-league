@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL v19 · 2026-07-24 · one-tap outing sign-up (identity) + roster picker w/ guest entry + engine-fed signed-up lists (see WGL-MASTER.md) -->
+<!-- WGL v21 · 2026-07-24 · v20 fixes + CORRECT +50-per-missing-card penalty in app standings/results + season backfill baseline auto-deduct (see WGL-MASTER.md) -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -837,6 +837,10 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
       <div style="font-size:11px;font-weight:700;color:var(--tint,#2e7d32);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Banked Cards</div>
       <div id="modal-bank-list"></div>
     </div>
+    <div id="modal-rounds-row" style="display:none;padding:11px 0;border-bottom:1px solid #f5f5f5">
+      <div style="font-size:11px;font-weight:700;color:var(--tint,#2e7d32);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Rounds This Season</div>
+      <div id="modal-rounds-list"></div>
+    </div>
     <div class="modal-row" id="modal-call-row" style="display:none">
       <span>Call / Text</span>
       <a id="modal-call-btn" class="call-big">📲 Call</a>
@@ -1439,7 +1443,7 @@ function scAdj(pi,delta){
   cur=Math.max(1,Math.min(par*2,cur+delta));
   scSess.scores[p.name][hi]=cur;
   const el=document.getElementById('sc-sv-'+pi);
-  if(el){el.textContent=cur;el.style.color='#1a1a1a';}
+  if(el){el.textContent=cur;el.style.color='var(--text,#1a1a1a)';}
   document.getElementById('sc-progress').innerHTML=scMkProgress();
   SC_STORE.save();
 }
@@ -2158,6 +2162,23 @@ function openModal(i){
         <span style="font-weight:700">Gross ${b.gross} <span style="opacity:.55;font-weight:600">(HCP ${b.hcp})</span></span>
       </div>`).join('');
   } else bankRow.style.display='none';
+  // Rounds this season — pulled from the same weekly data the Results tab shows
+  const rRow=document.getElementById('modal-rounds-row');
+  const rounds=[];
+  const wk=D.weeks||{};
+  Object.keys(wk).sort((a,b)=>+b-+a).forEach(w=>{
+    (wk[w].players||[]).forEach(e=>{
+      if(e.name===p.name) rounds.push({week:w,gross:e.gross,net:e.net,hcp:e.hcp});
+    });
+  });
+  if(rounds.length){
+    rRow.style.display='block';
+    document.getElementById('modal-rounds-list').innerHTML=rounds.map(r=>
+      `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px">
+        <span style="opacity:.7">Week ${r.week}</span>
+        <span style="font-weight:700">Gross ${r.gross} · Net ${r.net} <span style="opacity:.55;font-weight:600">(HCP ${r.hcp})</span></span>
+      </div>`).join('');
+  } else rRow.style.display='none';
   document.getElementById('player-modal').classList.add('open');
 }
 function closeModal(e){
@@ -2295,7 +2316,15 @@ const WK_DATA = {
 };
 
 // Accumulated team totals through Week 9 (seed for buildStandings)
+// Official paper cumulative through Week 9. As weeks 1-9 are backfilled into the data,
+// their computed scores are deducted from this baseline automatically (no double-count).
+// OFFICIAL paper cumulative through Wk9 (what the league has operated on).
+// NOTE: recomputing from every actual score gives T2 1314, T3 1339, T4 1309, T8 1321 —
+// the Week 7-8 sheet started 5/5/7/10 lower for those teams (deliberate correction or
+// carry-forward slip — Wes to rule). Ranks identical either way. To use true sums, swap:
+// const PREV_TOTALS={1:1327,2:1314,3:1339,4:1309,5:1325,6:1416,7:1277,8:1321};
 const PREV_TOTALS={1:1327,2:1309,3:1334,4:1302,5:1325,6:1416,7:1277,8:1311};
+const PREV_THROUGH=9;
 
 function buildStandings(){
   // Compute each team's score per week from WK_DATA
@@ -2307,8 +2336,9 @@ function buildStandings(){
     for(let t=1;t<=8;t++){
       const nets=(byTeam[t]||[]).sort((a,b)=>a-b);
       const counting=nets.slice(0,4);
-      const penalty=nets.length<4;
-      const sc=counting.reduce((s,n)=>s+n,0)+(penalty?50:0);
+      const missing=Math.max(0,4-nets.length);
+      const penalty=missing>0;
+      const sc=counting.reduce((s,n)=>s+n,0)+50*missing;   // +50 PER missing card
       if(!wkScores[t])wkScores[t]={};
       wkScores[t][wk]={sc,penalty,count:nets.length};
     }
@@ -2316,10 +2346,13 @@ function buildStandings(){
   const maxWk=Math.max(...Object.keys(WK_DATA).map(Number));
   const standings=[];
   for(let t=1;t<=8;t++){
-    const prev=PREV_TOTALS[t]||0;
+    let prev=PREV_TOTALS[t]||0;
     let wkTotal=0;
     const wks=wkScores[t]||{};
-    for(const {sc} of Object.values(wks))wkTotal+=sc;
+    for(const [w,{sc}] of Object.entries(wks)){
+      wkTotal+=sc;
+      if(+w<=PREV_THROUGH) prev-=sc;   // backfilled historical week — remove from baseline
+    }
     const lastWk=wkScores[t]?.[maxWk]||{sc:null,penalty:false,count:0};
     standings.push({team:t,season:prev+wkTotal,wkSc:lastWk.sc,wkPenalty:lastWk.penalty});
   }
@@ -2481,8 +2514,9 @@ function buildWeek(wk,elOverride){
   for(const t of Object.values(teams)){
     const sortedScored=[...t.scored].sort((a,b)=>a.net-b.net);
     t.counting=sortedScored.slice(0,4);
-    t.penalty=sortedScored.length<4;
-    t.total=t.counting.reduce((s,p)=>s+p.net,0)+(t.penalty?50:0);
+    t.missing=Math.max(0,4-sortedScored.length);
+    t.penalty=t.missing>0;
+    t.total=t.counting.reduce((s,p)=>s+p.net,0)+50*t.missing;   // +50 PER missing card (engine-verified rule)
     // Display order: scored players by net, then DNS players by name
     t.allPlayers=[...sortedScored,...t.unscored.sort((a,b)=>a.name.localeCompare(b.name))];
   }
