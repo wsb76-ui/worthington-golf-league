@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-26T16:37:07.290Z",
+  "lastUpdated": "2026-07-26T20:17:06.751Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -5292,6 +5292,12 @@
         "gross": 44,
         "hcp": 11,
         "played": "7/25"
+      },
+      {
+        "side": "back",
+        "gross": 53,
+        "hcp": 11,
+        "played": "7/26"
       }
     ],
     "Bill Long": [
@@ -5314,6 +5320,28 @@
         "gross": 56,
         "hcp": 15,
         "played": "7/25"
+      },
+      {
+        "side": "back",
+        "gross": 55,
+        "hcp": 15,
+        "played": "7/26"
+      }
+    ],
+    "Scott Barton": [
+      {
+        "side": "back",
+        "gross": 50,
+        "hcp": 11,
+        "played": "7/26"
+      }
+    ],
+    "Don Nulph": [
+      {
+        "side": "back",
+        "gross": 53,
+        "hcp": 12,
+        "played": "7/26"
       }
     ]
   }
