@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-25T21:27:07.051Z",
+  "lastUpdated": "2026-07-26T16:37:07.290Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -513,6 +513,12 @@
     "signups": [
       {
         "name": "Wes Barton"
+      },
+      {
+        "name": "Andy Patz"
+      },
+      {
+        "name": "Ed Bargerstock"
       }
     ],
     "teams": []
