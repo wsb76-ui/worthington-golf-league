@@ -1,5 +1,5 @@
-// WGL v24 · 2026-07-26 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v24'; // bumped 2026-07-26: GPS map tab — pan locked, hole-up rotation, auto-fit
+// WGL v25 · 2026-07-26 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v25'; // bumped 2026-07-26: revert GPS rotation/pan-lock, stable for league use
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
