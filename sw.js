@@ -1,5 +1,5 @@
-// WGL v22 · 2026-07-24 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v22'; // bumped 2026-07-24: rangefinder elevation / plays-like
+// WGL v23 · 2026-07-26 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v23'; // bumped 2026-07-26: weather strip, GPS Map tab, banked card hidden
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
