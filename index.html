@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL v24 · 2026-07-26 · weather strip, GPS Map tab (pan locked, hole-up rotation, auto-fit), banked card hidden -->
+<!-- WGL v25 · 2026-07-26 · revert GPS rotation/pan-lock, stable for league use -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -11,7 +11,6 @@
 <!-- Leaflet.js for GPS Map tab -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js"></script>
 <!-- OneSignal Web Push SDK -->
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
@@ -3077,18 +3076,6 @@ let gpsMapFrontMkr = null;
 let gpsMapCenterMkr = null;
 let gpsMapBackMkr = null;
 let gpsMapTapPos = null;
-let gpsMapFirstFix = true;
-
-function bearingTo(from, to) {
-  const toRad = d => d * Math.PI / 180;
-  const toDeg = r => r * 180 / Math.PI;
-  const dLon = toRad(to[1] - from[1]);
-  const lat1 = toRad(from[0]), lat2 = toRad(to[0]);
-  const y = Math.sin(dLon) * Math.cos(lat2);
-  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
-  return (toDeg(Math.atan2(y, x)) + 360) % 360;
-}
-
 function gpsHaversineYds(lat1,lon1,lat2,lon2){
   const R=6371000,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;
   const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
@@ -3100,17 +3087,8 @@ function initGpsMap(){
   if(!gpsMapLeaflet){
     gpsMapLeaflet = L.map('map-gps-container',{
       zoomControl:false,
-      attributionControl:false,
-      dragging:false,
-      touchZoom:true,
-      scrollWheelZoom:true,
-      doubleClickZoom:true,
-      boxZoom:false,
-      keyboard:false,
-      rotate:true,
-      bearing:0
+      attributionControl:false
     });
-    gpsMapLeaflet.dragging.disable();
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       {maxZoom:21,maxNativeZoom:19}).addTo(gpsMapLeaflet);
     // Tap handler
@@ -3143,20 +3121,6 @@ function initGpsMap(){
         if(badge) badge.textContent='📍 ±'+acc+' yds';
         document.getElementById('map-gps-status').textContent=
           '±'+acc+' yds · '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-        // Rotate map so green is at top, you are at bottom
-        const h = GREENS[gpsMapCurrentHole];
-        if(h){
-          const greenCenter = [h.c[0], h.c[1]];
-          const brng = bearingTo([lat, lon], greenCenter);
-          gpsMapLeaflet.setBearing(brng);
-          if(gpsMapFirstFix){
-            gpsMapFirstFix = false;
-            gpsMapLeaflet.fitBounds([[lat, lon], greenCenter], {
-              paddingTopLeft: [30, 60],
-              paddingBottomRight: [30, 20]
-            });
-          }
-        }
         gpsMapUpdateDistances();
       },
       function(err){
