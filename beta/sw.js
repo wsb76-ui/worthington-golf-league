@@ -1,5 +1,5 @@
-// WGL Beta v5 · 2026-07-27 — fix leaflet-rotate CDN URL
-const CACHE = 'wgl-beta-v5';
+// WGL Beta v6 · 2026-07-27 — hole-up map: tee line + green on load, GPS overlaid
+const CACHE = 'wgl-beta-v6';
 const ASSETS = [
   '/worthington-golf-league/beta/',
   '/worthington-golf-league/beta/index.html',
