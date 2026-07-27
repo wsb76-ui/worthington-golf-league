@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-27T21:57:10.070Z",
+  "lastUpdated": "2026-07-27T22:07:16.653Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -5345,6 +5345,38 @@
           "gross": 37,
           "net": 32,
           "grp": 1
+        },
+        {
+          "name": "Bill Long",
+          "team": 5,
+          "hcp": 7,
+          "gross": 44,
+          "net": 37,
+          "grp": 2
+        },
+        {
+          "name": "Willie Powell",
+          "team": 3,
+          "hcp": 10,
+          "gross": 42,
+          "net": 32,
+          "grp": 2
+        },
+        {
+          "name": "Sam Long",
+          "team": 6,
+          "hcp": 5,
+          "gross": 43,
+          "net": 38,
+          "grp": 2
+        },
+        {
+          "name": "Patric Weber",
+          "team": 8,
+          "hcp": 13,
+          "gross": 53,
+          "net": 40,
+          "grp": 2
         }
       ]
     },
