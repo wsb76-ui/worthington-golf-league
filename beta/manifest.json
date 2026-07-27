@@ -1,0 +1,25 @@
+{
+  "name": "WGL Beta",
+  "short_name": "WGL β",
+  "description": "Beta build — Worthington Golf League (new features tested here before live app)",
+  "start_url": "/worthington-golf-league/beta/",
+  "scope": "/worthington-golf-league/beta/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1b5e20",
+  "theme_color": "#1b5e20",
+  "icons": [
+    {
+      "src": "/worthington-golf-league/beta/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/worthington-golf-league/beta/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
