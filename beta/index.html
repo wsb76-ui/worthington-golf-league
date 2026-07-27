@@ -2701,6 +2701,9 @@ fetchWeather();
 let gpsMapWatchId=null, gpsMapPos=null, gpsMapLeaflet=null, gpsMapHole=1;
 let gpsMapYouMarker=null, gpsMapSpotMarker=null, gpsMapPinMarker=null;
 let gpsMapLastFitPos=null, gpsMapLastBearingUpdate=0, gpsMapRotLocked=false;
+let gpsMapHoleBearing=0; // hole-up bearing for current hole
+let gpsMapTeeLine=null;  // Leaflet polyline tee→green
+let gpsMapTeeMarker=null; // estimated tee position marker
 
 function gpsMapDist(a,b){ return haversineYards(a[0],a[1],b[0],b[1]); }
 
@@ -2710,6 +2713,53 @@ function gpsMapBearing(lat1,lon1,lat2,lon2){
   const y=Math.sin(dLon)*Math.cos(toRad(lat2));
   const x=Math.cos(toRad(lat1))*Math.sin(toRad(lat2))-Math.sin(toRad(lat1))*Math.cos(toRad(lat2))*Math.cos(dLon);
   return (toDeg(Math.atan2(y,x))+360)%360;
+}
+
+function gpsMapProjectPoint(lat,lon,bearingDeg,distYards){
+  const distM=distYards*0.9144;
+  const R=6371000;
+  const d=distM/R;
+  const brg=bearingDeg*Math.PI/180;
+  const lat1=lat*Math.PI/180;
+  const lon1=lon*Math.PI/180;
+  const lat2=Math.asin(Math.sin(lat1)*Math.cos(d)+Math.cos(lat1)*Math.sin(d)*Math.cos(brg));
+  const lon2=lon1+Math.atan2(Math.sin(brg)*Math.sin(d)*Math.cos(lat1),Math.cos(d)-Math.sin(lat1)*Math.sin(lat2));
+  return [lat2*180/Math.PI, lon2*180/Math.PI];
+}
+
+function gpsMapComputeHoleUp(hole){
+  const g=GREENS[hole]; if(!g) return null;
+  gpsMapHoleBearing=gpsMapBearing(g.f[0],g.f[1],g.r[0],g.r[1]); // front→rear = direction of play
+  const teeBearing=(gpsMapHoleBearing+180)%360;
+  const info=HOLE_INFO[hole]||{yds:200};
+  return gpsMapProjectPoint(g.f[0],g.f[1],teeBearing,info.yds);
+}
+
+function gpsMapDrawHole(hole){
+  const g=GREENS[hole]; if(!g||!gpsMapLeaflet) return;
+  const teePos=gpsMapComputeHoleUp(hole);
+  if(!teePos) return;
+  // Rotate map to hole-up bearing (green at top)
+  if(!gpsMapRotLocked && gpsMapLeaflet.setBearing)
+    gpsMapLeaflet.setBearing(gpsMapHoleBearing);
+  // Remove old tee line and marker
+  if(gpsMapTeeLine){ gpsMapTeeLine.remove(); gpsMapTeeLine=null; }
+  if(gpsMapTeeMarker){ gpsMapTeeMarker.remove(); gpsMapTeeMarker=null; }
+  // Draw dashed line: estimated tee → green center
+  gpsMapTeeLine=L.polyline([teePos,[g.c[0],g.c[1]]],{
+    color:'rgba(255,255,255,0.7)',weight:1.5,dashArray:'4 4'
+  }).addTo(gpsMapLeaflet);
+  // Small white circle at estimated tee
+  gpsMapTeeMarker=L.circleMarker(teePos,{
+    radius:5,color:'#fff',fillColor:'#fff',fillOpacity:0.9,weight:1.5
+  }).addTo(gpsMapLeaflet);
+  // Move or create green pin
+  if(gpsMapPinMarker) gpsMapPinMarker.setLatLng([g.c[0],g.c[1]]);
+  else gpsMapPinMarker=L.circleMarker([g.c[0],g.c[1]],{
+    radius:8,color:'#fff',fillColor:'#c62828',fillOpacity:1,weight:2
+  }).addTo(gpsMapLeaflet);
+  // Fit to show tee + green with padding
+  gpsMapLeaflet.fitBounds([teePos,[g.c[0],g.c[1]]],{padding:[60,60]});
 }
 
 function gpsMapToggleLock(){
@@ -2741,24 +2791,21 @@ function gpsMapUpdateHoleLabel(){
 function gpsMapChangeHole(dir){
   gpsMapHole=((gpsMapHole-1+dir+18)%18)+1;
   gpsMapUpdateHoleLabel();
-  // move green pin
+  // Draw hole immediately (tee line + green pin, hole-up rotation, fit bounds)
+  gpsMapDrawHole(gpsMapHole);
+  // If GPS active and user is nearby, re-fit to include their position
   const g=GREENS[gpsMapHole];
-  if(gpsMapLeaflet&&g){
-    if(gpsMapPinMarker) gpsMapPinMarker.setLatLng([g.c[0],g.c[1]]);
-    else gpsMapPinMarker=L.circleMarker([g.c[0],g.c[1]],{radius:8,color:'#fff',fillColor:'#c62828',fillOpacity:1,weight:2}).addTo(gpsMapLeaflet);
-    if(gpsMapPos){
+  if(gpsMapPos && g){
+    const distToGreen=haversineYards(gpsMapPos[0],gpsMapPos[1],g.c[0],g.c[1]);
+    if(distToGreen<500){
       gpsMapLeaflet.fitBounds([[gpsMapPos[0],gpsMapPos[1]],[g.c[0],g.c[1]]],{padding:[40,40]});
       gpsMapLastFitPos=[...gpsMapPos];
-      if(!gpsMapRotLocked && gpsMapLeaflet.setBearing)
-        gpsMapLeaflet.setBearing(gpsMapBearing(gpsMapPos[0],gpsMapPos[1],g.c[0],g.c[1]));
-    } else {
-      gpsMapLeaflet.setView([g.c[0],g.c[1]],17);
     }
+    gpsMapUpdateDistances(gpsMapPos);
   }
   // remove old spot
   if(gpsMapSpotMarker){ gpsMapSpotMarker.remove(); gpsMapSpotMarker=null; }
   document.getElementById('gps-spot-row').style.display='none';
-  if(gpsMapPos) gpsMapUpdateDistances(gpsMapPos);
 }
 
 function initGpsMap(){
@@ -2779,8 +2826,8 @@ function initGpsMap(){
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
     maxZoom:20,attribution:''
   }).addTo(gpsMapLeaflet);
-  // Green pin
-  if(g) gpsMapPinMarker=L.circleMarker([g.c[0],g.c[1]],{radius:8,color:'#fff',fillColor:'#c62828',fillOpacity:1,weight:2}).addTo(gpsMapLeaflet);
+  // Draw hole immediately — tee line, green pin, hole-up rotation, fit bounds
+  gpsMapDrawHole(gpsMapHole);
   // Tap handler
   gpsMapLeaflet.on('click',function(e){
     if(!gpsMapPos){ document.getElementById('gps-map-status').textContent='📡 Still acquiring GPS…'; return; }
@@ -2798,7 +2845,7 @@ function initGpsMap(){
   gpsMapUpdateHoleLabel();
   // Start GPS watcher
   if(gpsMapWatchId===null && navigator.geolocation){
-    document.getElementById('gps-map-status').textContent='📡 Acquiring GPS…';
+    document.getElementById('gps-map-status').textContent='📡 GPS acquiring…';
     gpsMapWatchId=navigator.geolocation.watchPosition(function(pos){
       gpsMapPos=[pos.coords.latitude,pos.coords.longitude];
       document.getElementById('gps-map-status').textContent='📍 GPS active · ±'+Math.round(pos.coords.accuracy)+'m';
@@ -2807,15 +2854,16 @@ function initGpsMap(){
       else gpsMapYouMarker=L.circleMarker(gpsMapPos,{radius:8,color:'#1565c0',fillColor:'#1976d2',fillOpacity:1,weight:2}).addTo(gpsMapLeaflet);
       gpsMapUpdateDistances(gpsMapPos);
       const gg2=GREENS[gpsMapHole];
-      // Bearing update — rate-limited to once per 2s, skipped if locked
+      const distToGreen=gg2?haversineYards(gpsMapPos[0],gpsMapPos[1],gg2.c[0],gg2.c[1]):999;
+      // Bearing update — only when near the hole, rate-limited to once per 2s, skipped if locked
       const now2=Date.now();
-      if(gg2 && !gpsMapRotLocked && (now2-gpsMapLastBearingUpdate)>2000){
+      if(gg2 && distToGreen<500 && !gpsMapRotLocked && (now2-gpsMapLastBearingUpdate)>2000){
         gpsMapLastBearingUpdate=now2;
         if(gpsMapLeaflet.setBearing) gpsMapLeaflet.setBearing(gpsMapBearing(gpsMapPos[0],gpsMapPos[1],gg2.c[0],gg2.c[1]));
       }
-      // Refit bounds: first fix always; thereafter only if moved > 5 yards since last fit
+      // Refit bounds: first fix when nearby; thereafter only if moved > 5 yards since last fit
       const movedYds=gpsMapLastFitPos?gpsMapDist(gpsMapPos,gpsMapLastFitPos):999;
-      if(gg2 && (!gpsMapLeaflet._hasFirstFit || movedYds>5)){
+      if(gg2 && distToGreen<500 && (!gpsMapLeaflet._hasFirstFit || movedYds>5)){
         gpsMapLeaflet._hasFirstFit=true;
         gpsMapLastFitPos=[...gpsMapPos];
         gpsMapLeaflet.fitBounds([[gpsMapPos[0],gpsMapPos[1]],[gg2.c[0],gg2.c[1]]],{padding:[50,50]});
@@ -2829,9 +2877,7 @@ function initGpsMap(){
       if(closestHole!==gpsMapHole && closestDist<80){
         gpsMapHole=closestHole;
         gpsMapUpdateHoleLabel();
-        const gsnap=GREENS[gpsMapHole];
-        if(gpsMapPinMarker) gpsMapPinMarker.setLatLng([gsnap.c[0],gsnap.c[1]]);
-        else gpsMapPinMarker=L.circleMarker([gsnap.c[0],gsnap.c[1]],{radius:8,color:'#fff',fillColor:'#c62828',fillOpacity:1,weight:2}).addTo(gpsMapLeaflet);
+        gpsMapDrawHole(gpsMapHole);
         if(gpsMapSpotMarker){gpsMapSpotMarker.remove();gpsMapSpotMarker=null;}
         document.getElementById('gps-spot-row').style.display='none';
         gpsMapUpdateDistances(gpsMapPos);
