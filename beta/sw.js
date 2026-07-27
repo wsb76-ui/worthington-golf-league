@@ -1,8 +1,12 @@
-// WGL Beta v1 · 2026-07-27 — beta sandbox service worker
-const CACHE = 'wgl-beta-v1';
+// WGL Beta v3 · 2026-07-27 — weather strip + GPS tab + rotation + beta icons
+const CACHE = 'wgl-beta-v3';
 const ASSETS = [
   '/worthington-golf-league/beta/',
   '/worthington-golf-league/beta/index.html',
+  '/worthington-golf-league/beta/sw.js',
+  '/worthington-golf-league/beta/manifest.json',
+  '/worthington-golf-league/beta/icon-192.png',
+  '/worthington-golf-league/beta/icon-512.png',
   '/worthington-golf-league/manifest.json',
   '/worthington-golf-league/icon-192.png',
   '/worthington-golf-league/icon-512.png',
