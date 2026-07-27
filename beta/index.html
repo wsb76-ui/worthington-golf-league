@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<!-- WGL Beta v1 · 2026-07-27 · beta sandbox — new features tested here before live app -->
+<!-- WGL Beta v3 · 2026-07-27 · beta sandbox — weather strip + GPS tab + rotation + beta icons -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="/worthington-golf-league/manifest.json">
-<link rel="apple-touch-icon" href="/worthington-golf-league/apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-rotate@0.1.0/dist/leaflet-rotate-src.js"></script>
 <title>WGL 2026</title>
 <!-- OneSignal Web Push SDK -->
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -203,6 +206,26 @@ table.standings { width:100%; border-collapse:collapse; font-size:13px; }
 .gps-dist-lbl { font-size:10px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
 .gps-dist-val { font-size:28px; font-weight:800; color:#1b5e20; line-height:1; }
 .gps-dist-unit { font-size:10px; color:#aaa; margin-top:2px; }
+
+/* Weather strip */
+.wx-strip { display:flex; gap:16px; padding:0 14px 8px; font-size:11px; color:rgba(255,255,255,.85); align-items:center; flex-wrap:wrap; }
+.wx-strip span { display:flex; align-items:center; gap:4px; }
+
+/* GPS Map tab */
+#gps-map-container { height:calc(100dvh - 200px); min-height:300px; position:relative; border-radius:0; overflow:hidden; }
+.gps-dist-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; padding:10px 12px; }
+.gps-dist-card { background:var(--card,white); border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.1); padding:10px 8px; text-align:center; }
+.gps-dist-label { font-size:10px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px; }
+.gps-dist-num { font-size:26px; font-weight:700; color:var(--tint,#2e7d32); line-height:1; }
+.gps-dist-sub { font-size:10px; color:#aaa; margin-top:2px; }
+.gps-hole-nav { display:flex; align-items:center; justify-content:center; gap:16px; padding:10px 16px 0; background:var(--card,white); }
+.gps-hole-nav button { background:var(--tint,#2e7d32); color:white; border:none; border-radius:8px; width:36px; height:36px; font-size:20px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.gps-hole-label { font-size:15px; font-weight:700; min-width:120px; text-align:center; }
+.gps-status-bar { font-size:11px; color:#888; text-align:center; padding:4px 12px 6px; }
+.gps-spot-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:6px; padding:0 12px 10px; }
+.gps-spot-card { background:var(--card,white); border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.08); padding:8px 4px; text-align:center; }
+.gps-spot-label { font-size:9px; font-weight:600; color:#888; text-transform:uppercase; }
+.gps-spot-num { font-size:18px; font-weight:700; color:#1565c0; line-height:1.2; }
 </style>
 
 <style id="theme-css">
@@ -461,6 +484,11 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
     </div>
     <button id="gear-btn" onclick="toggleSettings()">⚙️</button>
   </div>
+  <div class="wx-strip">
+    <span>🌡️ <b id="wxTemp">--°F</b></span>
+    <span>💨 <b id="wxWind">--</b></span>
+    <span>🌧️ <b id="wxRain">--%</b></span>
+  </div>
 </div>
 
 <!-- Bottom tab bar -->
@@ -473,6 +501,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
   <div class="tab" onclick="showTab('outing',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 4H4.5A1.5 1.5 0 003 5.5v1A4.5 4.5 0 007.5 11M17 4h2.5A1.5 1.5 0 0121 5.5v1A4.5 4.5 0 0116.5 11"/><path d="M7 4h10v7a5 5 0 01-10 0V4z"/></svg></span>Outing</div>
   <div class="tab" onclick="showTab('dues',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="13" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M3 10v5M21 10v5"/></svg></span>Dues</div>
   <div class="tab" id="tab-my" onclick="showTab('mytab',this);buildMyTab()"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>My</div>
+  <div class="tab" id="tab-gps" onclick="showTab('gps-tab',this);initGpsMap()"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg></span>GPS</div>
 </div>
 
 <div id="main-scroll">
@@ -780,6 +809,31 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 </div>
 
 <div id="mytab" class="tab-content"><div id="my-body" style="margin-top:12px"></div></div>
+<!-- GPS Yardage Tab -->
+<div id="gps-tab" class="tab-content" style="padding:0">
+  <div class="gps-hole-nav">
+    <button onclick="gpsMapChangeHole(-1)">‹</button>
+    <div class="gps-hole-label" id="gps-map-hole-label">Hole 1 · Par 4 · 272 yds</div>
+    <button onclick="gpsMapChangeHole(1)">›</button>
+    <button id="gps-rot-lock" onclick="gpsMapToggleLock()" title="Lock rotation">🔓</button>
+  </div>
+  <div class="gps-status-bar" id="gps-map-status">📡 Tap GPS tab to acquire…</div>
+  <div class="gps-dist-grid">
+    <div class="gps-dist-card"><div class="gps-dist-label">Front</div><div class="gps-dist-num" id="gps-map-front">—</div><div class="gps-dist-sub">yds</div></div>
+    <div class="gps-dist-card"><div class="gps-dist-label">Center</div><div class="gps-dist-num" id="gps-map-center">—</div><div class="gps-dist-sub">yds</div></div>
+    <div class="gps-dist-card"><div class="gps-dist-label">Back</div><div class="gps-dist-num" id="gps-map-back">—</div><div class="gps-dist-sub">yds</div></div>
+  </div>
+  <div id="gps-map-container"></div>
+  <div id="gps-spot-row" style="display:none">
+    <div style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;text-align:center;padding:6px 0 2px;letter-spacing:.05em">📍 Spot</div>
+    <div class="gps-spot-grid">
+      <div class="gps-spot-card"><div class="gps-spot-label">You→Spot</div><div class="gps-spot-num" id="gps-spot-you">—</div></div>
+      <div class="gps-spot-card"><div class="gps-spot-label">Front</div><div class="gps-spot-num" id="gps-spot-front">—</div></div>
+      <div class="gps-spot-card"><div class="gps-spot-label">Center</div><div class="gps-spot-num" id="gps-spot-center">—</div></div>
+      <div class="gps-spot-card"><div class="gps-spot-label">Back</div><div class="gps-spot-num" id="gps-spot-back">—</div></div>
+    </div>
+  </div>
+</div>
 
 <!-- First-run welcome (pick your name) -->
 <div id="welcome-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;align-items:center;justify-content:center;padding:24px">
@@ -2624,6 +2678,172 @@ function buildWeek(wk,elOverride){
   }
 
   el.innerHTML=html;
+}
+
+// ── Weather strip ─────────────────────────────────────────────────────────────
+function fetchWeather(){
+  const url='https://api.open-meteo.com/v1/forecast?latitude=40.88&longitude=-79.81'
+    +'&current=temperature_2m,wind_speed_10m,wind_direction_10m,precipitation_probability'
+    +'&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York';
+  fetch(url).then(r=>r.json()).then(d=>{
+    const c=d.current;
+    const dirs=['N','NE','E','SE','S','SW','W','NW'];
+    const compass=dirs[Math.round(c.wind_direction_10m/45)%8];
+    document.getElementById('wxTemp').textContent=Math.round(c.temperature_2m)+'°F';
+    document.getElementById('wxWind').textContent=compass+' '+Math.round(c.wind_speed_10m)+' mph';
+    document.getElementById('wxRain').textContent=c.precipitation_probability+'%';
+  }).catch(()=>{});
+  setTimeout(fetchWeather, 5*60*1000); // refresh every 5 min
+}
+fetchWeather();
+
+// ── GPS Map Tab ───────────────────────────────────────────────────────────────
+let gpsMapWatchId=null, gpsMapPos=null, gpsMapLeaflet=null, gpsMapHole=1;
+let gpsMapYouMarker=null, gpsMapSpotMarker=null, gpsMapPinMarker=null;
+let gpsMapLastFitPos=null, gpsMapLastBearingUpdate=0, gpsMapRotLocked=false;
+
+function gpsMapDist(a,b){ return haversineYards(a[0],a[1],b[0],b[1]); }
+
+function gpsMapBearing(lat1,lon1,lat2,lon2){
+  const toRad=d=>d*Math.PI/180, toDeg=r=>r*180/Math.PI;
+  const dLon=toRad(lon2-lon1);
+  const y=Math.sin(dLon)*Math.cos(toRad(lat2));
+  const x=Math.cos(toRad(lat1))*Math.sin(toRad(lat2))-Math.sin(toRad(lat1))*Math.cos(toRad(lat2))*Math.cos(dLon);
+  return (toDeg(Math.atan2(y,x))+360)%360;
+}
+
+function gpsMapToggleLock(){
+  gpsMapRotLocked=!gpsMapRotLocked;
+  document.getElementById('gps-rot-lock').textContent=gpsMapRotLocked?'🔒':'🔓';
+  if(!gpsMapRotLocked && gpsMapLeaflet && gpsMapPos){
+    const g=GREENS[gpsMapHole];
+    if(g && gpsMapLeaflet.setBearing) gpsMapLeaflet.setBearing(gpsMapBearing(gpsMapPos[0],gpsMapPos[1],g.c[0],g.c[1]));
+  }
+}
+
+function gpsMapUpdateDistances(fromPos){
+  const g=GREENS[gpsMapHole]; if(!g||!fromPos) return;
+  const edges=[g.f,g.r,g.rt,g.l];
+  const front=Math.min(...edges.map(p=>gpsMapDist(fromPos,p)));
+  const center=gpsMapDist(fromPos,g.c);
+  const back=Math.max(...edges.map(p=>gpsMapDist(fromPos,p)));
+  document.getElementById('gps-map-front').textContent=front;
+  document.getElementById('gps-map-center').textContent=center;
+  document.getElementById('gps-map-back').textContent=back;
+}
+
+function gpsMapUpdateHoleLabel(){
+  const info=HOLE_INFO[gpsMapHole]||{};
+  document.getElementById('gps-map-hole-label').textContent=
+    'Hole '+gpsMapHole+' · Par '+(info.par||'?')+' · '+(info.yds||'?')+' yds';
+}
+
+function gpsMapChangeHole(dir){
+  gpsMapHole=((gpsMapHole-1+dir+18)%18)+1;
+  gpsMapUpdateHoleLabel();
+  // move green pin
+  const g=GREENS[gpsMapHole];
+  if(gpsMapLeaflet&&g){
+    if(gpsMapPinMarker) gpsMapPinMarker.setLatLng([g.c[0],g.c[1]]);
+    else gpsMapPinMarker=L.circleMarker([g.c[0],g.c[1]],{radius:8,color:'#fff',fillColor:'#c62828',fillOpacity:1,weight:2}).addTo(gpsMapLeaflet);
+    if(gpsMapPos){
+      gpsMapLeaflet.fitBounds([[gpsMapPos[0],gpsMapPos[1]],[g.c[0],g.c[1]]],{padding:[40,40]});
+      gpsMapLastFitPos=[...gpsMapPos];
+      if(!gpsMapRotLocked && gpsMapLeaflet.setBearing)
+        gpsMapLeaflet.setBearing(gpsMapBearing(gpsMapPos[0],gpsMapPos[1],g.c[0],g.c[1]));
+    } else {
+      gpsMapLeaflet.setView([g.c[0],g.c[1]],17);
+    }
+  }
+  // remove old spot
+  if(gpsMapSpotMarker){ gpsMapSpotMarker.remove(); gpsMapSpotMarker=null; }
+  document.getElementById('gps-spot-row').style.display='none';
+  if(gpsMapPos) gpsMapUpdateDistances(gpsMapPos);
+}
+
+function initGpsMap(){
+  if(gpsMapLeaflet){ return; } // already initialized
+  const container=document.getElementById('gps-map-container');
+  if(!container) return;
+  // Create Leaflet map with rotation support
+  const g=GREENS[gpsMapHole];
+  gpsMapLeaflet=L.map(container,{
+    center:[g?g.c[0]:40.882,g?g.c[1]:-79.810],
+    zoom:17,
+    zoomControl:true,
+    attributionControl:false,
+    rotate:true,
+    bearing:0
+  });
+  // ESRI satellite tiles
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
+    maxZoom:20,attribution:''
+  }).addTo(gpsMapLeaflet);
+  // Green pin
+  if(g) gpsMapPinMarker=L.circleMarker([g.c[0],g.c[1]],{radius:8,color:'#fff',fillColor:'#c62828',fillOpacity:1,weight:2}).addTo(gpsMapLeaflet);
+  // Tap handler
+  gpsMapLeaflet.on('click',function(e){
+    if(!gpsMapPos){ document.getElementById('gps-map-status').textContent='📡 Still acquiring GPS…'; return; }
+    const tapped=[e.latlng.lat,e.latlng.lng];
+    if(gpsMapSpotMarker) gpsMapSpotMarker.remove();
+    gpsMapSpotMarker=L.circleMarker(tapped,{radius:6,color:'#fff',fillColor:'#fff',fillOpacity:1,weight:2}).addTo(gpsMapLeaflet);
+    const gg=GREENS[gpsMapHole]; if(!gg) return;
+    const edges=[gg.f,gg.r,gg.rt,gg.l];
+    document.getElementById('gps-spot-you').textContent=gpsMapDist(gpsMapPos,tapped);
+    document.getElementById('gps-spot-front').textContent=Math.min(...edges.map(p=>gpsMapDist(tapped,p)));
+    document.getElementById('gps-spot-center').textContent=gpsMapDist(tapped,gg.c);
+    document.getElementById('gps-spot-back').textContent=Math.max(...edges.map(p=>gpsMapDist(tapped,p)));
+    document.getElementById('gps-spot-row').style.display='block';
+  });
+  gpsMapUpdateHoleLabel();
+  // Start GPS watcher
+  if(gpsMapWatchId===null && navigator.geolocation){
+    document.getElementById('gps-map-status').textContent='📡 Acquiring GPS…';
+    gpsMapWatchId=navigator.geolocation.watchPosition(function(pos){
+      gpsMapPos=[pos.coords.latitude,pos.coords.longitude];
+      document.getElementById('gps-map-status').textContent='📍 GPS active · ±'+Math.round(pos.coords.accuracy)+'m';
+      // Move/create you marker
+      if(gpsMapYouMarker) gpsMapYouMarker.setLatLng(gpsMapPos);
+      else gpsMapYouMarker=L.circleMarker(gpsMapPos,{radius:8,color:'#1565c0',fillColor:'#1976d2',fillOpacity:1,weight:2}).addTo(gpsMapLeaflet);
+      gpsMapUpdateDistances(gpsMapPos);
+      const gg2=GREENS[gpsMapHole];
+      // Bearing update — rate-limited to once per 2s, skipped if locked
+      const now2=Date.now();
+      if(gg2 && !gpsMapRotLocked && (now2-gpsMapLastBearingUpdate)>2000){
+        gpsMapLastBearingUpdate=now2;
+        if(gpsMapLeaflet.setBearing) gpsMapLeaflet.setBearing(gpsMapBearing(gpsMapPos[0],gpsMapPos[1],gg2.c[0],gg2.c[1]));
+      }
+      // Refit bounds: first fix always; thereafter only if moved > 5 yards since last fit
+      const movedYds=gpsMapLastFitPos?gpsMapDist(gpsMapPos,gpsMapLastFitPos):999;
+      if(gg2 && (!gpsMapLeaflet._hasFirstFit || movedYds>5)){
+        gpsMapLeaflet._hasFirstFit=true;
+        gpsMapLastFitPos=[...gpsMapPos];
+        gpsMapLeaflet.fitBounds([[gpsMapPos[0],gpsMapPos[1]],[gg2.c[0],gg2.c[1]]],{padding:[50,50]});
+      }
+      // Auto-hole snap: find closest green center; snap if < 80 yards and a different hole
+      let closestHole=gpsMapHole, closestDist=Infinity;
+      for(const h of Object.keys(GREENS)){
+        const d=gpsMapDist(gpsMapPos,GREENS[h].c);
+        if(d<closestDist){closestDist=d;closestHole=+h;}
+      }
+      if(closestHole!==gpsMapHole && closestDist<80){
+        gpsMapHole=closestHole;
+        gpsMapUpdateHoleLabel();
+        const gsnap=GREENS[gpsMapHole];
+        if(gpsMapPinMarker) gpsMapPinMarker.setLatLng([gsnap.c[0],gsnap.c[1]]);
+        else gpsMapPinMarker=L.circleMarker([gsnap.c[0],gsnap.c[1]],{radius:8,color:'#fff',fillColor:'#c62828',fillOpacity:1,weight:2}).addTo(gpsMapLeaflet);
+        if(gpsMapSpotMarker){gpsMapSpotMarker.remove();gpsMapSpotMarker=null;}
+        document.getElementById('gps-spot-row').style.display='none';
+        gpsMapUpdateDistances(gpsMapPos);
+        const statusEl=document.getElementById('gps-map-status');
+        const snapMsg='📍 Snapped to hole '+gpsMapHole;
+        statusEl.textContent=snapMsg;
+        setTimeout(()=>{if(statusEl.textContent===snapMsg)statusEl.textContent='📍 GPS active · ±'+Math.round(pos.coords.accuracy)+'m';},2000);
+      }
+    },function(err){
+      document.getElementById('gps-map-status').textContent='⚠️ GPS error: '+err.message;
+    },{enableHighAccuracy:true,maximumAge:3000,timeout:15000});
+  }
 }
 
 // ── Bootstrap: fetch live data, fall back to MOCK_DATA ───────────────────────
