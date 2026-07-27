@@ -1,5 +1,5 @@
-// WGL Beta v3 · 2026-07-27 — weather strip + GPS tab + rotation + beta icons
-const CACHE = 'wgl-beta-v3';
+// WGL Beta v5 · 2026-07-27 — fix leaflet-rotate CDN URL
+const CACHE = 'wgl-beta-v5';
 const ASSETS = [
   '/worthington-golf-league/beta/',
   '/worthington-golf-league/beta/index.html',
