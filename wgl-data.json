@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-26T20:17:06.751Z",
+  "lastUpdated": "2026-07-27T12:17:06.419Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -519,6 +519,9 @@
       },
       {
         "name": "Ed Bargerstock"
+      },
+      {
+        "name": "Jim Frye"
       }
     ],
     "teams": []
