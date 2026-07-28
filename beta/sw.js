@@ -1,5 +1,5 @@
-// WGL Beta v6 · 2026-07-27 — hole-up map: tee line + green on load, GPS overlaid
-const CACHE = 'wgl-beta-v6';
+// WGL Beta v11 · 2026-07-28 — Device height offset for ground-corrected elevation
+const CACHE = 'wgl-beta-v11';
 const ASSETS = [
   '/worthington-golf-league/beta/',
   '/worthington-golf-league/beta/index.html',
