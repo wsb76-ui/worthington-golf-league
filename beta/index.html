@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL Beta v3 · 2026-07-27 · beta sandbox — weather strip + GPS tab + rotation + beta icons -->
+<!-- WGL Beta v11 · 2026-07-28 · Device height offset for ground-corrected elevation -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -832,6 +832,25 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
       <div class="gps-spot-card"><div class="gps-spot-label">Center</div><div class="gps-spot-num" id="gps-spot-center">—</div></div>
       <div class="gps-spot-card"><div class="gps-spot-label">Back</div><div class="gps-spot-num" id="gps-spot-back">—</div></div>
     </div>
+  </div>
+
+  <!-- Green Tracer -->
+  <div id="gps-tracer-bar" style="display:none;padding:8px 12px;background:var(--card,white);border-top:1px solid #eee">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button id="gps-trace-btn" onclick="gpsTraceToggle()"
+        style="flex:1;padding:10px;border-radius:10px;border:none;background:#1b5e20;color:white;font-size:14px;font-weight:700;cursor:pointer">
+        📐 Trace Green
+      </button>
+      <button id="gps-trace-clear" onclick="gpsTraceClear()" style="display:none;padding:10px 14px;border-radius:10px;border:1.5px solid #ddd;background:none;font-size:13px;cursor:pointer">Clear</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+      <span style="font-size:12px;color:#888">📏 Device height:</span>
+      <input id="gps-device-height" type="number" value="3.0" step="0.5" min="0" max="10"
+        style="width:60px;padding:4px 8px;border:1.5px solid #ccc;border-radius:8px;font-size:13px;text-align:center;background:var(--card,white);color:var(--text,#111)"
+        onchange="gpsDeviceHeightSave(this.value)" oninput="gpsDeviceHeightSave(this.value)">
+      <span style="font-size:12px;color:#888">ft above ground</span>
+    </div>
+    <div id="gps-trace-status" style="font-size:11px;color:#888;text-align:center;margin-top:4px"></div>
   </div>
 </div>
 
@@ -2727,6 +2746,14 @@ function gpsMapProjectPoint(lat,lon,bearingDeg,distYards){
   return [lat2*180/Math.PI, lon2*180/Math.PI];
 }
 
+function gpsMapTeePosNoSideEffect(hole){
+  // Pure tee-position calc — no global side effects, safe to call in snap loop
+  const g=GREENS[hole]; if(!g) return null;
+  const bearing=gpsMapBearing(g.f[0],g.f[1],g.r[0],g.r[1]);
+  const teeBearing=(bearing+180)%360;
+  const info=HOLE_INFO[hole]||{yds:200};
+  return gpsMapProjectPoint(g.f[0],g.f[1],teeBearing,info.yds);
+}
 function gpsMapComputeHoleUp(hole){
   const g=GREENS[hole]; if(!g) return null;
   gpsMapHoleBearing=gpsMapBearing(g.f[0],g.f[1],g.r[0],g.r[1]); // front→rear = direction of play
@@ -2782,6 +2809,107 @@ function gpsMapUpdateDistances(fromPos){
   document.getElementById('gps-map-back').textContent=back;
 }
 
+// ── Green Tracer ──────────────────────────────────────────────────────────────
+let gpsTracing=false;
+let gpsTracePts=[];       // [[lat,lng,groundAltFt], ...] current session
+let gpsTracePolyline=null;
+let gpsTraceLastPt=null;
+const GPS_TRACE_KEY='wgl_green_trace_v1';
+const GPS_HEIGHT_KEY='wgl_device_height_v1';
+
+function gpsTraceSaved(){ try{return JSON.parse(localStorage.getItem(GPS_TRACE_KEY)||'{}')}catch(e){return{}} }
+function gpsDeviceHeightGet(){ return parseFloat(localStorage.getItem(GPS_HEIGHT_KEY)||'3.0')||3.0; }
+function gpsDeviceHeightSave(v){
+  const n=parseFloat(v);
+  if(!isNaN(n)&&n>=0) localStorage.setItem(GPS_HEIGHT_KEY,n.toString());
+}
+
+function gpsTraceToggle(){
+  if(!gpsMapPos){document.getElementById('gps-trace-status').textContent='⚠️ Wait for GPS fix first';return;}
+  gpsTracing=!gpsTracing;
+  const btn=document.getElementById('gps-trace-btn');
+  const clrBtn=document.getElementById('gps-trace-clear');
+  if(gpsTracing){
+    gpsTracePts=[];
+    gpsTraceLastPt=null;
+    if(gpsTracePolyline){gpsTracePolyline.remove();gpsTracePolyline=null;}
+    btn.textContent='⏹ Stop Tracing';
+    btn.style.background='#c62828';
+    clrBtn.style.display='none';
+    document.getElementById('gps-trace-status').textContent='Walk the green edge — recording…';
+  } else {
+    btn.textContent='📐 Trace Green';
+    btn.style.background='#1b5e20';
+    if(gpsTracePts.length>=3){
+      // Close the polygon and save
+      const closed=[...gpsTracePts, gpsTracePts[0]];
+      if(gpsTracePolyline) gpsTracePolyline.remove();
+      gpsTracePolyline=L.polygon(gpsTracePts,{color:'#ff6f00',weight:2.5,fillOpacity:0.12,fillColor:'#ff6f00',dashArray:'6,4'}).addTo(gpsMapLeaflet);
+      const saved=gpsTraceSaved();
+      saved[gpsMapHole]={pts:gpsTracePts,date:new Date().toLocaleDateString(),heightFt:gpsDeviceHeightGet()};
+      localStorage.setItem(GPS_TRACE_KEY,JSON.stringify(saved));
+      clrBtn.style.display='';
+      const elevPts=gpsTracePts.filter(p=>p[2]!=null);
+      const elevStr=elevPts.length>=2?' · elev '+Math.min(...elevPts.map(p=>p[2]))+'–'+Math.max(...elevPts.map(p=>p[2]))+' ft':'';
+      document.getElementById('gps-trace-status').textContent='✅ '+gpsTracePts.length+' pts saved · Hole '+gpsMapHole+elevStr;
+    } else {
+      document.getElementById('gps-trace-status').textContent='⚠️ Need 3+ points to save — try again';
+      clrBtn.style.display='none';
+    }
+  }
+}
+
+function gpsTraceAddPoint(pos, accuracy, altM){
+  if(!gpsTracing) return;
+  // Only record if moved > 1.5 yards from last point (debounce GPS jitter)
+  if(gpsTraceLastPt && haversineYards(pos[0],pos[1],gpsTraceLastPt[0],gpsTraceLastPt[1])<1.5) return;
+  // Convert altitude to feet, subtract device height to get ground-level elevation
+  let groundAltFt = null;
+  if(altM!=null && !isNaN(altM)){
+    const rawFt = altM * 3.28084;
+    groundAltFt = Math.round((rawFt - gpsDeviceHeightGet()) * 10) / 10;
+  }
+  gpsTracePts.push([pos[0], pos[1], groundAltFt]);
+  gpsTraceLastPt=[...pos];
+  // Draw live path (Leaflet only needs lat/lng)
+  const latlngs=gpsTracePts.map(p=>[p[0],p[1]]);
+  if(gpsTracePolyline) gpsTracePolyline.setLatLngs(latlngs);
+  else gpsTracePolyline=L.polyline(latlngs,{color:'#ff6f00',weight:2.5,dashArray:'6,4'}).addTo(gpsMapLeaflet);
+  // Status with elevation if available
+  const elevPts=gpsTracePts.filter(p=>p[2]!=null);
+  const elevStr=elevPts.length ? ' · elev '+Math.min(...elevPts.map(p=>p[2]))+'–'+Math.max(...elevPts.map(p=>p[2]))+' ft' : '';
+  document.getElementById('gps-trace-status').textContent='Recording… '+gpsTracePts.length+' pts · ±'+Math.round(accuracy||0)+'m'+elevStr;
+}
+
+function gpsTraceClear(){
+  const saved=gpsTraceSaved();
+  delete saved[gpsMapHole];
+  localStorage.setItem(GPS_TRACE_KEY,JSON.stringify(saved));
+  if(gpsTracePolyline){gpsTracePolyline.remove();gpsTracePolyline=null;}
+  gpsTracePts=[];
+  document.getElementById('gps-trace-clear').style.display='none';
+  document.getElementById('gps-trace-status').textContent='Trace cleared for hole '+gpsMapHole;
+}
+
+function gpsTraceLoadSaved(hole){
+  if(!gpsMapLeaflet) return;
+  if(gpsTracePolyline){gpsTracePolyline.remove();gpsTracePolyline=null;}
+  const saved=gpsTraceSaved();
+  const h=saved[hole];
+  if(h&&h.pts&&h.pts.length>=3){
+    gpsTracePolyline=L.polygon(h.pts,{color:'#ff6f00',weight:2.5,fillOpacity:0.12,fillColor:'#ff6f00',dashArray:'6,4'}).addTo(gpsMapLeaflet);
+    document.getElementById('gps-trace-clear').style.display='';
+    const ep=h.pts.filter(p=>p[2]!=null);
+    const es=ep.length>=2?' · elev '+Math.min(...ep.map(p=>p[2]))+'–'+Math.max(...ep.map(p=>p[2]))+' ft':'';
+    const hs=h.heightFt!=null?' · offset '+h.heightFt+'ft':'';
+    document.getElementById('gps-trace-status').textContent='📐 Saved trace · '+h.pts.length+' pts · '+h.date+es+hs;
+  } else {
+    document.getElementById('gps-trace-clear').style.display='none';
+    document.getElementById('gps-trace-status').textContent='';
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 function gpsMapUpdateHoleLabel(){
   const info=HOLE_INFO[gpsMapHole]||{};
   document.getElementById('gps-map-hole-label').textContent=
@@ -2789,8 +2917,10 @@ function gpsMapUpdateHoleLabel(){
 }
 
 function gpsMapChangeHole(dir){
+  if(gpsTracing){gpsTraceToggle();} // stop tracing if switching holes mid-trace
   gpsMapHole=((gpsMapHole-1+dir+18)%18)+1;
   gpsMapUpdateHoleLabel();
+  gpsTraceLoadSaved(gpsMapHole);
   // Draw hole immediately (tee line + green pin, hole-up rotation, fit bounds)
   gpsMapDrawHole(gpsMapHole);
   // If GPS active and user is nearby, re-fit to include their position
@@ -2843,12 +2973,18 @@ function initGpsMap(){
     document.getElementById('gps-spot-row').style.display='block';
   });
   gpsMapUpdateHoleLabel();
+  gpsTraceLoadSaved(gpsMapHole);
+  // Restore saved device height into input
+  document.getElementById('gps-device-height').value=gpsDeviceHeightGet();
   // Start GPS watcher
   if(gpsMapWatchId===null && navigator.geolocation){
     document.getElementById('gps-map-status').textContent='📡 GPS acquiring…';
     gpsMapWatchId=navigator.geolocation.watchPosition(function(pos){
       gpsMapPos=[pos.coords.latitude,pos.coords.longitude];
       document.getElementById('gps-map-status').textContent='📍 GPS active · ±'+Math.round(pos.coords.accuracy)+'m';
+      document.getElementById('gps-tracer-bar').style.display='block';
+      // If tracing, record this point
+      if(gpsTracing) gpsTraceAddPoint(gpsMapPos, pos.coords.accuracy, pos.coords.altitude);
       // Move/create you marker
       if(gpsMapYouMarker) gpsMapYouMarker.setLatLng(gpsMapPos);
       else gpsMapYouMarker=L.circleMarker(gpsMapPos,{radius:8,color:'#1565c0',fillColor:'#1976d2',fillOpacity:1,weight:2}).addTo(gpsMapLeaflet);
@@ -2868,15 +3004,19 @@ function initGpsMap(){
         gpsMapLastFitPos=[...gpsMapPos];
         gpsMapLeaflet.fitBounds([[gpsMapPos[0],gpsMapPos[1]],[gg2.c[0],gg2.c[1]]],{padding:[50,50]});
       }
-      // Auto-hole snap: find closest green center; snap if < 80 yards and a different hole
+      // Auto-hole snap: closest hole by tee OR green (fixes false snap when standing on tee near another hole's green)
       let closestHole=gpsMapHole, closestDist=Infinity;
       for(const h of Object.keys(GREENS)){
-        const d=gpsMapDist(gpsMapPos,GREENS[h].c);
+        const distGreen=gpsMapDist(gpsMapPos,GREENS[h].c);
+        const teePos=gpsMapTeePosNoSideEffect(+h);
+        const distTee=teePos?gpsMapDist(gpsMapPos,teePos):Infinity;
+        const d=Math.min(distGreen,distTee);
         if(d<closestDist){closestDist=d;closestHole=+h;}
       }
       if(closestHole!==gpsMapHole && closestDist<80){
         gpsMapHole=closestHole;
         gpsMapUpdateHoleLabel();
+        gpsTraceLoadSaved(gpsMapHole);
         gpsMapDrawHole(gpsMapHole);
         if(gpsMapSpotMarker){gpsMapSpotMarker.remove();gpsMapSpotMarker=null;}
         document.getElementById('gps-spot-row').style.display='none';
