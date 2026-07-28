@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-28T16:27:07.213Z",
+  "lastUpdated": "2026-07-28T21:03:44.318Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -71,7 +71,7 @@
       "hcp": 6,
       "phone": "(724) 859-1323"
     },
-    "Jeff Hollobaugh": {
+    "Jeff Hollabaugh": {
       "team": 2,
       "hcp": 8,
       "phone": "(724) 290-7067"
@@ -300,11 +300,6 @@
       "team": 8,
       "hcp": 13,
       "phone": "(724) 954-0988"
-    },
-    "Jeff Hollabaugh": {
-      "team": 2,
-      "hcp": 8,
-      "phone": "(724) 290-7067"
     }
   },
   "buyins": {},
@@ -1081,14 +1076,6 @@
           "hcp": 7,
           "gross": 47,
           "net": 40,
-          "grp": 1
-        },
-        {
-          "name": "Vince Sanzotti",
-          "team": 7,
-          "hcp": 3,
-          "gross": 38,
-          "net": 35,
           "grp": 1
         }
       ]
@@ -5647,30 +5634,6 @@
           "gross": 53,
           "net": 40,
           "grp": 4
-        },
-        {
-          "name": "Tom Stennett",
-          "team": 4,
-          "hcp": 13,
-          "gross": 42,
-          "net": 29,
-          "grp": 5
-        },
-        {
-          "name": "Paul Bowser",
-          "team": 8,
-          "hcp": 7,
-          "gross": 43,
-          "net": 36,
-          "grp": 5
-        },
-        {
-          "name": "Kevin Frye",
-          "team": 6,
-          "hcp": 5,
-          "gross": 38,
-          "net": 33,
-          "grp": 5
         }
       ]
     }
