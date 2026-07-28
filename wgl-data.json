@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-28T14:51:11.358Z",
+  "lastUpdated": "2026-07-28T16:17:18.705Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -9,8 +9,8 @@
     "skins": "",
     "lownet": "",
     "pot": "TBD",
-    "week": 13,
-    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Through Week 12",
+    "week": 14,
+    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Through Week 13",
     "duesAmt": "TBD",
     "skinsBuyin": "TBD",
     "lownetBuyin": "TBD"
@@ -5639,6 +5639,45 @@
           "gross": 53,
           "net": 40,
           "grp": 4
+        }
+      ]
+    },
+    "13": {
+      "label": "Week 13",
+      "date": "",
+      "course": "Hiland Golf Course",
+      "players": [
+        {
+          "name": "Tom Stennett",
+          "team": 4,
+          "hcp": 13,
+          "gross": 42,
+          "net": 29,
+          "grp": 1
+        },
+        {
+          "name": "Paul Bowser",
+          "team": 8,
+          "hcp": 7,
+          "gross": 43,
+          "net": 36,
+          "grp": 1
+        },
+        {
+          "name": "Kevin Frye",
+          "team": 6,
+          "hcp": 5,
+          "gross": 38,
+          "net": 33,
+          "grp": 1
+        },
+        {
+          "name": "Vince Sanzotti",
+          "team": 7,
+          "hcp": 3,
+          "gross": 38,
+          "net": 35,
+          "grp": 1
         }
       ]
     }
