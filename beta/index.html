@@ -836,7 +836,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
   </div>
 
   <!-- Green Tracer -->
-  <div id="gps-tracer-bar" style="display:none;padding:8px 12px;background:var(--card,white);border-top:1px solid #eee">
+  <div id="gps-tracer-bar" style="padding:8px 12px;background:var(--card,white);border-top:1px solid #eee">
     <div style="display:flex;align-items:center;gap:10px">
       <button id="gps-trace-btn" onclick="gpsTraceToggle()"
         style="flex:1;padding:10px;border-radius:10px;border:none;background:#1b5e20;color:white;font-size:14px;font-weight:700;cursor:pointer">
@@ -1790,9 +1790,20 @@ function showTab(id,el){
   document.getElementById(id).classList.add('active');
   if(el)el.classList.add('active');
   closeSettings();
-  // Show 📐 trace button in header only when GPS tab is active and GPS has a fix
+  // On GPS tab: collapse header to just the button row (hide title + weather)
+  // On other tabs: restore full header
+  const gpsMode=(id==='gps');
+  const hdrTitle=document.querySelector('.hdr-inner > div');
+  const wxStrip=document.querySelector('.wx-strip');
+  const hdrInner=document.querySelector('.hdr-inner');
+  if(hdrTitle) hdrTitle.style.display=gpsMode?'none':'';
+  if(wxStrip) wxStrip.style.display=gpsMode?'none':'';
+  if(hdrInner) hdrInner.style.paddingBottom=gpsMode?'8px':'';
+  // Show 📐 trace button whenever GPS tab is active
   const tb=document.getElementById('hdr-trace-btn');
-  if(tb) tb.style.display=(id==='gps'&&typeof gpsMapPos!=='undefined'&&gpsMapPos)?'':'none';
+  if(tb) tb.style.display=gpsMode?'':'none';
+  // Refresh export button visibility when entering GPS tab
+  if(gpsMode && typeof gpsTraceUpdateExportBtn==='function') gpsTraceUpdateExportBtn();
 }
 
 // ── Announcements ─────────────────────────────────────────────────────────────
@@ -3017,9 +3028,7 @@ function initGpsMap(){
     gpsMapWatchId=navigator.geolocation.watchPosition(function(pos){
       gpsMapPos=[pos.coords.latitude,pos.coords.longitude];
       document.getElementById('gps-map-status').textContent='📍 GPS active · ±'+Math.round(pos.coords.accuracy)+'m';
-      document.getElementById('gps-tracer-bar').style.display='block';
-      const _tb=document.getElementById('hdr-trace-btn');
-      if(_tb&&document.getElementById('gps').classList.contains('active')) _tb.style.display='';
+      // gps-tracer-bar is always visible; hdr-trace-btn shown by showTab when on GPS tab
       // If tracing, record this point
       if(gpsTracing) gpsTraceAddPoint(gpsMapPos, pos.coords.accuracy, pos.coords.altitude);
       // Move/create you marker
