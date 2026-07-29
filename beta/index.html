@@ -482,13 +482,33 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
       <h1>⛳ Worthington Golf League</h1>
       <div class="hdr-sub" id="app-subtitle">Monday Nights · Hiland Golf Course · Week 11 Upcoming</div>
     </div>
-    <button id="hdr-trace-btn" onclick="gpsTraceToggle()" style="display:none;background:none;border:none;color:white;font-size:20px;cursor:pointer;padding:4px 2px 4px 6px;-webkit-tap-highlight-color:transparent;opacity:.85" title="Trace Green">📐</button>
     <button id="gear-btn" onclick="toggleSettings()">⚙️</button>
   </div>
   <div class="wx-strip">
     <span>🌡️ <b id="wxTemp">--°F</b></span>
     <span>💨 <b id="wxWind">--</b></span>
     <span>🌧️ <b id="wxRain">--%</b></span>
+  </div>
+</div>
+
+<!-- GPS Tracer Header — replaces .app-hdr when GPS tab is active -->
+<div id="gps-tracer-bar" style="display:none;background:#1b5e20;color:white;padding-top:env(safe-area-inset-top);flex-shrink:0;order:1">
+  <div style="display:flex;align-items:center;gap:8px;padding:8px 12px 4px">
+    <button id="gps-trace-btn" onclick="gpsTraceToggle()"
+      style="flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.15);color:white;font-size:14px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">
+      📐 Trace Green
+    </button>
+    <button id="gps-trace-clear" onclick="gpsTraceClear()" style="display:none;padding:9px 12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.35);background:none;color:white;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:transparent">Clear</button>
+    <button onclick="toggleSettings()" style="background:none;border:none;color:white;font-size:20px;cursor:pointer;padding:4px 2px 4px 6px;opacity:.85;-webkit-tap-highlight-color:transparent">⚙️</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;padding:2px 12px 8px">
+    <span style="font-size:12px;opacity:.75">📏</span>
+    <input id="gps-device-height" type="number" value="3.0" step="0.5" min="0" max="10"
+      style="width:52px;padding:3px 6px;border:1px solid rgba(255,255,255,.4);border-radius:8px;font-size:13px;text-align:center;background:rgba(255,255,255,.15);color:white"
+      onchange="gpsDeviceHeightSave(this.value)" oninput="gpsDeviceHeightSave(this.value)">
+    <span style="font-size:12px;opacity:.75">ft</span>
+    <div id="gps-trace-status" style="flex:1;font-size:11px;color:rgba(255,255,255,.8);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+    <button id="gps-trace-export" onclick="gpsTraceExport()" style="display:none;padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.4);background:none;font-size:12px;font-weight:600;color:white;cursor:pointer;-webkit-tap-highlight-color:transparent;white-space:nowrap">📧 Export</button>
   </div>
 </div>
 
@@ -835,25 +855,6 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
     </div>
   </div>
 
-  <!-- Green Tracer -->
-  <div id="gps-tracer-bar" style="padding:8px 12px;background:var(--card,white);border-top:1px solid #eee">
-    <div style="display:flex;align-items:center;gap:10px">
-      <button id="gps-trace-btn" onclick="gpsTraceToggle()"
-        style="flex:1;padding:10px;border-radius:10px;border:none;background:#1b5e20;color:white;font-size:14px;font-weight:700;cursor:pointer">
-        📐 Trace Green
-      </button>
-      <button id="gps-trace-clear" onclick="gpsTraceClear()" style="display:none;padding:10px 14px;border-radius:10px;border:1.5px solid #ddd;background:none;font-size:13px;cursor:pointer">Clear</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
-      <span style="font-size:12px;color:#888">📏 Device height:</span>
-      <input id="gps-device-height" type="number" value="3.0" step="0.5" min="0" max="10"
-        style="width:60px;padding:4px 8px;border:1.5px solid #ccc;border-radius:8px;font-size:13px;text-align:center;background:var(--card,white);color:var(--text,#111)"
-        onchange="gpsDeviceHeightSave(this.value)" oninput="gpsDeviceHeightSave(this.value)">
-      <span style="font-size:12px;color:#888">ft above ground</span>
-    </div>
-    <div id="gps-trace-status" style="font-size:11px;color:#888;text-align:center;margin-top:4px"></div>
-    <button id="gps-trace-export" onclick="gpsTraceExport()" style="display:none;width:100%;margin-top:8px;padding:9px;border-radius:10px;border:1.5px solid #ccc;background:none;font-size:13px;font-weight:600;color:#555;cursor:pointer">📧 Email All Trace Data</button>
-  </div>
 </div>
 
 <!-- First-run welcome (pick your name) -->
@@ -1790,19 +1791,10 @@ function showTab(id,el){
   document.getElementById(id).classList.add('active');
   if(el)el.classList.add('active');
   closeSettings();
-  // On GPS tab: collapse header to just the button row (hide title + weather)
-  // On other tabs: restore full header
-  const gpsMode=(id==='gps');
-  const hdrTitle=document.querySelector('.hdr-inner > div');
-  const wxStrip=document.querySelector('.wx-strip');
-  const hdrInner=document.querySelector('.hdr-inner');
-  if(hdrTitle) hdrTitle.style.display=gpsMode?'none':'';
-  if(wxStrip) wxStrip.style.display=gpsMode?'none':'';
-  if(hdrInner) hdrInner.style.paddingBottom=gpsMode?'8px':'';
-  // Show 📐 trace button whenever GPS tab is active
-  const tb=document.getElementById('hdr-trace-btn');
-  if(tb) tb.style.display=gpsMode?'':'none';
-  // Refresh export button visibility when entering GPS tab
+  // Swap header: GPS tab uses the tracer bar; all other tabs use the normal header
+  const gpsMode=(id==='gps-tab');
+  document.querySelector('.app-hdr').style.display=gpsMode?'none':'';
+  document.getElementById('gps-tracer-bar').style.display=gpsMode?'':'none';
   if(gpsMode && typeof gpsTraceUpdateExportBtn==='function') gpsTraceUpdateExportBtn();
 }
 
