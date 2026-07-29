@@ -482,6 +482,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
       <h1>⛳ Worthington Golf League</h1>
       <div class="hdr-sub" id="app-subtitle">Monday Nights · Hiland Golf Course · Week 11 Upcoming</div>
     </div>
+    <button id="hdr-trace-btn" onclick="gpsTraceToggle()" style="display:none;background:none;border:none;color:white;font-size:20px;cursor:pointer;padding:4px 2px 4px 6px;-webkit-tap-highlight-color:transparent;opacity:.85" title="Trace Green">📐</button>
     <button id="gear-btn" onclick="toggleSettings()">⚙️</button>
   </div>
   <div class="wx-strip">
@@ -851,6 +852,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
       <span style="font-size:12px;color:#888">ft above ground</span>
     </div>
     <div id="gps-trace-status" style="font-size:11px;color:#888;text-align:center;margin-top:4px"></div>
+    <button id="gps-trace-export" onclick="gpsTraceExport()" style="display:none;width:100%;margin-top:8px;padding:9px;border-radius:10px;border:1.5px solid #ccc;background:none;font-size:13px;font-weight:600;color:#555;cursor:pointer">📧 Email All Trace Data</button>
   </div>
 </div>
 
@@ -1788,6 +1790,9 @@ function showTab(id,el){
   document.getElementById(id).classList.add('active');
   if(el)el.classList.add('active');
   closeSettings();
+  // Show 📐 trace button in header only when GPS tab is active and GPS has a fix
+  const tb=document.getElementById('hdr-trace-btn');
+  if(tb) tb.style.display=(id==='gps'&&typeof gpsMapPos!=='undefined'&&gpsMapPos)?'':'none';
 }
 
 // ── Announcements ─────────────────────────────────────────────────────────────
@@ -2829,17 +2834,20 @@ function gpsTraceToggle(){
   gpsTracing=!gpsTracing;
   const btn=document.getElementById('gps-trace-btn');
   const clrBtn=document.getElementById('gps-trace-clear');
+  const hdrBtn=document.getElementById('hdr-trace-btn');
   if(gpsTracing){
     gpsTracePts=[];
     gpsTraceLastPt=null;
     if(gpsTracePolyline){gpsTracePolyline.remove();gpsTracePolyline=null;}
     btn.textContent='⏹ Stop Tracing';
     btn.style.background='#c62828';
+    if(hdrBtn){hdrBtn.textContent='⏹';hdrBtn.style.opacity='1';}
     clrBtn.style.display='none';
     document.getElementById('gps-trace-status').textContent='Walk the green edge — recording…';
   } else {
     btn.textContent='📐 Trace Green';
     btn.style.background='#1b5e20';
+    if(hdrBtn){hdrBtn.textContent='📐';hdrBtn.style.opacity='.85';}
     if(gpsTracePts.length>=3){
       // Close the polygon and save
       const closed=[...gpsTracePts, gpsTracePts[0]];
@@ -2852,6 +2860,7 @@ function gpsTraceToggle(){
       const elevPts=gpsTracePts.filter(p=>p[2]!=null);
       const elevStr=elevPts.length>=2?' · elev '+Math.min(...elevPts.map(p=>p[2]))+'–'+Math.max(...elevPts.map(p=>p[2]))+' ft':'';
       document.getElementById('gps-trace-status').textContent='✅ '+gpsTracePts.length+' pts saved · Hole '+gpsMapHole+elevStr;
+      gpsTraceUpdateExportBtn();
     } else {
       document.getElementById('gps-trace-status').textContent='⚠️ Need 3+ points to save — try again';
       clrBtn.style.display='none';
@@ -2889,6 +2898,31 @@ function gpsTraceClear(){
   gpsTracePts=[];
   document.getElementById('gps-trace-clear').style.display='none';
   document.getElementById('gps-trace-status').textContent='Trace cleared for hole '+gpsMapHole;
+  gpsTraceUpdateExportBtn();
+}
+
+function gpsTraceUpdateExportBtn(){
+  const saved=gpsTraceSaved();
+  const hasData=Object.keys(saved).length>0;
+  const btn=document.getElementById('gps-trace-export');
+  if(btn) btn.style.display=hasData?'':'none';
+}
+
+function gpsTraceExport(){
+  const saved=gpsTraceSaved();
+  const holes=Object.keys(saved).sort((a,b)=>Number(a)-Number(b));
+  if(!holes.length){alert('No trace data saved yet.');return;}
+  let txt='WGL Green Trace Export\nDate: '+new Date().toLocaleDateString()+'\n\n';
+  holes.forEach(h=>{
+    const d=saved[h];
+    const pts=d.pts||[];
+    const ep=pts.filter(p=>p[2]!=null);
+    const es=ep.length>=2?' | elev '+Math.min(...ep.map(p=>p[2]))+'–'+Math.max(...ep.map(p=>p[2]))+' ft':'';
+    txt+='Hole '+h+': '+pts.length+' pts'+es+' | '+d.date+'\n';
+  });
+  txt+='\n--- RAW JSON ---\n'+JSON.stringify(saved,null,2);
+  const sub=encodeURIComponent('WGL Green Trace – '+new Date().toLocaleDateString());
+  window.location.href='mailto:wglscore@gmail.com?subject='+sub+'&body='+encodeURIComponent(txt);
 }
 
 function gpsTraceLoadSaved(hole){
@@ -2907,6 +2941,7 @@ function gpsTraceLoadSaved(hole){
     document.getElementById('gps-trace-clear').style.display='none';
     document.getElementById('gps-trace-status').textContent='';
   }
+  gpsTraceUpdateExportBtn();
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -2983,6 +3018,8 @@ function initGpsMap(){
       gpsMapPos=[pos.coords.latitude,pos.coords.longitude];
       document.getElementById('gps-map-status').textContent='📍 GPS active · ±'+Math.round(pos.coords.accuracy)+'m';
       document.getElementById('gps-tracer-bar').style.display='block';
+      const _tb=document.getElementById('hdr-trace-btn');
+      if(_tb&&document.getElementById('gps').classList.contains('active')) _tb.style.display='';
       // If tracing, record this point
       if(gpsTracing) gpsTraceAddPoint(gpsMapPos, pos.coords.accuracy, pos.coords.altitude);
       // Move/create you marker
