@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-01T21:07:18.039Z",
+  "lastUpdated": "2026-08-01T21:37:12.224Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -5666,6 +5666,30 @@
           "gross": 51,
           "net": 39,
           "grp": 6
+        },
+        {
+          "name": "Cole Clark",
+          "team": 8,
+          "hcp": 11,
+          "gross": 52,
+          "net": 41,
+          "grp": 7
+        },
+        {
+          "name": "Blake Bowser",
+          "team": 4,
+          "hcp": 13,
+          "gross": 50,
+          "net": 37,
+          "grp": 7
+        },
+        {
+          "name": "Trent Brocious",
+          "team": 2,
+          "hcp": 11,
+          "gross": 50,
+          "net": 39,
+          "grp": 7
         }
       ]
     }
