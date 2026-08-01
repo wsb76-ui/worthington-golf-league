@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-01T21:37:12.224Z",
+  "lastUpdated": "2026-08-01T23:57:06.198Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -525,6 +525,9 @@
       },
       {
         "name": "Bruce Thomas"
+      },
+      {
+        "name": "Dylan Barton"
       }
     ],
     "teams": []
