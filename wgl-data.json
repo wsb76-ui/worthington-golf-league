@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-29T20:37:15.528Z",
+  "lastUpdated": "2026-08-01T21:07:18.039Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -5639,8 +5639,8 @@
           "name": "Tom Stennett",
           "team": 4,
           "hcp": 13,
-          "gross": 46,
-          "net": 33,
+          "gross": 54,
+          "net": 41,
           "grp": 5
         },
         {
@@ -5657,7 +5657,7 @@
           "hcp": 10,
           "gross": 47,
           "net": 37,
-          "grp": 5
+          "grp": 6
         },
         {
           "name": "Ken Long",
@@ -5665,7 +5665,7 @@
           "hcp": 12,
           "gross": 51,
           "net": 39,
-          "grp": 5
+          "grp": 6
         }
       ]
     }
