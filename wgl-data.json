@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-02T15:37:12.056Z",
+  "lastUpdated": "2026-08-02T15:47:05.209Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -5637,22 +5637,6 @@
           "gross": 53,
           "net": 40,
           "grp": 4
-        },
-        {
-          "name": "Tom Stennett",
-          "team": 4,
-          "hcp": 13,
-          "gross": 54,
-          "net": 41,
-          "grp": 5
-        },
-        {
-          "name": "Paul Bowser",
-          "team": 8,
-          "hcp": 7,
-          "gross": 42,
-          "net": 35,
-          "grp": 5
         }
       ]
     },
