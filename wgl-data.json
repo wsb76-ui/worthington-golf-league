@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-02T20:47:12.200Z",
+  "lastUpdated": "2026-08-02T20:49:35.458Z",
   "updatedBy": "Wes Barton",
   "settings": {
     "greens": "",
@@ -9,7 +9,7 @@
     "skins": "",
     "lownet": "",
     "pot": "",
-    "week": 14,
+    "week": 12,
     "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Week 11 Upcoming"
   },
   "players": {
@@ -5759,6 +5759,11 @@
     ]
   },
   "changeLog": [
+    {
+      "when": "2026-08-02T20:49:36.291Z",
+      "who": "Wes Barton",
+      "what": "Updated: Settings"
+    },
     {
       "when": "2026-08-02T20:47:12.659Z",
       "who": "Wes Barton",
