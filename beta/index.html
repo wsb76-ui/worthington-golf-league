@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL Beta v11 · 2026-07-28 · Device height offset for ground-corrected elevation -->
+<!-- WGL Beta v12 · 2026-08-02 · Splash screen on app open -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -469,6 +469,15 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 </head>
 <body>
 
+<!-- Splash Screen -->
+<div id="splash" style="position:fixed;inset:0;z-index:9999;background:#1b5e20;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:env(safe-area-inset-top) 32px env(safe-area-inset-bottom);transition:opacity .35s ease">
+  <img src="icon-192.png" alt="WGL" style="width:128px;height:128px;border-radius:30px;box-shadow:0 10px 40px rgba(0,0,0,.4);margin-bottom:30px">
+  <div style="color:white;font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px">Worthington Golf</div>
+  <div style="color:rgba(255,255,255,.65);font-size:15px;font-weight:600;letter-spacing:.1px;margin-bottom:52px">League · Hiland Golf Course</div>
+  <button onclick="splashEnter()" style="padding:16px 52px;background:white;color:#1b5e20;font-size:17px;font-weight:800;border:none;border-radius:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 24px rgba(0,0,0,.3);letter-spacing:-.2px">Enter ⛳</button>
+  <div style="position:absolute;bottom:calc(env(safe-area-inset-bottom) + 20px);color:rgba(255,255,255,.3);font-size:11px;font-weight:500">2026 Season</div>
+</div>
+
 <!-- Sync indicator -->
 <div class="sync-bar">
   <div class="sync-dot"></div>
@@ -514,7 +523,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 
 <!-- Bottom tab bar -->
 <div class="tabs">
-  <div class="tab active" onclick="showTab('scorecard',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5l2 2L12 13H10v-2z"/></svg></span>Score</div>
+  <div class="tab active" onclick="showTab('scorecard',this);ctmShowIfNeeded()"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5l2 2L12 13H10v-2z"/></svg></span>Score</div>
   <div class="tab" onclick="showTab('results',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span>Results</div>
   <div class="tab" onclick="showTab('standings',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>Standings</div>
   <div class="tab" onclick="showTab('news',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg></span>News</div>
@@ -533,24 +542,10 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
   <div id="sc-step-setup" class="sc-step active">
     <!-- Resume / Favorites / History (populated by scRenderExtras) -->
     <div id="sc-extras" style="padding-top:12px"></div>
-    <!-- Card type selector -->
-    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;padding:8px 0 6px">Card Type</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-      <button id="sc-type-league-night" onclick="scSetCardType('league_night')"
-        style="padding:9px 6px;border:1.5px solid var(--sel-bg,#2e7d32);border-radius:8px;font-size:12px;font-weight:700;background:var(--sel-bg,#2e7d32);color:var(--sel-fg,white);cursor:pointer;-webkit-tap-highlight-color:transparent">League Night ✓</button>
-      <button id="sc-type-play-ahead" onclick="scSetCardType('play_ahead')"
-        style="padding:9px 6px;border:1.5px solid var(--unsel-line,#ddd);border-radius:8px;font-size:12px;font-weight:700;background:var(--unsel-bg,white);color:var(--unsel-fg,#555);cursor:pointer;-webkit-tap-highlight-color:transparent">Play Ahead</button>
-      <button id="sc-type-bank-card" onclick="scSetCardType('bank_card')"
-        style="padding:9px 6px;border:1.5px solid var(--unsel-line,#ddd);border-radius:8px;font-size:12px;font-weight:700;background:var(--unsel-bg,white);color:var(--unsel-fg,#555);cursor:pointer;-webkit-tap-highlight-color:transparent">Bank Card</button>
-      <button id="sc-type-practice" onclick="scSetCardType('practice')"
-        style="padding:9px 6px;border:1.5px solid var(--unsel-line,#ddd);border-radius:8px;font-size:12px;font-weight:700;background:var(--unsel-bg,white);color:var(--unsel-fg,#555);cursor:pointer;-webkit-tap-highlight-color:transparent">Practice</button>
-    </div>
-    <div id="sc-target-week-row" style="display:none;background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:13px">
-      <span style="font-weight:600;color:#555">Target Week: </span>
-      <input id="sc-target-week" type="number" min="1" max="20"
-        onchange="scSetTargetWeek(this.value)"
-        style="width:52px;padding:4px 6px;border:1.5px solid #2e7d32;border-radius:6px;font-size:14px;font-weight:700;text-align:center;margin-left:4px">
-      <span style="color:#888;font-size:11px;margin-left:6px">Players default to this week · change per-player below</span>
+    <!-- Card type summary (set by modal) -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 10px">
+      <span id="sc-card-type-summary" style="font-size:14px;font-weight:700;color:var(--tint,#2e7d32)">🏌️ League Night</span>
+      <button onclick="ctmOpen()" style="background:none;border:none;color:#888;font-size:13px;font-weight:600;cursor:pointer;padding:4px 0;-webkit-tap-highlight-color:transparent">Change</button>
     </div>
     <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;padding:8px 0 8px">Players on this card</div>
     <div class="card">
@@ -855,6 +850,28 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
     </div>
   </div>
 
+</div>
+
+<!-- Card Type Modal — shown every time Score tab is tapped with no card in progress -->
+<div id="ctm-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:450;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--card,#fff);color:var(--text,#111);border-radius:20px;padding:22px 20px;width:100%;max-width:360px;box-shadow:0 12px 48px rgba(0,0,0,.3)">
+    <div style="display:flex;align-items:center;margin-bottom:18px">
+      <button id="ctm-back" onclick="ctmBack()" style="display:none;background:none;border:none;color:var(--tint,#2e7d32);font-size:15px;font-weight:700;cursor:pointer;padding:0 10px 0 0;-webkit-tap-highlight-color:transparent">← Back</button>
+      <div id="ctm-title" style="flex:1;text-align:center;font-size:17px;font-weight:800">What type of card?</div>
+    </div>
+    <!-- Step 1: type selection -->
+    <div id="ctm-step1">
+      <button onclick="ctmPickType('league_night')" style="width:100%;padding:15px 16px;margin-bottom:10px;border-radius:14px;border:2px solid #e0e0e0;background:var(--card,#fff);color:var(--text,#111);font-size:15px;font-weight:700;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent">🏌️ League Night</button>
+      <button onclick="ctmPickType('bank_card')" style="width:100%;padding:15px 16px;margin-bottom:10px;border-radius:14px;border:2px solid #e0e0e0;background:var(--card,#fff);color:var(--text,#111);font-size:15px;font-weight:700;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent">🏦 Bank Card</button>
+      <button onclick="ctmPickType('practice')" style="width:100%;padding:15px 16px;border-radius:14px;border:2px solid #e0e0e0;background:var(--card,#fff);color:var(--text,#111);font-size:15px;font-weight:700;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent">⛳ Practice Only</button>
+    </div>
+    <!-- Step 2: date selection (league night only) -->
+    <div id="ctm-step2" style="display:none">
+      <div style="font-size:13px;color:#888;text-align:center;margin-bottom:14px">Which Monday are you playing for?</div>
+      <div id="ctm-date-list" style="display:flex;flex-direction:column;gap:10px"></div>
+      <button id="ctm-confirm" onclick="ctmConfirm()" style="display:none;width:100%;margin-top:16px;padding:14px;background:var(--tint,#2e7d32);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">Continue →</button>
+    </div>
+  </div>
 </div>
 
 <!-- First-run welcome (pick your name) -->
@@ -1236,12 +1253,12 @@ function scLoadFav(fi){
   const fav=favs[fi];
   if(!fav)return;
   // Reset session with favorite's players
-  scSess={players:[],scores:{},hole:0,side:fav.side,cardType:'league_night',targetWeek:null,completedSegments:[]};
+  scSess={players:[],scores:{},hole:0,side:fav.side,cardType:scSess.cardType||'league_night',targetWeek:scSess.targetWeek||null,completedSegments:[]};
   scSetSide(fav.side);
   const roster=scGetRoster();
   for(const p of fav.players){
     const info=roster[p.name]||{team:p.team,hcp:p.hcp};
-    scSess.players.push({name:p.name,team:info.team,hcp:info.hcp,purpose:'league_night',targetWeek:null});
+    scSess.players.push({name:p.name,team:info.team,hcp:info.hcp,purpose:scSess.cardType||'league_night',targetWeek:scSess.targetWeek||null});
     scSess.scores[p.name]=Array(scGetHoles().length).fill(null);
   }
   scRenderAdded();
@@ -1253,12 +1270,12 @@ function scLoadRecent(hi){
   const r=history[hi];
   if(!r)return;
   // Reset session with this recent group (current roster team/HCP)
-  scSess={players:[],scores:{},hole:0,side:r.side||'back',cardType:'league_night',targetWeek:null,completedSegments:[]};
+  scSess={players:[],scores:{},hole:0,side:r.side||'back',cardType:scSess.cardType||'league_night',targetWeek:scSess.targetWeek||null,completedSegments:[]};
   scSetSide(scSess.side);
   const roster=scGetRoster();
   for(const name of r.players){
     const info=roster[name]||{team:'',hcp:0};
-    scSess.players.push({name:name,team:info.team,hcp:info.hcp,purpose:'league_night',targetWeek:null});
+    scSess.players.push({name:name,team:info.team,hcp:info.hcp,purpose:scSess.cardType||'league_night',targetWeek:scSess.targetWeek||null});
     scSess.scores[name]=Array(scGetHoles().length).fill(null);
   }
   scRenderAdded();
@@ -1389,7 +1406,7 @@ function scAddPlayer(i){
   const [name,info]=_scHits[i]||[];
   if(!name||!info||scSess.players.find(p=>p.name===name))return;
   const purpose=scSess.cardType||'league_night';
-  const targetWeek=purpose==='play_ahead'?(scSess.targetWeek||null):null;
+  const targetWeek=scSess.targetWeek||null;
   scSess.players.push({name,team:info.team,hcp:info.hcp,purpose,targetWeek});
   scSess.scores[name]=Array(scGetHoles().length).fill(null);
   _scHits=[];
@@ -1466,7 +1483,7 @@ function scMidAdd(i){
   const [name,info]=_scMidHits[i]||[];
   if(!name||!info||scSess.players.find(p=>p.name===name))return;
   const purpose=scSess.cardType||'league_night';
-  const targetWeek=purpose==='play_ahead'?(scSess.targetWeek||null):null;
+  const targetWeek=scSess.targetWeek||null;
   scSess.players.push({name,team:info.team,hcp:info.hcp,purpose,targetWeek});
   scSess.scores[name]=Array(scGetHoles().length).fill(null);
   _scMidHits=[];
@@ -2292,6 +2309,123 @@ function buildHcps(){
     </div>`).join('');
 }
 
+// ── Card Type Modal ───────────────────────────────────────────────────────────
+let _ctmDateIdx = null; // which date button is selected (0/1/2)
+
+function ctmGetMondays(){
+  const today = new Date();
+  const dow = today.getDay(); // 0=Sun,1=Mon,...,6=Sat
+  let daysToNext = dow===1?0:dow===0?1:8-dow;
+  const thisMon = new Date(today); thisMon.setDate(today.getDate()+daysToNext);
+  const lastMon = new Date(thisMon); lastMon.setDate(thisMon.getDate()-7);
+  const nextMon = new Date(thisMon); nextMon.setDate(thisMon.getDate()+7);
+  const fmt = d => d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  const baseWk = (D.settings&&D.settings.week)?+D.settings.week:1;
+  // baseWk = last completed week; thisMon = next league night = baseWk+1
+  return [
+    {label:fmt(lastMon), week:baseWk,   date:lastMon},
+    {label:fmt(thisMon), week:baseWk+1, date:thisMon},
+    {label:fmt(nextMon), week:baseWk+2, date:nextMon}
+  ];
+}
+
+function ctmShowIfNeeded(){
+  if(scSess.players.length===0) ctmOpen();
+}
+
+function ctmOpen(){
+  _ctmDateIdx = null;
+  // Reset to step 1
+  document.getElementById('ctm-step1').style.display='';
+  document.getElementById('ctm-step2').style.display='none';
+  document.getElementById('ctm-back').style.display='none';
+  document.getElementById('ctm-title').textContent='What type of card?';
+  document.getElementById('ctm-confirm').style.display='none';
+  // Build date buttons fresh
+  const mondays = ctmGetMondays();
+  const list = document.getElementById('ctm-date-list');
+  list.innerHTML='';
+  mondays.forEach((m,i)=>{
+    const b=document.createElement('button');
+    b.id='ctm-d'+i;
+    b.textContent=m.label+' — Week '+m.week;
+    b.style.cssText='width:100%;padding:14px 16px;border-radius:12px;border:2px solid #e0e0e0;background:var(--card,#fff);color:var(--text,#111);font-size:14px;font-weight:700;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent';
+    b.onclick=()=>ctmPickDate(i,m.week);
+    list.appendChild(b);
+  });
+  // Smart pre-select: Monday or Sunday → highlight this week's date (index 1)
+  const dow=new Date().getDay();
+  if(dow===0||dow===1){
+    document.getElementById('ctm-step1').style.display='none';
+    document.getElementById('ctm-step2').style.display='';
+    document.getElementById('ctm-back').style.display='';
+    document.getElementById('ctm-title').textContent='Which Monday?';
+    ctmPickDate(1, mondays[1].week);
+  }
+  document.getElementById('ctm-bg').style.display='flex';
+}
+
+function ctmPickType(type){
+  if(type==='league_night'){
+    document.getElementById('ctm-step1').style.display='none';
+    document.getElementById('ctm-step2').style.display='';
+    document.getElementById('ctm-back').style.display='';
+    document.getElementById('ctm-title').textContent='Which Monday?';
+  } else {
+    // Bank card or practice — no date needed, apply and close
+    scSess.cardType=type;
+    scSess.targetWeek=null;
+    ctmApplyToPlayers();
+    ctmUpdateSummary();
+    document.getElementById('ctm-bg').style.display='none';
+  }
+}
+
+function ctmPickDate(idx, week){
+  _ctmDateIdx=idx;
+  for(let i=0;i<3;i++){
+    const b=document.getElementById('ctm-d'+i);
+    if(!b) continue;
+    const sel=i===idx;
+    b.style.borderColor=sel?'var(--tint,#2e7d32)':'#e0e0e0';
+    b.style.background=sel?'var(--tint,#2e7d32)':'var(--card,#fff)';
+    b.style.color=sel?'white':'var(--text,#111)';
+  }
+  scSess.cardType='league_night';
+  scSess.targetWeek=week;
+  document.getElementById('ctm-confirm').style.display='';
+}
+
+function ctmBack(){
+  _ctmDateIdx=null;
+  document.getElementById('ctm-step2').style.display='none';
+  document.getElementById('ctm-step1').style.display='';
+  document.getElementById('ctm-back').style.display='none';
+  document.getElementById('ctm-title').textContent='What type of card?';
+  document.getElementById('ctm-confirm').style.display='none';
+}
+
+function ctmConfirm(){
+  ctmApplyToPlayers();
+  ctmUpdateSummary();
+  document.getElementById('ctm-bg').style.display='none';
+}
+
+function ctmApplyToPlayers(){
+  for(const p of scSess.players){
+    p.purpose=scSess.cardType||'league_night';
+    p.targetWeek=scSess.targetWeek||null;
+  }
+}
+
+function ctmUpdateSummary(){
+  const el=document.getElementById('sc-card-type-summary');
+  if(!el) return;
+  const lbl={league_night:'🏌️ League Night',bank_card:'🏦 Bank Card',practice:'⛳ Practice'};
+  const type=scSess.cardType||'league_night';
+  const wk=scSess.targetWeek;
+  el.textContent=(lbl[type]||type)+(wk?' — Week '+wk:'');
+}
 // ── Settings gear ─────────────────────────────────────────────────────────────
 function toggleSettings(){
   const p=document.getElementById('settings-panel');
@@ -3114,6 +3248,15 @@ async function refreshData(force){
   } catch(e){
     document.getElementById('sync-label').textContent='Offline — using cached data';
   }
+}
+
+// Splash screen dismiss — refreshes live data then fades out
+function splashEnter(){
+  const el=document.getElementById('splash');
+  el.style.opacity='0';
+  el.style.pointerEvents='none';
+  setTimeout(()=>el.style.display='none',380);
+  refreshData(true);
 }
 
 // Initial fetch on load (always re-render)
