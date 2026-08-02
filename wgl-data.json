@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-02T19:50:00.517Z",
+  "lastUpdated": "2026-08-02T20:15:30.271Z",
   "updatedBy": "Wes Barton",
   "settings": {
     "greens": "",
@@ -5759,6 +5759,11 @@
     ]
   },
   "changeLog": [
+    {
+      "when": "2026-08-02T20:15:31.068Z",
+      "who": "Wes Barton",
+      "what": "Re-published (no section changes)"
+    },
     {
       "when": "2026-08-02T19:50:00.950Z",
       "who": "Wes Barton",
