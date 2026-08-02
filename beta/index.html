@@ -523,7 +523,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 
 <!-- Bottom tab bar -->
 <div class="tabs">
-  <div class="tab active" onclick="showTab('scorecard',this);ctmShowIfNeeded()"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5l2 2L12 13H10v-2z"/></svg></span>Score</div>
+  <div class="tab active" onclick="showTab('scorecard',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5l2 2L12 13H10v-2z"/></svg></span>Score</div>
   <div class="tab" onclick="showTab('results',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span>Results</div>
   <div class="tab" onclick="showTab('standings',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>Standings</div>
   <div class="tab" onclick="showTab('news',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg></span>News</div>
@@ -639,7 +639,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
     <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;padding:16px 0 8px">Review Scores</div>
     <div id="sc-review-body"></div>
     <div style="padding:12px 0 0">
-      <button id="sc-submit-btn" class="sc-btn" onclick="scSubmit()">📤 Submit Card to League</button>
+      <button id="sc-submit-btn" class="sc-btn" onclick="ctmBeforeSubmit()">📤 Submit Card to League</button>
       <button id="sc-add-nine-btn" class="sc-btn-ghost" onclick="scAddSecondNine()"
         style="margin-top:6px;border:1.5px solid #2e7d32;color:#2e7d32;font-weight:700">+ Play Another 9</button>
       <div id="sc-submit-status" style="display:none;padding:10px;border-radius:8px;font-size:14px;font-weight:600;text-align:center;margin:8px 0"></div>
@@ -2310,7 +2310,8 @@ function buildHcps(){
 }
 
 // ── Card Type Modal ───────────────────────────────────────────────────────────
-let _ctmDateIdx = null; // which date button is selected (0/1/2)
+let _ctmDateIdx = null;    // which date button is selected (0/1/2)
+let _ctmOnConfirm = null;  // callback to fire after CTM confirm (e.g. scSubmit)
 
 function ctmGetMondays(){
   const today = new Date();
@@ -2333,8 +2334,14 @@ function ctmShowIfNeeded(){
   if(scSess.players.length===0) ctmOpen();
 }
 
+function ctmBeforeSubmit(){
+  ctmOpen(); // resets _ctmOnConfirm inside ctmOpen
+  _ctmOnConfirm = ()=>scSubmit();
+}
+
 function ctmOpen(){
   _ctmDateIdx = null;
+  _ctmOnConfirm = null;
   // Reset to step 1
   document.getElementById('ctm-step1').style.display='';
   document.getElementById('ctm-step2').style.display='none';
@@ -2378,6 +2385,7 @@ function ctmPickType(type){
     ctmApplyToPlayers();
     ctmUpdateSummary();
     document.getElementById('ctm-bg').style.display='none';
+    if(_ctmOnConfirm){const cb=_ctmOnConfirm;_ctmOnConfirm=null;cb();}
   }
 }
 
@@ -2409,6 +2417,7 @@ function ctmConfirm(){
   ctmApplyToPlayers();
   ctmUpdateSummary();
   document.getElementById('ctm-bg').style.display='none';
+  if(_ctmOnConfirm){const cb=_ctmOnConfirm;_ctmOnConfirm=null;cb();}
 }
 
 function ctmApplyToPlayers(){
