@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-01T23:57:06.198Z",
+  "lastUpdated": "2026-08-02T15:37:12.056Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -9,8 +9,8 @@
     "skins": "",
     "lownet": "",
     "pot": "TBD",
-    "week": 13,
-    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Through Week 12",
+    "week": 14,
+    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Through Week 13",
     "duesAmt": "TBD",
     "skinsBuyin": "TBD",
     "lownetBuyin": "TBD"
@@ -5653,14 +5653,21 @@
           "gross": 42,
           "net": 35,
           "grp": 5
-        },
+        }
+      ]
+    },
+    "13": {
+      "label": "Week 13",
+      "date": "",
+      "course": "Hiland Golf Course",
+      "players": [
         {
           "name": "Jesse Hickman",
           "team": 6,
           "hcp": 10,
           "gross": 47,
           "net": 37,
-          "grp": 6
+          "grp": 1
         },
         {
           "name": "Ken Long",
@@ -5668,7 +5675,7 @@
           "hcp": 12,
           "gross": 51,
           "net": 39,
-          "grp": 6
+          "grp": 1
         },
         {
           "name": "Cole Clark",
@@ -5676,7 +5683,7 @@
           "hcp": 11,
           "gross": 52,
           "net": 41,
-          "grp": 7
+          "grp": 2
         },
         {
           "name": "Blake Bowser",
@@ -5684,7 +5691,7 @@
           "hcp": 13,
           "gross": 50,
           "net": 37,
-          "grp": 7
+          "grp": 2
         },
         {
           "name": "Trent Brocious",
@@ -5692,7 +5699,7 @@
           "hcp": 11,
           "gross": 50,
           "net": 39,
-          "grp": 7
+          "grp": 2
         }
       ]
     }
