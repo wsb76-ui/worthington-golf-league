@@ -470,12 +470,19 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 <body>
 
 <!-- Splash Screen -->
-<div id="splash" style="position:fixed;inset:0;z-index:9999;background:#1b5e20;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:env(safe-area-inset-top) 32px env(safe-area-inset-bottom);transition:opacity .35s ease">
-  <img src="icon-192.png" alt="WGL" style="width:128px;height:128px;border-radius:30px;box-shadow:0 10px 40px rgba(0,0,0,.4);margin-bottom:30px">
-  <div style="color:white;font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px">Worthington Golf</div>
-  <div style="color:rgba(255,255,255,.65);font-size:15px;font-weight:600;letter-spacing:.1px;margin-bottom:52px">League · Hiland Golf Course</div>
-  <button onclick="splashEnter()" style="padding:16px 52px;background:white;color:#1b5e20;font-size:17px;font-weight:800;border:none;border-radius:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 24px rgba(0,0,0,.3);letter-spacing:-.2px">Enter ⛳</button>
-  <div style="position:absolute;bottom:calc(env(safe-area-inset-bottom) + 20px);color:rgba(255,255,255,.3);font-size:11px;font-weight:500">2026 Season</div>
+<div id="splash" style="position:fixed;inset:0;z-index:9999;background:#1a3d1f;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .4s ease">
+  <!-- Logo — dominant, centered -->
+  <div style="flex:1;display:flex;align-items:center;justify-content:center">
+    <img src="icon-192.png" alt="WGL"
+      style="width:min(72vw,320px);height:min(72vw,320px);border-radius:min(16vw,72px);box-shadow:0 24px 80px rgba(0,0,0,.55)">
+  </div>
+  <!-- Enter button pinned to bottom, iOS-style -->
+  <div style="width:100%;padding:0 32px calc(env(safe-area-inset-bottom) + 32px)">
+    <button onclick="splashEnter()"
+      style="width:100%;padding:17px;background:rgba(255,255,255,.15);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);color:white;font-size:17px;font-weight:600;border:1.5px solid rgba(255,255,255,.25);border-radius:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;letter-spacing:-.1px">
+      Enter
+    </button>
+  </div>
 </div>
 
 <!-- Sync indicator -->
@@ -634,7 +641,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
     <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;padding:16px 0 8px">Review Scores</div>
     <div id="sc-review-body"></div>
     <div style="padding:12px 0 0">
-      <button id="sc-submit-btn" class="sc-btn" onclick="ctmBeforeSubmit()">📤 Submit Card to League</button>
+      <button id="sc-submit-btn" class="sc-btn" onclick="scSubmit()">📤 Submit Card to League</button>
       <button id="sc-add-nine-btn" class="sc-btn-ghost" onclick="scAddSecondNine()"
         style="margin-top:6px;border:1.5px solid #2e7d32;color:#2e7d32;font-weight:700">+ Play Another 9</button>
       <div id="sc-submit-status" style="display:none;padding:10px;border-radius:8px;font-size:14px;font-weight:600;text-align:center;margin:8px 0"></div>
@@ -1553,7 +1560,7 @@ function scAdj(pi,delta){
 function scHoleNav(dir){
   const next=scSess.hole+dir;
   if(next<0)return;
-  if(next>=scGetHoles().length){scShowReview();return;}
+  if(next>=scGetHoles().length){scGoToReview();return;}
   scSess.hole=next;
   scRenderHole();
   SC_STORE.save();
@@ -1605,6 +1612,40 @@ function scRenderSegmentBlock(side, scoreMap, purposes){
   return html;
 }
 
+// Gate: open CTM before showing review so card type is set for all players first
+function scGoToReview(){
+  ctmOpen();
+  _ctmOnConfirm = ()=>scShowReview();
+}
+
+// Per-player type toggle on the review card
+function scSetPlayerType(idx, type){
+  const p=scSess.players[idx];
+  if(!p) return;
+  p.purpose=type;
+  if(type!=='league_night') p.targetWeek=null;
+  else p.targetWeek=scSess.targetWeek||null;
+  scRenderReviewTypes();
+}
+function scRenderReviewTypes(){
+  const el=document.getElementById('sc-player-types');
+  if(!el) return;
+  const mondays=ctmGetMondays();
+  const lnWk=scSess.targetWeek||(mondays[1]?mondays[1].week:null);
+  let h='';
+  scSess.players.forEach((p,i)=>{
+    const cur=p.purpose||'league_night';
+    const btnStyle=(active)=>`padding:5px 10px;border-radius:8px;border:1.5px solid ${active?'var(--tint,#2e7d32)':'#ddd'};background:${active?'var(--tint,#2e7d32)':'var(--card,#fff)'};color:${active?'white':'var(--text,#666)'};font-size:12px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent`;
+    h+=`<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f0f0f0">
+      <span style="flex:1;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
+      <button onclick="scSetPlayerType(${i},'league_night')" style="${btnStyle(cur==='league_night')}">🏌️${cur==='league_night'&&lnWk?' Wk'+lnWk:''}</button>
+      <button onclick="scSetPlayerType(${i},'bank_card')" style="${btnStyle(cur==='bank_card')}">🏦</button>
+      <button onclick="scSetPlayerType(${i},'practice')" style="${btnStyle(cur==='practice')}">⛳</button>
+    </div>`;
+  });
+  el.innerHTML=h;
+}
+
 function scShowReview(){
   scShowStep('sc-step-review');
   const wk=D.settings&&D.settings.week?D.settings.week:'?';
@@ -1616,6 +1657,10 @@ function scShowReview(){
       <span style="font-size:13px;color:#2e7d32;font-weight:600">Week ${wk} · ${hdrLabel}</span>
       <span style="font-size:12px;color:#666;margin-left:8px">${scSess.players.length} player${scSess.players.length!==1?'s':''}</span>
     </div>
+  </div>
+  <div class="card" style="margin-bottom:8px">
+    <div class="card-hdr">Card type per player</div>
+    <div id="sc-player-types" style="padding:0 14px 4px"></div>
   </div>`;
   // Completed segments first, so an 18-hole card shows BOTH nines before submitting
   scSess.completedSegments.forEach((seg,i)=>{
@@ -1627,6 +1672,7 @@ function scShowReview(){
   }
   html+=scRenderSegmentBlock(scSess.side, scSess.scores, null);
   document.getElementById('sc-review-body').innerHTML=html;
+  scRenderReviewTypes();
   // Update "Play Another 9" button label dynamically
   const addBtn=document.getElementById('sc-add-nine-btn');
   if(addBtn){
@@ -2355,15 +2401,6 @@ function ctmOpen(){
     b.onclick=()=>ctmPickDate(i,m.week);
     list.appendChild(b);
   });
-  // Smart pre-select: Monday or Sunday → highlight this week's date (index 1)
-  const dow=new Date().getDay();
-  if(dow===0||dow===1){
-    document.getElementById('ctm-step1').style.display='none';
-    document.getElementById('ctm-step2').style.display='';
-    document.getElementById('ctm-back').style.display='';
-    document.getElementById('ctm-title').textContent='Which Monday?';
-    ctmPickDate(1, mondays[1].week);
-  }
   document.getElementById('ctm-bg').style.display='flex';
 }
 
