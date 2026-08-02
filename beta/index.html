@@ -2365,9 +2365,9 @@ function ctmGetMondays(){
   const baseWk = (D.settings&&D.settings.week)?+D.settings.week:1;
   // baseWk = last completed week; thisMon = next league night = baseWk+1
   return [
-    {label:fmt(lastMon), week:baseWk-1, date:lastMon},
-    {label:fmt(thisMon), week:baseWk,   date:thisMon},
-    {label:fmt(nextMon), week:baseWk+1, date:nextMon}
+    {label:fmt(lastMon), week:baseWk,   date:lastMon},
+    {label:fmt(thisMon), week:baseWk+1, date:thisMon},
+    {label:fmt(nextMon), week:baseWk+2, date:nextMon}
   ];
 }
 
