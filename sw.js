@@ -1,5 +1,5 @@
-// WGL v26 · 2026-07-26 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v26'; // bumped 2026-07-26: restore v22 baseline
+// WGL v27 · 2026-08-02 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v27'; // bumped 2026-08-02: splash screen, CTM card type modal, per-player type on review
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
