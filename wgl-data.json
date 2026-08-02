@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-02T18:17:05.208Z",
+  "lastUpdated": "2026-08-02T18:27:05.431Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -5653,6 +5653,22 @@
           "gross": 42,
           "net": 35,
           "grp": 5
+        },
+        {
+          "name": "Dylan Barton",
+          "team": 6,
+          "hcp": 20,
+          "gross": 60,
+          "net": 40,
+          "grp": 6
+        },
+        {
+          "name": "Andy Patz",
+          "team": 2,
+          "hcp": 14,
+          "gross": 53,
+          "net": 39,
+          "grp": 6
         }
       ]
     },
@@ -5686,28 +5702,12 @@
           "grp": 1
         },
         {
-          "name": "Dylan Barton",
-          "team": 6,
-          "hcp": 20,
-          "gross": 60,
-          "net": 40,
-          "grp": 2
-        },
-        {
-          "name": "Andy Patz",
-          "team": 2,
-          "hcp": 14,
-          "gross": 53,
-          "net": 39,
-          "grp": 2
-        },
-        {
           "name": "Jesse Hickman",
           "team": 6,
           "hcp": 10,
           "gross": 47,
           "net": 37,
-          "grp": 3
+          "grp": 2
         },
         {
           "name": "Ken Long",
@@ -5715,7 +5715,7 @@
           "hcp": 12,
           "gross": 51,
           "net": 39,
-          "grp": 3
+          "grp": 2
         }
       ]
     }
