@@ -1,140 +1,137 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-02T18:27:05.431Z",
-  "updatedBy": "sheets-engine",
+  "lastUpdated": "2026-08-02T18:40:31.043Z",
+  "updatedBy": "Wes Barton",
   "settings": {
-    "greens": "TBD",
+    "greens": "",
     "dues": "",
-    "outingFee": "TBD",
+    "outingFee": "",
     "skins": "",
     "lownet": "",
-    "pot": "TBD",
+    "pot": "",
     "week": 14,
-    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Through Week 13",
-    "duesAmt": "TBD",
-    "skinsBuyin": "TBD",
-    "lownetBuyin": "TBD"
+    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Week 11 Upcoming"
   },
   "players": {
     "Larry Julius": {
       "team": 1,
       "hcp": 1,
-      "phone": "(724) 841-9445"
+      "phone": ""
     },
     "Kris Simmons": {
       "team": 1,
       "hcp": 0,
-      "phone": "(412) 334-6459"
+      "phone": ""
     },
     "Butch Griffith": {
       "team": 1,
       "hcp": 12,
-      "phone": "(724) 859-7691"
+      "phone": ""
     },
     "Mario Jenkins": {
       "team": 1,
       "hcp": 10,
-      "phone": "(412) 478-5065"
+      "phone": ""
     },
     "Frank Watt": {
       "team": 1,
       "hcp": 12,
-      "phone": "(724) 793-0715"
+      "phone": ""
     },
     "Paul Harmon": {
       "team": 1,
       "hcp": 12,
-      "phone": "(724) 212-5943"
+      "phone": ""
     },
     "Andy Gallagher": {
       "team": 1,
       "hcp": 12,
-      "phone": "(724) 859-4650"
+      "phone": ""
     },
     "Keith Clark": {
       "team": 1,
       "hcp": 20,
-      "phone": "(724) 968-6432"
+      "phone": ""
     },
     "Jim Frye": {
       "team": 2,
       "hcp": 1,
-      "phone": "(724) 822-3945"
+      "phone": ""
     },
     "Skylar Grafton": {
       "team": 2,
       "hcp": 9,
-      "phone": "(724) 954-2534"
+      "phone": ""
     },
     "Nick Keefer": {
       "team": 2,
       "hcp": 6,
-      "phone": "(724) 859-1323"
+      "phone": ""
     },
-    "Jeff Hollabaugh": {
+    "Jeff Hollobaugh": {
       "team": 2,
-      "hcp": 8,
-      "phone": "(724) 290-7067"
+      "hcp": 12,
+      "phone": ""
     },
     "Andy Patz": {
       "team": 2,
       "hcp": 14,
-      "phone": "(412) 215-7703"
+      "phone": ""
     },
     "Trent Brocious": {
       "team": 2,
       "hcp": 11,
-      "phone": "(724) 959-6854"
+      "phone": ""
     },
     "Wilbur Dudley": {
       "team": 2,
       "hcp": 15,
-      "phone": "(724) 664-6853"
+      "phone": ""
     },
     "Duck Julius": {
       "team": 3,
       "hcp": 1,
-      "phone": "(724) 954-7157"
+      "phone": ""
     },
     "Willie Powell": {
       "team": 3,
       "hcp": 10,
-      "phone": "(724) 766-4569"
+      "phone": ""
     },
     "Bruce Thomas": {
       "team": 3,
       "hcp": 11,
-      "phone": "(724) 954-8347"
+      "phone": ""
     },
     "Scott Barton": {
       "team": 3,
       "hcp": 11,
-      "phone": "(724) 679-9129"
+      "phone": ""
     },
     "Dave Cushey": {
       "team": 3,
       "hcp": 12,
-      "phone": "(724) 859-3004"
+      "phone": ""
     },
     "Dicky Peat": {
       "team": 3,
       "hcp": 20,
-      "phone": "(724) 543-1362"
+      "phone": ""
     },
     "Allan Voltz": {
       "team": 3,
       "hcp": 17,
-      "phone": "(724) 712-1354"
+      "phone": ""
     },
     "Clark Helm": {
       "team": 4,
       "hcp": 2,
-      "phone": "(724) 689-4419"
+      "phone": ""
     },
     "Harry Breski": {
       "team": 4,
       "hcp": 4,
-      "phone": "(724) 859-3947"
+      "phone": ""
     },
     "Roger Hoffman": {
       "team": 4,
@@ -144,52 +141,52 @@
     "Chad Hollobaugh": {
       "team": 4,
       "hcp": 6,
-      "phone": "(724) 954-0689"
+      "phone": ""
     },
     "Blake Bowser": {
       "team": 4,
       "hcp": 13,
-      "phone": "(724) 954-6963"
+      "phone": ""
     },
     "Tom Stennett": {
       "team": 4,
       "hcp": 13,
-      "phone": "(724) 664-0765"
+      "phone": ""
     },
     "Landon Badac": {
       "team": 4,
       "hcp": 17,
-      "phone": "(724) 859-5177"
+      "phone": ""
     },
     "Eli Hickman": {
       "team": 5,
       "hcp": 4,
-      "phone": "(724) 954-9901"
+      "phone": ""
     },
     "Jaxon Smith": {
       "team": 5,
       "hcp": 5,
-      "phone": "(724) 664-1891"
+      "phone": ""
     },
     "Bill Long": {
       "team": 5,
       "hcp": 7,
-      "phone": "(724) 290-3184"
+      "phone": ""
     },
     "Tyler Eroh": {
       "team": 5,
       "hcp": 9,
-      "phone": "(724) 664-6462"
+      "phone": ""
     },
     "Denny Snyder": {
       "team": 5,
       "hcp": 11,
-      "phone": "(724) 525-4030"
+      "phone": ""
     },
     "Don Nulph": {
       "team": 5,
       "hcp": 11,
-      "phone": "(724) 664-6299"
+      "phone": ""
     },
     "Dave Toy": {
       "team": 5,
@@ -199,32 +196,32 @@
     "Sam Long": {
       "team": 6,
       "hcp": 5,
-      "phone": "(724) 919-3154"
+      "phone": ""
     },
     "Jay Griffith": {
       "team": 6,
       "hcp": 7,
-      "phone": "(724) 859-7693"
+      "phone": ""
     },
     "Kevin Frye": {
       "team": 6,
       "hcp": 5,
-      "phone": "(724) 841-5904"
+      "phone": ""
     },
     "Jesse Hickman": {
       "team": 6,
       "hcp": 10,
-      "phone": "(412) 549-0733"
+      "phone": ""
     },
     "Jim Goodman": {
       "team": 6,
       "hcp": 15,
-      "phone": "(425) 280-9124"
+      "phone": ""
     },
     "Dylan Barton": {
       "team": 6,
       "hcp": 20,
-      "phone": "(724) 525-6964"
+      "phone": ""
     },
     "Matt Nulph": {
       "team": 6,
@@ -234,72 +231,72 @@
     "Ed Bargerstock": {
       "team": 7,
       "hcp": 4,
-      "phone": "(724) 859-7075"
+      "phone": ""
     },
     "Vince Sanzotti": {
       "team": 7,
       "hcp": 3,
-      "phone": "(724) 679-6886"
+      "phone": ""
     },
     "Mike Hickman": {
       "team": 7,
       "hcp": 2,
-      "phone": "(724) 859-4342"
+      "phone": ""
     },
     "Chris Remaley": {
       "team": 7,
       "hcp": 9,
-      "phone": "(724) 525-7224"
+      "phone": ""
     },
     "Jason Smith": {
       "team": 7,
       "hcp": 11,
-      "phone": "(724) 664-2006"
+      "phone": ""
     },
     "Wes Barton": {
       "team": 7,
       "hcp": 10,
-      "phone": "(724) 664-5699"
+      "phone": ""
     },
     "Doug Anthony": {
       "team": 7,
       "hcp": 11,
-      "phone": "(724) 664-0208"
+      "phone": ""
     },
     "Brian Barton": {
       "team": 8,
       "hcp": 5,
-      "phone": "(724) 859-5421"
+      "phone": ""
     },
     "Logan Bowser": {
       "team": 8,
       "hcp": 8,
-      "phone": "(724) 954-0369"
+      "phone": ""
     },
     "Paul Bowser": {
       "team": 8,
       "hcp": 7,
-      "phone": "(724) 954-4413"
+      "phone": ""
     },
     "Ken Long": {
       "team": 8,
       "hcp": 12,
-      "phone": "(724) 841-6038"
+      "phone": ""
     },
     "Patric Weber": {
       "team": 8,
       "hcp": 13,
-      "phone": "(724) 954-4430"
+      "phone": ""
     },
     "Cole Clark": {
       "team": 8,
       "hcp": 11,
-      "phone": "(724) 841-7038"
+      "phone": ""
     },
     "Dylan Smith": {
       "team": 8,
       "hcp": 13,
-      "phone": "(724) 954-0988"
+      "phone": ""
     }
   },
   "buyins": {},
@@ -496,13 +493,13 @@
     "teams": []
   },
   "outing2": {
-    "date": "August 29",
-    "tee": "8am",
-    "course": "Hiland",
-    "holes": "18",
-    "format": "TBD",
+    "date": "",
+    "tee": "",
+    "course": "",
+    "holes": "",
+    "format": "",
     "cost": "",
-    "dinner": "Farm - 150 Fox Rd Worthington Pa 16262",
+    "dinner": "",
     "prizes": {
       "p1": "",
       "p2": "",
@@ -510,26 +507,7 @@
       "p4": "",
       "p5": ""
     },
-    "signups": [
-      {
-        "name": "Wes Barton"
-      },
-      {
-        "name": "Andy Patz"
-      },
-      {
-        "name": "Ed Bargerstock"
-      },
-      {
-        "name": "Jim Frye"
-      },
-      {
-        "name": "Bruce Thomas"
-      },
-      {
-        "name": "Dylan Barton"
-      }
-    ],
+    "signups": [],
     "teams": []
   },
   "payouts": {
@@ -607,18 +585,6 @@
       }
     }
   },
-  "changeLog": [
-    {
-      "when": "2026-07-22T16:33:40.146Z",
-      "who": "Wes Barton",
-      "what": "Updated: End-of-Season Outing"
-    },
-    {
-      "when": "2026-07-22T16:21:56.419Z",
-      "who": "Wes Barton",
-      "what": "Updated: Settings, Players, Dues, Mid-Season Outing, End-of-Season Outing, Payouts, Weekly Winners"
-    }
-  ],
   "weeks": {
     "1": {
       "label": "Week 1",
@@ -5791,5 +5757,22 @@
         "played": "7/26"
       }
     ]
-  }
+  },
+  "changeLog": [
+    {
+      "when": "2026-08-02T18:40:32.741Z",
+      "who": "Wes Barton",
+      "what": "Updated: Settings, Players, End-of-Season Outing"
+    },
+    {
+      "when": "2026-07-22T16:33:40.146Z",
+      "who": "Wes Barton",
+      "what": "Updated: End-of-Season Outing"
+    },
+    {
+      "when": "2026-07-22T16:21:56.419Z",
+      "who": "Wes Barton",
+      "what": "Updated: Settings, Players, Dues, Mid-Season Outing, End-of-Season Outing, Payouts, Weekly Winners"
+    }
+  ]
 }
