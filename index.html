@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL v26 · 2026-07-26 · restore v22 baseline — weather strip, GPS Map tab, banked card removal deferred -->
+<!-- WGL v27 · 2026-08-02 · splash screen, CTM card type modal, per-player type on review -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -446,6 +446,22 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 </head>
 <body>
 
+<!-- Splash Screen -->
+<div id="splash" style="position:fixed;inset:0;z-index:9999;background:#1a3d1f;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .4s ease">
+  <!-- Logo — dominant, centered -->
+  <div style="flex:1;display:flex;align-items:center;justify-content:center">
+    <img src="icon-192.png" alt="WGL"
+      style="width:min(72vw,320px);height:min(72vw,320px);border-radius:min(16vw,72px);box-shadow:0 24px 80px rgba(0,0,0,.55)">
+  </div>
+  <!-- Enter button pinned to bottom, iOS-style -->
+  <div style="width:100%;padding:0 32px calc(env(safe-area-inset-bottom) + 32px)">
+    <button onclick="splashEnter()"
+      style="width:100%;padding:17px;background:rgba(255,255,255,.15);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);color:white;font-size:17px;font-weight:600;border:1.5px solid rgba(255,255,255,.25);border-radius:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;letter-spacing:-.1px">
+      Enter
+    </button>
+  </div>
+</div>
+
 <!-- Sync indicator -->
 <div class="sync-bar">
   <div class="sync-dot"></div>
@@ -483,25 +499,6 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
   <div id="sc-step-setup" class="sc-step active">
     <!-- Resume / Favorites / History (populated by scRenderExtras) -->
     <div id="sc-extras" style="padding-top:12px"></div>
-    <!-- Card type selector -->
-    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;padding:8px 0 6px">Card Type</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-      <button id="sc-type-league-night" onclick="scSetCardType('league_night')"
-        style="padding:9px 6px;border:1.5px solid var(--sel-bg,#2e7d32);border-radius:8px;font-size:12px;font-weight:700;background:var(--sel-bg,#2e7d32);color:var(--sel-fg,white);cursor:pointer;-webkit-tap-highlight-color:transparent">League Night ✓</button>
-      <button id="sc-type-play-ahead" onclick="scSetCardType('play_ahead')"
-        style="padding:9px 6px;border:1.5px solid var(--unsel-line,#ddd);border-radius:8px;font-size:12px;font-weight:700;background:var(--unsel-bg,white);color:var(--unsel-fg,#555);cursor:pointer;-webkit-tap-highlight-color:transparent">Play Ahead</button>
-      <button id="sc-type-bank-card" onclick="scSetCardType('bank_card')"
-        style="padding:9px 6px;border:1.5px solid var(--unsel-line,#ddd);border-radius:8px;font-size:12px;font-weight:700;background:var(--unsel-bg,white);color:var(--unsel-fg,#555);cursor:pointer;-webkit-tap-highlight-color:transparent">Bank Card</button>
-      <button id="sc-type-practice" onclick="scSetCardType('practice')"
-        style="padding:9px 6px;border:1.5px solid var(--unsel-line,#ddd);border-radius:8px;font-size:12px;font-weight:700;background:var(--unsel-bg,white);color:var(--unsel-fg,#555);cursor:pointer;-webkit-tap-highlight-color:transparent">Practice</button>
-    </div>
-    <div id="sc-target-week-row" style="display:none;background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:13px">
-      <span style="font-weight:600;color:#555">Target Week: </span>
-      <input id="sc-target-week" type="number" min="1" max="20"
-        onchange="scSetTargetWeek(this.value)"
-        style="width:52px;padding:4px 6px;border:1.5px solid #2e7d32;border-radius:6px;font-size:14px;font-weight:700;text-align:center;margin-left:4px">
-      <span style="color:#888;font-size:11px;margin-left:6px">Players default to this week · change per-player below</span>
-    </div>
     <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;padding:8px 0 8px">Players on this card</div>
     <div class="card">
       <div style="padding:14px 16px">
@@ -780,6 +777,28 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 </div>
 
 <div id="mytab" class="tab-content"><div id="my-body" style="margin-top:12px"></div></div>
+
+<!-- Card Type Modal — shown every time Score tab is tapped with no card in progress -->
+<div id="ctm-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:450;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--card,#fff);color:var(--text,#111);border-radius:20px;padding:22px 20px;width:100%;max-width:360px;box-shadow:0 12px 48px rgba(0,0,0,.3)">
+    <div style="display:flex;align-items:center;margin-bottom:18px">
+      <button id="ctm-back" onclick="ctmBack()" style="display:none;background:none;border:none;color:var(--tint,#2e7d32);font-size:15px;font-weight:700;cursor:pointer;padding:0 10px 0 0;-webkit-tap-highlight-color:transparent">← Back</button>
+      <div id="ctm-title" style="flex:1;text-align:center;font-size:17px;font-weight:800">What type of card?</div>
+    </div>
+    <!-- Step 1: type selection -->
+    <div id="ctm-step1">
+      <button onclick="ctmPickType('league_night')" style="width:100%;padding:15px 16px;margin-bottom:10px;border-radius:14px;border:2px solid #e0e0e0;background:var(--card,#fff);color:var(--text,#111);font-size:15px;font-weight:700;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent">🏌️ League Night</button>
+      <button onclick="ctmPickType('bank_card')" style="width:100%;padding:15px 16px;margin-bottom:10px;border-radius:14px;border:2px solid #e0e0e0;background:var(--card,#fff);color:var(--text,#111);font-size:15px;font-weight:700;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent">🏦 Bank Card</button>
+      <button onclick="ctmPickType('practice')" style="width:100%;padding:15px 16px;border-radius:14px;border:2px solid #e0e0e0;background:var(--card,#fff);color:var(--text,#111);font-size:15px;font-weight:700;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent">⛳ Practice Only</button>
+    </div>
+    <!-- Step 2: date selection (league night only) -->
+    <div id="ctm-step2" style="display:none">
+      <div style="font-size:13px;color:#888;text-align:center;margin-bottom:14px">Which Monday are you playing for?</div>
+      <div id="ctm-date-list" style="display:flex;flex-direction:column;gap:10px"></div>
+      <button id="ctm-confirm" onclick="ctmConfirm()" style="display:none;width:100%;margin-top:16px;padding:14px;background:var(--tint,#2e7d32);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">Continue →</button>
+    </div>
+  </div>
+</div>
 
 <!-- First-run welcome (pick your name) -->
 <div id="welcome-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;align-items:center;justify-content:center;padding:24px">
@@ -1465,7 +1484,7 @@ function scAdj(pi,delta){
 function scHoleNav(dir){
   const next=scSess.hole+dir;
   if(next<0)return;
-  if(next>=scGetHoles().length){scShowReview();return;}
+  if(next>=scGetHoles().length){scGoToReview();return;}
   scSess.hole=next;
   scRenderHole();
   SC_STORE.save();
@@ -1528,6 +1547,10 @@ function scShowReview(){
       <span style="font-size:13px;color:#2e7d32;font-weight:600">Week ${wk} · ${hdrLabel}</span>
       <span style="font-size:12px;color:#666;margin-left:8px">${scSess.players.length} player${scSess.players.length!==1?'s':''}</span>
     </div>
+  </div>
+  <div class="card" style="margin-bottom:8px">
+    <div class="card-hdr">Card type per player</div>
+    <div id="sc-player-types" style="padding:0 14px 4px"></div>
   </div>`;
   // Completed segments first, so an 18-hole card shows BOTH nines before submitting
   scSess.completedSegments.forEach((seg,i)=>{
@@ -1539,6 +1562,7 @@ function scShowReview(){
   }
   html+=scRenderSegmentBlock(scSess.side, scSess.scores, null);
   document.getElementById('sc-review-body').innerHTML=html;
+  scRenderReviewTypes();
   // Update "Play Another 9" button label dynamically
   const addBtn=document.getElementById('sc-add-nine-btn');
   if(addBtn){
@@ -1546,6 +1570,158 @@ function scShowReview(){
     addBtn.textContent=`+ Play ${otherSide} 9 Too`;
     addBtn.style.display=scSess.completedSegments.length>=1?'none':'block';
   }
+}
+
+// Gate: open CTM before showing review so card type is set for all players first
+function scGoToReview(){
+  ctmOpen();
+  _ctmOnConfirm = ()=>scShowReview();
+}
+
+// Per-player type toggle on the review card
+function scSetPlayerType(idx, type){
+  const p=scSess.players[idx];
+  if(!p) return;
+  p.purpose=type;
+  if(type!=='league_night') p.targetWeek=null;
+  else p.targetWeek=scSess.targetWeek||null;
+  scRenderReviewTypes();
+}
+function scRenderReviewTypes(){
+  const el=document.getElementById('sc-player-types');
+  if(!el) return;
+  const mondays=ctmGetMondays();
+  const lnWk=scSess.targetWeek||(mondays[1]?mondays[1].week:null);
+  let h='';
+  scSess.players.forEach((p,i)=>{
+    const cur=p.purpose||'league_night';
+    const btnStyle=(active)=>`padding:5px 10px;border-radius:8px;border:1.5px solid ${active?'var(--tint,#2e7d32)':'#ddd'};background:${active?'var(--tint,#2e7d32)':'var(--card,#fff)'};color:${active?'white':'var(--text,#666)'};font-size:12px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent`;
+    h+=`<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f0f0f0">
+      <span style="flex:1;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
+      <button onclick="scSetPlayerType(${i},'league_night')" style="${btnStyle(cur==='league_night')}">🏌️${cur==='league_night'&&lnWk?' Wk'+lnWk:''}</button>
+      <button onclick="scSetPlayerType(${i},'bank_card')" style="${btnStyle(cur==='bank_card')}">🏦</button>
+      <button onclick="scSetPlayerType(${i},'practice')" style="${btnStyle(cur==='practice')}">⛳</button>
+    </div>`;
+  });
+  el.innerHTML=h;
+}
+
+// ── Card Type Modal ───────────────────────────────────────────────────────────
+let _ctmDateIdx = null;    // which date button is selected (0/1/2)
+let _ctmOnConfirm = null;  // callback to fire after CTM confirm (e.g. scSubmit)
+
+function ctmGetMondays(){
+  const today = new Date();
+  const dow = today.getDay(); // 0=Sun,1=Mon,...,6=Sat
+  let daysToNext = dow===1?0:dow===0?1:8-dow;
+  const thisMon = new Date(today); thisMon.setDate(today.getDate()+daysToNext);
+  const lastMon = new Date(thisMon); lastMon.setDate(thisMon.getDate()-7);
+  const nextMon = new Date(thisMon); nextMon.setDate(thisMon.getDate()+7);
+  const fmt = d => d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  const baseWk = (D.settings&&D.settings.week)?+D.settings.week:1;
+  // baseWk = last completed week; thisMon = next league night = baseWk+1
+  return [
+    {label:fmt(lastMon), week:baseWk,   date:lastMon},
+    {label:fmt(thisMon), week:baseWk+1, date:thisMon},
+    {label:fmt(nextMon), week:baseWk+2, date:nextMon}
+  ];
+}
+
+function ctmOpen(){
+  _ctmDateIdx = null;
+  _ctmOnConfirm = null;
+  // Reset to step 1
+  document.getElementById('ctm-step1').style.display='';
+  document.getElementById('ctm-step2').style.display='none';
+  document.getElementById('ctm-back').style.display='none';
+  document.getElementById('ctm-title').textContent='What type of card?';
+  document.getElementById('ctm-confirm').style.display='none';
+  // Build date buttons fresh
+  const mondays = ctmGetMondays();
+  const list = document.getElementById('ctm-date-list');
+  list.innerHTML='';
+  mondays.forEach((m,i)=>{
+    const b=document.createElement('button');
+    b.id='ctm-d'+i;
+    b.textContent=m.label+' — Week '+m.week;
+    b.style.cssText='width:100%;padding:14px 16px;border-radius:12px;border:2px solid #e0e0e0;background:var(--card,#fff);color:var(--text,#111);font-size:14px;font-weight:700;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent';
+    b.onclick=()=>ctmPickDate(i,m.week);
+    list.appendChild(b);
+  });
+  document.getElementById('ctm-bg').style.display='flex';
+}
+
+function ctmPickType(type){
+  if(type==='league_night'){
+    document.getElementById('ctm-step1').style.display='none';
+    document.getElementById('ctm-step2').style.display='';
+    document.getElementById('ctm-back').style.display='';
+    document.getElementById('ctm-title').textContent='Which Monday?';
+  } else {
+    // Bank card or practice — no date needed, apply and close
+    scSess.cardType=type;
+    scSess.targetWeek=null;
+    ctmApplyToPlayers();
+    ctmUpdateSummary();
+    document.getElementById('ctm-bg').style.display='none';
+    if(_ctmOnConfirm){const cb=_ctmOnConfirm;_ctmOnConfirm=null;cb();}
+  }
+}
+
+function ctmPickDate(idx, week){
+  _ctmDateIdx=idx;
+  for(let i=0;i<3;i++){
+    const b=document.getElementById('ctm-d'+i);
+    if(!b) continue;
+    const sel=i===idx;
+    b.style.borderColor=sel?'var(--tint,#2e7d32)':'#e0e0e0';
+    b.style.background=sel?'var(--tint,#2e7d32)':'var(--card,#fff)';
+    b.style.color=sel?'white':'var(--text,#111)';
+  }
+  scSess.cardType='league_night';
+  scSess.targetWeek=week;
+  document.getElementById('ctm-confirm').style.display='';
+}
+
+function ctmBack(){
+  _ctmDateIdx=null;
+  document.getElementById('ctm-step2').style.display='none';
+  document.getElementById('ctm-step1').style.display='';
+  document.getElementById('ctm-back').style.display='none';
+  document.getElementById('ctm-title').textContent='What type of card?';
+  document.getElementById('ctm-confirm').style.display='none';
+}
+
+function ctmConfirm(){
+  ctmApplyToPlayers();
+  ctmUpdateSummary();
+  document.getElementById('ctm-bg').style.display='none';
+  if(_ctmOnConfirm){const cb=_ctmOnConfirm;_ctmOnConfirm=null;cb();}
+}
+
+function ctmApplyToPlayers(){
+  for(const p of scSess.players){
+    p.purpose=scSess.cardType||'league_night';
+    p.targetWeek=scSess.targetWeek||null;
+  }
+}
+
+function ctmUpdateSummary(){
+  const el=document.getElementById('sc-card-type-summary');
+  if(!el) return;
+  const lbl={league_night:'🏌️ League Night',bank_card:'🏦 Bank Card',practice:'⛳ Practice'};
+  const type=scSess.cardType||'league_night';
+  const wk=scSess.targetWeek;
+  el.textContent=(lbl[type]||type)+(wk?' — Week '+wk:'');
+}
+
+// Splash screen dismiss — refreshes live data then fades out
+function splashEnter(){
+  const el=document.getElementById('splash');
+  el.style.opacity='0';
+  el.style.pointerEvents='none';
+  setTimeout(()=>el.style.display='none',380);
+  refreshData(true);
 }
 
 function scAddSecondNine(){
