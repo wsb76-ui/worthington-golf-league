@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-02T16:07:04.915Z",
+  "lastUpdated": "2026-08-02T16:17:07.917Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "TBD",
@@ -5642,8 +5642,8 @@
           "name": "Tom Stennett",
           "team": 4,
           "hcp": 13,
-          "gross": 54,
-          "net": 41,
+          "gross": 46,
+          "net": 33,
           "grp": 5
         },
         {
@@ -5662,28 +5662,12 @@
       "course": "Hiland Golf Course",
       "players": [
         {
-          "name": "Jesse Hickman",
-          "team": 6,
-          "hcp": 10,
-          "gross": 47,
-          "net": 37,
-          "grp": 1
-        },
-        {
-          "name": "Ken Long",
-          "team": 8,
-          "hcp": 12,
-          "gross": 51,
-          "net": 39,
-          "grp": 1
-        },
-        {
           "name": "Cole Clark",
           "team": 8,
           "hcp": 11,
           "gross": 52,
           "net": 41,
-          "grp": 2
+          "grp": 1
         },
         {
           "name": "Blake Bowser",
@@ -5691,7 +5675,7 @@
           "hcp": 13,
           "gross": 50,
           "net": 37,
-          "grp": 2
+          "grp": 1
         },
         {
           "name": "Trent Brocious",
@@ -5699,7 +5683,39 @@
           "hcp": 11,
           "gross": 50,
           "net": 39,
+          "grp": 1
+        },
+        {
+          "name": "Dylan Barton",
+          "team": 6,
+          "hcp": 20,
+          "gross": 60,
+          "net": 40,
           "grp": 2
+        },
+        {
+          "name": "Andy Patz",
+          "team": 2,
+          "hcp": 14,
+          "gross": 53,
+          "net": 39,
+          "grp": 2
+        },
+        {
+          "name": "Jesse Hickman",
+          "team": 6,
+          "hcp": 10,
+          "gross": 47,
+          "net": 37,
+          "grp": 3
+        },
+        {
+          "name": "Ken Long",
+          "team": 8,
+          "hcp": 12,
+          "gross": 51,
+          "net": 39,
+          "grp": 3
         }
       ]
     }
