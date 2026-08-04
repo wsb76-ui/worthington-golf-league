@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-04T12:00:25.094Z",
+  "lastUpdated": "2026-08-04T14:35:45.198Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -10,7 +10,8 @@
     "lownet": "",
     "pot": "",
     "week": 14,
-    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Through Week 13"
+    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Through Week 13",
+    "computeHandicaps": false
   },
   "players": {
     "Larry Julius": {
@@ -5992,6 +5993,88 @@
       "when": "2026-07-22T16:21:56.419Z",
       "who": "Wes Barton",
       "what": "Updated: Settings, Players, Dues, Mid-Season Outing, End-of-Season Outing, Payouts, Weekly Winners"
+    }
+  ],
+  "calendar": [
+    {
+      "week": 1,
+      "date": "2026-05-04"
+    },
+    {
+      "week": 2,
+      "date": "2026-05-11"
+    },
+    {
+      "week": 3,
+      "date": "2026-05-18"
+    },
+    {
+      "week": 4,
+      "date": "2026-06-01"
+    },
+    {
+      "week": 5,
+      "date": "2026-06-08"
+    },
+    {
+      "week": 6,
+      "date": "2026-06-15"
+    },
+    {
+      "week": 7,
+      "date": "2026-06-22"
+    },
+    {
+      "week": 8,
+      "date": "2026-06-29"
+    },
+    {
+      "week": 9,
+      "date": "2026-07-06"
+    },
+    {
+      "week": 10,
+      "date": "2026-07-13"
+    },
+    {
+      "week": 11,
+      "date": "2026-07-20"
+    },
+    {
+      "week": 12,
+      "date": "2026-07-27"
+    },
+    {
+      "week": 13,
+      "date": "2026-08-03"
+    },
+    {
+      "week": 14,
+      "date": "2026-08-10"
+    },
+    {
+      "week": 15,
+      "date": "2026-08-17"
+    },
+    {
+      "week": 16,
+      "date": "2026-08-24"
+    },
+    {
+      "week": 17,
+      "date": "2026-08-31"
+    },
+    {
+      "week": 18,
+      "date": "2026-09-14"
+    },
+    {
+      "week": 19,
+      "date": "2026-09-21"
+    },
+    {
+      "week": 20,
+      "date": "2026-09-28"
     }
   ]
 }
