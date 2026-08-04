@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL Beta v14 · 2026-08-04 · CTM reads D.calendar for actual league night dates -->
+<!-- WGL Beta v15 · 2026-08-04 · CTM pivots on Monday midnight: Mon shows tonight+2; Tue-Sun shows last+2 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2359,31 +2359,40 @@ function ctmGetMondays(){
   const fmt = d => d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
   const iso = d => { const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; };
 
+  const today = new Date();
+  const isMonday = today.getDay() === 1;
+
   // Use published season calendar (D.calendar) if available — shows only actual league nights
   if(D.calendar && D.calendar.length){
-    const todayStr = iso(new Date());
+    const todayStr = iso(today);
     const sorted = D.calendar.slice().sort((a,b) => a.date < b.date ? -1 : 1);
-    // Find first calendar entry >= today (the next upcoming league night)
     let idx = sorted.findIndex(e => e.date >= todayStr);
-    if(idx < 0) idx = sorted.length; // all dates past — point just past end
-    // Show: one before (last league night), current/next, one more after
-    const start = Math.max(0, idx - 1);
+    if(idx < 0) idx = sorted.length;
+    // Monday 12:01 AM: start at today so tonight shows first
+    // Tue–Sun: step back one so last league night shows for late submissions
+    const start = isMonday ? idx : Math.max(0, idx - 1);
     const results = [];
     for(let i = start; i < sorted.length && results.length < 3; i++){
       results.push({label: fmt(new Date(sorted[i].date + 'T12:00:00')), dateStr: sorted[i].date});
     }
     if(results.length) return results;
-    // Fell through — calendar exhausted (end of season) — fall through to generic math below
   }
 
   // Fallback: pure Monday calendar math (no network, no settings.week)
-  const today = new Date();
   const dow = today.getDay();
   const thisMon = new Date(today);
   if(dow===0) thisMon.setDate(today.getDate()-6);
   else if(dow!==1) thisMon.setDate(today.getDate()-(dow-1));
   const lastMon = new Date(thisMon); lastMon.setDate(thisMon.getDate()-7);
   const nextMon = new Date(thisMon); nextMon.setDate(thisMon.getDate()+7);
+  const nextNextMon = new Date(thisMon); nextNextMon.setDate(thisMon.getDate()+14);
+  if(isMonday){
+    return [
+      {label:fmt(thisMon),    dateStr:iso(thisMon)},
+      {label:fmt(nextMon),    dateStr:iso(nextMon)},
+      {label:fmt(nextNextMon),dateStr:iso(nextNextMon)}
+    ];
+  }
   return [
     {label:fmt(lastMon), dateStr:iso(lastMon)},
     {label:fmt(thisMon), dateStr:iso(thisMon)},
