@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-04T11:58:11.521Z",
+  "lastUpdated": "2026-08-04T12:00:25.094Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -5711,52 +5711,12 @@
           "grp": 2
         },
         {
-          "name": "Bruce Thomas",
-          "team": 3,
-          "hcp": 11,
-          "gross": 44,
-          "net": 33,
-          "grp": 3
-        },
-        {
-          "name": "Wilbur Dudley",
-          "team": 2,
-          "hcp": 13,
-          "gross": 56,
-          "net": 43,
-          "grp": 4
-        },
-        {
-          "name": "Frank Watt",
-          "team": 1,
-          "hcp": 12,
-          "gross": 55,
-          "net": 43,
-          "grp": 4
-        },
-        {
-          "name": "Dave Cushey",
-          "team": 3,
-          "hcp": 12,
-          "gross": 48,
-          "net": 36,
-          "grp": 4
-        },
-        {
-          "name": "Ed Bargerstock",
-          "team": 7,
-          "hcp": 4,
-          "gross": 41,
-          "net": 37,
-          "grp": 4
-        },
-        {
           "name": "Scott Barton",
           "team": 3,
           "hcp": 11,
           "gross": 48,
           "net": 37,
-          "grp": 5
+          "grp": 3
         },
         {
           "name": "Ken Long",
@@ -5764,7 +5724,7 @@
           "hcp": 12,
           "gross": 47,
           "net": 35,
-          "grp": 5
+          "grp": 3
         },
         {
           "name": "Kevin Frye",
@@ -5772,7 +5732,7 @@
           "hcp": 5,
           "gross": 43,
           "net": 38,
-          "grp": 5
+          "grp": 3
         },
         {
           "name": "Jim Frye",
@@ -5780,31 +5740,47 @@
           "hcp": 1,
           "gross": 37,
           "net": 36,
+          "grp": 3
+        },
+        {
+          "name": "Bruce Thomas",
+          "team": 3,
+          "hcp": 11,
+          "gross": 44,
+          "net": 33,
+          "grp": 4
+        },
+        {
+          "name": "Wilbur Dudley",
+          "team": 2,
+          "hcp": 13,
+          "gross": 56,
+          "net": 43,
           "grp": 5
         },
         {
-          "name": "Bill Long",
-          "team": 5,
-          "hcp": 9,
-          "gross": 43,
-          "net": 34,
-          "grp": 6
-        },
-        {
-          "name": "Willie Powell",
-          "team": 3,
-          "hcp": 8,
-          "gross": 51,
+          "name": "Frank Watt",
+          "team": 1,
+          "hcp": 12,
+          "gross": 55,
           "net": 43,
-          "grp": 6
+          "grp": 5
         },
         {
-          "name": "Patric Weber",
-          "team": 8,
-          "hcp": 16,
-          "gross": 47,
-          "net": 31,
-          "grp": 6
+          "name": "Dave Cushey",
+          "team": 3,
+          "hcp": 12,
+          "gross": 48,
+          "net": 36,
+          "grp": 5
+        },
+        {
+          "name": "Ed Bargerstock",
+          "team": 7,
+          "hcp": 4,
+          "gross": 41,
+          "net": 37,
+          "grp": 5
         },
         {
           "name": "Tom Stennett",
@@ -5812,7 +5788,7 @@
           "hcp": 10,
           "gross": 49,
           "net": 39,
-          "grp": 7
+          "grp": 6
         },
         {
           "name": "Paul Bowser",
@@ -5820,7 +5796,7 @@
           "hcp": 6,
           "gross": 43,
           "net": 37,
-          "grp": 7
+          "grp": 6
         },
         {
           "name": "Jaxon Smith",
@@ -5828,7 +5804,7 @@
           "hcp": 2,
           "gross": 45,
           "net": 43,
-          "grp": 7
+          "grp": 6
         },
         {
           "name": "Jason Smith",
@@ -5836,6 +5812,30 @@
           "hcp": 11,
           "gross": 57,
           "net": 46,
+          "grp": 6
+        },
+        {
+          "name": "Bill Long",
+          "team": 5,
+          "hcp": 9,
+          "gross": 43,
+          "net": 34,
+          "grp": 7
+        },
+        {
+          "name": "Willie Powell",
+          "team": 3,
+          "hcp": 8,
+          "gross": 51,
+          "net": 43,
+          "grp": 7
+        },
+        {
+          "name": "Patric Weber",
+          "team": 8,
+          "hcp": 16,
+          "gross": 47,
+          "net": 31,
           "grp": 7
         },
         {
