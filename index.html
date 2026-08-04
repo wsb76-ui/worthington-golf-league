@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL v27 · 2026-08-02 · splash screen, CTM card type modal, per-player type on review -->
+<!-- WGL v28 · 2026-08-04 · CTM shows dates not week numbers; GAS calculates week from date -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1059,7 +1059,7 @@ const SCRIPT_URL    = 'https://script.google.com/macros/s/AKfycbx4vADa-QnAHP7QeH
 const SC_BACK_PARS  = [5,4,4,4,4,3,4,3,4]; // Holes 10–18 Hiland GC
 const SC_FRONT_PARS = [4,4,3,4,4,4,5,4,3]; // Holes 1–9
 
-let scSess = { players:[], scores:{}, hole:0, side:'back', cardType:'league_night', targetWeek:null, completedSegments:[] };
+let scSess = { players:[], scores:{}, hole:0, side:'back', cardType:'league_night', targetWeek:null, targetDate:null, completedSegments:[] };
 let _scHits=[], _scMidHits=[];
 
 // ── Scorecard persistence (localStorage) ─────────────────────────────────────
@@ -1179,12 +1179,12 @@ function scLoadFav(fi){
   const fav=favs[fi];
   if(!fav)return;
   // Reset session with favorite's players
-  scSess={players:[],scores:{},hole:0,side:fav.side,cardType:'league_night',targetWeek:null,completedSegments:[]};
+  scSess={players:[],scores:{},hole:0,side:fav.side,cardType:'league_night',targetWeek:null,targetDate:null,completedSegments:[]};
   scSetSide(fav.side);
   const roster=scGetRoster();
   for(const p of fav.players){
     const info=roster[p.name]||{team:p.team,hcp:p.hcp};
-    scSess.players.push({name:p.name,team:info.team,hcp:info.hcp,purpose:'league_night',targetWeek:null});
+    scSess.players.push({name:p.name,team:info.team,hcp:info.hcp,purpose:'league_night',targetWeek:null,targetDate:null});
     scSess.scores[p.name]=Array(scGetHoles().length).fill(null);
   }
   scRenderAdded();
@@ -1196,12 +1196,12 @@ function scLoadRecent(hi){
   const r=history[hi];
   if(!r)return;
   // Reset session with this recent group (current roster team/HCP)
-  scSess={players:[],scores:{},hole:0,side:r.side||'back',cardType:'league_night',targetWeek:null,completedSegments:[]};
+  scSess={players:[],scores:{},hole:0,side:r.side||'back',cardType:'league_night',targetWeek:null,targetDate:null,completedSegments:[]};
   scSetSide(scSess.side);
   const roster=scGetRoster();
   for(const name of r.players){
     const info=roster[name]||{team:'',hcp:0};
-    scSess.players.push({name:name,team:info.team,hcp:info.hcp,purpose:'league_night',targetWeek:null});
+    scSess.players.push({name:name,team:info.team,hcp:info.hcp,purpose:'league_night',targetWeek:null,targetDate:null});
     scSess.scores[name]=Array(scGetHoles().length).fill(null);
   }
   scRenderAdded();
@@ -1266,8 +1266,10 @@ function scSetPlayerPurpose(pi, purpose){
   if(!p)return;
   p.purpose = purpose;
   if(purpose==='play_ahead'){
-    p.targetWeek = p.targetWeek || scSess.targetWeek || (D.settings&&+D.settings.week+1) || null;
+    p.targetWeek = p.targetWeek || scSess.targetWeek || null;
+    p.targetDate = null;
   } else {
+    p.targetDate = scSess.targetDate||null;
     p.targetWeek = null;
   }
   SC_STORE.save();
@@ -1591,14 +1593,14 @@ function scRenderReviewTypes(){
   const el=document.getElementById('sc-player-types');
   if(!el) return;
   const mondays=ctmGetMondays();
-  const lnWk=scSess.targetWeek||(mondays[1]?mondays[1].week:null);
+  const lnDate=scSess.targetDate ? new Date(scSess.targetDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
   let h='';
   scSess.players.forEach((p,i)=>{
     const cur=p.purpose||'league_night';
     const btnStyle=(active)=>`padding:5px 10px;border-radius:8px;border:1.5px solid ${active?'var(--tint,#2e7d32)':'#ddd'};background:${active?'var(--tint,#2e7d32)':'var(--card,#fff)'};color:${active?'white':'var(--text,#666)'};font-size:12px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent`;
     h+=`<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f0f0f0">
       <span style="flex:1;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
-      <button onclick="scSetPlayerType(${i},'league_night')" style="${btnStyle(cur==='league_night')}">🏌️${cur==='league_night'&&lnWk?' Wk'+lnWk:''}</button>
+      <button onclick="scSetPlayerType(${i},'league_night')" style="${btnStyle(cur==='league_night')}">🏌️${cur==='league_night'&&lnDate?' '+lnDate:''}</button>
       <button onclick="scSetPlayerType(${i},'bank_card')" style="${btnStyle(cur==='bank_card')}">🏦</button>
       <button onclick="scSetPlayerType(${i},'practice')" style="${btnStyle(cur==='practice')}">⛳</button>
     </div>`;
@@ -1611,19 +1613,35 @@ let _ctmDateIdx = null;    // which date button is selected (0/1/2)
 let _ctmOnConfirm = null;  // callback to fire after CTM confirm (e.g. scSubmit)
 
 function ctmGetMondays(){
+  const fmt = d => d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  const iso = d => { const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; };
+
+  // Use published season calendar (D.calendar) if available — shows only actual league nights
+  if(D.calendar && D.calendar.length){
+    const todayStr = iso(new Date());
+    const sorted = D.calendar.slice().sort((a,b) => a.date < b.date ? -1 : 1);
+    let idx = sorted.findIndex(e => e.date >= todayStr);
+    if(idx < 0) idx = sorted.length;
+    const start = Math.max(0, idx - 1);
+    const results = [];
+    for(let i = start; i < sorted.length && results.length < 3; i++){
+      results.push({label: fmt(new Date(sorted[i].date + 'T12:00:00')), dateStr: sorted[i].date});
+    }
+    if(results.length) return results;
+  }
+
+  // Fallback: pure Monday calendar math — no dependence on settings.week
   const today = new Date();
-  const dow = today.getDay(); // 0=Sun,1=Mon,...,6=Sat
-  let daysToNext = dow===1?0:dow===0?1:8-dow;
-  const thisMon = new Date(today); thisMon.setDate(today.getDate()+daysToNext);
+  const dow = today.getDay();
+  const thisMon = new Date(today);
+  if(dow===0) thisMon.setDate(today.getDate()-6);
+  else if(dow!==1) thisMon.setDate(today.getDate()-(dow-1));
   const lastMon = new Date(thisMon); lastMon.setDate(thisMon.getDate()-7);
   const nextMon = new Date(thisMon); nextMon.setDate(thisMon.getDate()+7);
-  const fmt = d => d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  const baseWk = (D.settings&&D.settings.week)?+D.settings.week:1;
-  // baseWk = last completed week; thisMon = next league night = baseWk+1
   return [
-    {label:fmt(lastMon), week:baseWk,   date:lastMon},
-    {label:fmt(thisMon), week:baseWk+1, date:thisMon},
-    {label:fmt(nextMon), week:baseWk+2, date:nextMon}
+    {label:fmt(lastMon), dateStr:iso(lastMon)},
+    {label:fmt(thisMon), dateStr:iso(thisMon)},
+    {label:fmt(nextMon), dateStr:iso(nextMon)}
   ];
 }
 
@@ -1643,9 +1661,9 @@ function ctmOpen(){
   mondays.forEach((m,i)=>{
     const b=document.createElement('button');
     b.id='ctm-d'+i;
-    b.textContent=m.label+' — Week '+m.week;
+    b.textContent=m.label;
     b.style.cssText='width:100%;padding:14px 16px;border-radius:12px;border:2px solid #e0e0e0;background:var(--card,#fff);color:var(--text,#111);font-size:14px;font-weight:700;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent';
-    b.onclick=()=>ctmPickDate(i,m.week);
+    b.onclick=()=>ctmPickDate(i,m.dateStr);
     list.appendChild(b);
   });
   document.getElementById('ctm-bg').style.display='flex';
@@ -1661,6 +1679,7 @@ function ctmPickType(type){
     // Bank card or practice — no date needed, apply and close
     scSess.cardType=type;
     scSess.targetWeek=null;
+    scSess.targetDate=null;
     ctmApplyToPlayers();
     ctmUpdateSummary();
     document.getElementById('ctm-bg').style.display='none';
@@ -1668,7 +1687,7 @@ function ctmPickType(type){
   }
 }
 
-function ctmPickDate(idx, week){
+function ctmPickDate(idx, dateStr){
   _ctmDateIdx=idx;
   for(let i=0;i<3;i++){
     const b=document.getElementById('ctm-d'+i);
@@ -1679,7 +1698,8 @@ function ctmPickDate(idx, week){
     b.style.color=sel?'white':'var(--text,#111)';
   }
   scSess.cardType='league_night';
-  scSess.targetWeek=week;
+  scSess.targetDate=dateStr;
+  scSess.targetWeek=null;
   document.getElementById('ctm-confirm').style.display='';
 }
 
@@ -1702,7 +1722,8 @@ function ctmConfirm(){
 function ctmApplyToPlayers(){
   for(const p of scSess.players){
     p.purpose=scSess.cardType||'league_night';
-    p.targetWeek=scSess.targetWeek||null;
+    p.targetDate=scSess.targetDate||null;
+    p.targetWeek=null;
   }
 }
 
@@ -1711,8 +1732,8 @@ function ctmUpdateSummary(){
   if(!el) return;
   const lbl={league_night:'🏌️ League Night',bank_card:'🏦 Bank Card',practice:'⛳ Practice'};
   const type=scSess.cardType||'league_night';
-  const wk=scSess.targetWeek;
-  el.textContent=(lbl[type]||type)+(wk?' — Week '+wk:'');
+  const dateLabel=scSess.targetDate ? new Date(scSess.targetDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+  el.textContent=(lbl[type]||type)+(dateLabel?' — '+dateLabel:'');
 }
 
 // Splash screen dismiss — refreshes live data then fades out
@@ -1728,7 +1749,7 @@ function scAddSecondNine(){
   // Archive current 9-hole segment WITH each player's purpose at time of play,
   // so the second 9 can have a different card type (league vs practice vs bank)
   const purposes={};
-  for(const p of scSess.players) purposes[p.name]={purpose:p.purpose||'league_night',targetWeek:p.targetWeek||null};
+  for(const p of scSess.players) purposes[p.name]={purpose:p.purpose||'league_night',targetDate:p.targetDate||null,targetWeek:null};
   scSess.completedSegments.push({
     side: scSess.side,
     scores: JSON.parse(JSON.stringify(scSess.scores)),
@@ -1798,11 +1819,12 @@ async function scSubmit(){
         const scores = {};
         segHoles.forEach((h,i)=>{ scores[h]=s[i]??null; });
         // Per-segment purpose: completed segments carry the purpose they were played under
-        const pp = purposes && purposes[p.name] ? purposes[p.name] : {purpose:p.purpose||'league_night', targetWeek:p.targetWeek||null};
+        const pp = purposes && purposes[p.name] ? purposes[p.name] : {purpose:p.purpose||'league_night', targetDate:p.targetDate||null};
         return {
           name:p.name, team:p.team, hcp:p.hcp,
           purpose: pp.purpose||'league_night',
-          targetWeek: pp.targetWeek||null,
+          targetDate: pp.targetDate||null,
+          targetWeek: null,
           side, gross, net, scores
         };
       })
