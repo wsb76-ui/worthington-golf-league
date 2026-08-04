@@ -1,5 +1,5 @@
-// WGL v27 · 2026-08-02 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v27'; // bumped 2026-08-02: splash screen, CTM card type modal, per-player type on review
+// WGL v28 · 2026-08-04 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v28'; // bumped 2026-08-04: CTM shows dates not week numbers; GAS calculates week from date
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
