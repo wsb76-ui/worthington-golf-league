@@ -316,6 +316,21 @@ body.theme-dark-slate{--bg:#10141c;--card:#1e293b;--card-hdr:#233044;--input:#33
   <!-- ── SETTINGS ────────────────────────────────── -->
   <div id="settings" class="tab-content">
     <div style="margin-top:12px"></div>
+    <div class="section-lbl">Scoring</div>
+    <div class="card"><div class="card-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:13px">Auto-Compute Handicaps</div>
+          <div style="font-size:12px;color:#888;margin-top:3px;line-height:1.4">When ON, GAS recalculates handicaps each week from score history (±2 per week, cap 20). When OFF, update the Roster sheet manually.</div>
+          <div id="hcp-toggle-status" style="font-size:11px;color:#888;margin-top:4px"></div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="s-compute-hcp" onchange="toggleComputeHcp(this.checked)">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div></div>
+
     <div class="section-lbl">Financial</div>
     <div class="card"><div class="card-body">
       <div class="row2">
@@ -767,6 +782,7 @@ function saveST() { localStorage.setItem(LS,JSON.stringify(ST)); }
 
 // ── Live-data seed: pull current wgl-data.json and fill in anything missing ──
 const LIVE_URL='https://raw.githubusercontent.com/wsb76-ui/worthington-golf-league/main/wgl-data.json';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbx4vADa-QnAHP7QeHz6mN7lxA1Q24Ny7Z0GiDzFFg7nMqY35Uh54kS2C61JUYU87pj23g/exec';
 
 async function seedFromLive(){
   const statusEl=document.getElementById('live-seed-status');
@@ -1116,12 +1132,36 @@ function loadSettingsUI(){
   document.getElementById('s-pot').value=s.pot||'';
   document.getElementById('s-week').value=s.week||11;
   document.getElementById('s-subtitle').value=s.subtitle||'';
+  // Handicap toggle
+  const chk=document.getElementById('s-compute-hcp');
+  if(chk) chk.checked = s.computeHandicaps===true || s.computeHandicaps==='true';
   const tok=localStorage.getItem('wgl_token')||'';
   document.getElementById('s-token').value=tok;
   // OneSignal
   document.getElementById('s-os-appid').value=localStorage.getItem('wgl_os_appid')||'2d45ee7e-57a8-450f-bbcd-42a872d6ac59';
   document.getElementById('s-os-apikey').value=localStorage.getItem('wgl_os_apikey')||'';
   updateOSStatus();
+}
+
+async function toggleComputeHcp(on){
+  const statusEl=document.getElementById('hcp-toggle-status');
+  if(statusEl) statusEl.textContent='Saving…';
+  const val = on ? 'YES' : 'NO';
+  try{
+    const fd=new FormData();
+    fd.append('data',JSON.stringify({type:'update_setting',name:'Compute Handicaps',value:val}));
+    const r=await fetch(SCRIPT_URL,{method:'POST',body:fd});
+    const j=await r.json();
+    if(j.ok){
+      ST.settings.computeHandicaps=on;
+      saveST();
+      if(statusEl) statusEl.textContent=on?'✅ Auto-compute ON — runs next time a week is processed':'✅ Saved — handicaps managed manually';
+    } else {
+      if(statusEl) statusEl.textContent='❌ Save failed — check GAS deployment';
+    }
+  }catch(err){
+    if(statusEl) statusEl.textContent='❌ Error: '+err.message;
+  }
 }
 function saveS(){
   ST.settings={
@@ -1132,7 +1172,8 @@ function saveS(){
     lownet:document.getElementById('s-lownet').value,
     pot:document.getElementById('s-pot').value,
     week:document.getElementById('s-week').value||11,
-    subtitle:document.getElementById('s-subtitle').value
+    subtitle:document.getElementById('s-subtitle').value,
+    computeHandicaps:!!(document.getElementById('s-compute-hcp')||{}).checked
   };
   saveST();
 }
