@@ -1,5 +1,5 @@
-// WGL Beta v14 · 2026-08-04 — CTM reads D.calendar for actual league night dates
-const CACHE = 'wgl-beta-v14';
+// WGL Beta v15 · 2026-08-04 — CTM pivots on Monday midnight
+const CACHE = 'wgl-beta-v15';
 const ASSETS = [
   '/worthington-golf-league/beta/',
   '/worthington-golf-league/beta/index.html',
