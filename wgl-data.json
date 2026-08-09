@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-04T14:35:45.198Z",
+  "lastUpdated": "2026-08-09T22:37:07.152Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -5891,6 +5891,12 @@
         "gross": 53,
         "hcp": 11,
         "played": "7/26"
+      },
+      {
+        "side": "front",
+        "gross": 48,
+        "hcp": 9,
+        "played": "8/9"
       }
     ],
     "Bill Long": [
@@ -5899,6 +5905,12 @@
         "gross": 41,
         "hcp": 9,
         "played": "7/17"
+      },
+      {
+        "side": "front",
+        "gross": 43,
+        "hcp": 8,
+        "played": "8/9"
       }
     ],
     "Andy Patz": [
@@ -5935,6 +5947,22 @@
         "gross": 53,
         "hcp": 12,
         "played": "7/26"
+      }
+    ],
+    "Jeff Hollabaugh": [
+      {
+        "side": "front",
+        "gross": 47,
+        "hcp": 3,
+        "played": "8/9"
+      }
+    ],
+    "Tom Stennett": [
+      {
+        "side": "front",
+        "gross": 47,
+        "hcp": 9,
+        "played": "8/9"
       }
     ]
   },
