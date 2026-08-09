@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-09T22:37:07.152Z",
+  "lastUpdated": "2026-08-09T22:47:09.036Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -5931,6 +5931,12 @@
         "gross": 55,
         "hcp": 15,
         "played": "7/26"
+      },
+      {
+        "side": "front",
+        "gross": 49,
+        "hcp": 14,
+        "played": "8/9"
       }
     ],
     "Scott Barton": [
