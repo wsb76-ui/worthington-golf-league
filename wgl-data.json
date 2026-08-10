@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-09T22:47:09.036Z",
+  "lastUpdated": "2026-08-10T20:37:16.888Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -9,8 +9,8 @@
     "skins": "",
     "lownet": "",
     "pot": "",
-    "week": 14,
-    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Through Week 13",
+    "week": 15,
+    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Through Week 14",
     "computeHandicaps": false
   },
   "players": {
@@ -5862,6 +5862,21 @@
           "gross": 49,
           "net": 34,
           "grp": 8
+        }
+      ]
+    },
+    "14": {
+      "label": "Week 14",
+      "date": "",
+      "course": "Hiland Golf Course",
+      "players": [
+        {
+          "name": "Bruce Thomas",
+          "team": 3,
+          "hcp": 10,
+          "gross": 48,
+          "net": 38,
+          "grp": 1
         }
       ]
     }
