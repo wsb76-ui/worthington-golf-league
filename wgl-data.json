@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-10T22:17:14.893Z",
+  "lastUpdated": "2026-08-10T22:27:17.598Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -5973,6 +5973,22 @@
           "gross": 56,
           "net": 43,
           "grp": 4
+        },
+        {
+          "name": "Eli Hickman",
+          "team": 5,
+          "hcp": 0,
+          "gross": 40,
+          "net": 40,
+          "grp": 5
+        },
+        {
+          "name": "Skylar Grafton",
+          "team": 2,
+          "hcp": 9,
+          "gross": 45,
+          "net": 36,
+          "grp": 5
         }
       ]
     }
