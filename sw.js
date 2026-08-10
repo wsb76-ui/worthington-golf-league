@@ -1,5 +1,5 @@
-// WGL v29 · 2026-08-04 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v29'; // bumped 2026-08-04: CTM pivots on Monday midnight
+// WGL v30 · 2026-08-06 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v30'; // bumped 2026-08-06: Weeks 11+12 scores from paper
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
