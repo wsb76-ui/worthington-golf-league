@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-10T22:27:17.598Z",
+  "lastUpdated": "2026-08-10T22:57:09.063Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -490,7 +490,11 @@
       "p4": "",
       "p5": ""
     },
-    "signups": [],
+    "signups": [
+      {
+        "name": "Tom Stennett"
+      }
+    ],
     "teams": []
   },
   "outing2": {
