@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-10T21:17:22.146Z",
+  "lastUpdated": "2026-08-10T22:17:14.893Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -5941,6 +5941,38 @@
           "gross": 44,
           "net": 40,
           "grp": 3
+        },
+        {
+          "name": "Tom Stennett",
+          "team": 4,
+          "hcp": 9,
+          "gross": 58,
+          "net": 49,
+          "grp": 4
+        },
+        {
+          "name": "Paul Bowser",
+          "team": 8,
+          "hcp": 6,
+          "gross": 47,
+          "net": 41,
+          "grp": 4
+        },
+        {
+          "name": "Jaxon Smith",
+          "team": 5,
+          "hcp": 4,
+          "gross": 47,
+          "net": 43,
+          "grp": 4
+        },
+        {
+          "name": "Jason Smith",
+          "team": 7,
+          "hcp": 13,
+          "gross": 56,
+          "net": 43,
+          "grp": 4
         }
       ]
     }
