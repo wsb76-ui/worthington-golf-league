@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-10T22:57:09.063Z",
+  "lastUpdated": "2026-08-11T00:37:09.271Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -6042,6 +6042,12 @@
         "gross": 43,
         "hcp": 8,
         "played": "8/9"
+      },
+      {
+        "side": "back",
+        "gross": 42,
+        "hcp": 8,
+        "played": "8/10"
       }
     ],
     "Andy Patz": [
@@ -6092,6 +6098,12 @@
         "gross": 47,
         "hcp": 3,
         "played": "8/9"
+      },
+      {
+        "side": "back",
+        "gross": 51,
+        "hcp": 3,
+        "played": "8/10"
       }
     ],
     "Tom Stennett": [
@@ -6100,6 +6112,14 @@
         "gross": 47,
         "hcp": 9,
         "played": "8/9"
+      }
+    ],
+    "Roger Hoffman": [
+      {
+        "side": "back",
+        "gross": 46,
+        "hcp": 6,
+        "played": "8/10"
       }
     ]
   },
