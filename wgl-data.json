@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-11T00:37:09.271Z",
+  "lastUpdated": "2026-08-11T01:57:14.360Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -493,6 +493,9 @@
     "signups": [
       {
         "name": "Tom Stennett"
+      },
+      {
+        "name": "Paul Bowser"
       }
     ],
     "teams": []
