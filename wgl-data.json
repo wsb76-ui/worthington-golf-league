@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-17T22:07:22.301Z",
+  "lastUpdated": "2026-08-17T22:17:27.016Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -6147,6 +6147,38 @@
           "gross": 46,
           "net": 42,
           "grp": 5
+        },
+        {
+          "name": "Andy Patz",
+          "team": 2,
+          "hcp": 14,
+          "gross": 54,
+          "net": 40,
+          "grp": 6
+        },
+        {
+          "name": "Tom Stennett",
+          "team": 4,
+          "hcp": 9,
+          "gross": 47,
+          "net": 38,
+          "grp": 6
+        },
+        {
+          "name": "Jaxon Smith",
+          "team": 5,
+          "hcp": 4,
+          "gross": 47,
+          "net": 43,
+          "grp": 6
+        },
+        {
+          "name": "Jason Smith",
+          "team": 7,
+          "hcp": 13,
+          "gross": 53,
+          "net": 40,
+          "grp": 6
         }
       ]
     }
