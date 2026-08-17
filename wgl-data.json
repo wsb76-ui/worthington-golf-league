@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-17T13:38:06.660Z",
+  "lastUpdated": "2026-08-17T14:34:30.765Z",
   "updatedBy": "Wes Barton",
   "settings": {
     "greens": "",
@@ -493,13 +493,13 @@
     "teams": []
   },
   "outing2": {
-    "date": "",
-    "tee": "",
-    "course": "",
-    "holes": "",
+    "date": "Sat August 29",
+    "tee": "8am",
+    "course": "Hiland",
+    "holes": "18 starting on 10",
     "format": "",
     "cost": "",
-    "dinner": "",
+    "dinner": "The Farm 150 Fox rd worthington pa 16262",
     "prizes": {
       "p1": "",
       "p2": "",
@@ -6100,6 +6100,11 @@
     ]
   },
   "changeLog": [
+    {
+      "when": "2026-08-17T14:34:32.778Z",
+      "who": "Wes Barton",
+      "what": "Updated: End-of-Season Outing"
+    },
     {
       "when": "2026-08-17T13:38:08.397Z",
       "who": "Wes Barton",
