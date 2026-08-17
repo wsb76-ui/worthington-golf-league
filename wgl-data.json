@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-17T21:37:16.475Z",
+  "lastUpdated": "2026-08-17T22:07:22.301Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -6115,6 +6115,38 @@
           "gross": 64,
           "net": 44,
           "grp": 4
+        },
+        {
+          "name": "Skylar Grafton",
+          "team": 2,
+          "hcp": 9,
+          "gross": 48,
+          "net": 39,
+          "grp": 5
+        },
+        {
+          "name": "Eli Hickman",
+          "team": 5,
+          "hcp": 0,
+          "gross": 40,
+          "net": 40,
+          "grp": 5
+        },
+        {
+          "name": "Clark Helm",
+          "team": 4,
+          "hcp": 0,
+          "gross": 48,
+          "net": 48,
+          "grp": 5
+        },
+        {
+          "name": "Mike Hickman",
+          "team": 7,
+          "hcp": 4,
+          "gross": 46,
+          "net": 42,
+          "grp": 5
         }
       ]
     }
