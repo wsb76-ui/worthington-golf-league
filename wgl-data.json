@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-17T23:57:26.182Z",
+  "lastUpdated": "2026-08-18T00:17:27.334Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -6211,6 +6211,14 @@
           "gross": 58,
           "net": 44,
           "grp": 7
+        },
+        {
+          "name": "Landon Badac",
+          "team": 4,
+          "hcp": 17,
+          "gross": 57,
+          "net": 40,
+          "grp": 8
         }
       ]
     }
