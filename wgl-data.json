@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-18T00:17:27.334Z",
+  "lastUpdated": "2026-08-18T00:27:18.594Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -6219,6 +6219,30 @@
           "gross": 57,
           "net": 40,
           "grp": 8
+        },
+        {
+          "name": "Cole Clark",
+          "team": 8,
+          "hcp": 13,
+          "gross": 58,
+          "net": 45,
+          "grp": 9
+        },
+        {
+          "name": "Blake Bowser",
+          "team": 4,
+          "hcp": 15,
+          "gross": 54,
+          "net": 39,
+          "grp": 9
+        },
+        {
+          "name": "Keith Clark",
+          "team": 1,
+          "hcp": 19,
+          "gross": 53,
+          "net": 34,
+          "grp": 9
         }
       ]
     }
@@ -6260,6 +6284,12 @@
         "gross": 49,
         "hcp": 9,
         "played": "8/17"
+      },
+      {
+        "side": "back",
+        "gross": 47,
+        "hcp": 9,
+        "played": "8/17"
       }
     ],
     "Bill Long": [
@@ -6280,6 +6310,12 @@
         "gross": 42,
         "hcp": 8,
         "played": "8/10"
+      },
+      {
+        "side": "back",
+        "gross": 41,
+        "hcp": 8,
+        "played": "8/17"
       }
     ],
     "Andy Patz": [
@@ -6350,6 +6386,12 @@
         "gross": 47,
         "hcp": 9,
         "played": "8/9"
+      },
+      {
+        "side": "back",
+        "gross": 57,
+        "hcp": 9,
+        "played": "8/17"
       }
     ],
     "Roger Hoffman": [
@@ -6365,6 +6407,14 @@
         "side": "front",
         "gross": 59,
         "hcp": 20,
+        "played": "8/17"
+      }
+    ],
+    "Sam Long": [
+      {
+        "side": "back",
+        "gross": 43,
+        "hcp": 8,
         "played": "8/17"
       }
     ]
