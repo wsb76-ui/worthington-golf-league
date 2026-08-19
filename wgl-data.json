@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-18T00:27:18.594Z",
+  "lastUpdated": "2026-08-19T21:07:09.909Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -533,6 +533,9 @@
       },
       {
         "name": "Dylan Barton"
+      },
+      {
+        "name": "Dave Cushey"
       }
     ],
     "teams": []
