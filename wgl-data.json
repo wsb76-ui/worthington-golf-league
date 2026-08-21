@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-19T21:07:09.909Z",
+  "lastUpdated": "2026-08-21T18:37:26.787Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -6395,6 +6395,12 @@
         "gross": 57,
         "hcp": 9,
         "played": "8/17"
+      },
+      {
+        "side": "front",
+        "gross": 51,
+        "hcp": 9,
+        "played": "8/21"
       }
     ],
     "Roger Hoffman": [
@@ -6419,6 +6425,14 @@
         "gross": 43,
         "hcp": 8,
         "played": "8/17"
+      }
+    ],
+    "Paul Bowser": [
+      {
+        "side": "front",
+        "gross": 48,
+        "hcp": 6,
+        "played": "8/21"
       }
     ]
   },
