@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-22T18:47:08.741Z",
+  "lastUpdated": "2026-08-24T19:17:10.071Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -6293,6 +6293,12 @@
         "gross": 47,
         "hcp": 9,
         "played": "8/17"
+      },
+      {
+        "side": "front",
+        "gross": 48,
+        "hcp": 9,
+        "played": "8/24"
       }
     ],
     "Bill Long": [
@@ -6351,6 +6357,12 @@
         "gross": 51,
         "hcp": 14,
         "played": "8/17"
+      },
+      {
+        "side": "front",
+        "gross": 50,
+        "hcp": 14,
+        "played": "8/24"
       }
     ],
     "Scott Barton": [
@@ -6433,6 +6445,14 @@
         "gross": 48,
         "hcp": 6,
         "played": "8/21"
+      }
+    ],
+    "Jason Smith": [
+      {
+        "side": "front",
+        "gross": 42,
+        "hcp": 13,
+        "played": "8/24"
       }
     ]
   },
