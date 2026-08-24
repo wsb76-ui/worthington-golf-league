@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-24T21:27:16.686Z",
+  "lastUpdated": "2026-08-24T22:07:14.083Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -6309,6 +6309,46 @@
           "gross": 39,
           "net": 35,
           "grp": 2
+        },
+        {
+          "name": "Wes Barton",
+          "team": 7,
+          "hcp": 9,
+          "gross": 48,
+          "net": 39,
+          "grp": 3
+        },
+        {
+          "name": "Dylan Barton",
+          "team": 6,
+          "hcp": 20,
+          "gross": 61,
+          "net": 41,
+          "grp": 3
+        },
+        {
+          "name": "Andy Patz",
+          "team": 2,
+          "hcp": 14,
+          "gross": 54,
+          "net": 40,
+          "grp": 3
+        },
+        {
+          "name": "Jason Smith",
+          "team": 7,
+          "hcp": 13,
+          "gross": 50,
+          "net": 37,
+          "grp": 3
+        },
+        {
+          "name": "Harry Breski",
+          "team": 4,
+          "hcp": 0,
+          "gross": 42,
+          "net": 42,
+          "grp": 3
         }
       ]
     }
