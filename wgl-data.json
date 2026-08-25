@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-24T23:27:07.833Z",
+  "lastUpdated": "2026-08-25T00:07:16.691Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -6357,12 +6357,28 @@
           "grp": 3
         },
         {
+          "name": "Brian Barton",
+          "team": 8,
+          "hcp": 3,
+          "gross": 39,
+          "net": 36,
+          "grp": 4
+        },
+        {
+          "name": "Bruce Thomas",
+          "team": 3,
+          "hcp": 10,
+          "gross": 52,
+          "net": 42,
+          "grp": 4
+        },
+        {
           "name": "Bill Long",
           "team": 5,
           "hcp": 8,
           "gross": 49,
           "net": 41,
-          "grp": 4
+          "grp": 5
         },
         {
           "name": "Willie Powell",
@@ -6370,7 +6386,7 @@
           "hcp": 10,
           "gross": 50,
           "net": 40,
-          "grp": 4
+          "grp": 5
         },
         {
           "name": "Patric Weber",
@@ -6378,7 +6394,39 @@
           "hcp": 14,
           "gross": 52,
           "net": 38,
-          "grp": 4
+          "grp": 5
+        },
+        {
+          "name": "Keith Clark",
+          "team": 1,
+          "hcp": 19,
+          "gross": 56,
+          "net": 37,
+          "grp": 6
+        },
+        {
+          "name": "Cole Clark",
+          "team": 8,
+          "hcp": 13,
+          "gross": 50,
+          "net": 37,
+          "grp": 6
+        },
+        {
+          "name": "Blake Bowser",
+          "team": 4,
+          "hcp": 15,
+          "gross": 61,
+          "net": 46,
+          "grp": 6
+        },
+        {
+          "name": "Logan Bowser",
+          "team": 8,
+          "hcp": 13,
+          "gross": 47,
+          "net": 34,
+          "grp": 6
         }
       ]
     }
