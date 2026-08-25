@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL v30 · 2026-08-06 · Weeks 11+12 scores added from paper sheets -->
+<!-- WGL v33 · 2026-08-25 · Paper scores: Wk12 corrected all teams; Wk13/14/15 added -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -885,6 +885,9 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 <script>
 // ── Live data fetch ───────────────────────────────────────────────────────────
 const DATA_BASE='https://raw.githubusercontent.com/wsb76-ui/worthington-golf-league/main/wgl-data.json';
+
+// ── HTML-escape helper — use whenever user/GAS data goes into innerHTML ───────
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
 // ── Default/fallback data (used until wgl-data.json is fetched) ───────────────
 const MOCK_DATA = {
@@ -1935,17 +1938,17 @@ function buildNews(){
   if(!anns||!anns.length){el.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:20px">No announcements yet.</div>';return;}
   const cls={info:'ann-info',reminder:'ann-reminder',alert:'ann-alert',success:''};
   el.innerHTML=anns.map(a=>`
-    <div class="ann-item ${cls[a.tag]||''}">
+    <div class="ann-item ${cls[escHtml(a.tag)]||''}">
       <div class="ann-tag">${a.tag==='info'?'League Notice':a.tag==='reminder'?'Reminder':a.tag==='alert'?'⚠️ Action Needed':'✅ Update'}</div>
-      <div class="ann-title">${a.title}</div>
+      <div class="ann-title">${escHtml(a.title)}</div>
       <div class="ann-body">${a.body}</div>
-      <div class="ann-date">${a.date}</div>
+      <div class="ann-date">${escHtml(a.date)}</div>
     </div>`).join('');
 }
 
 // ── Outing ────────────────────────────────────────────────────────────────────
 function buildOuting(){
-  const o=D.outing;
+  const o=D.outing||{};
   const body=document.getElementById('outing-body');
   if(o.date||o.course){
     body.innerHTML=`
@@ -1979,7 +1982,7 @@ function buildOuting(){
     document.getElementById('signup-cnt').textContent=sups.length;
     document.getElementById('signups-body').innerHTML=sups.map(s=>`
       <div style="padding:9px 0;border-bottom:1px solid #f5f5f5;font-size:14px;font-weight:500">
-        ${s.name}
+        ${escHtml(s.name)}
       </div>`).join('');
   } else {
     document.getElementById('signups-card').style.display='none';
@@ -2016,13 +2019,22 @@ function buildOuting(){
     document.getElementById('signup2-cnt').textContent=o2.signups.length;
     document.getElementById('signups2-body').innerHTML=o2.signups.map(s=>`
       <div style="padding:9px 0;border-bottom:1px solid #f5f5f5;font-size:14px;font-weight:500">
-        ${s.name}
+        ${escHtml(s.name)}
       </div>`).join('');
   } else {
     const sc2=document.getElementById('signups2-card');
     if(sc2) sc2.style.display='none';
   }
   renderOutingTeams(o2.teams||[],'teams2-card','teams2-body');
+
+  // Auto-select the pane that actually has something in it. The tab always opened
+  // on Mid-Season; once the mid-season outing was over (or its details got blanked)
+  // the tab looked empty even though the end-of-season outing was populated.
+  if(!_outingPaneChosen){
+    const midHas=!!(o.date||o.course||(o.signups||[]).length||(o.teams||[]).length);
+    const endHas=!!(o2.date||o2.course||(o2.signups||[]).length||(o2.teams||[]).length);
+    if(endHas&&!midHas)switchLeagueOuting('end',true);
+  }
 }
 
 function renderOutingTeams(teams,cardId,bodyId){
@@ -2035,15 +2047,17 @@ function renderOutingTeams(teams,cardId,bodyId){
     <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f5f5f5">
       <div style="width:32px;height:32px;border-radius:50%;background:#e8f5e9;color:#2e7d32;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">${t.num}</div>
       <div>
-        ${t.players.map(p=>`<div style="font-size:14px;font-weight:600">${p}</div>`).join('')}
+        ${t.players.map(p=>`<div style="font-size:14px;font-weight:600">${escHtml(p)}</div>`).join('')}
       </div>
     </div>`).join('');
 }
 
 // ── Outing selector ───────────────────────────────────────────────────────────
 let _leagueOuting='mid';
-function switchLeagueOuting(which){
+let _outingPaneChosen=false;   // true once auto-select or the golfer has picked a pane
+function switchLeagueOuting(which,auto){
   _leagueOuting=which;
+  _outingPaneChosen=true;      // don't fight the user's choice on the next data refresh
   document.getElementById('lo-mid').style.display=which==='mid'?'':'none';
   document.getElementById('lo-end').style.display=which==='end'?'':'none';
   document.getElementById('lo-mid-btn').style.background=which==='mid'?'#2e7d32':'#eee';
@@ -2387,12 +2401,11 @@ function openModal(i){
         <span style="font-weight:700">Gross ${b.gross} <span style="opacity:.55;font-weight:600">(HCP ${b.hcp})</span></span>
       </div>`).join('');
   } else bankRow.style.display='none';
-  // Rounds this season — pulled from the same weekly data the Results tab shows
+  // Rounds this season — pulled from WK_DATA (hardcoded paper-verified scores)
   const rRow=document.getElementById('modal-rounds-row');
   const rounds=[];
-  const wk=D.weeks||{};
-  Object.keys(wk).sort((a,b)=>+b-+a).forEach(w=>{
-    (wk[w].players||[]).forEach(e=>{
+  Object.keys(WK_DATA).sort((a,b)=>+b-+a).forEach(w=>{
+    (WK_DATA[+w].players||[]).forEach(e=>{
       if(e.name===p.name) rounds.push({week:w,gross:e.gross,net:e.net,hcp:e.hcp});
     });
   });
@@ -2593,53 +2606,231 @@ const WK_DATA = {
       {name:'Cole Clark',     team:8,hcp:15,gross:48,net:33,grp:4}
     ]
   },
-  // Week 12 — 7/27/2026, Front 9. T1-T4 paper. T6/T8 GAS (4 cards each, incl Dylan 8/2 late).
-  // T5: Bill Long only — 3 missing scores = +150 penalty. T7: Ed+Wes only — +100 penalty.
-  // Verify T5 and T7 paper scores with Wes; update if additional players present.
+  // Week 12 — 7/27/2026, Front 9. ALL SCORES FROM PAPER SHEETS (authoritative).
+  // Prior GAS data for T5/T6/T7/T8 was wrong; paper corrects all.
+  // T1=131 T2=150 T3=142 T4=144 T5=142 T6=144 T7=144 T8=142
   12: {
     label:'Week 12',date:'Monday, July 27, 2026',course:'Hiland Golf Course',
     players:[
-      // Grp 1 — GMS3NOT06: Jim Frye, Kevin Frye, Scott Barton
+      // T1 — paper
+      {name:'Butch Griffith', team:1,hcp:5, gross:39,net:34,grp:1},
+      {name:'Frank Watt',     team:1,hcp:11,gross:43,net:32,grp:1},
+      {name:'Paul Harmon',    team:1,hcp:16,gross:51,net:35,grp:1},
+      {name:'Mario Jenkins',  team:1,hcp:19,gross:49,net:30,grp:1},
+      {name:'Kris Simmons',   team:1,hcp:2, gross:39,net:37,grp:1},
+      {name:'Keith Clark',    team:1,hcp:13,gross:50,net:37,grp:1},
+      {name:'Andy Gallagher', team:1,hcp:10,gross:51,net:41,grp:1},
+      // T2 — paper
       {name:'Jim Frye',       team:2,hcp:1, gross:38,net:37,grp:1},
-      {name:'Kevin Frye',     team:6,hcp:8, gross:43,net:35,grp:1},
+      {name:'Jeff Hollobaugh',team:2,hcp:11,gross:51,net:40,grp:1},
+      {name:'Trent Brocious', team:2,hcp:11,gross:50,net:39,grp:1},
+      {name:'Wilbur Dudley',  team:2,hcp:16,gross:50,net:34,grp:1},
+      // T3 — paper
+      {name:'Duck Julius',    team:3,hcp:1, gross:38,net:37,grp:1},
+      {name:'Willie Powell',  team:3,hcp:9, gross:42,net:33,grp:1},
+      {name:'Dave Cushey',    team:3,hcp:12,gross:49,net:37,grp:1},
+      {name:'Dicky Peat',     team:3,hcp:16,gross:51,net:35,grp:1},
+      {name:'Bruce Thomas',   team:3,hcp:10,gross:51,net:41,grp:1},
       {name:'Scott Barton',   team:3,hcp:10,gross:48,net:38,grp:1},
-      // Grp 2 — GMS3Q9GUH: Frank Watt, Wilbur Dudley, Dave Cushey, Ed Bargerstock
-      {name:'Frank Watt',     team:1,hcp:11,gross:43,net:32,grp:2},
-      {name:'Wilbur Dudley',  team:2,hcp:16,gross:50,net:34,grp:2},
-      {name:'Dave Cushey',    team:3,hcp:12,gross:49,net:37,grp:2},
-      {name:'Ed Bargerstock', team:7,hcp:5, gross:37,net:32,grp:2},
-      // Grp 3 — GMS3RIEN7: Bruce Thomas, Wes Barton, Jeff Hollabaugh
-      {name:'Bruce Thomas',   team:3,hcp:10,gross:51,net:41,grp:3},
-      {name:'Wes Barton',     team:7,hcp:10,gross:47,net:37,grp:3},
-      {name:'Jeff Hollabaugh',team:2,hcp:11,gross:51,net:40,grp:3},
-      // Grp 4 — GMS3RZBO6: Bill Long, Willie Powell, Sam Long, Patric Weber
-      {name:'Bill Long',      team:5,hcp:7, gross:44,net:37,grp:4},
-      {name:'Willie Powell',  team:3,hcp:9, gross:42,net:33,grp:4},
-      {name:'Sam Long',       team:6,hcp:5, gross:43,net:38,grp:4},
-      {name:'Patric Weber',   team:8,hcp:13,gross:53,net:40,grp:4},
-      // Grp 5 — GMS6JFJ5X: Tom Stennett, Paul Bowser, Jesse Hickman, Ken Long
-      {name:'Tom Stennett',   team:4,hcp:17,gross:56,net:39,grp:5},
-      {name:'Paul Bowser',    team:8,hcp:7, gross:42,net:35,grp:5},
-      {name:'Jesse Hickman',  team:6,hcp:10,gross:47,net:37,grp:5},
-      {name:'Ken Long',       team:8,hcp:12,gross:51,net:39,grp:5},
-      // Grp 6 — GMSBZYOPM: Dylan Barton (late card submitted 8/2)
-      {name:'Dylan Barton',   team:6,hcp:20,gross:60,net:40,grp:6},
-      // Grp 7 — paper only (no electronic card)
-      {name:'Kris Simmons',   team:1,hcp:2, gross:39,net:37,grp:7},
-      {name:'Butch Griffith', team:1,hcp:5, gross:39,net:34,grp:7},
-      {name:'Paul Harmon',    team:1,hcp:16,gross:51,net:35,grp:7},
-      {name:'Keith Clark',    team:1,hcp:13,gross:50,net:37,grp:7},
-      {name:'Mario Jenkins',  team:1,hcp:19,gross:49,net:30,grp:7},
-      {name:'Andy Gallagher', team:1,hcp:10,gross:51,net:41,grp:7},
-      {name:'Trent Brocious', team:2,hcp:11,gross:50,net:39,grp:7},
-      {name:'Duck Julius',    team:3,hcp:1, gross:38,net:37,grp:7},
-      {name:'Dicky Peat',     team:3,hcp:16,gross:51,net:35,grp:7},
-      {name:'Allan Voltz',    team:3,hcp:20,gross:70,net:50,grp:7},
-      {name:'Clark Helm',     team:4,hcp:8, gross:40,net:32,grp:7},
-      {name:'Roger Hoffman',  team:4,hcp:8, gross:46,net:38,grp:7},
-      {name:'Chad Hollobaugh',team:4,hcp:10,gross:46,net:36,grp:7},
-      {name:'Landon Badac',   team:4,hcp:16,gross:54,net:38,grp:7},
-      {name:'Cole Clark',     team:8,hcp:14,gross:55,net:41,grp:7}
+      {name:'Allan Voltz',    team:3,hcp:20,gross:70,net:50,grp:1},
+      // T4 — paper (Roger gross=40/net=32; Chad gross=46/net=38; Tom gross=46/net=36; Landon gross=54/net=38)
+      {name:'Roger Hoffman',  team:4,hcp:8, gross:40,net:32,grp:1},
+      {name:'Chad Hollobaugh',team:4,hcp:8, gross:46,net:38,grp:1},
+      {name:'Tom Stennett',   team:4,hcp:10,gross:46,net:36,grp:1},
+      {name:'Landon Badac',   team:4,hcp:16,gross:54,net:38,grp:1},
+      // T5 — paper (corrected: was showing Bill Long only w/ penalty; all 4 played)
+      {name:'Jaxon Smith',    team:5,hcp:10,gross:44,net:34,grp:1},
+      {name:'Tyler Eroh',     team:5,hcp:10,gross:44,net:34,grp:1},
+      {name:'Don Nulph',      team:5,hcp:9, gross:44,net:35,grp:1},
+      {name:'Dave Toy',       team:5,hcp:12,gross:51,net:39,grp:1},
+      // T6 — paper (corrected from GAS: Sam=36 Kevin=38 Jesse=31 Jim=39; not Sam=38 Kevin=35)
+      {name:'Sam Long',       team:6,hcp:7, gross:43,net:36,grp:1},
+      {name:'Kevin Frye',     team:6,hcp:5, gross:43,net:38,grp:1},
+      {name:'Jesse Hickman',  team:6,hcp:10,gross:41,net:31,grp:1},
+      {name:'Jim Goodman',    team:6,hcp:14,gross:53,net:39,grp:1},
+      {name:'Dylan Barton',   team:6,hcp:20,gross:60,net:40,grp:1},
+      // T7 — paper (corrected: was Ed+Wes only w/ penalty; Jason Smith+Doug Anthony also played)
+      {name:'Ed Bargerstock', team:7,hcp:5, gross:37,net:32,grp:1},
+      {name:'Jason Smith',    team:7,hcp:10,gross:53,net:43,grp:1},
+      {name:'Wes Barton',     team:7,hcp:10,gross:47,net:37,grp:1},
+      {name:'Doug Anthony',   team:7,hcp:11,gross:43,net:32,grp:1},
+      // T8 — paper (corrected from GAS: Brian+Logan+Cole scored, not GAS players)
+      {name:'Brian Barton',   team:8,hcp:4, gross:41,net:37,grp:1},
+      {name:'Paul Bowser',    team:8,hcp:6, gross:42,net:36,grp:1},
+      {name:'Logan Bowser',   team:8,hcp:13,gross:49,net:36,grp:1},
+      {name:'Cole Clark',     team:8,hcp:14,gross:47,net:33,grp:1},
+      {name:'Ken Long',       team:8,hcp:13,gross:51,net:38,grp:1},
+      {name:'Dylan Smith',    team:8,hcp:11,gross:48,net:37,grp:1},
+      {name:'Patric Weber',   team:8,hcp:14,gross:53,net:39,grp:1}
+    ]
+  },
+  // Week 13 — 8/3/2026, Back 9. All scores from paper sheets.
+  // T1=153 T2=157 T3=148 T4=135 T5=145 T6=174(+100pen) T7=153 T8=142
+  13: {
+    label:'Week 13',date:'Monday, August 3, 2026',course:'Hiland Golf Course',
+    players:[
+      // T1
+      {name:'Kris Simmons',   team:1,hcp:2, gross:40,net:38,grp:1},
+      {name:'Paul Harmon',    team:1,hcp:14,gross:55,net:41,grp:1},
+      {name:'Keith Clark',    team:1,hcp:13,gross:51,net:38,grp:1},
+      {name:'Andy Gallagher', team:1,hcp:10,gross:46,net:36,grp:1},
+      {name:'Mario Jenkins',  team:1,hcp:17,gross:59,net:42,grp:1},
+      // T2
+      {name:'Nick Keefer',    team:2,hcp:9, gross:51,net:42,grp:1},
+      {name:'Trent Brocious', team:2,hcp:11,gross:49,net:38,grp:1},
+      {name:'Wilbur Dudley',  team:2,hcp:15,gross:57,net:42,grp:1},
+      {name:'Andy Patz',      team:2,hcp:14,gross:49,net:35,grp:1},
+      // T3
+      {name:'Duck Julius',    team:3,hcp:2, gross:40,net:38,grp:1},
+      {name:'Bruce Thomas',   team:3,hcp:11,gross:44,net:33,grp:1},
+      {name:'Dave Cushey',    team:3,hcp:12,gross:48,net:36,grp:1},
+      {name:'Allan Voltz',    team:3,hcp:20,gross:61,net:41,grp:1},
+      {name:'Willie Powell',  team:3,hcp:9, gross:51,net:42,grp:1},
+      {name:'Dicky Peat',     team:3,hcp:15,gross:58,net:43,grp:1},
+      // T4 — Roger(37)+Chad(34)+Tom(32)+Landon(32)=135
+      {name:'Roger Hoffman',  team:4,hcp:8, gross:45,net:37,grp:1},
+      {name:'Chad Hollobaugh',team:4,hcp:8, gross:42,net:34,grp:1},
+      {name:'Tom Stennett',   team:4,hcp:12,gross:44,net:32,grp:1},
+      {name:'Landon Badac',   team:4,hcp:16,gross:48,net:32,grp:1},
+      // T5
+      {name:'Jaxon Smith',    team:5,hcp:9, gross:43,net:34,grp:1},
+      {name:'Tyler Eroh',     team:5,hcp:9, gross:45,net:36,grp:1},
+      {name:'Denny Snyder',   team:5,hcp:8, gross:46,net:38,grp:1},
+      {name:'Dave Toy',       team:5,hcp:11,gross:48,net:37,grp:1},
+      {name:'Don Nulph',      team:5,hcp:14,gross:58,net:44,grp:1},
+      // T6 — only 2 real scores → +100 penalty
+      {name:'Jim Goodman',    team:6,hcp:14,gross:48,net:34,grp:1},
+      {name:'Dylan Barton',   team:6,hcp:20,gross:60,net:40,grp:1},
+      // T7
+      {name:'Ed Bargerstock', team:7,hcp:5, gross:41,net:36,grp:1},
+      {name:'Jason Smith',    team:7,hcp:11,gross:57,net:46,grp:1},
+      {name:'Wes Barton',     team:7,hcp:10,gross:43,net:33,grp:1},
+      {name:'Doug Anthony',   team:7,hcp:9, gross:47,net:38,grp:1},
+      // T8
+      {name:'Paul Bowser',    team:8,hcp:7, gross:43,net:36,grp:1},
+      {name:'Logan Bowser',   team:8,hcp:12,gross:48,net:36,grp:1},
+      {name:'Dylan Smith',    team:8,hcp:11,gross:48,net:37,grp:1},
+      {name:'Patric Weber',   team:8,hcp:14,gross:47,net:33,grp:1},
+      {name:'Cole Clark',     team:8,hcp:12,gross:52,net:40,grp:1}
+    ]
+  },
+  // Week 14 — 8/10/2026, Front 9. All scores from paper sheets.
+  // T1=145 T2=145 T3=150 T4=158 T5=148 T6=151 T7=144 T8=153
+  14: {
+    label:'Week 14',date:'Monday, August 10, 2026',course:'Hiland Golf Course',
+    players:[
+      // T1
+      {name:'Larry Julius',   team:1,hcp:3, gross:38,net:35,grp:1},
+      {name:'Butch Griffith', team:1,hcp:9, gross:49,net:40,grp:1},
+      {name:'Frank Watt',     team:1,hcp:13,gross:48,net:35,grp:1},
+      {name:'Mario Jenkins',  team:1,hcp:11,gross:46,net:35,grp:1},
+      {name:'Keith Clark',    team:1,hcp:17,gross:61,net:44,grp:1},
+      // T2
+      {name:'Jim Frye',       team:2,hcp:1, gross:39,net:38,grp:1},
+      {name:'Skylar Grafton', team:2,hcp:10,gross:45,net:35,grp:1},
+      {name:'Jeff Hollobaugh',team:2,hcp:12,gross:48,net:36,grp:1},
+      {name:'Trent Brocious', team:2,hcp:11,gross:47,net:36,grp:1},
+      {name:'Wilbur Dudley',  team:2,hcp:15,gross:55,net:40,grp:1},
+      {name:'Andy Patz',      team:2,hcp:13,gross:51,net:38,grp:1},
+      // T3
+      {name:'Duck Julius',    team:3,hcp:2, gross:38,net:36,grp:1},
+      {name:'Bruce Thomas',   team:3,hcp:10,gross:48,net:38,grp:1},
+      {name:'Dave Cushey',    team:3,hcp:12,gross:48,net:36,grp:1},
+      {name:'Scott Barton',   team:3,hcp:10,gross:50,net:40,grp:1},
+      {name:'Dicky Peat',     team:3,hcp:16,gross:59,net:43,grp:1},
+      {name:'Allan Voltz',    team:3,hcp:20,gross:68,net:48,grp:1},
+      // T4
+      {name:'Harry Breski',   team:4,hcp:7, gross:41,net:34,grp:1},
+      {name:'Clark Helm',     team:4,hcp:5, gross:48,net:43,grp:1},
+      {name:'Roger Hoffman',  team:4,hcp:8, gross:47,net:39,grp:1},
+      {name:'Blake Bowser',   team:4,hcp:15,gross:57,net:42,grp:1},
+      {name:'Chad Hollobaugh',team:4,hcp:10,gross:58,net:48,grp:1},
+      {name:'Landon Badac',   team:4,hcp:17,gross:62,net:45,grp:1},
+      // T5
+      {name:'Bill Long',      team:5,hcp:5, gross:41,net:36,grp:1},
+      {name:'Jaxon Smith',    team:5,hcp:8, gross:39,net:31,grp:1},
+      {name:'Tyler Eroh',     team:5,hcp:9, gross:47,net:38,grp:1},
+      {name:'Don Nulph',      team:5,hcp:8, gross:51,net:43,grp:1},
+      {name:'Dave Toy',       team:5,hcp:11,gross:56,net:45,grp:1},
+      // T6
+      {name:'Sam Long',       team:6,hcp:7, gross:41,net:34,grp:1},
+      {name:'Kevin Frye',     team:6,hcp:5, gross:44,net:39,grp:1},
+      {name:'Jesse Hickman',  team:6,hcp:9, gross:48,net:39,grp:1},
+      {name:'Dylan Barton',   team:6,hcp:20,gross:59,net:39,grp:1},
+      {name:'Jim Goodman',    team:6,hcp:13,gross:53,net:40,grp:1},
+      // T7
+      {name:'Vince Sanzotti', team:7,hcp:5, gross:39,net:34,grp:1},
+      {name:'Doug Anthony',   team:7,hcp:9, gross:44,net:35,grp:1},
+      {name:'Chris Remaley',  team:7,hcp:10,gross:46,net:36,grp:1},
+      {name:'Mike Hickman',   team:7,hcp:4, gross:43,net:39,grp:1},
+      {name:'Ed Bargerstock', team:7,hcp:4, gross:44,net:40,grp:1},
+      {name:'Jason Smith',    team:7,hcp:13,gross:56,net:43,grp:1},
+      {name:'Wes Barton',     team:7,hcp:9, gross:49,net:40,grp:1},
+      // T8
+      {name:'Dylan Smith',    team:8,hcp:11,gross:47,net:36,grp:1},
+      {name:'Logan Bowser',   team:8,hcp:11,gross:48,net:37,grp:1},
+      {name:'Ken Long',       team:8,hcp:12,gross:51,net:39,grp:1},
+      {name:'Paul Bowser',    team:8,hcp:6, gross:47,net:41,grp:1},
+      {name:'Brian Barton',   team:8,hcp:3, gross:47,net:44,grp:1},
+      {name:'Cole Clark',     team:8,hcp:12,gross:55,net:43,grp:1}
+    ]
+  },
+  // Week 15 — 8/17/2026, Back 9. All scores from paper sheets.
+  // T1=150 T2=150 T3=145 T4=153 T5=138 T6=159 T7=147 T8=140
+  15: {
+    label:'Week 15',date:'Monday, August 17, 2026',course:'Hiland Golf Course',
+    players:[
+      // T1
+      {name:'Larry Julius',   team:1,hcp:3, gross:41,net:38,grp:1},
+      {name:'Butch Griffith', team:1,hcp:9, gross:48,net:39,grp:1},
+      {name:'Keith Clark',    team:1,hcp:16,gross:53,net:37,grp:1},
+      {name:'Mario Jenkins',  team:1,hcp:10,gross:46,net:36,grp:1},
+      {name:'Frank Watt',     team:1,hcp:12,gross:55,net:43,grp:1},
+      // T2
+      {name:'Jim Frye',       team:2,hcp:2, gross:37,net:35,grp:1},
+      {name:'Skylar Grafton', team:2,hcp:9, gross:47,net:38,grp:1},
+      {name:'Jeff Hollobaugh',team:2,hcp:12,gross:50,net:38,grp:1},
+      {name:'Trent Brocious', team:2,hcp:11,gross:50,net:39,grp:1},
+      {name:'Wilbur Dudley',  team:2,hcp:15,gross:55,net:40,grp:1},
+      {name:'Andy Patz',      team:2,hcp:13,gross:53,net:40,grp:1},
+      // T3
+      {name:'Duck Julius',    team:3,hcp:2, gross:40,net:38,grp:1},
+      {name:'Bruce Thomas',   team:3,hcp:10,gross:45,net:35,grp:1},
+      {name:'Dave Cushey',    team:3,hcp:11,gross:45,net:34,grp:1},
+      {name:'Scott Barton',   team:3,hcp:11,gross:49,net:38,grp:1},
+      {name:'Dicky Peat',     team:3,hcp:16,gross:60,net:44,grp:1},
+      // T4
+      {name:'Roger Hoffman',  team:4,hcp:8, gross:46,net:38,grp:1},
+      {name:'Tom Stennett',   team:4,hcp:11,gross:47,net:36,grp:1},
+      {name:'Blake Bowser',   team:4,hcp:15,gross:54,net:39,grp:1},
+      {name:'Chad Hollobaugh',team:4,hcp:9, gross:49,net:40,grp:1},
+      {name:'Landon Badac',   team:4,hcp:17,gross:57,net:40,grp:1},
+      // T5
+      {name:'Bill Long',      team:5,hcp:5, gross:40,net:35,grp:1},
+      {name:'Jaxon Smith',    team:5,hcp:7, gross:43,net:36,grp:1},
+      {name:'Tyler Eroh',     team:5,hcp:10,gross:46,net:36,grp:1},
+      {name:'Dave Toy',       team:5,hcp:12,gross:43,net:31,grp:1},
+      {name:'Don Nulph',      team:5,hcp:9, gross:50,net:41,grp:1},
+      // T6
+      {name:'Sam Long',       team:6,hcp:7, gross:46,net:39,grp:1},
+      {name:'Kevin Frye',     team:6,hcp:5, gross:43,net:38,grp:1},
+      {name:'Jim Goodman',    team:6,hcp:13,gross:51,net:38,grp:1},
+      {name:'Dylan Barton',   team:6,hcp:20,gross:64,net:44,grp:1},
+      // T7
+      {name:'Ed Bargerstock', team:7,hcp:5, gross:39,net:34,grp:1},
+      {name:'Vince Sanzotti', team:7,hcp:5, gross:38,net:33,grp:1},
+      {name:'Jason Smith',    team:7,hcp:15,gross:53,net:38,grp:1},
+      {name:'Mike Hickman',   team:7,hcp:4, gross:46,net:42,grp:1},
+      {name:'Chris Remaley',  team:7,hcp:9, gross:52,net:43,grp:1},
+      {name:'Wes Barton',     team:7,hcp:9, gross:53,net:44,grp:1},
+      {name:'Doug Anthony',   team:7,hcp:8, gross:52,net:44,grp:1},
+      // T8
+      {name:'Logan Bowser',   team:8,hcp:10,gross:42,net:32,grp:1},
+      {name:'Paul Bowser',    team:8,hcp:7, gross:42,net:35,grp:1},
+      {name:'Ken Long',       team:8,hcp:12,gross:47,net:35,grp:1},
+      {name:'Brian Barton',   team:8,hcp:5, gross:43,net:38,grp:1},
+      {name:'Patric Weber',   team:8,hcp:14,gross:58,net:44,grp:1},
+      {name:'Cole Clark',     team:8,hcp:12,gross:58,net:46,grp:1}
     ]
   }
 };
@@ -2865,7 +3056,7 @@ function buildWeek(wk,elOverride){
     const bgHdr=winner?'#e8f5e9':t.penalty?'#fff3e0':'#f9f9f9';
     const clrHdr=winner?'#1b5e20':t.penalty?'#e65100':'#333';
     const countingNames=new Set(t.counting.map(p=>p.name));
-    const penaltyNote=t.penalty?` <span style="font-size:11px;font-weight:600;color:#e65100">(+50 penalty — only ${t.scored.length} card${t.scored.length!==1?'s':''} received)</span>`:'';
+    const penaltyNote=t.penalty?` <span style="font-size:11px;font-weight:600;color:#e65100">(+${t.missing*50} penalty — only ${t.scored.length} card${t.scored.length!==1?'s':''} received)</span>`:'';
     html+=`<div class="card" style="margin-bottom:10px">
       <div class="card-hdr" style="background:${bgHdr};display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">
         <span style="font-weight:700;color:${clrHdr}">Team ${t.num}${winner?' 🏆':t.penalty?' ⚠️':''}</span>
@@ -2887,7 +3078,7 @@ function buildWeek(wk,elOverride){
                 return `<tr style="border-bottom:1px solid #f5f5f5;opacity:${counts?1:.45}">
                   <td style="padding:7px 8px;font-weight:600">
                     <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-                      <span style="cursor:pointer" onclick="showScorecard(${wk},${p.grp},'${p.name}')">${p.name} <span style="opacity:.35;font-size:10px">📋</span></span>
+                      <span style="cursor:pointer" data-wk="${wk}" data-grp="${p.grp}" data-pname="${escHtml(p.name)}" onclick="showScorecard(+this.dataset.wk,+this.dataset.grp,this.dataset.pname)">${escHtml(p.name)} <span style="opacity:.35;font-size:10px">📋</span></span>
                       ${skinners.has(p.name)?'<span style="font-size:10px;font-weight:700;background:#fff3e0;color:#e65100;border-radius:3px;padding:1px 5px">SKINS</span>':''}
                       ${p.name===lowNetWinner?'<span style="font-size:10px;font-weight:700;background:#e3f2fd;color:#0d47a1;border-radius:3px;padding:1px 5px">LOW NET</span>':''}
                       ${counts?'':' <span style="font-size:10px;color:#aaa">non-counting</span>'}
@@ -2945,7 +3136,28 @@ function buildWeek(wk,elOverride){
 let D=MOCK_DATA;
 // Render immediately with default data so nothing is blank on load
 document.getElementById('app-subtitle').textContent=D.settings.subtitle;
-buildWeekDropdown();buildNews();buildOuting();buildDues();buildRoster();buildStandings();renderIdentitySetting();buildMyTab();maybeShowWelcome();updatePushUI();loadWeekResult(Math.max(...Object.keys(WK_DATA).map(Number)));
+// Isolated so ONE bad section can't take the whole app down with it.
+// Previously these ran as a single statement chain: a throw in buildOuting()
+// meant Dues, Roster, Standings, My and Results never rendered at all.
+function safeRender(label,fn){try{fn();}catch(e){console.error('WGL render failed: '+label,e);}}
+function renderAll(){
+  safeRender('news',buildNews);
+  safeRender('outing',buildOuting);
+  safeRender('dues',buildDues);
+  safeRender('roster',buildRoster);
+  safeRender('standings',buildStandings);
+  safeRender('identity',renderIdentitySetting);
+  safeRender('my',buildMyTab);
+  safeRender('welcome',maybeShowWelcome);
+  safeRender('push',updatePushUI);
+  safeRender('week',()=>{
+    const sel=document.getElementById('week-select');
+    const cur=sel?+sel.value:0;
+    const maxWk=Math.max(...Object.keys(WK_DATA).map(Number));
+    loadWeekResult(cur&&WK_DATA[cur]?cur:maxWk);
+  });
+}
+buildWeekDropdown();renderAll();
 
 let _lastRefresh=0;
 let _lastUpdatedTS='';
@@ -2967,18 +3179,25 @@ async function refreshData(force){
       if(json.lastUpdated)_lastUpdatedTS=json.lastUpdated;
       if(json.players)D.players=json.players;
       if(json.settings)D.settings={...D.settings,...json.settings};
+      // The engine publishes json.calendar (actual league nights) but nothing ever
+      // read it, so the card-type modal always fell back to raw Monday arithmetic.
+      if(Array.isArray(json.calendar)&&json.calendar.length)D.calendar=json.calendar;
       if(json.announcements)D.announcements=json.announcements;
       if(json.outing)D.outing={...D.outing,...json.outing};
       if(json.outing2)D.outing2={...D.outing2,...json.outing2};
-      if(json.buyins)D.buyins=json.buyins;
+      if(json.buyins&&Object.keys(json.buyins).length)D.buyins=json.buyins;
       if(json.duesPaid)D.duesPaid=json.duesPaid;
       if(json.weeklyPayouts)D.weeklyPayouts=json.weeklyPayouts;
-      if(json.weeks){for(const[k,v]of Object.entries(json.weeks))WK_DATA[+k]=v;buildWeekDropdown();}
+      // Paper-verified WK_DATA is authoritative — GAS may only ADD new weeks, never overwrite existing ones
+      if(json.weeks){
+        for(const[k,v]of Object.entries(json.weeks)){if(!WK_DATA[+k])WK_DATA[+k]=v;}
+        buildWeekDropdown();
+      }
       D.banked=json.banked||{};
       document.getElementById('sync-label').textContent=`Live data · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
       // Re-render all dynamic sections with updated data
       document.getElementById('app-subtitle').textContent=D.settings.subtitle;
-      buildNews();buildOuting();buildDues();buildRoster();buildStandings();renderIdentitySetting();buildMyTab();maybeShowWelcome();updatePushUI();loadWeekResult(Math.max(...Object.keys(WK_DATA).map(Number)));
+      renderAll();
     } else {
       document.getElementById('sync-label').textContent='Using cached data';
     }
