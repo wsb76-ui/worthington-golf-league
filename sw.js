@@ -1,5 +1,5 @@
-// WGL v30 · 2026-08-06 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v30'; // bumped 2026-08-06: Weeks 11+12 scores from paper
+// WGL v33 · 2026-08-25 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v33'; // bumped 2026-08-25: paper scores — Wk12 corrected all teams, Wk13/14/15 added
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
