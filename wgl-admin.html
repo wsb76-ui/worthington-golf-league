@@ -212,6 +212,7 @@ body.theme-dark-slate{--bg:#10141c;--card:#1e293b;--card-hdr:#233044;--input:#33
         <button id="sp-color-turf" onclick="setPref('color','turf')">🌿 Turf</button>
         <button id="sp-color-gold" onclick="setPref('color','gold')">✨ Gold</button>
         <button id="sp-color-slate" onclick="setPref('color','slate')">🌊 Slate</button>
+        <button id="sp-color-earth" onclick="setPref('color','earth')">🌍 Earth</button>
       </div>
       <div class="seg" style="margin-bottom:0">
         <button id="sp-font-classic" onclick="setPref('font','classic')">Classic</button>
@@ -784,6 +785,60 @@ function saveST() { localStorage.setItem(LS,JSON.stringify(ST)); }
 const LIVE_URL='https://raw.githubusercontent.com/wsb76-ui/worthington-golf-league/main/wgl-data.json';
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbx4vADa-QnAHP7QeHz6mN7lxA1Q24Ny7Z0GiDzFFg7nMqY35Uh54kS2C61JUYU87pj23g/exec';
 
+// True once we have successfully read the live published file at least once.
+// Publishing before this is unsafe — local state may be blank on a fresh device.
+let _liveSynced=false;
+
+// ── Merge guard: a BLANK local value must never overwrite a NON-BLANK live value ──
+// The admin owns these keys, but "admin owns it" is not the same as "admin's empty
+// string is authoritative." This is what stopped outing details / announcements /
+// buy-ins from surviving a Publish.
+function preserveLive(data,live){
+  if(!live)return data;
+  const blank=v=>v===undefined||v===null||(typeof v==='string'&&!v.trim());
+
+  // Settings: keep any live text field the admin left empty (week is handled separately)
+  if(live.settings&&data.settings){
+    for(const[k,v]of Object.entries(live.settings)){
+      if(k==='week')continue;
+      if(blank(data.settings[k])&&!blank(v))data.settings[k]=v;
+    }
+  }
+  // Outings: field-by-field, plus sign-ups which the Apps Script owns
+  ['outing','outing2'].forEach(key=>{
+    const lo=live[key],lc=data[key];
+    if(!lo||!lc)return;
+    if(lc._cleared)return;   // admin hit "Clear All" — respect the erase, don't refill
+    ['date','tee','course','holes','format','cost','dinner'].forEach(k=>{
+      if(blank(lc[k])&&!blank(lo[k]))lc[k]=lo[k];
+    });
+    if(lo.prizes){
+      lc.prizes=lc.prizes||{};
+      for(const[k,v]of Object.entries(lo.prizes)){
+        if(blank(lc.prizes[k])&&!blank(v))lc.prizes[k]=v;
+      }
+    }
+    // Sign-ups come from the "Outing Signups" sheet — never let admin blank them
+    if(Array.isArray(lo.signups)&&lo.signups.length&&!(Array.isArray(lc.signups)&&lc.signups.length)){
+      lc.signups=lo.signups;
+    }
+    if(Array.isArray(lo.teams)&&lo.teams.length&&!(Array.isArray(lc.teams)&&lc.teams.length)){
+      lc.teams=lo.teams;
+    }
+  });
+  // Announcements / buy-ins / dues: empty local never wipes a populated live copy
+  if(Array.isArray(live.announcements)&&live.announcements.length&&!(Array.isArray(data.announcements)&&data.announcements.length)){
+    data.announcements=live.announcements;
+  }
+  ['buyins','duesPaid'].forEach(k=>{
+    const lo=live[k];
+    if(lo&&Object.keys(lo).length&&(!data[k]||!Object.keys(data[k]).length))data[k]=lo;
+  });
+  // Season calendar is engine-owned
+  if(live.calendar&&!data.calendar)data.calendar=live.calendar;
+  return data;
+}
+
 async function seedFromLive(){
   const statusEl=document.getElementById('live-seed-status');
   if(statusEl)statusEl.textContent='🔄 Checking live data…';
@@ -791,6 +846,7 @@ async function seedFromLive(){
     const r=await fetch(LIVE_URL+'?t='+Date.now(),{cache:'no-store'});
     if(!r.ok)throw new Error('HTTP '+r.status);
     const json=await r.json();
+    _liveSynced=true;
     let changed=false;
 
     // Merge buyins → skins / lownet (only adds missing "true" values)
@@ -811,19 +867,41 @@ async function seedFromLive(){
       }
     }
 
-    // Seed ST.outings from published data if missing (covers fresh install / new device)
-    if(!ST.outings && (json.outing||json.outing2)){
+    // Seed/refresh ST.outings from published data — FIELD LEVEL, not all-or-nothing.
+    // Old code only seeded when ST.outings was entirely absent. But initApp() calls
+    // loadOutingUI() -> outingObj() BEFORE this async fetch resolves, which creates
+    // two EMPTY outing objects. The gate then saw ST.outings as "present" and skipped
+    // the seed, so the next Publish wrote those blanks over the live outing details.
+    {
       const e=()=>({date:'',tee:'',course:'',holes:'',format:'',cost:'',dinner:'',prizes:{p1:'',p2:'',p3:'',p4:'',p5:''},signups:[],teams:[]});
-      const o1=json.outing?{...e(),...json.outing}:e();
-      const o2=json.outing2?{...e(),...json.outing2}:e();
-      o1.prizes={...e().prizes,...(o1.prizes||{})};
-      o2.prizes={...e().prizes,...(o2.prizes||{})};
-      o1.signups=Array.isArray(o1.signups)?o1.signups:[];
-      o2.signups=Array.isArray(o2.signups)?o2.signups:[];
-      o1.teams=Array.isArray(o1.teams)?o1.teams:[];
-      o2.teams=Array.isArray(o2.teams)?o2.teams:[];
-      ST.outings=[o1,o2];
-      changed=true;
+      if(!Array.isArray(ST.outings))ST.outings=[e(),e()];
+      const liveOutings=[json.outing||null,json.outing2||null];
+      liveOutings.forEach((lo,idx)=>{
+        if(!lo)return;
+        const cur=ST.outings[idx]={...e(),...(ST.outings[idx]||{})};
+        if(cur._cleared)return;   // deliberate erase — leave it erased
+        // Plain text fields: live wins whenever local is blank
+        ['date','tee','course','holes','format','cost','dinner'].forEach(k=>{
+          if(!String(cur[k]||'').trim() && String(lo[k]||'').trim()){ cur[k]=lo[k]; changed=true; }
+        });
+        // Prizes: same rule, per prize slot
+        cur.prizes={...e().prizes,...(cur.prizes||{})};
+        const lp=lo.prizes||{};
+        ['p1','p2','p3','p4','p5'].forEach(k=>{
+          if(!String(cur.prizes[k]||'').trim() && String(lp[k]||'').trim()){ cur.prizes[k]=lp[k]; changed=true; }
+        });
+        // Sign-ups are owned by the Apps Script sheet — live always wins
+        const ls=Array.isArray(lo.signups)?lo.signups:[];
+        if(JSON.stringify(ls)!==JSON.stringify(cur.signups||[])){ cur.signups=ls; changed=true; }
+        // Teams are admin-owned; only adopt live if local has none
+        if(!Array.isArray(cur.teams))cur.teams=[];
+        if(!cur.teams.length && Array.isArray(lo.teams) && lo.teams.length){ cur.teams=lo.teams; changed=true; }
+      });
+    }
+
+    // Announcements are admin-owned but live in the published file — adopt live if local is empty
+    if((!Array.isArray(ST.anns)||!ST.anns.length) && Array.isArray(json.announcements) && json.announcements.length){
+      ST.anns=json.announcements; changed=true;
     }
 
     // Seed weeklyPayouts from published data if local has no actual winner data
@@ -908,7 +986,7 @@ function showTab(id,el){
 }
 
 // ── Appearance prefs (shared localStorage keys with the league app) ──
-const THEME_MAP={turf:{light:'default',dark:'dark-turf'},gold:{light:'light-gold',dark:'dark-gold'},slate:{light:'light-slate',dark:'dark-slate'}};
+const THEME_MAP={turf:{light:'default',dark:'dark-turf'},gold:{light:'light-gold',dark:'dark-gold'},slate:{light:'light-slate',dark:'dark-slate'},earth:{light:'earth-light',dark:'earth-dark'}};
 const PREF={
   mode:localStorage.getItem('wgl-mode')||'auto',
   color:localStorage.getItem('wgl-color')||'turf',
@@ -926,7 +1004,7 @@ function applyPrefs(){
   if(PREF.font!=='classic')document.body.classList.add('font-'+PREF.font);
   if(PREF.size!=='md')document.body.classList.add('text-'+PREF.size);
   ['light','dark','auto'].forEach(m=>{const b=document.getElementById('sp-mode-'+m);if(b)b.classList.toggle('on',PREF.mode===m);});
-  ['turf','gold','slate'].forEach(c=>{const b=document.getElementById('sp-color-'+c);if(b)b.classList.toggle('on',PREF.color===c);});
+  ['turf','gold','slate','earth'].forEach(c=>{const b=document.getElementById('sp-color-'+c);if(b)b.classList.toggle('on',PREF.color===c);});
   ['classic','rounded','serif'].forEach(f=>{const b=document.getElementById('sp-font-'+f);if(b)b.classList.toggle('on',PREF.font===f);});
   ['md','lg','xl'].forEach(z=>{const b=document.getElementById('sp-size-'+z);if(b)b.classList.toggle('on',PREF.size===z);});
 }
@@ -1281,6 +1359,11 @@ async function postAnnouncement(i){
       try{live=JSON.parse(decodeURIComponent(escape(atob((d.content||'').replace(/\n/g,'')))));}catch(e){}
     }
     const data=buildData();
+    // HARD STOP: never publish an announcement on top of data we could not read.
+    if(!live){
+      throw new Error('Could not read the current published data. Post cancelled so nothing is overwritten.');
+    }
+    preserveLive(data,live);
     // Preserve scoring-engine data (same rules as Publish)
     if(live){
       if(live.weeks)data.weeks=live.weeks;
@@ -1357,6 +1440,7 @@ function saveO(n){
   const o=outingObj(n);
   ['date','tee','course','holes','format','cost','dinner'].forEach(f=>{const el=document.getElementById('o'+n+'-'+f);if(el)o[f]=el.value;});
   o.prizes={};[1,2,3,4,5].forEach(p=>{const el=document.getElementById('o'+n+'-p'+p);if(el)o.prizes['p'+p]=el.value;});
+  delete o._cleared;   // editing an outing un-does a previous "Clear All"
   saveST();
 }
 function addSignup(n){
@@ -1456,7 +1540,10 @@ function clearOuting(n){
   // NOTE: confirm() is blocked in iOS PWA/WKWebView — never use it here.
   const e=()=>({date:'',tee:'',course:'',holes:'',format:'',cost:'',dinner:'',prizes:{p1:'',p2:'',p3:'',p4:'',p5:''},signups:[],teams:[]});
   if(!ST.outings)ST.outings=[e(),e()];
-  ST.outings[n-1]=e();
+  // _cleared is a DELIBERATE erase. preserveLive() refills blank fields from the
+  // live file, so without this flag "Clear All" would silently undo itself on the
+  // next Publish. Any edit in saveO() removes the flag again.
+  ST.outings[n-1]={...e(),_cleared:true};
   saveST();
   loadOutingUI();
   // Hide inline add-forms if open
@@ -1650,6 +1737,12 @@ async function publishToGitHub(){
     // ── Preserve scoring-engine data (the sheet owns these keys) ──
     const meta0=await fetchMeta();
     const live=meta0.live;
+    // HARD STOP: if we cannot read the current published file, do not publish.
+    // Publishing blind is how a fresh/cleared browser wipes the live data.
+    if(!live){
+      throw new Error('Could not read the current published data. Publish cancelled so nothing is overwritten. Check your token and network, then try again.');
+    }
+    preserveLive(data,live);
     if(live){
       if(live.weeks)data.weeks=live.weeks;
       if(live.banked)data.banked=live.banked;
@@ -1791,6 +1884,9 @@ function doSeasonReset(){
   // Clear dues / buy-ins
   for(const k of Object.keys(ST.dues)){ST.dues[k]={dues:false,skins:false,lownet:false,outing:false};}
   // Clear outing sign-ups and teams (keep details/prizes)
+  // NOTE: sign-ups are owned by the "Outing Signups" tab in the scoring sheet.
+  // Clearing them here only clears the admin's local copy — the next engine Publish
+  // will bring them back. To truly reset sign-ups, clear that sheet tab too.
   if(ST.outings){ST.outings.forEach(o=>{o.signups=[];o.teams=[];});}
   // Clear announcements
   ST.anns=[];
