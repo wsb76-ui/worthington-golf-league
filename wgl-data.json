@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-25T00:07:16.691Z",
+  "lastUpdated": "2026-08-25T19:17:09.853Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -69,7 +69,7 @@
       "hcp": 1,
       "phone": "(724) 859-1323"
     },
-    "Jeff Hollabaugh": {
+    "Jeff Hollobaugh": {
       "team": 2,
       "hcp": 3,
       "phone": "(724) 290-7067"
@@ -490,14 +490,7 @@
       "p4": "",
       "p5": ""
     },
-    "signups": [
-      {
-        "name": "Tom Stennett"
-      },
-      {
-        "name": "Paul Bowser"
-      }
-    ],
+    "signups": [],
     "teams": []
   },
   "outing2": {
@@ -533,6 +526,12 @@
       },
       {
         "name": "Dylan Barton"
+      },
+      {
+        "name": "Tom Stennett"
+      },
+      {
+        "name": "Paul Bowser"
       },
       {
         "name": "Dave Cushey"
