@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL v33 · 2026-08-25 · Paper scores: Wk12 corrected all teams; Wk13/14/15 added -->
+<!-- WGL v35 · 2026-08-26 · Standalone GPS tab with hole navigation -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -203,6 +203,26 @@ table.standings { width:100%; border-collapse:collapse; font-size:13px; }
 .gps-dist-lbl { font-size:10px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
 .gps-dist-val { font-size:28px; font-weight:800; color:#1b5e20; line-height:1; }
 .gps-dist-unit { font-size:10px; color:#aaa; margin-top:2px; }
+
+/* ── Standalone GPS tab ── */
+#gps2 { padding:0 !important; }
+.gps2-screen { background:#000; display:flex; flex-direction:column; min-height:calc(100dvh - 120px); }
+.gps2-hole-bar { display:flex; align-items:center; justify-content:space-between; padding:20px 20px 10px; }
+.gps2-nav-btn { background:rgba(255,255,255,.12); border:none; color:rgba(255,255,255,.65); font-size:24px; width:38px; height:38px; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; }
+.gps2-nav-btn:active { background:rgba(255,255,255,.22); transform:scale(.9); }
+.gps2-hole-label { font-size:28px; font-weight:700; color:#fff; letter-spacing:-.5px; text-align:center; }
+.gps2-hole-meta { font-size:12px; color:rgba(255,255,255,.4); text-align:center; margin-top:2px; }
+.gps2-yards { flex:1; display:flex; flex-direction:column; justify-content:center; padding:0 22px; gap:8px; }
+.gps2-row { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-radius:14px; }
+.gps2-row.front { background:rgba(255,255,255,.07); }
+.gps2-row.ctr { background:rgba(93,202,130,.15); border:1px solid rgba(93,202,130,.25); }
+.gps2-row.back { background:rgba(255,255,255,.07); }
+.gps2-lbl { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:rgba(255,255,255,.45); }
+.gps2-row.ctr .gps2-lbl { color:#5dca82; }
+.gps2-num { font-size:44px; font-weight:700; color:rgba(255,255,255,.78); letter-spacing:-1.5px; line-height:1; font-variant-numeric:tabular-nums; }
+.gps2-row.ctr .gps2-num { font-size:60px; color:#fff; }
+.gps2-unit-lbl { font-size:10px; color:rgba(255,255,255,.3); text-align:right; margin-top:2px; }
+.gps2-status { text-align:center; font-size:10px; color:rgba(255,255,255,.28); padding:10px 0 16px; }
 </style>
 
 <style id="theme-css">
@@ -482,6 +502,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 <!-- Bottom tab bar -->
 <div class="tabs">
   <div class="tab active" onclick="showTab('scorecard',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5l2 2L12 13H10v-2z"/></svg></span>Score</div>
+  <div class="tab" onclick="showTab('gps2',this);gps2Open()"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 3"/></svg></span>GPS</div>
   <div class="tab" onclick="showTab('results',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span>Results</div>
   <div class="tab" onclick="showTab('standings',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>Standings</div>
   <div class="tab" onclick="showTab('news',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg></span>News</div>
@@ -562,7 +583,6 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
         <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.07em" id="gps-strip-hole">📍 Distance</div>
         <div style="display:flex;gap:6px">
           <button id="gps-elev-btn" onclick="gpsShowElevPopup()" title="Green elevation" style="background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:white;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer">⛳</button>
-          <button id="gps-btn" onclick="gpsGetDistance()" style="background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:white;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer">📍 Locate</button>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
@@ -600,6 +620,35 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
     </div>
   </div>
 
+</div>
+
+<!-- GPS TAB — standalone rangefinder -->
+<div id="gps2" class="tab-content">
+  <div class="gps2-screen">
+    <div class="gps2-hole-bar">
+      <button class="gps2-nav-btn" onclick="gps2HoleNav(-1)">&#8249;</button>
+      <div>
+        <div class="gps2-hole-label" id="gps2-hole">Hole 1</div>
+        <div class="gps2-hole-meta" id="gps2-meta">Par 4</div>
+      </div>
+      <button class="gps2-nav-btn" onclick="gps2HoleNav(1)">&#8250;</button>
+    </div>
+    <div class="gps2-yards">
+      <div class="gps2-row front">
+        <span class="gps2-lbl">Front</span>
+        <div style="text-align:right"><div class="gps2-num" id="gps2-front">—</div><div class="gps2-unit-lbl">yds</div></div>
+      </div>
+      <div class="gps2-row ctr">
+        <span class="gps2-lbl">Center</span>
+        <div style="text-align:right"><div class="gps2-num" id="gps2-center">—</div><div class="gps2-unit-lbl">yds</div></div>
+      </div>
+      <div class="gps2-row back">
+        <span class="gps2-lbl">Back</span>
+        <div style="text-align:right"><div class="gps2-num" id="gps2-back">—</div><div class="gps2-unit-lbl">yds</div></div>
+      </div>
+    </div>
+    <div class="gps2-status" id="gps2-status">Acquiring GPS…</div>
+  </div>
 </div>
 
 <!-- NEWS (dynamic from wgl-data.json) -->
@@ -1758,7 +1807,18 @@ function splashEnter(){
   el.style.opacity='0';
   el.style.pointerEvents='none';
   setTimeout(()=>el.style.display='none',380);
-  refreshData(true);
+  // Start GPS right away — warm before the scorecard opens
+  gpsStartWatch();
+  // Apply any waiting SW update first; the controllerchange handler reloads.
+  // If no update pending, load fresh data normally.
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistration().then(reg=>{
+      if(reg && reg.waiting){ reg.waiting.postMessage({type:'SKIP_WAITING'}); }
+      else { refreshData(true); }
+    }).catch(()=>refreshData(true));
+  } else {
+    refreshData(true);
+  }
 }
 
 function scAddSecondNine(){
@@ -3260,19 +3320,16 @@ function gpsResetStrip(holeNum,par){
   const info=HOLE_INFO[holeNum]||{};
   document.getElementById('gps-strip-hole').textContent=
     '📍 Hole '+holeNum+' · Par '+par+(info.yds?' · '+info.yds+' yds':'');
-  const btn=document.getElementById('gps-btn');
   if(gpsWatchId!==null && gpsLastPos){
     // Live watch running — recompute against the new hole's green instantly
     gpsLastRender=Date.now();
     gpsRender(gpsLastPos);
-    btn.disabled=false; gpsSetBtnLabel();
   }else{
     document.getElementById('gps-front').textContent='—';
     document.getElementById('gps-center').textContent='—';
     document.getElementById('gps-back').textContent='—';
-    document.getElementById('gps-status').textContent='';
+    document.getElementById('gps-status').textContent='Acquiring GPS…';
     const _ev=document.getElementById('gps-elev'); if(_ev)_ev.style.display='none';
-    btn.textContent='📍 Locate';btn.disabled=false;
   }
 }
 
@@ -3325,25 +3382,56 @@ function gpsOnFix(pos){
   if(_alt!=null && (_aa==null || _aa<=20)){
     gpsAltEmaM = (gpsAltEmaM==null) ? _alt : (0.7*gpsAltEmaM + 0.3*_alt);
   }
-  const btn=document.getElementById('gps-btn');
-  if(btn && btn.disabled){ btn.disabled=false; gpsSetBtnLabel(); }
   const now=Date.now();
   const interval = now<gpsBoostUntil ? 0 : 5000;   // boost: every fix (~1s); normal: every 5s
-  if(now-gpsLastRender>=interval){ gpsLastRender=now; gpsRender(pos); }
+  if(now-gpsLastRender>=interval){ gpsLastRender=now; gpsRender(pos); gps2Render(); }
 }
 
 function gpsOnError(err){
   const status=document.getElementById('gps-status');
-  const btn=document.getElementById('gps-btn');
-  if(status) status.textContent=err.code===1?'Location denied — check Settings.':'Could not get location. Try again.';
-  if(btn){ btn.textContent='📍 Locate'; btn.disabled=false; }
+  if(status) status.textContent=err.code===1?'Location denied — check Settings.':'Could not get location.';
   gpsStopWatch();
 }
 
-function gpsSetBtnLabel(){
-  const btn=document.getElementById('gps-btn');
-  if(!btn) return;
-  btn.textContent = gpsWatchId===null ? '📍 Locate' : (Date.now()<gpsBoostUntil ? '⚡ Live' : '🔄 Refresh');
+function gpsSetBtnLabel(){ /* no-op — Locate button removed; GPS auto-starts on Enter */ }
+
+// ── Standalone GPS tab ────────────────────────────────────────────────
+const GPS2_PARS = [4,4,3,4,4,4,5,4,3, 5,4,4,4,4,3,4,3,4]; // holes 1–18 Hiland GC
+let gps2Hole = 1;
+
+function gps2Open(){
+  // Sync to scorecard's current hole if a round is active; otherwise stay where we were
+  if(scSess.players.length > 0){
+    const h = scGetHoles()[scSess.hole];
+    if(h) gps2Hole = h;
+  }
+  gps2Render();
+}
+
+function gps2HoleNav(dir){
+  gps2Hole = Math.max(1, Math.min(18, gps2Hole + dir));
+  gps2Render();
+}
+
+function gps2Render(){
+  const hEl=document.getElementById('gps2-hole');
+  if(!hEl) return; // tab not rendered
+  const mEl=document.getElementById('gps2-meta');
+  const fEl=document.getElementById('gps2-front');
+  const cEl=document.getElementById('gps2-center');
+  const bEl=document.getElementById('gps2-back');
+  const sEl=document.getElementById('gps2-status');
+  hEl.textContent='Hole '+gps2Hole;
+  mEl.textContent='Par '+GPS2_PARS[gps2Hole-1];
+  if(!gpsLastPos){ sEl.textContent='Acquiring GPS…'; return; }
+  const{latitude:lat,longitude:lon,accuracy:acc}=gpsLastPos;
+  const g=GREENS[gps2Hole];
+  if(!g){ fEl.textContent='—'; cEl.textContent='—'; bEl.textContent='—'; sEl.textContent='No green data for hole '+gps2Hole; return; }
+  const edges=[g.f,g.l,g.rt].filter(Boolean);
+  fEl.textContent=Math.min(...edges.map(e=>haversineYards(lat,lon,e[0],e[1])));
+  cEl.textContent=haversineYards(lat,lon,g.c[0],g.c[1]);
+  bEl.textContent=haversineYards(lat,lon,g.r[0],g.r[1]);
+  sEl.textContent='±'+Math.round(acc)+' m'+(acc>15?' · move to open sky':'');
 }
 
 function gpsStartWatch(){
@@ -3364,21 +3452,16 @@ function gpsStopWatch(){
 }
 
 function gpsGetDistance(){
-  const btn=document.getElementById('gps-btn');
+  // Locate button removed — GPS auto-starts on Enter. Kept for boost only.
   const status=document.getElementById('gps-status');
-  if(!navigator.geolocation){status.textContent='GPS not available on this device.';return;}
-  if(gpsWatchId===null){
-    // First tap: start the live watch
-    btn.textContent='⏳ …'; btn.disabled=true; status.textContent='';
-    gpsLastRender=0;
-    gpsStartWatch();
-  }else{
-    // Already live: boost to ~1s updates for 15 seconds
+  if(!navigator.geolocation){ if(status) status.textContent='GPS not available on this device.'; return; }
+  if(gpsWatchId===null){ gpsLastRender=0; gpsStartWatch(); }
+  else{
+    // Boost to ~1s updates for 15 seconds
     gpsBoostUntil=Date.now()+15000;
     if(gpsLastPos){ gpsLastRender=Date.now(); gpsRender(gpsLastPos); }
-    gpsSetBtnLabel();
     clearTimeout(gpsBoostTimer);
-    gpsBoostTimer=setTimeout(gpsSetBtnLabel,15100);
+    gpsBoostTimer=setTimeout(()=>{},15100);
   }
 }
 
@@ -3534,9 +3617,18 @@ function swShowUpdateToast(worker){
   if(document.getElementById('sw-update-toast')) return;
   const t=document.createElement('div');
   t.id='sw-update-toast';
-  t.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:76px;background:#1b5e20;color:#fff;padding:10px 16px;border-radius:24px;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.3);z-index:9998;cursor:pointer;display:flex;align-items:center;gap:8px';
-  t.innerHTML='🔄 New version available · <span style="text-decoration:underline">Tap to update</span>';
-  t.onclick=()=>{ worker.postMessage({type:'SKIP_WAITING'}); t.textContent='⏳ Updating…'; };
+  t.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:76px;background:#1b5e20;color:#fff;padding:10px 16px;border-radius:24px;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.3);z-index:9998;display:flex;align-items:center;gap:10px';
+  const msg=document.createElement('span');
+  msg.style.cursor='pointer';
+  msg.innerHTML='🔄 New version available · <span style="text-decoration:underline">Tap to update</span>';
+  msg.onclick=()=>{ worker.postMessage({type:'SKIP_WAITING'}); t.innerHTML='<span style="padding:0 4px">⏳ Updating…</span>'; };
+  const x=document.createElement('button');
+  x.textContent='✕';
+  x.setAttribute('aria-label','Dismiss');
+  x.style.cssText='background:none;border:none;color:rgba(255,255,255,.7);font-size:16px;cursor:pointer;padding:0;line-height:1;flex-shrink:0';
+  x.onclick=(e)=>{ e.stopPropagation(); t.remove(); };
+  t.appendChild(msg);
+  t.appendChild(x);
   document.body.appendChild(t);
 }
 </script>
