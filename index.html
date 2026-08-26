@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL v36 · 2026-08-26 · GPS NaN fix (coords destructuring) -->
+<!-- WGL v38 · 2026-08-26 · Auto-advance to review; admin bulk team import -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1533,6 +1533,12 @@ function scAdj(pi,delta){
   if(el){el.textContent=cur;el.style.color='var(--text,#1a1a1a)';}
   document.getElementById('sc-progress').innerHTML=scMkProgress();
   SC_STORE.save();
+  // Auto-advance to review when all scores on all holes are complete
+  const _holes=scGetHoles().length;
+  if(scSess.hole===_holes-1){
+    const _allDone=scSess.players.every(_p=>scSess.scores[_p.name].every(_s=>_s!==null));
+    if(_allDone) setTimeout(()=>scHoleNav(1),900);
+  }
 }
 
 function scHoleNav(dir){
