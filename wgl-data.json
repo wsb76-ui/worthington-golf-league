@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-26T19:07:37.951Z",
+  "lastUpdated": "2026-08-26T19:52:11.394Z",
   "updatedBy": "Wes Barton",
   "settings": {
     "greens": "",
@@ -474,7 +474,14 @@
       "dues": true
     }
   },
-  "announcements": [],
+  "announcements": [
+    {
+      "date": "August 26, 2026",
+      "tag": "info",
+      "title": "End of Season",
+      "body": "Outing teams are posted."
+    }
+  ],
   "outing": {
     "date": "",
     "tee": "",
@@ -6872,6 +6879,11 @@
     ]
   },
   "changeLog": [
+    {
+      "when": "2026-08-26T19:52:11.395Z",
+      "who": "Wes Barton",
+      "what": "Posted announcement: End of Season"
+    },
     {
       "when": "2026-08-26T19:07:38.402Z",
       "who": "Wes Barton",
