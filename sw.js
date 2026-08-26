@@ -1,5 +1,5 @@
-// WGL v36 · 2026-08-26 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v36'; // bumped 2026-08-26: GPS NaN fix (coords destructuring)
+// WGL v38 · 2026-08-26 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v38'; // bumped 2026-08-26: auto-advance to review; admin bulk team import
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
