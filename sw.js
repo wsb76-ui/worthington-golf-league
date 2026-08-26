@@ -1,5 +1,5 @@
-// WGL v35 · 2026-08-26 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v35'; // bumped 2026-08-26: standalone GPS tab with hole navigation
+// WGL v36 · 2026-08-26 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v36'; // bumped 2026-08-26: GPS NaN fix (coords destructuring)
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
