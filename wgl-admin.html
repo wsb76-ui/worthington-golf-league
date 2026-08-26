@@ -533,6 +533,7 @@ body.theme-dark-slate{--bg:#10141c;--card:#1e293b;--card-hdr:#233044;--input:#33
       <div class="card">
         <div class="card-hdr">Teams <span class="badge" id="o2-teams-count">0</span>
           <button class="btn btn-green" style="font-size:11px;padding:6px 12px" onclick="addTeam(2)">+ Add Team</button>
+          <button class="btn btn-green" style="font-size:11px;padding:6px 12px;margin-left:6px;background:#1b5e20" onclick="bulkImportEndOfSeasonTeams()">📋 Import Draw</button>
         </div>
         <div id="o2-team-form" style="display:none;padding:10px 12px;border-bottom:1px solid #f0f0f0">
           <input type="text" id="o2-team-p1" placeholder="Player 1" style="width:100%;padding:9px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:6px">
@@ -1510,6 +1511,22 @@ function submitTeam(n){
 function hideTeamForm(n){
   const form=document.getElementById('o'+n+'-team-form');
   if(form)form.style.display='none';
+}
+function bulkImportEndOfSeasonTeams(){
+  const o=outingObj(2);
+  if((o.teams||[]).length>0 && !confirm('This will replace the existing '+o.teams.length+' team(s). Continue?'))return;
+  o.teams=[
+    {num:1,players:['Jim Frye','Wes Barton','Dylan Smith','Dylan Barton']},
+    {num:2,players:['Duck Julius','Nick Keefer','Jeff Hollobaugh','Landon Badac']},
+    {num:3,players:['Vince Sanzotti','Dave Cushey','Scott Barton','Dicky Peat']},
+    {num:4,players:['Ed Bargerstock','Bruce Thomas','Trent Brocious','Don Nulph']},
+    {num:5,players:['Larry Julius','Logan Bowser','Andy Patz','Wilbur Dudley']},
+    {num:6,players:['Brian Barton','Chad Hollobaugh','Dave Toy','Patric Weber']},
+    {num:7,players:['Kevin Frye','Tyler Eroh','Tom Stennett','Blake Bowser']},
+    {num:8,players:['Bill Long','Sam Long','Cole Clark','Frank Watt']},
+    {num:9,players:['Paul Bowser','Roger Hoffman','Andy Gallagher']},
+  ];
+  saveST();renderAdminTeams(2);
 }
 function removeTeam(n,i){
   const o=outingObj(n);
