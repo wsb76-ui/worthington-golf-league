@@ -1,5 +1,5 @@
-// WGL v38 · 2026-08-26 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v38'; // bumped 2026-08-26: auto-advance to review; admin bulk team import
+// WGL v39 · 2026-08-27 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v39'; // bumped 2026-08-27: deploy OneSignal push worker
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
