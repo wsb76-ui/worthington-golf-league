@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-27T16:25:53.754Z",
-  "updatedBy": "Wes Barton",
+  "lastUpdated": "2026-08-27T18:44:35.175Z",
+  "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
     "dues": "",
@@ -9,130 +9,130 @@
     "skins": "",
     "lownet": "",
     "pot": "",
-    "week": 12,
-    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Week 11 Upcoming",
+    "week": 17,
+    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Through Week 16",
     "computeHandicaps": false
   },
   "players": {
     "Larry Julius": {
       "team": 1,
       "hcp": 4,
-      "phone": ""
+      "phone": "(724) 841-9445"
     },
     "Kris Simmons": {
       "team": 1,
       "hcp": 5,
-      "phone": ""
+      "phone": "(412) 334-6459"
     },
     "Butch Griffith": {
       "team": 1,
       "hcp": 9,
-      "phone": ""
+      "phone": "(724) 859-7691"
     },
     "Mario Jenkins": {
       "team": 1,
       "hcp": 10,
-      "phone": ""
+      "phone": "(412) 478-5065"
     },
     "Frank Watt": {
       "team": 1,
       "hcp": 14,
-      "phone": ""
+      "phone": "(724) 793-0715"
     },
     "Paul Harmon": {
       "team": 1,
       "hcp": 13,
-      "phone": ""
+      "phone": "(724) 212-5943"
     },
     "Andy Gallagher": {
       "team": 1,
       "hcp": 14,
-      "phone": ""
+      "phone": "(724) 859-4650"
     },
     "Keith Clark": {
       "team": 1,
       "hcp": 16,
-      "phone": ""
+      "phone": "(724) 968-6432"
     },
     "Jim Frye": {
       "team": 2,
       "hcp": 2,
-      "phone": ""
+      "phone": "(724) 822-3945"
     },
     "Skylar Grafton": {
       "team": 2,
       "hcp": 10,
-      "phone": ""
+      "phone": "(724) 954-2534"
     },
     "Nick Keefer": {
       "team": 2,
       "hcp": 10,
-      "phone": ""
+      "phone": "(724) 859-1323"
     },
     "Jeff Hollobaugh": {
       "team": 2,
       "hcp": 11,
-      "phone": ""
+      "phone": "(724) 290-7067"
     },
     "Andy Patz": {
       "team": 2,
       "hcp": 12,
-      "phone": ""
+      "phone": "(412) 215-7703"
     },
     "Trent Brocious": {
       "team": 2,
       "hcp": 11,
-      "phone": ""
+      "phone": "(724) 959-6854"
     },
     "Wilbur Dudley": {
       "team": 2,
       "hcp": 15,
-      "phone": ""
+      "phone": "(724) 664-6853"
     },
     "Duck Julius": {
       "team": 3,
       "hcp": 3,
-      "phone": ""
+      "phone": "(724) 954-7157"
     },
     "Willie Powell": {
       "team": 3,
       "hcp": 11,
-      "phone": ""
+      "phone": "(724) 766-4569"
     },
     "Bruce Thomas": {
       "team": 3,
       "hcp": 10,
-      "phone": ""
+      "phone": "(724) 954-8347"
     },
     "Scott Barton": {
       "team": 3,
       "hcp": 11,
-      "phone": ""
+      "phone": "(724) 679-9129"
     },
     "Dave Cushey": {
       "team": 3,
       "hcp": 10,
-      "phone": ""
+      "phone": "(724) 859-3004"
     },
     "Dicky Peat": {
       "team": 3,
       "hcp": 18,
-      "phone": ""
+      "phone": "(724) 543-1362"
     },
     "Allan Voltz": {
       "team": 3,
       "hcp": 20,
-      "phone": ""
+      "phone": "(724) 712-1354"
     },
     "Clark Helm": {
       "team": 4,
       "hcp": 6,
-      "phone": ""
+      "phone": "(724) 689-4419"
     },
     "Harry Breski": {
       "team": 4,
       "hcp": 6,
-      "phone": ""
+      "phone": "(724) 859-3947"
     },
     "Roger Hoffman": {
       "team": 4,
@@ -142,52 +142,52 @@
     "Chad Hollobaugh": {
       "team": 4,
       "hcp": 9,
-      "phone": ""
+      "phone": "(724) 954-0689"
     },
     "Blake Bowser": {
       "team": 4,
       "hcp": 15,
-      "phone": ""
+      "phone": "(724) 954-6963"
     },
     "Tom Stennett": {
       "team": 4,
       "hcp": 12,
-      "phone": ""
+      "phone": "(724) 664-0765"
     },
     "Landon Badac": {
       "team": 4,
       "hcp": 19,
-      "phone": ""
+      "phone": "(724) 859-5177"
     },
     "Eli Hickman": {
       "team": 5,
       "hcp": 5,
-      "phone": ""
+      "phone": "(724) 954-9901"
     },
     "Jaxon Smith": {
       "team": 5,
       "hcp": 8,
-      "phone": ""
+      "phone": "(724) 664-1891"
     },
     "Bill Long": {
       "team": 5,
       "hcp": 7,
-      "phone": ""
+      "phone": "(724) 290-3184"
     },
     "Tyler Eroh": {
       "team": 5,
       "hcp": 8,
-      "phone": ""
+      "phone": "(724) 664-6462"
     },
     "Denny Snyder": {
       "team": 5,
       "hcp": 9,
-      "phone": ""
+      "phone": "(724) 525-4030"
     },
     "Don Nulph": {
       "team": 5,
       "hcp": 17,
-      "phone": ""
+      "phone": "(724) 664-6299"
     },
     "Dave Toy": {
       "team": 5,
@@ -197,32 +197,32 @@
     "Sam Long": {
       "team": 6,
       "hcp": 8,
-      "phone": ""
+      "phone": "(724) 919-3154"
     },
     "Jay Griffith": {
       "team": 6,
       "hcp": 10,
-      "phone": ""
+      "phone": "(724) 859-7693"
     },
     "Kevin Frye": {
       "team": 6,
       "hcp": 6,
-      "phone": ""
+      "phone": "(724) 841-5904"
     },
     "Jesse Hickman": {
       "team": 6,
       "hcp": 8,
-      "phone": ""
+      "phone": "(412) 549-0733"
     },
     "Jim Goodman": {
       "team": 6,
       "hcp": 13,
-      "phone": ""
+      "phone": "(425) 280-9124"
     },
     "Dylan Barton": {
       "team": 6,
       "hcp": 20,
-      "phone": ""
+      "phone": "(724) 525-6964"
     },
     "Matt Nulph": {
       "team": 6,
@@ -232,72 +232,72 @@
     "Ed Bargerstock": {
       "team": 7,
       "hcp": 4,
-      "phone": ""
+      "phone": "(724) 859-7075"
     },
     "Vince Sanzotti": {
       "team": 7,
       "hcp": 3,
-      "phone": ""
+      "phone": "(724) 679-6886"
     },
     "Mike Hickman": {
       "team": 7,
       "hcp": 5,
-      "phone": ""
+      "phone": "(724) 859-4342"
     },
     "Chris Remaley": {
       "team": 7,
       "hcp": 10,
-      "phone": ""
+      "phone": "(724) 525-7224"
     },
     "Jason Smith": {
       "team": 7,
       "hcp": 16,
-      "phone": ""
+      "phone": "(724) 664-2006"
     },
     "Wes Barton": {
       "team": 7,
       "hcp": 10,
-      "phone": ""
+      "phone": "(724) 664-5699"
     },
     "Doug Anthony": {
       "team": 7,
       "hcp": 9,
-      "phone": ""
+      "phone": "(724) 664-0208"
     },
     "Brian Barton": {
       "team": 8,
       "hcp": 6,
-      "phone": ""
+      "phone": "(724) 859-5421"
     },
     "Logan Bowser": {
       "team": 8,
       "hcp": 9,
-      "phone": ""
+      "phone": "(724) 954-0369"
     },
     "Paul Bowser": {
       "team": 8,
       "hcp": 7,
-      "phone": ""
+      "phone": "(724) 954-4413"
     },
     "Ken Long": {
       "team": 8,
       "hcp": 11,
-      "phone": ""
+      "phone": "(724) 841-6038"
     },
     "Patric Weber": {
       "team": 8,
       "hcp": 15,
-      "phone": ""
+      "phone": "(724) 954-4430"
     },
     "Cole Clark": {
       "team": 8,
       "hcp": 14,
-      "phone": ""
+      "phone": "(724) 841-7038"
     },
     "Dylan Smith": {
       "team": 8,
       "hcp": 11,
-      "phone": ""
+      "phone": "(724) 954-0988"
     }
   },
   "buyins": {},
