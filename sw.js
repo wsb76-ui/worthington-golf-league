@@ -1,5 +1,5 @@
-// WGL v40 · 2026-08-27 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v40'; // bumped 2026-08-27: OneSignal push scope + worker paths + updater worker
+// WGL v41 · 2026-08-27 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v41'; // bumped 2026-08-27: force reload on SW update tap (iOS fix)
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
