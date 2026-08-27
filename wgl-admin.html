@@ -921,6 +921,16 @@ async function seedFromLive(){
       }
     }
 
+    // Preserve phone numbers from live players — BASE_PLAYERS has empty phones,
+    // so every admin Publish was wiping the phones GAS wrote from the Roster sheet.
+    if(json.players){
+      for(const [name,info] of Object.entries(json.players)){
+        if(info.phone && ST.players[name] && !ST.players[name].phone){
+          ST.players[name].phone=info.phone; changed=true;
+        }
+      }
+    }
+
     if(changed){
       saveST();
       buildDues(); buildSettings ? buildSettings() : loadSettingsUI(); loadOutingUI();
