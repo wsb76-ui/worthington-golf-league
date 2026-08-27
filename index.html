@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL v44 · 2026-08-27 · Admin panel phone preserve fix -->
+<!-- WGL v45 · 2026-08-27 · Auto push prompt on first open -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -861,6 +861,17 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
     <select id="welcome-identity" style="width:100%;padding:12px;border:1.5px solid #ccc;border-radius:10px;font-size:15px;background:var(--card,#fff);color:var(--text,#111);margin-bottom:14px"></select>
     <button onclick="welcomeSave()" style="width:100%;padding:13px;background:var(--tint,#2e7d32);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;-webkit-tap-highlight-color:transparent">That's Me</button>
     <button onclick="welcomeSkip()" style="width:100%;padding:11px;background:none;border:none;color:#999;font-size:13px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">Skip for now</button>
+  </div>
+</div>
+
+<!-- Push notification prompt (auto-shows on first open) -->
+<div id="push-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:401;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--card,#fff);color:var(--text,#111);border-radius:20px;padding:26px 22px;width:100%;max-width:360px;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,.3)">
+    <div style="font-size:42px">🔔</div>
+    <div style="font-size:19px;font-weight:800;margin:6px 0 4px">Stay in the Loop</div>
+    <div style="font-size:13px;color:#888;margin-bottom:20px;line-height:1.5">Get notified when weekly results are posted and league announcements go out.</div>
+    <button onclick="pushModalEnable()" style="width:100%;padding:13px;background:var(--tint,#2e7d32);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;-webkit-tap-highlight-color:transparent">Enable Notifications</button>
+    <button onclick="pushModalSkip()" style="width:100%;padding:11px;background:none;border:none;color:#999;font-size:13px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">Maybe Later</button>
   </div>
 </div>
 
@@ -2360,10 +2371,31 @@ function welcomeSave(){
   try{ localStorage.setItem('wgl_welcome_done','1'); }catch(e){}
   document.getElementById('welcome-modal-bg').style.display='none';
   setIdentity(v);
+  setTimeout(maybeShowPushPrompt, 800);
 }
 function welcomeSkip(){
   try{ localStorage.setItem('wgl_welcome_done','1'); }catch(e){}
   document.getElementById('welcome-modal-bg').style.display='none';
+  setTimeout(maybeShowPushPrompt, 800);
+}
+
+// ── Push notification prompt ───────────────────────────────────────────────────
+function maybeShowPushPrompt(){
+  try{
+    if(localStorage.getItem('wgl_push_prompted')) return;
+    if(!('Notification' in window)) return;          // not installed to home screen
+    if(Notification.permission !== 'default') return; // already granted or denied
+    document.getElementById('push-modal-bg').style.display='flex';
+  }catch(e){}
+}
+function pushModalEnable(){
+  try{ localStorage.setItem('wgl_push_prompted','1'); }catch(e){}
+  document.getElementById('push-modal-bg').style.display='none';
+  enablePush();
+}
+function pushModalSkip(){
+  document.getElementById('push-modal-bg').style.display='none';
+  // Don't set the flag on skip — try again next session until they decide
 }
 
 // ── Outing removal request ────────────────────────────────────────────────────
@@ -3217,7 +3249,7 @@ function renderAll(){
   safeRender('standings',buildStandings);
   safeRender('identity',renderIdentitySetting);
   safeRender('my',buildMyTab);
-  safeRender('welcome',maybeShowWelcome);
+  safeRender('welcome',()=>{ maybeShowWelcome(); if(localStorage.getItem('wgl_welcome_done')) setTimeout(maybeShowPushPrompt,1200); });
   safeRender('push',updatePushUI);
   safeRender('week',()=>{
     const sel=document.getElementById('week-select');
