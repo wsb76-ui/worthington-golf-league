@@ -1,5 +1,5 @@
-// WGL v41 · 2026-08-27 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v41'; // bumped 2026-08-27: force reload on SW update tap (iOS fix)
+// WGL v42 · 2026-08-27 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v42'; // bumped 2026-08-27: auto-update SW (skipWaiting); remove update toast
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
@@ -10,8 +10,9 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', e => {
-  // NOTE: no skipWaiting here — the page shows a "New version" toast and the
-  // user opts in. Tapping the toast sends SKIP_WAITING below.
+  // Auto-update: skip waiting so the new SW activates immediately on install.
+  // The page's controllerchange listener handles the reload.
+  self.skipWaiting();
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
 });
 
