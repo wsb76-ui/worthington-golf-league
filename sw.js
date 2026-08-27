@@ -1,5 +1,5 @@
-// WGL v45 · 2026-08-27 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v45'; // bumped 2026-08-27: auto push prompt on first open
+// WGL v46 · 2026-08-27 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v46'; // bumped 2026-08-27: add Keith Clark to outing team 9
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
