@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL v41 · 2026-08-27 · Force reload on SW update tap (iOS fix) -->
+<!-- WGL v42 · 2026-08-27 · Auto-update SW (skipWaiting); remove update toast -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -3599,18 +3599,9 @@ document.addEventListener('visibilitychange',()=>{
   }
 });
 
-// ── Service worker: register + "new version available" toast ────────────────
+// ── Service worker: register + auto-reload on update ─────────────────────────
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').then(reg=>{
-    function watchWorker(worker){
-      worker.addEventListener('statechange',()=>{
-        if(worker.state==='installed' && navigator.serviceWorker.controller){
-          swShowUpdateToast(worker);
-        }
-      });
-    }
-    if(reg.waiting && navigator.serviceWorker.controller) swShowUpdateToast(reg.waiting);
-    reg.addEventListener('updatefound',()=>{ if(reg.installing) watchWorker(reg.installing); });
     // Check for a new version whenever the app is foregrounded
     document.addEventListener('visibilitychange',()=>{
       if(document.visibilityState==='visible') reg.update().catch(()=>{});
@@ -3620,25 +3611,6 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange',()=>{
     if(swReloading) return; swReloading=true; location.reload();
   });
-}
-
-function swShowUpdateToast(worker){
-  if(document.getElementById('sw-update-toast')) return;
-  const t=document.createElement('div');
-  t.id='sw-update-toast';
-  t.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:76px;background:#1b5e20;color:#fff;padding:10px 16px;border-radius:24px;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.3);z-index:9998;display:flex;align-items:center;gap:10px';
-  const msg=document.createElement('span');
-  msg.style.cursor='pointer';
-  msg.innerHTML='🔄 New version available · <span style="text-decoration:underline">Tap to update</span>';
-  msg.onclick=()=>{ worker.postMessage({type:'SKIP_WAITING'}); t.innerHTML='<span style="padding:0 4px">⏳ Updating…</span>'; setTimeout(()=>location.reload(),1500); };
-  const x=document.createElement('button');
-  x.textContent='✕';
-  x.setAttribute('aria-label','Dismiss');
-  x.style.cssText='background:none;border:none;color:rgba(255,255,255,.7);font-size:16px;cursor:pointer;padding:0;line-height:1;flex-shrink:0';
-  x.onclick=(e)=>{ e.stopPropagation(); t.remove(); };
-  t.appendChild(msg);
-  t.appendChild(x);
-  document.body.appendChild(t);
 }
 </script>
 </div><!-- /main-scroll -->
