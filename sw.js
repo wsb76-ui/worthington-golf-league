@@ -1,5 +1,5 @@
-// WGL v44 · 2026-08-27 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v44'; // bumped 2026-08-27: admin panel phone preserve fix
+// WGL v45 · 2026-08-27 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v45'; // bumped 2026-08-27: auto push prompt on first open
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
