@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-27T22:11:14.507Z",
+  "lastUpdated": "2026-08-27T22:13:16.432Z",
   "updatedBy": "Wes Barton",
   "settings": {
     "greens": "",
@@ -703,7 +703,8 @@
         "players": [
           "Paul Bowser",
           "Roger Hoffman",
-          "Andy Gallagher"
+          "Andy Gallagher",
+          "Keith Clark"
         ]
       }
     ]
@@ -6882,6 +6883,11 @@
     ]
   },
   "changeLog": [
+    {
+      "when": "2026-08-27T22:13:17.565Z",
+      "who": "Wes Barton",
+      "what": "Updated: End-of-Season Outing"
+    },
     {
       "when": "2026-08-27T22:11:17.121Z",
       "who": "Wes Barton",
