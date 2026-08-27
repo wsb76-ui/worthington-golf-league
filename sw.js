@@ -1,5 +1,5 @@
-// WGL v42 · 2026-08-27 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v42'; // bumped 2026-08-27: auto-update SW (skipWaiting); remove update toast
+// WGL v43 · 2026-08-27 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v43'; // bumped 2026-08-27: admin PIN updates
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
