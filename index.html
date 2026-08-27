@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL v40 · 2026-08-27 · OneSignal push: scope + worker paths + updater worker -->
+<!-- WGL v41 · 2026-08-27 · Force reload on SW update tap (iOS fix) -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -3630,7 +3630,7 @@ function swShowUpdateToast(worker){
   const msg=document.createElement('span');
   msg.style.cursor='pointer';
   msg.innerHTML='🔄 New version available · <span style="text-decoration:underline">Tap to update</span>';
-  msg.onclick=()=>{ worker.postMessage({type:'SKIP_WAITING'}); t.innerHTML='<span style="padding:0 4px">⏳ Updating…</span>'; };
+  msg.onclick=()=>{ worker.postMessage({type:'SKIP_WAITING'}); t.innerHTML='<span style="padding:0 4px">⏳ Updating…</span>'; setTimeout(()=>location.reload(),1500); };
   const x=document.createElement('button');
   x.textContent='✕';
   x.setAttribute('aria-label','Dismiss');
