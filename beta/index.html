@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL Beta v17 · 2026-08-28 · GPS tab: tracer bar hidden behind 📐 button, scroll locked on GPS tab -->
+<!-- WGL Beta v18 · 2026-08-28 · GPS tab: spot row floats over map (no longer off-screen when scroll locked) -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -247,6 +247,7 @@ table.standings { width:100%; border-collapse:collapse; font-size:13px; }
 .gps-hbtn.sel { background:#1565c0; border-color:#1565c0; color:#fff; }
 .gps-hbtn:active { opacity:.7; transform:scale(.95); }
 .gps-picker-cancel { font-size:14px; color:#4da3ff; cursor:pointer; margin-top:4px; padding:8px 24px; }
+#gps-spot-row { position:absolute; bottom:0; left:0; right:0; z-index:500; background:var(--bg,#f5f5f5); border-top:1px solid rgba(0,0,0,.1); }
 .gps-spot-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:6px; padding:0 12px 10px; }
 .gps-spot-card { background:var(--card,white); border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.08); padding:8px 4px; text-align:center; }
 .gps-spot-label { font-size:9px; font-weight:600; color:#888; text-transform:uppercase; }
