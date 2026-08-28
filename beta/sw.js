@@ -1,5 +1,5 @@
-// WGL Beta v22 · 2026-08-28 — App header removed; sync bar is top bar with gear + safe area
-const CACHE = 'wgl-beta-v22';
+// WGL Beta v23 · 2026-08-28 — Fix: hidden placeholders for removed header element IDs
+const CACHE = 'wgl-beta-v23';
 const ASSETS = [
   '/worthington-golf-league/beta/',
   '/worthington-golf-league/beta/index.html',
