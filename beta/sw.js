@@ -1,5 +1,5 @@
-// WGL Beta v18 · 2026-08-28 — GPS tab: spot row floats over map bottom
-const CACHE = 'wgl-beta-v18';
+// WGL Beta v19 · 2026-08-28 — GPS tab: full-screen map, all UI as overlays
+const CACHE = 'wgl-beta-v19';
 const ASSETS = [
   '/worthington-golf-league/beta/',
   '/worthington-golf-league/beta/index.html',
