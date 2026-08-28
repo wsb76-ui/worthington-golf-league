@@ -1,5 +1,5 @@
-// WGL Beta v21 · 2026-08-28 — GPS tab: floating pill nav + distance pills, no bars
-const CACHE = 'wgl-beta-v21';
+// WGL Beta v22 · 2026-08-28 — App header removed; sync bar is top bar with gear + safe area
+const CACHE = 'wgl-beta-v22';
 const ASSETS = [
   '/worthington-golf-league/beta/',
   '/worthington-golf-league/beta/index.html',
