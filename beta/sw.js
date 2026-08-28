@@ -1,5 +1,5 @@
-// WGL Beta v19 · 2026-08-28 — GPS tab: full-screen map, all UI as overlays
-const CACHE = 'wgl-beta-v19';
+// WGL Beta v20 · 2026-08-28 — GPS tab: transparent yardage, sync bar hidden, spot/dist swap
+const CACHE = 'wgl-beta-v20';
 const ASSETS = [
   '/worthington-golf-league/beta/',
   '/worthington-golf-league/beta/index.html',
