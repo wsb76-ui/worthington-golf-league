@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL Beta v20 · 2026-08-28 · GPS tab: transparent yardage overlay, sync bar hidden, spot/dist grid swap -->
+<!-- WGL Beta v21 · 2026-08-28 · GPS tab: floating pill nav + distance pills, no bars -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -211,42 +211,38 @@ table.standings { width:100%; border-collapse:collapse; font-size:13px; }
 .wx-strip { display:flex; gap:16px; padding:0 14px 8px; font-size:11px; color:rgba(255,255,255,.85); align-items:center; flex-wrap:wrap; }
 .wx-strip span { display:flex; align-items:center; gap:4px; }
 
-/* GPS Map tab — full-screen satellite map with floating overlays */
+/* GPS Map tab — full-screen satellite map, all UI as floating pills/buttons */
 #gps-tab { height:100%; overflow:hidden; }
 #gps-map-container { position:absolute; inset:0; height:auto; min-height:0; z-index:1; border-radius:0; overflow:hidden; }
 
-/* Hole nav: dark floating bar at top */
-.gps-hole-nav { position:absolute; top:0; left:0; right:0; z-index:50; display:flex; align-items:center; justify-content:center; gap:12px; padding:calc(10px + env(safe-area-inset-top)) 12px 10px; background:rgba(0,0,0,.65); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
-.gps-hole-nav button { background:rgba(255,255,255,.18); color:white; border:1px solid rgba(255,255,255,.28); border-radius:8px; width:36px; height:36px; font-size:20px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-.gps-hole-label { font-size:14px; font-weight:700; min-width:0; flex:1; text-align:center; cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent; color:rgba(255,255,255,.95); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.gps-hole-label:active { opacity:.7; }
-
-/* Status bar: below hole nav */
-.gps-status-bar { position:absolute; left:0; right:0; z-index:50; top:calc(56px + env(safe-area-inset-top)); display:flex; align-items:center; justify-content:center; gap:6px; font-size:11px; color:rgba(255,255,255,.7); padding:3px 12px; background:rgba(0,0,0,.42); }
+/* Accuracy dot (inside nav pill) */
 .gps-acc-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 .gps-acc-dot.green  { background:#27ae60; box-shadow:0 0 4px #27ae60; }
 .gps-acc-dot.yellow { background:#f39c12; box-shadow:0 0 4px #f39c12; }
 .gps-acc-dot.red    { background:#e74c3c; box-shadow:0 0 4px #e74c3c; }
-.gps-acc-dot.gray   { background:rgba(255,255,255,.35); }
+.gps-acc-dot.gray   { background:rgba(255,255,255,.3); }
 
-/* Tracer bar: absolute overlay below status bar */
-#gps-tracer-bar { position:absolute; left:0; right:0; z-index:100; top:calc(84px + env(safe-area-inset-top)); padding-top:0; }
+/* Top hole nav pill */
+.gps-nav-pill { position:absolute; top:calc(12px + env(safe-area-inset-top)); left:50%; transform:translateX(-50%); z-index:50; display:flex; align-items:center; gap:8px; background:rgba(0,0,0,.6); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-radius:22px; padding:8px 14px; }
+.gps-pill-btn { background:none; border:none; color:rgba(255,255,255,.9); font-size:24px; font-weight:300; cursor:pointer; padding:0 2px; line-height:1; -webkit-tap-highlight-color:transparent; }
+.gps-pill-hole { font-size:15px; font-weight:700; color:white; cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent; white-space:nowrap; padding:0 4px; }
+.gps-pill-hole:active { opacity:.7; }
 
-/* Dist grid: transparent overlay at bottom — numbers float over the map */
-.gps-dist-grid { position:absolute; bottom:0; left:0; right:0; z-index:45; display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; padding:6px 10px calc(6px + env(safe-area-inset-bottom)); background:none; }
-.gps-dist-card { border-radius:10px; padding:8px 4px; text-align:center; background:transparent; }
-.gps-dist-card.gps-front { background:transparent; }
-.gps-dist-card.gps-ctr   { background:transparent; }
-.gps-dist-card.gps-back  { background:transparent; }
-.gps-dist-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:1px; text-shadow:0 1px 3px rgba(0,0,0,.8); }
-.gps-front .gps-dist-label { color:rgba(255,120,120,.85); }
-.gps-ctr   .gps-dist-label { color:rgba(220,255,220,.8); }
-.gps-back  .gps-dist-label { color:rgba(120,180,255,.85); }
-.gps-dist-num { font-size:22px; font-weight:800; line-height:1; text-shadow:0 1px 4px rgba(0,0,0,.9); }
-.gps-front .gps-dist-num { color:rgba(255,120,120,.85); }
-.gps-ctr   .gps-dist-num  { color:rgba(180,255,200,.88); font-size:26px; }
-.gps-back  .gps-dist-num  { color:rgba(120,180,255,.85); }
-.gps-dist-sub { font-size:9px; color:rgba(255,255,255,.45); margin-top:1px; text-shadow:0 1px 2px rgba(0,0,0,.8); }
+/* Tracer bar overlay */
+#gps-tracer-bar { position:absolute; left:0; right:0; z-index:100; top:calc(68px + env(safe-area-inset-top)); padding-top:0; }
+
+/* Bottom-left control buttons */
+.gps-ctrl-btns { position:absolute; bottom:calc(20px + env(safe-area-inset-bottom)); left:16px; z-index:45; display:flex; flex-direction:column; gap:10px; }
+.gps-ctrl-btn { width:44px; height:44px; border-radius:22px; background:rgba(0,0,0,.55); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border:none; color:white; font-size:20px; cursor:pointer; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; justify-content:center; }
+
+/* Bottom-right distance pills */
+.gps-dist-pills { position:absolute; bottom:calc(20px + env(safe-area-inset-bottom)); right:16px; z-index:45; display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
+.gps-dpill { display:flex; align-items:center; gap:8px; background:rgba(0,0,0,.55); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-radius:20px; padding:7px 14px; }
+.gps-dpill-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; opacity:.65; color:white; }
+.gps-dpill-num { font-size:20px; font-weight:800; line-height:1; }
+.gps-dpill-f .gps-dpill-num { color:#ff7b7b; }
+.gps-dpill-c .gps-dpill-num { color:#a0ffca; }
+.gps-dpill-b .gps-dpill-num { color:#7bbeff; }
 
 /* Hole picker overlay */
 #gps-hole-picker { display:none; position:absolute; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:200; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:24px; }
@@ -846,20 +842,30 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 <div id="mytab" class="tab-content"><div id="my-body" style="margin-top:12px"></div></div>
 <!-- GPS Yardage Tab -->
 <div id="gps-tab" class="tab-content" style="padding:0;position:relative">
-  <div class="gps-hole-nav">
-    <button onclick="gpsMapChangeHole(-1)">‹</button>
-    <div class="gps-hole-label" id="gps-map-hole-label" onclick="gpsMapShowPicker()" title="Tap to jump to any hole">Hole 1 · Par 4 · 272 yds ▾</div>
-    <button onclick="gpsMapChangeHole(1)">›</button>
-    <button id="gps-rot-lock" onclick="gpsMapToggleLock()" title="Lock rotation">🔓</button>
-    <button id="gps-trace-toggle" onclick="gpsToggleTracerBar()" title="Trace tools">📐</button>
-  </div>
-  <div class="gps-status-bar" id="gps-map-status"><div class="gps-acc-dot gray" id="gps-acc-dot"></div><span id="gps-map-status-text">Tap GPS tab to acquire…</span></div>
-  <div class="gps-dist-grid">
-    <div class="gps-dist-card gps-front"><div class="gps-dist-label">Front</div><div class="gps-dist-num" id="gps-map-front">—</div><div class="gps-dist-sub">yds</div></div>
-    <div class="gps-dist-card gps-ctr"><div class="gps-dist-label">Center</div><div class="gps-dist-num" id="gps-map-center">—</div><div class="gps-dist-sub">yds</div></div>
-    <div class="gps-dist-card gps-back"><div class="gps-dist-label">Back</div><div class="gps-dist-num" id="gps-map-back">—</div><div class="gps-dist-sub">yds</div></div>
-  </div>
   <div id="gps-map-container"></div>
+
+  <!-- Top: hole nav pill -->
+  <div class="gps-nav-pill">
+    <button class="gps-pill-btn" onclick="gpsMapChangeHole(-1)">‹</button>
+    <div class="gps-pill-hole" id="gps-map-hole-label" onclick="gpsMapShowPicker()">Hole 1 ▾</div>
+    <button class="gps-pill-btn" onclick="gpsMapChangeHole(1)">›</button>
+    <div class="gps-acc-dot gray" id="gps-acc-dot"></div>
+  </div>
+
+  <!-- Bottom-left: control buttons -->
+  <div class="gps-ctrl-btns">
+    <button id="gps-rot-lock" onclick="gpsMapToggleLock()" class="gps-ctrl-btn">🔓</button>
+    <button id="gps-trace-toggle" onclick="gpsToggleTracerBar()" class="gps-ctrl-btn">📐</button>
+  </div>
+
+  <!-- Bottom-right: distance pills -->
+  <div class="gps-dist-pills">
+    <div class="gps-dpill gps-dpill-f"><span class="gps-dpill-lbl">F</span><span class="gps-dpill-num" id="gps-map-front">—</span></div>
+    <div class="gps-dpill gps-dpill-c"><span class="gps-dpill-lbl">C</span><span class="gps-dpill-num" id="gps-map-center">—</span></div>
+    <div class="gps-dpill gps-dpill-b"><span class="gps-dpill-lbl">B</span><span class="gps-dpill-num" id="gps-map-back">—</span></div>
+  </div>
+
+  <div id="gps-map-status" style="display:none"><span id="gps-map-status-text"></span></div>
   <!-- GPS Tracer tools — overlaid inside the map, toggled by 📐 button -->
   <div id="gps-tracer-bar" style="display:none;background:#1b5e20;color:white">
     <div style="display:flex;align-items:center;gap:8px;padding:8px 12px 4px">
@@ -3208,8 +3214,7 @@ function gpsTraceLoadSaved(hole){
 
 function gpsMapUpdateHoleLabel(){
   const info=HOLE_INFO[gpsMapHole]||{};
-  document.getElementById('gps-map-hole-label').textContent=
-    'Hole '+gpsMapHole+' · Par '+(info.par||'?')+' · '+(info.yds||'?')+' yds';
+  document.getElementById('gps-map-hole-label').textContent='Hole '+gpsMapHole+' ▾';
 }
 
 function gpsMapChangeHole(dir){
@@ -3232,7 +3237,7 @@ function gpsMapChangeHole(dir){
   // remove old spot
   if(gpsMapSpotMarker){ gpsMapSpotMarker.remove(); gpsMapSpotMarker=null; }
   document.getElementById('gps-spot-row').style.display='none';
-  document.querySelector('.gps-dist-grid').style.display='grid';
+  document.querySelector('.gps-dist-pills').style.display='flex';
 }
 
 function gpsToggleTracerBar(){
@@ -3316,7 +3321,7 @@ function initGpsMap(){
     document.getElementById('gps-spot-center').textContent=gpsMapDist(tapped,gg.c);
     document.getElementById('gps-spot-back').textContent=Math.max(...edges.map(p=>gpsMapDist(tapped,p)));
     document.getElementById('gps-spot-row').style.display='block';
-    document.querySelector('.gps-dist-grid').style.display='none';
+    document.querySelector('.gps-dist-pills').style.display='none';
   });
   gpsMapUpdateHoleLabel();
   gpsTraceLoadSaved(gpsMapHole);
