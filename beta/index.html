@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL Beta v16 · 2026-08-28 · GPS tab: color-coded yardages, hole picker, accuracy dot, no auto-snap -->
+<!-- WGL Beta v17 · 2026-08-28 · GPS tab: tracer bar hidden behind 📐 button, scroll locked on GPS tab -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -859,6 +859,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
     <div class="gps-hole-label" id="gps-map-hole-label" onclick="gpsMapShowPicker()" title="Tap to jump to any hole">Hole 1 · Par 4 · 272 yds ▾</div>
     <button onclick="gpsMapChangeHole(1)">›</button>
     <button id="gps-rot-lock" onclick="gpsMapToggleLock()" title="Lock rotation">🔓</button>
+    <button id="gps-trace-toggle" onclick="gpsToggleTracerBar()" title="Trace tools">📐</button>
   </div>
   <div class="gps-status-bar" id="gps-map-status"><div class="gps-acc-dot gray" id="gps-acc-dot"></div><span id="gps-map-status-text">Tap GPS tab to acquire…</span></div>
   <div class="gps-dist-grid">
@@ -1881,10 +1882,12 @@ function showTab(id,el){
   document.getElementById(id).classList.add('active');
   if(el)el.classList.add('active');
   closeSettings();
-  // Swap header: GPS tab uses the tracer bar; all other tabs use the normal header
+  // Swap header: GPS tab hides normal header; tracer bar stays hidden until toggled
   const gpsMode=(id==='gps-tab');
   document.querySelector('.app-hdr').style.display=gpsMode?'none':'';
-  document.getElementById('gps-tracer-bar').style.display=gpsMode?'':'none';
+  if(!gpsMode) document.getElementById('gps-tracer-bar').style.display='none';
+  // Lock scroll on GPS tab so the map doesn't scroll away
+  document.getElementById('main-scroll').style.overflow=gpsMode?'hidden':'';
   if(gpsMode && typeof gpsTraceUpdateExportBtn==='function') gpsTraceUpdateExportBtn();
 }
 
@@ -3212,6 +3215,15 @@ function gpsMapChangeHole(dir){
   // remove old spot
   if(gpsMapSpotMarker){ gpsMapSpotMarker.remove(); gpsMapSpotMarker=null; }
   document.getElementById('gps-spot-row').style.display='none';
+}
+
+function gpsToggleTracerBar(){
+  const bar=document.getElementById('gps-tracer-bar');
+  const btn=document.getElementById('gps-trace-toggle');
+  const open=bar.style.display==='none'||bar.style.display==='';
+  bar.style.display=open?'block':'none';
+  if(btn) btn.style.opacity=open?'1':'0.5';
+  if(open && typeof gpsTraceUpdateExportBtn==='function') gpsTraceUpdateExportBtn();
 }
 
 function gpsMapSetStatus(msg, dotClass){
