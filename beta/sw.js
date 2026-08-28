@@ -1,5 +1,5 @@
-// WGL Beta v16 · 2026-08-28 — GPS tab: color yardages, hole picker, accuracy dot, no auto-snap
-const CACHE = 'wgl-beta-v16';
+// WGL Beta v17 · 2026-08-28 — GPS tab: tracer bar hidden behind button, scroll locked
+const CACHE = 'wgl-beta-v17';
 const ASSETS = [
   '/worthington-golf-league/beta/',
   '/worthington-golf-league/beta/index.html',
