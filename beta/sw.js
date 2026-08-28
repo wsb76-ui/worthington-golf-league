@@ -1,5 +1,5 @@
-// WGL Beta v17 · 2026-08-28 — GPS tab: tracer bar hidden behind button, scroll locked
-const CACHE = 'wgl-beta-v17';
+// WGL Beta v18 · 2026-08-28 — GPS tab: spot row floats over map bottom
+const CACHE = 'wgl-beta-v18';
 const ASSETS = [
   '/worthington-golf-league/beta/',
   '/worthington-golf-league/beta/index.html',
