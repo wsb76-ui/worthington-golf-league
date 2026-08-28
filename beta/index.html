@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL Beta v22 · 2026-08-28 · App header removed; sync bar takes top with gear button + safe area -->
+<!-- WGL Beta v23 · 2026-08-28 · Fix: hidden placeholder elements for app-subtitle/wx IDs removed with header -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -539,6 +539,14 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
   <div class="tab" onclick="showTab('dues',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="13" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M3 10v5M21 10v5"/></svg></span>Dues</div>
   <div class="tab" id="tab-my" onclick="showTab('mytab',this);buildMyTab()"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>My</div>
   <div class="tab" id="tab-gps" onclick="showTab('gps-tab',this);initGpsMap()"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg></span>GPS</div>
+</div>
+
+<!-- Hidden elements to satisfy JS references after header removal -->
+<div style="display:none" aria-hidden="true">
+  <span id="app-subtitle"></span>
+  <span id="wxTemp"></span>
+  <span id="wxWind"></span>
+  <span id="wxRain"></span>
 </div>
 
 <div id="main-scroll">
