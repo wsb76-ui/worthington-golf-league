@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL Beta v19 · 2026-08-28 · GPS tab: full-screen satellite map, all UI floats as overlays -->
+<!-- WGL Beta v20 · 2026-08-28 · GPS tab: transparent yardage overlay, sync bar hidden, spot/dist grid swap -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -232,21 +232,21 @@ table.standings { width:100%; border-collapse:collapse; font-size:13px; }
 /* Tracer bar: absolute overlay below status bar */
 #gps-tracer-bar { position:absolute; left:0; right:0; z-index:100; top:calc(84px + env(safe-area-inset-top)); padding-top:0; }
 
-/* Dist grid: dark floating bar at bottom */
-.gps-dist-grid { position:absolute; bottom:0; left:0; right:0; z-index:45; display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; padding:8px 12px calc(8px + env(safe-area-inset-bottom)); background:rgba(0,0,0,.65); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
-.gps-dist-card { border-radius:10px; padding:10px 8px; text-align:center; }
-.gps-dist-card.gps-front { background:rgba(229,57,53,.28); }
-.gps-dist-card.gps-ctr   { background:rgba(255,255,255,.16); box-shadow:0 1px 4px rgba(0,0,0,.3); }
-.gps-dist-card.gps-back  { background:rgba(21,101,192,.28); }
-.gps-dist-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px; }
-.gps-front .gps-dist-label { color:rgba(255,140,140,.9); }
-.gps-ctr   .gps-dist-label { color:rgba(255,255,255,.65); }
-.gps-back  .gps-dist-label { color:rgba(130,185,255,.9); }
-.gps-dist-num { font-size:26px; font-weight:700; line-height:1; }
-.gps-front .gps-dist-num { color:#ff7b7b; }
-.gps-ctr   .gps-dist-num  { color:#a0ffca; font-size:30px; }
-.gps-back  .gps-dist-num  { color:#7bbeff; }
-.gps-dist-sub { font-size:10px; color:rgba(255,255,255,.38); margin-top:2px; }
+/* Dist grid: transparent overlay at bottom — numbers float over the map */
+.gps-dist-grid { position:absolute; bottom:0; left:0; right:0; z-index:45; display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; padding:6px 10px calc(6px + env(safe-area-inset-bottom)); background:none; }
+.gps-dist-card { border-radius:10px; padding:8px 4px; text-align:center; background:transparent; }
+.gps-dist-card.gps-front { background:transparent; }
+.gps-dist-card.gps-ctr   { background:transparent; }
+.gps-dist-card.gps-back  { background:transparent; }
+.gps-dist-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:1px; text-shadow:0 1px 3px rgba(0,0,0,.8); }
+.gps-front .gps-dist-label { color:rgba(255,120,120,.85); }
+.gps-ctr   .gps-dist-label { color:rgba(220,255,220,.8); }
+.gps-back  .gps-dist-label { color:rgba(120,180,255,.85); }
+.gps-dist-num { font-size:22px; font-weight:800; line-height:1; text-shadow:0 1px 4px rgba(0,0,0,.9); }
+.gps-front .gps-dist-num { color:rgba(255,120,120,.85); }
+.gps-ctr   .gps-dist-num  { color:rgba(180,255,200,.88); font-size:26px; }
+.gps-back  .gps-dist-num  { color:rgba(120,180,255,.85); }
+.gps-dist-sub { font-size:9px; color:rgba(255,255,255,.45); margin-top:1px; text-shadow:0 1px 2px rgba(0,0,0,.8); }
 
 /* Hole picker overlay */
 #gps-hole-picker { display:none; position:absolute; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:200; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:24px; }
@@ -258,8 +258,8 @@ table.standings { width:100%; border-collapse:collapse; font-size:13px; }
 .gps-hbtn:active { opacity:.7; transform:scale(.95); }
 .gps-picker-cancel { font-size:14px; color:#4da3ff; cursor:pointer; margin-top:4px; padding:8px 24px; }
 
-/* Spot row: overlaid at bottom, above dist grid */
-#gps-spot-row { position:absolute; bottom:0; left:0; right:0; z-index:500; background:rgba(8,16,28,.85); border-top:1px solid rgba(255,255,255,.12); padding-bottom:env(safe-area-inset-bottom); }
+/* Spot row: overlaid at bottom, fully opaque so it covers dist grid */
+#gps-spot-row { position:absolute; bottom:0; left:0; right:0; z-index:500; background:rgba(6,12,22,1); border-top:1px solid rgba(255,255,255,.12); padding-bottom:env(safe-area-inset-bottom); }
 .gps-spot-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:6px; padding:0 12px 10px; }
 .gps-spot-card { background:rgba(255,255,255,.1); border-radius:8px; padding:8px 4px; text-align:center; }
 .gps-spot-label { font-size:9px; font-weight:600; color:rgba(255,255,255,.55); text-transform:uppercase; }
@@ -1894,9 +1894,10 @@ function showTab(id,el){
   document.getElementById(id).classList.add('active');
   if(el)el.classList.add('active');
   closeSettings();
-  // GPS tab: hide header, lock scroll, close tracer bar on entry
+  // GPS tab: hide header + sync bar, lock scroll, close tracer bar on entry
   const gpsMode=(id==='gps-tab');
   document.querySelector('.app-hdr').style.display=gpsMode?'none':'';
+  document.querySelector('.sync-bar').style.display=gpsMode?'none':'';
   document.getElementById('main-scroll').style.overflow=gpsMode?'hidden':'';
   if(gpsMode){
     // Close tracer bar when switching to GPS tab (user opens it manually via 📐)
@@ -3231,6 +3232,7 @@ function gpsMapChangeHole(dir){
   // remove old spot
   if(gpsMapSpotMarker){ gpsMapSpotMarker.remove(); gpsMapSpotMarker=null; }
   document.getElementById('gps-spot-row').style.display='none';
+  document.querySelector('.gps-dist-grid').style.display='grid';
 }
 
 function gpsToggleTracerBar(){
@@ -3314,6 +3316,7 @@ function initGpsMap(){
     document.getElementById('gps-spot-center').textContent=gpsMapDist(tapped,gg.c);
     document.getElementById('gps-spot-back').textContent=Math.max(...edges.map(p=>gpsMapDist(tapped,p)));
     document.getElementById('gps-spot-row').style.display='block';
+    document.querySelector('.gps-dist-grid').style.display='none';
   });
   gpsMapUpdateHoleLabel();
   gpsTraceLoadSaved(gpsMapHole);
