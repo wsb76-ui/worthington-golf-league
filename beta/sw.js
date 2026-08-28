@@ -1,5 +1,5 @@
-// WGL Beta v20 · 2026-08-28 — GPS tab: transparent yardage, sync bar hidden, spot/dist swap
-const CACHE = 'wgl-beta-v20';
+// WGL Beta v21 · 2026-08-28 — GPS tab: floating pill nav + distance pills, no bars
+const CACHE = 'wgl-beta-v21';
 const ASSETS = [
   '/worthington-golf-league/beta/',
   '/worthington-golf-league/beta/index.html',
