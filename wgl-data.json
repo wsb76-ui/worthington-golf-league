@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-29T23:17:05.827Z",
+  "lastUpdated": "2026-08-31T20:27:25.366Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -9,8 +9,8 @@
     "skins": "",
     "lownet": "",
     "pot": "",
-    "week": 17,
-    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Through Week 16",
+    "week": 18,
+    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Through Week 17",
     "computeHandicaps": false
   },
   "players": {
@@ -6672,6 +6672,37 @@
           "gross": 47,
           "net": 34,
           "grp": 6
+        }
+      ]
+    },
+    "17": {
+      "label": "Week 17",
+      "date": "",
+      "course": "Hiland Golf Course",
+      "players": [
+        {
+          "name": "Bruce Thomas",
+          "team": 3,
+          "hcp": 10,
+          "gross": 48,
+          "net": 38,
+          "grp": 1
+        },
+        {
+          "name": "Duck Julius",
+          "team": 3,
+          "hcp": 3,
+          "gross": 38,
+          "net": 35,
+          "grp": 1
+        },
+        {
+          "name": "Larry Julius",
+          "team": 1,
+          "hcp": 4,
+          "gross": 39,
+          "net": 35,
+          "grp": 1
         }
       ]
     }
