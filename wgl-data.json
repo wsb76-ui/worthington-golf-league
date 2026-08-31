@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-31T20:37:10.615Z",
+  "lastUpdated": "2026-08-31T21:37:16.182Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -6735,6 +6735,38 @@
           "gross": 38,
           "net": 36,
           "grp": 2
+        },
+        {
+          "name": "Wilbur Dudley",
+          "team": 2,
+          "hcp": 15,
+          "gross": 58,
+          "net": 43,
+          "grp": 3
+        },
+        {
+          "name": "Frank Watt",
+          "team": 1,
+          "hcp": 14,
+          "gross": 52,
+          "net": 38,
+          "grp": 3
+        },
+        {
+          "name": "Dave Cushey",
+          "team": 3,
+          "hcp": 10,
+          "gross": 43,
+          "net": 33,
+          "grp": 3
+        },
+        {
+          "name": "Ed Bargerstock",
+          "team": 7,
+          "hcp": 4,
+          "gross": 37,
+          "net": 33,
+          "grp": 3
         }
       ]
     }
