@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-31T21:37:16.182Z",
+  "lastUpdated": "2026-08-31T22:17:16.140Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -6767,6 +6767,46 @@
           "gross": 37,
           "net": 33,
           "grp": 3
+        },
+        {
+          "name": "Wes Barton",
+          "team": 7,
+          "hcp": 10,
+          "gross": 46,
+          "net": 36,
+          "grp": 4
+        },
+        {
+          "name": "Brian Barton",
+          "team": 8,
+          "hcp": 6,
+          "gross": 38,
+          "net": 32,
+          "grp": 4
+        },
+        {
+          "name": "Dylan Barton",
+          "team": 6,
+          "hcp": 20,
+          "gross": 60,
+          "net": 40,
+          "grp": 4
+        },
+        {
+          "name": "Doug Anthony",
+          "team": 7,
+          "hcp": 9,
+          "gross": 50,
+          "net": 41,
+          "grp": 4
+        },
+        {
+          "name": "Andy Patz",
+          "team": 2,
+          "hcp": 12,
+          "gross": 56,
+          "net": 44,
+          "grp": 4
         }
       ]
     }
