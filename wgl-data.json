@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-31T20:27:25.366Z",
+  "lastUpdated": "2026-08-31T20:37:10.615Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -6703,6 +6703,38 @@
           "gross": 39,
           "net": 35,
           "grp": 1
+        },
+        {
+          "name": "Scott Barton",
+          "team": 3,
+          "hcp": 11,
+          "gross": 44,
+          "net": 33,
+          "grp": 2
+        },
+        {
+          "name": "Ken Long",
+          "team": 8,
+          "hcp": 11,
+          "gross": 52,
+          "net": 41,
+          "grp": 2
+        },
+        {
+          "name": "Kevin Frye",
+          "team": 6,
+          "hcp": 6,
+          "gross": 48,
+          "net": 42,
+          "grp": 2
+        },
+        {
+          "name": "Jim Frye",
+          "team": 2,
+          "hcp": 2,
+          "gross": 38,
+          "net": 36,
+          "grp": 2
         }
       ]
     }
