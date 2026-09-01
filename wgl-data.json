@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-08-31T23:57:24.623Z",
+  "lastUpdated": "2026-09-01T00:07:30.134Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -6839,6 +6839,22 @@
           "gross": 52,
           "net": 38,
           "grp": 5
+        },
+        {
+          "name": "Landon Badac",
+          "team": 4,
+          "hcp": 19,
+          "gross": 57,
+          "net": 38,
+          "grp": 6
+        },
+        {
+          "name": "Logan Bowser",
+          "team": 8,
+          "hcp": 9,
+          "gross": 53,
+          "net": 44,
+          "grp": 6
         }
       ]
     }
