@@ -1,5 +1,5 @@
-// WGL v47 · 2026-09-02 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v47'; // bumped 2026-09-02: W1-17 scores, 47 HCP corrections
+// WGL v49 · 2026-09-02 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v49'; // bumped 2026-09-02: fix W17 real Aug 30 scores
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
