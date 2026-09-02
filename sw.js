@@ -1,5 +1,5 @@
-// WGL v46 · 2026-08-27 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v46'; // bumped 2026-08-27: add Keith Clark to outing team 9
+// WGL v47 · 2026-09-02 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v47'; // bumped 2026-09-02: W1-17 scores, 47 HCP corrections
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
