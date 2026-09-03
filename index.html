@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL v49 · 2026-09-02 · Fix W17 scores (wrong gross values replaced with real Aug 30 paper data; 37 players) -->
+<!-- WGL v51 · 2026-09-03 · Removed auto-advance timer; player taps Next manually to reach review -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1447,6 +1447,7 @@ function scRenderAdded(){
 
 function scStart(){
   if(!scSess.players.length){document.getElementById('sc-start-err').style.display='block';return;}
+  scSess.players.sort((a,b)=>a.hcp-b.hcp); // lowest HCP first
   scSess.hole=0;
   SC_STORE.save();
   scShowStep('sc-step-scoring');
@@ -1547,12 +1548,7 @@ function scAdj(pi,delta){
   if(el){el.textContent=cur;el.style.color='var(--text,#1a1a1a)';}
   document.getElementById('sc-progress').innerHTML=scMkProgress();
   SC_STORE.save();
-  // Auto-advance to review when all scores on all holes are complete
-  const _holes=scGetHoles().length;
-  if(scSess.hole===_holes-1){
-    const _allDone=scSess.players.every(_p=>scSess.scores[_p.name].every(_s=>_s!==null));
-    if(_allDone) setTimeout(()=>scHoleNav(1),900);
-  }
+  // No auto-advance — player taps Next manually to reach review
 }
 
 function scHoleNav(dir){
