@@ -196,6 +196,7 @@ body.theme-dark-slate{--bg:#10141c;--card:#1e293b;--card-hdr:#233044;--input:#33
   <div id="more" class="tab-content">
     <div class="card" style="margin-top:12px">
       <div class="more-row" onclick="showTab('players')">👥 <span>Players &amp; Roster</span><span class="mchev">›</span></div>
+      <div class="more-row" onclick="showTab('calendar')">📅 <span>Calendar &amp; Schedule</span><span class="mchev">›</span></div>
       <div class="more-row" onclick="showTab('outing')">🏆 <span>Outings</span><span class="mchev">›</span></div>
       <div class="more-row" onclick="showTab('payouts')">💰 <span>Payouts</span><span class="mchev">›</span></div>
       <div class="more-row" onclick="showTab('settings')">⚙️ <span>League Settings</span><span class="mchev">›</span></div>
@@ -403,6 +404,72 @@ body.theme-dark-slate{--bg:#10141c;--card:#1e293b;--card-hdr:#233044;--input:#33
       </div>
     </div>
     <div style="font-size:12px;color:#888;padding:0 4px">Posts display newest-first in the league app. Tap Publish to push live.</div>
+  </div>
+
+  <!-- ── CALENDAR ───────────────────────────────── -->
+  <div id="calendar" class="tab-content">
+    <div style="margin-top:12px"></div>
+
+    <!-- Schedule Generator -->
+    <div class="card">
+      <div class="card-hdr">📅 Season Schedule Generator</div>
+      <div class="card-body">
+        <div class="row2">
+          <div class="field"><label>Season Start (first Monday)</label><input type="date" id="cal-start"></div>
+          <div class="field"><label>Season End (last Monday)</label><input type="date" id="cal-end"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Playoff Weeks</label>
+            <select id="cal-playoffs" style="width:100%;padding:9px 10px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;background:white">
+              <option value="0">None (regular season only)</option>
+              <option value="1">1 (Finals only)</option>
+              <option value="2" selected>2 (Semis + Finals)</option>
+              <option value="3">3</option>
+            </select>
+          </div>
+          <div class="field"><label>Default Course</label><input type="text" id="cal-course" placeholder="Hiland GC · Butler PA"></div>
+        </div>
+        <div style="margin-bottom:12px">
+          <div class="section-lbl" style="margin-top:0;margin-bottom:6px">Skip Dates (rainouts, holidays)</div>
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <input type="date" id="cal-skip-input" style="flex:1;padding:9px 10px;border:1.5px solid #ddd;border-radius:8px;font-size:14px">
+            <button class="btn btn-gray" onclick="addSkipDate()">+ Skip</button>
+          </div>
+          <div id="cal-skip-list" style="display:flex;flex-wrap:wrap;gap:6px;min-height:6px"></div>
+        </div>
+        <button class="btn btn-green" style="width:100%;padding:12px;font-size:15px" onclick="generateSchedule()">⚡ Generate Schedule</button>
+      </div>
+    </div>
+
+    <!-- One-off event -->
+    <div class="card">
+      <div class="card-hdr">➕ Add One-Off Event <span style="font-size:11px;font-weight:400;color:#888">Meeting, Outing, Award Night…</span></div>
+      <div class="card-body">
+        <div class="row2">
+          <div class="field"><label>Date</label><input type="date" id="cal-ev-date"></div>
+          <div class="field"><label>Type</label>
+            <select id="cal-ev-type" style="width:100%;padding:9px 10px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;background:white">
+              <option value="meeting">Meeting</option>
+              <option value="outing">Outing</option>
+              <option value="season">Season Event</option>
+              <option value="playoff">Playoff</option>
+            </select>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Name</label><input type="text" id="cal-ev-name" placeholder="e.g. Draft Night"></div>
+          <div class="field"><label>Subtitle</label><input type="text" id="cal-ev-sub" placeholder="e.g. 7 PM · Hiland GC"></div>
+        </div>
+        <button class="btn btn-green" style="width:100%;padding:10px" onclick="addCalEvent()">Add Event</button>
+      </div>
+    </div>
+
+    <!-- Event list -->
+    <div class="card">
+      <div class="card-hdr">Calendar Events <span id="cal-ev-count" style="background:#e8f5e9;color:#2e7d32;border-radius:10px;font-size:11px;padding:2px 8px;font-weight:800;margin-left:6px">0</span></div>
+      <div id="cal-ev-list" style="padding:0 14px"></div>
+    </div>
+    <div style="font-size:12px;color:#888;padding:0 4px">Events publish to the league app calendar. Tap Publish to push live.</div>
   </div>
 
   <!-- ── OUTING ──────────────────────────────────── -->
@@ -762,6 +829,7 @@ function defaultST() {
     payouts:{total:'',pct1:50,pct2:30,pct3:20},
     weeklyPayouts:{},
     teamPayouts:{},
+    calEvents:[],
     lastPub:null
   };
 }
@@ -837,6 +905,10 @@ function preserveLive(data,live){
   });
   // Season calendar is engine-owned
   if(live.calendar&&!data.calendar)data.calendar=live.calendar;
+  // Calendar events: live wins if local is empty (prevents fresh-device overwrite)
+  if(Array.isArray(live.calEvents)&&live.calEvents.length&&(!Array.isArray(data.calEvents)||!data.calEvents.length)){
+    data.calEvents=live.calEvents;
+  }
   return data;
 }
 
@@ -905,6 +977,11 @@ async function seedFromLive(){
       ST.anns=json.announcements; changed=true;
     }
 
+    // Seed calEvents from live if local is empty
+    if((!Array.isArray(ST.calEvents)||!ST.calEvents.length) && Array.isArray(json.calEvents) && json.calEvents.length){
+      ST.calEvents=json.calEvents; changed=true;
+    }
+
     // Seed weeklyPayouts from published data if local has no actual winner data
     // (prevents a fresh-device admin from wiping previously published winner data on next publish)
     const localHasWinners=ST.weeklyPayouts&&Object.values(ST.weeklyPayouts).some(
@@ -934,6 +1011,7 @@ async function seedFromLive(){
     if(changed){
       saveST();
       buildDues(); buildSettings ? buildSettings() : loadSettingsUI(); loadOutingUI();
+      buildCalEvents();
       renderWeeklyWinners(+(document.getElementById('wp-week')||{}).value||10);
       if(statusEl)statusEl.textContent='✅ Admin synced from live data';
     } else {
@@ -982,7 +1060,7 @@ function lockApp(){
 }
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
-const MORE_TABS=['more','players','outing','payouts','settings','season'];
+const MORE_TABS=['more','players','outing','payouts','settings','season','calendar'];
 function showTab(id,el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
@@ -994,6 +1072,7 @@ function showTab(id,el){
   if(id==='season')renderRolloverList();
   if(id==='winners')renderWeeklyWinners(+document.getElementById('wp-week').value||10);
   if(id==='payouts')renderRollover();
+  if(id==='calendar')buildCalEvents();
 }
 
 // ── Appearance prefs (shared localStorage keys with the league app) ──
@@ -1027,6 +1106,7 @@ function initApp(){
   buildPlayerList('');
   loadSettingsUI();
   renderAnns();
+  buildCalEvents();
   loadOutingUI();
   renderRollover();
   renderWeeklyWinners(10);
@@ -1793,7 +1873,7 @@ async function publishToGitHub(){
     }
     // ── Audit trail: who changed what ──
     try{
-      const SECTIONS={settings:'Settings',players:'Players',buyins:'Buy-ins',duesPaid:'Dues',announcements:'Announcements',outing:'Mid-Season Outing',outing2:'End-of-Season Outing',payouts:'Payouts',weeklyPayouts:'Weekly Winners'};
+      const SECTIONS={settings:'Settings',players:'Players',buyins:'Buy-ins',duesPaid:'Dues',announcements:'Announcements',calEvents:'Calendar',outing:'Mid-Season Outing',outing2:'End-of-Season Outing',payouts:'Payouts',weeklyPayouts:'Weekly Winners'};
       const changed=[];
       for(const [k,label] of Object.entries(SECTIONS)){
         const was=JSON.stringify((live&&live[k])!==undefined?live[k]:null);
@@ -1854,7 +1934,7 @@ function buildData(){
   return {
     version:2,lastUpdated:new Date().toISOString(),updatedBy:(_admin||'admin'),
     settings:ST.settings,players:ST.players,buyins,duesPaid,
-    announcements:ST.anns,outing:outingObj(1),outing2:outingObj(2),
+    announcements:ST.anns,calEvents:ST.calEvents||[],outing:outingObj(1),outing2:outingObj(2),
     payouts:{...ST.payouts,rollover:ST.rollover,teamPayouts:ST.teamPayouts||{}},
     weeklyPayouts:ST.weeklyPayouts||{}
   };
@@ -1926,6 +2006,108 @@ function doSeasonReset(){
   const res=document.getElementById('reset-result');
   res.style.display='block';res.style.background='#e8f5e9';res.style.color='#2e7d32';
   res.textContent='✅ Season reset. Dues, outings, and announcements cleared. Players carried over. Don\'t forget to publish!';
+}
+
+// ── Calendar Events ────────────────────────────────────────────────────────────
+let _skipDates=[];
+let _calEvArr=[];
+
+function buildCalEvents(){
+  ST.calEvents=ST.calEvents||[];
+  _calEvArr=ST.calEvents.slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const cnt=document.getElementById('cal-ev-count');
+  if(cnt)cnt.textContent=_calEvArr.length;
+  const el=document.getElementById('cal-ev-list');
+  if(!el)return;
+  if(!_calEvArr.length){
+    el.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:14px 0">No events yet — generate a schedule or add one-off events above.</div>';
+    return;
+  }
+  const TYPE_LBL={league:'League',playoff:'Playoff',outing:'Outing',meeting:'Meeting',season:'Season'};
+  const TYPE_CLR={league:'#2e7d32',playoff:'#c62828',outing:'#1565c0',meeting:'#6a1b9a',season:'#e65100'};
+  el.innerHTML=_calEvArr.map((e,i)=>{
+    const clr=TYPE_CLR[e.type]||'#888';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f5f5f5">'
+      +'<div style="font-size:13px;line-height:1.4">'
+      +'<span style="font-size:11px;color:#999;font-weight:600;margin-right:6px">'+e.date+'</span>'
+      +'<strong>'+e.name+'</strong>'
+      +(e.sub?'<span style="color:#888;margin-left:6px;font-size:12px">'+e.sub+'</span>':'')
+      +'<span style="font-size:10px;font-weight:700;color:'+clr+';background:'+clr+'18;border-radius:8px;padding:1px 7px;margin-left:5px">'+(TYPE_LBL[e.type]||e.type)+'</span>'
+      +'</div>'
+      +'<button onclick="deleteCalEvent('+i+')" style="border:none;background:none;color:#c62828;font-size:20px;cursor:pointer;padding:2px 8px;flex-shrink:0">×</button>'
+      +'</div>';
+  }).join('');
+}
+
+function generateSchedule(){
+  const start=document.getElementById('cal-start').value;
+  const end=document.getElementById('cal-end').value;
+  const course=(document.getElementById('cal-course').value||'').trim()||'Hiland GC';
+  const playoffs=+(document.getElementById('cal-playoffs').value||'2');
+  if(!start||!end){alert('Enter season start and end dates.');return;}
+  const d0=new Date(start+'T12:00:00');
+  const dEnd=new Date(end+'T12:00:00');
+  if(d0.getDay()!==1){alert('Season start must be a Monday.');return;}
+  if(dEnd<d0){alert('End date must be after start date.');return;}
+  const mondays=[];
+  for(let d=new Date(d0);d<=dEnd;d.setDate(d.getDate()+7)){
+    const k=d.toISOString().slice(0,10);
+    if(!_skipDates.includes(k))mondays.push(k);
+  }
+  if(!mondays.length){alert('No Mondays in range — check start/end dates.');return;}
+  const regCount=Math.max(0,mondays.length-playoffs);
+  const newEvs=mondays.map((k,i)=>{
+    if(i<regCount)return{date:k,type:'league',name:'Week '+(i+1),sub:course};
+    const wkNum=i+1;
+    if(playoffs>=2&&i===regCount)return{date:k,type:'playoff',name:'Playoffs — Week '+wkNum,sub:'Semifinals · 1v4 · 2v3'};
+    return{date:k,type:'playoff',name:'Playoffs — Week '+wkNum,sub:'Finals · Championship & 3rd Place'};
+  });
+  // Keep non-schedule events (outing, meeting, season) and replace schedule events
+  const keep=(ST.calEvents||[]).filter(e=>['outing','meeting','season'].includes(e.type));
+  ST.calEvents=[...keep,...newEvs];
+  saveST();
+  buildCalEvents();
+  alert('✅ Generated '+regCount+' league night'+(regCount!==1?'s':'')+' + '+playoffs+' playoff week'+(playoffs!==1?'s':'')+'. Tap Publish to push live.');
+}
+
+function addSkipDate(){
+  const inp=document.getElementById('cal-skip-input');
+  const v=inp?inp.value:'';
+  if(!v||_skipDates.includes(v))return;
+  _skipDates.push(v);
+  renderSkipDates();
+  if(inp)inp.value='';
+}
+function removeSkipDate(d){
+  _skipDates=_skipDates.filter(x=>x!==d);
+  renderSkipDates();
+}
+function renderSkipDates(){
+  const el=document.getElementById('cal-skip-list');
+  if(!el)return;
+  el.innerHTML=_skipDates.map(d=>'<div style="display:inline-flex;align-items:center;gap:3px;background:#fff3e0;border-radius:6px;padding:3px 10px 3px 10px;font-size:12px;font-weight:600;color:#e65100">'
+    +d+'<button onclick="removeSkipDate(\''+d+'\')" style="border:none;background:none;color:#c62828;cursor:pointer;font-size:14px;line-height:1;padding:0 0 0 4px">×</button></div>').join('');
+}
+function addCalEvent(){
+  const date=(document.getElementById('cal-ev-date')||{}).value;
+  const type=(document.getElementById('cal-ev-type')||{}).value||'meeting';
+  const name=((document.getElementById('cal-ev-name')||{}).value||'').trim();
+  const sub=((document.getElementById('cal-ev-sub')||{}).value||'').trim();
+  if(!date||!name){alert('Date and Name are required.');return;}
+  ST.calEvents=ST.calEvents||[];
+  ST.calEvents.push({date,type,name,sub});
+  saveST();
+  buildCalEvents();
+  if(document.getElementById('cal-ev-date'))document.getElementById('cal-ev-date').value='';
+  if(document.getElementById('cal-ev-name'))document.getElementById('cal-ev-name').value='';
+  if(document.getElementById('cal-ev-sub'))document.getElementById('cal-ev-sub').value='';
+}
+function deleteCalEvent(i){
+  const ev=_calEvArr[i];
+  if(!ev)return;
+  ST.calEvents=(ST.calEvents||[]).filter(e=>!(e.date===ev.date&&e.name===ev.name&&e.type===ev.type));
+  saveST();
+  buildCalEvents();
 }
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
