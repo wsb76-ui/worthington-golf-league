@@ -1,5 +1,5 @@
-// WGL BetaV2 · 2026-09-04 v2 — 18-hole fix; modal safe-area; scorecard grp fallback
-const CACHE = 'wgl-betav2-v2';
+// WGL BetaV2 · 2026-09-04 v4 — playoff bracket in standings; admin calendar generator; calEvents live merge; calendar dynamic; outing sheet dynamic; sc-modal dark mode; sc-add-nine-btn; view toggle CSS vars
+const CACHE = 'wgl-betav2-v4';
 const ASSETS = [
   '/worthington-golf-league/betav2/',
   '/worthington-golf-league/betav2/index.html',
