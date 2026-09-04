@@ -1,5 +1,5 @@
-// WGL Beta v23 · 2026-08-28 — Fix: hidden placeholders for removed header element IDs
-const CACHE = 'wgl-beta-v23';
+// WGL Beta v54 · 2026-09-04 — Weather bar; R/W/B GPS; 18-hole; Edit+Close review; Calendar tab
+const CACHE = 'wgl-beta-v54';
 const ASSETS = [
   '/worthington-golf-league/beta/',
   '/worthington-golf-league/beta/index.html',
