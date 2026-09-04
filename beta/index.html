@@ -1971,7 +1971,7 @@ async function scSubmit(){
       : '✅ Card submitted!';
     if(noteEl) noteEl.style.display = 'none';
     btn.style.display = 'none';
-    document.getElementById('sc-add-nine-btn').style.display='none';
+    const _nine=document.getElementById('sc-add-nine-btn');if(_nine)_nine.style.display='none';
     // Save to history and clear the active session
     const summary = scSess.players.map(p=>{
       const gross=scSess.scores[p.name].reduce((a,b)=>a+(b||0),0);
@@ -2529,6 +2529,7 @@ function closeModal(e){
 // ── HCP Grid ──────────────────────────────────────────────────────────────────
 function buildHcps(){
   const el=document.getElementById('hcp-grid');
+  if(!el)return;
   el.innerHTML=sortedPlayers().map((p,i)=>`
     <div class="hcp-row" onclick="openModal(${i})">
       <div><div class="hcp-name">${p.name.split(' ')[0]}<br>${p.name.split(' ').slice(1).join(' ')}</div><div style="font-size:10px;color:#aaa">T${p.team}</div></div>
@@ -3809,7 +3810,8 @@ function buildWeek(wk,elOverride){
 // ── Bootstrap: fetch live data, fall back to MOCK_DATA ───────────────────────
 let D=MOCK_DATA;
 // Render immediately with default data so nothing is blank on load
-document.getElementById('app-subtitle').textContent=D.settings.subtitle;
+const _subEl=document.getElementById('app-subtitle');
+if(_subEl)_subEl.textContent=D.settings.subtitle;
 // Isolated so ONE bad section can't take the whole app down with it.
 // Previously these ran as a single statement chain: a throw in buildOuting()
 // meant Dues, Roster, Standings, My and Results never rendered at all.
@@ -3870,7 +3872,7 @@ async function refreshData(force){
       D.banked=json.banked||{};
       document.getElementById('sync-label').textContent=`Live data · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
       // Re-render all dynamic sections with updated data
-      document.getElementById('app-subtitle').textContent=D.settings.subtitle;
+      const _sub=document.getElementById('app-subtitle');if(_sub)_sub.textContent=D.settings.subtitle;
       renderAll();
     } else {
       document.getElementById('sync-label').textContent='Using cached data';
