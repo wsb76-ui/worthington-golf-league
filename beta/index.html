@@ -754,84 +754,6 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
   </div>
 </div>
 
-    <!-- Mid-Season -->
-    <div id="lo-mid">
-      <div class="card">
-        <div class="card-hdr">🏌️ Mid-Season Outing</div>
-        <div style="padding:14px" id="outing-body"></div>
-      </div>
-      <div class="card" id="prizes-card" style="display:none">
-        <div class="card-hdr">Prizes & Awards</div>
-        <div style="padding:8px 14px" id="prizes-body"></div>
-      </div>
-      <button onclick="signupQuick('mid')" style="width:100%;padding:15px;background:#2e7d32;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:6px;-webkit-tap-highlight-color:transparent">
-        ✅ Sign Me Up — Mid-Season Outing
-      </button>
-      <button onclick="openSignupForm('mid')" style="width:100%;padding:11px;background:transparent;color:#2e7d32;border:1.5px dashed #2e7d32;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:6px;-webkit-tap-highlight-color:transparent">
-        ➕ Sign Up Someone Else / Guest
-      </button>
-      <div style="text-align:center;margin-bottom:12px"><span onclick="requestOutingRemoval('mid')" style="font-size:12px;color:#c62828;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">🚫 Signed up but can't make it? Request removal</span></div>
-      <div class="card" id="signups-card" style="display:none">
-        <div class="card-hdr">Who's In <span id="signup-cnt" style="background:#e8f5e9;color:#2e7d32;border-radius:20px;font-size:11px;font-weight:700;padding:2px 9px;margin-left:6px">0</span></div>
-        <div style="padding:8px 14px;font-size:13px" id="signups-body"></div>
-      </div>
-      <div class="card" id="teams-card" style="display:none">
-        <div class="card-hdr">🏌️ Outing Teams</div>
-        <div style="padding:8px 14px" id="teams-body"></div>
-      </div>
-    </div>
-
-    <!-- End of Season -->
-    <div id="lo-end" style="display:none">
-      <div class="card">
-        <div class="card-hdr">🏆 End-of-Season Outing</div>
-        <div style="padding:14px" id="outing2-body">
-          <div style="color:#aaa;font-size:13px;text-align:center;padding:10px">Details coming soon — check back later.</div>
-        </div>
-      </div>
-      <div class="card" id="prizes2-card" style="display:none">
-        <div class="card-hdr">Prizes & Awards</div>
-        <div style="padding:8px 14px" id="prizes2-body"></div>
-      </div>
-      <button onclick="signupQuick('end')" style="width:100%;padding:15px;background:#1565c0;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:6px;-webkit-tap-highlight-color:transparent">
-        ✅ Sign Me Up — End-of-Season Outing
-      </button>
-      <button onclick="openSignupForm('end')" style="width:100%;padding:11px;background:transparent;color:#1565c0;border:1.5px dashed #1565c0;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:6px;-webkit-tap-highlight-color:transparent">
-        ➕ Sign Up Someone Else / Guest
-      </button>
-      <div style="text-align:center;margin-bottom:12px"><span onclick="requestOutingRemoval('end')" style="font-size:12px;color:#c62828;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">🚫 Signed up but can't make it? Request removal</span></div>
-      <div class="card" id="signups2-card" style="display:none">
-        <div class="card-hdr">Who's In <span id="signup2-cnt" style="background:#e8f5e9;color:#2e7d32;border-radius:20px;font-size:11px;font-weight:700;padding:2px 9px;margin-left:6px">0</span></div>
-        <div style="padding:8px 14px;font-size:13px" id="signups2-body"></div>
-      </div>
-      <div class="card" id="teams2-card" style="display:none">
-        <div class="card-hdr">🏌️ Outing Teams</div>
-        <div style="padding:8px 14px" id="teams2-body"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Sign-up modal (shared for both outings) -->
-<div id="signup-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;align-items:flex-end;justify-content:center" onclick="closeSignupForm(event)">
-  <div id="signup-modal" style="background:white;color:#1a1a1a;border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:500px">
-    <div style="font-size:18px;font-weight:700;margin-bottom:4px" id="signup-modal-title">Sign Up for the Outing</div>
-    <div style="font-size:13px;color:#888;margin-bottom:18px" id="signup-modal-sub"></div>
-    <div style="margin-bottom:14px">
-      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;display:block;margin-bottom:5px">Your Name</label>
-      <input id="signup-name" type="text" list="league-names" autocomplete="off" placeholder="Pick a league name or type a guest's name" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:10px;font-size:15px">
-      <datalist id="league-names"></datalist>
-      <div style="font-size:11px;color:#999;margin-top:4px">League players appear as you type — or enter any name. Outside guests are welcome at outings.</div>
-    </div>
-    <div style="margin-bottom:18px">
-      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;display:block;margin-bottom:5px">Notes (optional)</label>
-      <input id="signup-notes" type="text" placeholder="e.g. bringing a guest, dietary needs…" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:10px;font-size:14px">
-    </div>
-    <button onclick="submitSignup()" style="width:100%;padding:14px;background:#2e7d32;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">Send Sign-Up Email</button>
-    <button onclick="closeSignupForm()" style="width:100%;padding:12px;background:#f5f5f5;color:#555;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
-  </div>
-</div>
-
 <!-- Green Elevation popup (v22) -->
 <div id="elev-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:320;align-items:flex-end;justify-content:center" onclick="if(event.target===this)closeElevPopup()">
   <div style="background:var(--card,#fff);color:var(--text,#1a1a1a);border-radius:20px 20px 0 0;padding:22px 20px 30px;width:100%;max-width:500px">
@@ -2212,13 +2134,16 @@ let _leagueOuting='mid';
 let _outingPaneChosen=false;   // true once auto-select or the golfer has picked a pane
 function switchLeagueOuting(which,auto){
   _leagueOuting=which;
-  _outingPaneChosen=true;      // don't fight the user's choice on the next data refresh
-  document.getElementById('lo-mid').style.display=which==='mid'?'':'none';
-  document.getElementById('lo-end').style.display=which==='end'?'':'none';
-  document.getElementById('lo-mid-btn').style.background=which==='mid'?'#2e7d32':'#eee';
-  document.getElementById('lo-mid-btn').style.color=which==='mid'?'white':'#555';
-  document.getElementById('lo-end-btn').style.background=which==='end'?'#2e7d32':'#eee';
-  document.getElementById('lo-end-btn').style.color=which==='end'?'white':'#555';
+  _outingPaneChosen=true;
+  // Outing tab removed in beta — guard all element refs so applyData doesn't crash
+  const mid=document.getElementById('lo-mid');
+  const end=document.getElementById('lo-end');
+  const mb=document.getElementById('lo-mid-btn');
+  const eb=document.getElementById('lo-end-btn');
+  if(mid) mid.style.display=which==='mid'?'':'none';
+  if(end) end.style.display=which==='end'?'':'none';
+  if(mb){mb.style.background=which==='mid'?'#2e7d32':'#eee';mb.style.color=which==='mid'?'white':'#555';}
+  if(eb){eb.style.background=which==='end'?'#2e7d32':'#eee';eb.style.color=which==='end'?'white':'#555';}
 }
 
 // ── Outing Sign-Up ────────────────────────────────────────────────────────────
