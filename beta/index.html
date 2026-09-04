@@ -1,15 +1,12 @@
 <!DOCTYPE html>
-<!-- WGL Beta v23 · 2026-08-28 · Fix: hidden placeholder elements for app-subtitle/wx IDs removed with header -->
+<!-- WGL Beta v54 · 2026-09-04 · Weather bar; R/W/B GPS tee labels; 18-hole option; Edit+Close review; Calendar tab; Dues merged into Roster -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js"></script>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>WGL 2026</title>
 <!-- OneSignal Web Push SDK -->
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -18,6 +15,9 @@
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: '2d45ee7e-57a8-450f-bbcd-42a872d6ac59',
+      serviceWorkerParam: { scope: '/worthington-golf-league/' },
+      serviceWorkerPath: 'OneSignalSDKWorker.js',
+      serviceWorkerUpdaterPath: 'OneSignalSDKupdaterWorker.js',
     });
   });
 </script>
@@ -26,14 +26,13 @@
 body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg,#f5f5f5); color:var(--text,#1a1a1a); font-size:14px; height:100dvh; display:flex; flex-direction:column; overflow:hidden; }
 
 /* Sync badge */
-.sync-bar { display:flex; align-items:center; gap:6px; padding:calc(env(safe-area-inset-top) + 5px) 12px 5px; font-size:11px; color:#2e7d32; background:#e8f5e9; border-bottom:1px solid #c8e6c9; flex-shrink:0; order:0; }
+.sync-bar { display:flex; align-items:center; justify-content:center; gap:6px; padding-top:calc(5px + env(safe-area-inset-top)); padding-bottom:5px; padding-left:12px; padding-right:12px; font-size:11px; color:#2e7d32; background:#e8f5e9; border-bottom:1px solid #c8e6c9; flex-shrink:0; order:0; position:relative; }
 .sync-dot { width:7px; height:7px; border-radius:50%; background:#43a047; flex-shrink:0; }
+.wx-bar { display:flex; gap:16px; align-items:center; justify-content:center; padding:4px 14px 5px; font-size:11px; color:#2e7d32; background:#e8f5e9; border-bottom:1px solid #c8e6c9; flex-shrink:0; flex-wrap:wrap; }
+.wx-bar span { display:flex; align-items:center; gap:3px; opacity:.85; }
 
-/* Header */
-.app-hdr { background:#1b5e20; color:white; padding-top:env(safe-area-inset-top); flex-shrink:0; order:1; }
-.hdr-inner { padding:10px 14px 0; }
-.hdr-inner h1 { font-size:17px; font-weight:700; }
-.hdr-sub { font-size:11px; opacity:.75; margin:1px 0 8px; }
+/* Header — removed v53; safe-area top now handled by body/sync-bar */
+.app-hdr { display:none; }
 html,body{touch-action:manipulation}
 button,.tab,.pin-btn,input,select{touch-action:manipulation}
 .tabs { flex-shrink:0; order:3; display:flex; background:var(--tabbar-bg,rgba(255,255,255,.88)); -webkit-backdrop-filter:blur(20px) saturate(180%); backdrop-filter:blur(20px) saturate(180%); border-top:.5px solid var(--tabbar-line,rgba(0,0,0,.12)); padding-bottom:env(safe-area-inset-bottom); }
@@ -46,7 +45,7 @@ button,.tab,.pin-btn,input,select{touch-action:manipulation}
 .tab.active { color:var(--tint,#2e7d32); }
 .tab.active .ticon { opacity:1; transform:scale(1.08); background:var(--tint-soft,rgba(46,125,50,.14)); }
 .tab:active .ticon { transform:scale(.88); }
-.tab-content { display:none; padding:12px 12px 20px; max-width:700px; margin:0 auto; }
+.tab-content { display:none; padding:12px 12px calc(80px + env(safe-area-inset-bottom)); max-width:700px; margin:0 auto; }
 .tab-content.active { display:block; }
 
 /* Cards */
@@ -54,9 +53,9 @@ button,.tab,.pin-btn,input,select{touch-action:manipulation}
 .card-hdr { padding:11px 14px; font-weight:700; font-size:13px; border-bottom:1px solid #f0f0f0; background:var(--card,white); }
 
 /* Settings gear (in header) */
-#gear-btn { background:none; border:none; color:white; font-size:20px; cursor:pointer; padding:4px 2px 4px 10px; -webkit-tap-highlight-color:transparent; transition:transform .3s; opacity:.85; }
-#gear-btn.open { transform:rotate(90deg); }
-#settings-panel { position:fixed; top:calc(env(safe-area-inset-top) + 62px); right:12px; width:252px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,.22); z-index:200; padding:16px; display:none; border:1px solid #ddd; }
+#gear-btn { background:none; border:none; color:#2e7d32; font-size:18px; cursor:pointer; padding:0; position:absolute; right:12px; top:50%; transform:translateY(-50%); margin-top:calc(env(safe-area-inset-top)/2); -webkit-tap-highlight-color:transparent; transition:transform .3s; opacity:.8; }
+#gear-btn.open { transform:translateY(-50%) rotate(90deg); }
+#settings-panel { position:fixed; top:calc(env(safe-area-inset-top) + 36px); right:12px; width:252px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,.22); z-index:200; padding:16px; display:none; border:1px solid #ddd; }
 #settings-panel.open { display:block; }
 .settings-title { font-size:11px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
 .seg { display:flex; background:rgba(120,120,128,.16); border-radius:9px; padding:2px; margin-bottom:14px; }
@@ -207,59 +206,25 @@ table.standings { width:100%; border-collapse:collapse; font-size:13px; }
 .gps-dist-val { font-size:28px; font-weight:800; color:#1b5e20; line-height:1; }
 .gps-dist-unit { font-size:10px; color:#aaa; margin-top:2px; }
 
-/* Weather strip */
-.wx-strip { display:flex; gap:16px; padding:0 14px 8px; font-size:11px; color:rgba(255,255,255,.85); align-items:center; flex-wrap:wrap; }
-.wx-strip span { display:flex; align-items:center; gap:4px; }
-
-/* GPS Map tab — full-screen satellite map, all UI as floating pills/buttons */
-#gps-tab { height:100%; overflow:hidden; }
-#gps-map-container { position:absolute; inset:0; height:auto; min-height:0; z-index:1; border-radius:0; overflow:hidden; }
-
-/* Accuracy dot (inside nav pill) */
-.gps-acc-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-.gps-acc-dot.green  { background:#27ae60; box-shadow:0 0 4px #27ae60; }
-.gps-acc-dot.yellow { background:#f39c12; box-shadow:0 0 4px #f39c12; }
-.gps-acc-dot.red    { background:#e74c3c; box-shadow:0 0 4px #e74c3c; }
-.gps-acc-dot.gray   { background:rgba(255,255,255,.3); }
-
-/* Top hole nav pill */
-.gps-nav-pill { position:absolute; top:calc(12px + env(safe-area-inset-top)); left:50%; transform:translateX(-50%); z-index:50; display:flex; align-items:center; gap:8px; background:rgba(0,0,0,.6); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-radius:22px; padding:8px 14px; }
-.gps-pill-btn { background:none; border:none; color:rgba(255,255,255,.9); font-size:24px; font-weight:300; cursor:pointer; padding:0 2px; line-height:1; -webkit-tap-highlight-color:transparent; }
-.gps-pill-hole { font-size:15px; font-weight:700; color:white; cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent; white-space:nowrap; padding:0 4px; }
-.gps-pill-hole:active { opacity:.7; }
-
-/* Tracer bar overlay */
-#gps-tracer-bar { position:absolute; left:0; right:0; z-index:100; top:calc(68px + env(safe-area-inset-top)); padding-top:0; }
-
-/* Bottom-left control buttons */
-.gps-ctrl-btns { position:absolute; bottom:calc(20px + env(safe-area-inset-bottom)); left:16px; z-index:45; display:flex; flex-direction:column; gap:10px; }
-.gps-ctrl-btn { width:44px; height:44px; border-radius:22px; background:rgba(0,0,0,.55); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border:none; color:white; font-size:20px; cursor:pointer; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; justify-content:center; }
-
-/* Bottom-right distance pills */
-.gps-dist-pills { position:absolute; bottom:calc(20px + env(safe-area-inset-bottom)); right:16px; z-index:45; display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
-.gps-dpill { display:flex; align-items:center; gap:8px; background:rgba(0,0,0,.55); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-radius:20px; padding:7px 14px; }
-.gps-dpill-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; opacity:.65; color:white; }
-.gps-dpill-num { font-size:20px; font-weight:800; line-height:1; }
-.gps-dpill-f .gps-dpill-num { color:#ff7b7b; }
-.gps-dpill-c .gps-dpill-num { color:#a0ffca; }
-.gps-dpill-b .gps-dpill-num { color:#7bbeff; }
-
-/* Hole picker overlay */
-#gps-hole-picker { display:none; position:absolute; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:200; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:24px; }
-#gps-hole-picker.open { display:flex; }
-.gps-picker-title { font-size:12px; font-weight:600; color:rgba(255,255,255,.5); letter-spacing:.08em; text-transform:uppercase; }
-.gps-hole-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; width:100%; max-width:320px; }
-.gps-hbtn { background:rgba(255,255,255,.12); border:0.5px solid rgba(255,255,255,.2); color:rgba(255,255,255,.85); border-radius:10px; padding:11px 4px; font-size:16px; font-weight:600; text-align:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-.gps-hbtn.sel { background:#1565c0; border-color:#1565c0; color:#fff; }
-.gps-hbtn:active { opacity:.7; transform:scale(.95); }
-.gps-picker-cancel { font-size:14px; color:#4da3ff; cursor:pointer; margin-top:4px; padding:8px 24px; }
-
-/* Spot row: overlaid at bottom, fully opaque so it covers dist grid */
-#gps-spot-row { position:absolute; bottom:0; left:0; right:0; z-index:500; background:rgba(6,12,22,1); border-top:1px solid rgba(255,255,255,.12); padding-bottom:env(safe-area-inset-bottom); }
-.gps-spot-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:6px; padding:0 12px 10px; }
-.gps-spot-card { background:rgba(255,255,255,.1); border-radius:8px; padding:8px 4px; text-align:center; }
-.gps-spot-label { font-size:9px; font-weight:600; color:rgba(255,255,255,.55); text-transform:uppercase; }
-.gps-spot-num { font-size:18px; font-weight:700; color:#7bbeff; line-height:1.2; }
+/* ── Standalone GPS tab ── */
+#gps2 { padding:0 !important; }
+.gps2-screen { background:#000; display:flex; flex-direction:column; min-height:calc(100dvh - 120px); }
+.gps2-hole-bar { display:flex; align-items:center; justify-content:space-between; padding:20px 20px 10px; }
+.gps2-nav-btn { background:rgba(255,255,255,.12); border:none; color:rgba(255,255,255,.65); font-size:24px; width:38px; height:38px; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; }
+.gps2-nav-btn:active { background:rgba(255,255,255,.22); transform:scale(.9); }
+.gps2-hole-label { font-size:28px; font-weight:700; color:#fff; letter-spacing:-.5px; text-align:center; }
+.gps2-hole-meta { font-size:12px; color:rgba(255,255,255,.4); text-align:center; margin-top:2px; }
+.gps2-yards { flex:1; display:flex; flex-direction:column; justify-content:center; padding:0 22px; gap:8px; }
+.gps2-row { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-radius:14px; }
+.gps2-row.front { background:rgba(255,255,255,.07); }
+.gps2-row.ctr { background:rgba(93,202,130,.15); border:1px solid rgba(93,202,130,.25); }
+.gps2-row.back { background:rgba(255,255,255,.07); }
+.gps2-lbl { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:rgba(255,255,255,.45); }
+.gps2-row.ctr .gps2-lbl { color:#5dca82; }
+.gps2-num { font-size:44px; font-weight:700; color:rgba(255,255,255,.78); letter-spacing:-1.5px; line-height:1; font-variant-numeric:tabular-nums; }
+.gps2-row.ctr .gps2-num { font-size:60px; color:#fff; }
+.gps2-unit-lbl { font-size:10px; color:rgba(255,255,255,.3); text-align:right; margin-top:2px; }
+.gps2-status { text-align:center; font-size:10px; color:rgba(255,255,255,.28); padding:10px 0 16px; }
 </style>
 
 <style id="theme-css">
@@ -519,34 +484,28 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
   </div>
 </div>
 
-<!-- Sync indicator (now top bar — header removed) -->
-<div class="sync-bar" style="justify-content:space-between">
-  <div style="display:flex;align-items:center;gap:6px">
-    <div class="sync-dot"></div>
-    <span id="sync-label">Loaded from wgl-data.json · just now</span>
-  </div>
-  <button id="gear-btn" onclick="toggleSettings()" style="background:none;border:none;font-size:18px;cursor:pointer;padding:0 2px;opacity:.75;-webkit-tap-highlight-color:transparent">⚙️</button>
+<!-- Sync indicator -->
+<div class="sync-bar">
+  <div class="sync-dot"></div>
+  <span id="sync-label">Loaded from wgl-data.json · just now</span>
+  <button id="gear-btn" onclick="toggleSettings()">⚙️</button>
+</div>
+<div class="wx-bar" id="wx-bar">
+  <span>🌡️ <span id="wxTemp">—</span></span>
+  <span>💨 <span id="wxWind">—</span></span>
+  <span>🌧️ <span id="wxRain">—</span></span>
 </div>
 
 <!-- Bottom tab bar -->
 <div class="tabs">
   <div class="tab active" onclick="showTab('scorecard',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5l2 2L12 13H10v-2z"/></svg></span>Score</div>
+  <div class="tab" onclick="showTab('gps2',this);gps2Open()"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 3"/></svg></span>GPS</div>
   <div class="tab" onclick="showTab('results',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span>Results</div>
   <div class="tab" onclick="showTab('standings',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>Standings</div>
   <div class="tab" onclick="showTab('news',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg></span>News</div>
   <div class="tab" onclick="showTab('roster',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span>Roster</div>
-  <div class="tab" onclick="showTab('outing',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 4H4.5A1.5 1.5 0 003 5.5v1A4.5 4.5 0 007.5 11M17 4h2.5A1.5 1.5 0 0121 5.5v1A4.5 4.5 0 0116.5 11"/><path d="M7 4h10v7a5 5 0 01-10 0V4z"/></svg></span>Outing</div>
-  <div class="tab" onclick="showTab('dues',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="13" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M3 10v5M21 10v5"/></svg></span>Dues</div>
+  <div class="tab" onclick="showTab('calendar',this);buildCalendar()"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>Cal</div>
   <div class="tab" id="tab-my" onclick="showTab('mytab',this);buildMyTab()"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>My</div>
-  <div class="tab" id="tab-gps" onclick="showTab('gps-tab',this);initGpsMap()"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg></span>GPS</div>
-</div>
-
-<!-- Hidden elements to satisfy JS references after header removal -->
-<div style="display:none" aria-hidden="true">
-  <span id="app-subtitle"></span>
-  <span id="wxTemp"></span>
-  <span id="wxWind"></span>
-  <span id="wxRain"></span>
 </div>
 
 <div id="main-scroll">
@@ -576,6 +535,8 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
         style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;font-weight:600;background:white;color:#555;cursor:pointer">Front 9</button>
       <button id="sc-back-btn" onclick="scSetSide('back')"
         style="flex:1;padding:10px;border:1.5px solid #2e7d32;border-radius:8px;font-size:13px;font-weight:600;background:#2e7d32;color:white;cursor:pointer">Back 9 ✓</button>
+      <button id="sc-18-btn" onclick="scSetSide('18')"
+        style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;font-weight:600;background:white;color:#555;cursor:pointer">18 Holes</button>
     </div>
     <div style="padding:12px 0 0">
       <div id="sc-start-err" style="color:#c62828;font-size:12px;margin-bottom:8px;display:none">Add at least one player to start.</div>
@@ -620,13 +581,12 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
         <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.07em" id="gps-strip-hole">📍 Distance</div>
         <div style="display:flex;gap:6px">
           <button id="gps-elev-btn" onclick="gpsShowElevPopup()" title="Green elevation" style="background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:white;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer">⛳</button>
-          <button id="gps-btn" onclick="gpsGetDistance()" style="background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:white;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer">📍 Locate</button>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
-        <div class="gps-dist-box" style="background:rgba(255,255,255,.12)"><div class="gps-dist-lbl" style="color:rgba(255,255,255,.6)">Front</div><div class="gps-dist-val" id="gps-front" style="color:white">—</div><div class="gps-dist-unit" style="color:rgba(255,255,255,.4)">yds</div></div>
-        <div class="gps-dist-box" style="background:rgba(255,255,255,.22)"><div class="gps-dist-lbl" style="color:rgba(255,255,255,.6)">Center</div><div class="gps-dist-val" id="gps-center" style="color:white">—</div><div class="gps-dist-unit" style="color:rgba(255,255,255,.4)">yds</div></div>
-        <div class="gps-dist-box" style="background:rgba(255,255,255,.12)"><div class="gps-dist-lbl" style="color:rgba(255,255,255,.6)">Back</div><div class="gps-dist-val" id="gps-back" style="color:white">—</div><div class="gps-dist-unit" style="color:rgba(255,255,255,.4)">yds</div></div>
+        <div class="gps-dist-box" style="background:rgba(255,80,80,.18)"><div class="gps-dist-lbl" style="color:#ff8a80">Red</div><div class="gps-dist-val" id="gps-front" style="color:#ffb3b3;font-size:26px">—</div><div class="gps-dist-unit" style="color:rgba(255,180,180,.5)">yds</div></div>
+        <div class="gps-dist-box" style="background:rgba(255,255,255,.22)"><div class="gps-dist-lbl" style="color:rgba(255,255,255,.7)">White</div><div class="gps-dist-val" id="gps-center" style="color:white;font-size:34px">—</div><div class="gps-dist-unit" style="color:rgba(255,255,255,.4)">yds</div></div>
+        <div class="gps-dist-box" style="background:rgba(80,140,255,.2)"><div class="gps-dist-lbl" style="color:#82b1ff">Blue</div><div class="gps-dist-val" id="gps-back" style="color:#b3ccff;font-size:26px">—</div><div class="gps-dist-unit" style="color:rgba(160,200,255,.5)">yds</div></div>
       </div>
       <div id="gps-elev" style="display:none;font-size:12px;font-weight:700;color:rgba(255,255,255,.85);text-align:center;margin-top:7px"></div>
       <div id="gps-status" style="font-size:10px;color:rgba(255,255,255,.45);text-align:center;margin-top:6px"></div>
@@ -650,14 +610,44 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
     <div id="sc-review-body"></div>
     <div style="padding:12px 0 0">
       <button id="sc-submit-btn" class="sc-btn" onclick="scSubmit()">📤 Submit Card to League</button>
-      <button id="sc-add-nine-btn" class="sc-btn-ghost" onclick="scAddSecondNine()"
-        style="margin-top:6px;border:1.5px solid #2e7d32;color:#2e7d32;font-weight:700">+ Play Another 9</button>
       <div id="sc-submit-status" style="display:none;padding:10px;border-radius:8px;font-size:14px;font-weight:600;text-align:center;margin:8px 0"></div>
-      <button class="sc-btn-ghost" onclick="scGoBack()">← Back to Scoring</button>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <button class="sc-btn-ghost" onclick="scGoBack()" style="flex:1;border:1.5px solid #ccc;color:#555">✏️ Edit</button>
+        <button class="sc-btn-ghost" onclick="scCloseCard()" style="flex:1;border:1.5px solid #2e7d32;color:#2e7d32;font-weight:700">✓ Close</button>
+      </div>
       <div id="sc-submit-note" class="sc-note">Sends scores directly to the WGL system · Commissioner reviews before official</div>
     </div>
   </div>
 
+</div>
+
+<!-- GPS TAB — standalone rangefinder -->
+<div id="gps2" class="tab-content">
+  <div class="gps2-screen">
+    <div class="gps2-hole-bar">
+      <button class="gps2-nav-btn" onclick="gps2HoleNav(-1)">&#8249;</button>
+      <div>
+        <div class="gps2-hole-label" id="gps2-hole">Hole 1</div>
+        <div class="gps2-hole-meta" id="gps2-meta">Par 4</div>
+      </div>
+      <button class="gps2-nav-btn" onclick="gps2HoleNav(1)">&#8250;</button>
+    </div>
+    <div class="gps2-yards">
+      <div class="gps2-row front">
+        <span class="gps2-lbl">Front</span>
+        <div style="text-align:right"><div class="gps2-num" id="gps2-front">—</div><div class="gps2-unit-lbl">yds</div></div>
+      </div>
+      <div class="gps2-row ctr">
+        <span class="gps2-lbl">Center</span>
+        <div style="text-align:right"><div class="gps2-num" id="gps2-center">—</div><div class="gps2-unit-lbl">yds</div></div>
+      </div>
+      <div class="gps2-row back">
+        <span class="gps2-lbl">Back</span>
+        <div style="text-align:right"><div class="gps2-num" id="gps2-back">—</div><div class="gps2-unit-lbl">yds</div></div>
+      </div>
+    </div>
+    <div class="gps2-status" id="gps2-status">Acquiring GPS…</div>
+  </div>
 </div>
 
 <!-- NEWS (dynamic from wgl-data.json) -->
@@ -672,14 +662,97 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 </div>
 
 <!-- OUTING (dynamic from wgl-data.json) -->
-<div id="outing" class="tab-content">
+<div id="calendar" class="tab-content">
   <div style="margin-top:12px">
-
-    <!-- Outing selector -->
-    <div style="display:flex;gap:8px;margin-bottom:14px">
-      <button id="lo-mid-btn" onclick="switchLeagueOuting('mid')" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#2e7d32;color:white;-webkit-tap-highlight-color:transparent">🏌️ Mid-Season</button>
-      <button id="lo-end-btn" onclick="switchLeagueOuting('end')" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#eee;color:#555;-webkit-tap-highlight-color:transparent">🏆 End of Season</button>
+    <!-- Month nav -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <button onclick="calChangeMonth(-1)" style="background:none;border:none;font-size:22px;color:#2e7d32;cursor:pointer;padding:4px 8px">‹</button>
+      <div id="cal-title" style="font-size:17px;font-weight:700"></div>
+      <button onclick="calChangeMonth(1)" style="background:none;border:none;font-size:22px;color:#2e7d32;cursor:pointer;padding:4px 8px">›</button>
     </div>
+    <!-- View toggle -->
+    <div style="display:flex;background:rgba(0,0,0,.06);border-radius:10px;padding:2px;margin-bottom:12px">
+      <button id="cal-grid-btn" onclick="calShowView('grid',this)" style="flex:1;padding:8px;text-align:center;font-size:13px;font-weight:600;border:none;border-radius:8px;cursor:pointer;background:white;color:#2e7d32;box-shadow:0 1px 3px rgba(0,0,0,.18)">📅 Calendar</button>
+      <button id="cal-list-btn" onclick="calShowView('list',this)" style="flex:1;padding:8px;text-align:center;font-size:13px;font-weight:600;border:none;border-radius:8px;cursor:pointer;background:none;color:#666">📋 Schedule</button>
+    </div>
+    <!-- Grid view -->
+    <div id="cal-grid-view">
+      <div class="card" style="overflow:hidden;margin-bottom:10px">
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);background:#f9f9f9;border-bottom:.5px solid #f0f0f0">
+          <span style="text-align:center;font-size:11px;font-weight:700;color:#888;padding:6px 0">Su</span>
+          <span style="text-align:center;font-size:11px;font-weight:700;color:#888;padding:6px 0">Mo</span>
+          <span style="text-align:center;font-size:11px;font-weight:700;color:#888;padding:6px 0">Tu</span>
+          <span style="text-align:center;font-size:11px;font-weight:700;color:#888;padding:6px 0">We</span>
+          <span style="text-align:center;font-size:11px;font-weight:700;color:#888;padding:6px 0">Th</span>
+          <span style="text-align:center;font-size:11px;font-weight:700;color:#888;padding:6px 0">Fr</span>
+          <span style="text-align:center;font-size:11px;font-weight:700;color:#888;padding:6px 0">Sa</span>
+        </div>
+        <div id="cal-days" style="display:grid;grid-template-columns:repeat(7,1fr)"></div>
+      </div>
+      <div id="cal-day-detail" style="display:none" class="card">
+        <div style="padding:12px 14px">
+          <div id="cal-detail-date" style="font-size:14px;font-weight:700;margin-bottom:8px"></div>
+          <div id="cal-detail-events"></div>
+        </div>
+      </div>
+    </div>
+    <!-- List view -->
+    <div id="cal-list-view" style="display:none">
+      <div id="cal-list-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Outing detail sheet -->
+<div id="outing-sheet" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;align-items:flex-end" onclick="if(event.target===this)calCloseOuting()">
+  <div style="background:#f5f5f5;border-radius:20px 20px 0 0;width:100%;max-height:88dvh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom)">
+    <div style="width:36px;height:4px;background:#ddd;border-radius:2px;margin:10px auto 6px"></div>
+    <div style="padding:0 14px 20px">
+      <div style="background:#bf360c;border-radius:12px;padding:14px;margin-bottom:12px;color:white;text-align:center">
+        <div style="font-size:17px;font-weight:700">⛳ End-of-Season Outing</div>
+        <div style="font-size:12px;opacity:.85;margin-top:3px">Saturday, August 29, 2026</div>
+      </div>
+      <div class="card" style="margin-bottom:10px">
+        <div style="padding:11px 14px;border-bottom:.5px solid #f0f0f0;font-size:13px;display:flex;gap:10px"><span style="font-size:18px">🏌️</span><div><div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase">Course</div><div style="font-weight:500">Hiland Golf Club · 18 holes · Scramble</div></div></div>
+        <div style="padding:11px 14px;border-bottom:.5px solid #f0f0f0;font-size:13px;display:flex;gap:10px"><span style="font-size:18px">⏰</span><div><div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase">Tee Time</div><div style="font-weight:500">8:00 AM Shotgun · Check in 7:30</div></div></div>
+        <div style="padding:11px 14px;border-bottom:.5px solid #f0f0f0;font-size:13px;display:flex;gap:10px"><span style="font-size:18px">💵</span><div><div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase">Cost</div><div style="font-weight:500">$65 — includes green fee, cart, dinner</div></div></div>
+        <div style="padding:11px 14px;font-size:13px;display:flex;gap:10px"><span style="font-size:18px">🍽️</span><div><div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase">Dinner</div><div style="font-weight:500">The Farm at Hiland · Awards &amp; prizes</div></div></div>
+      </div>
+      <button onclick="showTab('scorecard',document.querySelector('.tab'));calCloseOuting()" style="display:block;width:100%;padding:15px;background:#2e7d32;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;text-align:center;cursor:pointer;margin-bottom:10px">📲 Open Scorecard</button>
+      <button onclick="calCloseOuting()" style="display:block;width:100%;padding:12px;background:#f0f0f0;color:#555;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Legacy outing content kept for data/JS references — hidden -->
+<div id="outing" style="display:none">
+  <div id="outing-body"></div><div id="prizes-card"></div><div id="prizes-body"></div>
+  <div id="signups-card"></div><div id="signup-cnt"></div><div id="signups-body"></div>
+  <div id="teams-card"></div><div id="teams-body"></div>
+  <div id="lo-mid"></div><div id="lo-end"></div>
+  <div id="outing2-body"></div><div id="prizes2-card"></div><div id="prizes2-body"></div>
+  <div id="signups2-card"></div><div id="signup2-cnt"></div><div id="signups2-body"></div>
+  <div id="teams2-card"></div><div id="teams2-body"></div>
+</div>
+
+<!-- Original outing modals kept for JS -->
+<div id="signup-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;align-items:flex-end;justify-content:center" onclick="closeSignupForm(event)">
+  <div id="signup-modal" style="background:white;color:#1a1a1a;border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:500px">
+    <div style="font-size:18px;font-weight:700;margin-bottom:4px" id="signup-modal-title">Sign Up for the Outing</div>
+    <div style="font-size:13px;color:#888;margin-bottom:18px" id="signup-modal-sub"></div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;display:block;margin-bottom:5px">Your Name</label>
+      <input id="signup-name" type="text" list="league-names" autocomplete="off" placeholder="Pick a league name or type a guest's name" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:10px;font-size:15px">
+      <datalist id="league-names"></datalist>
+    </div>
+    <div style="margin-bottom:18px">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;display:block;margin-bottom:5px">Notes (optional)</label>
+      <input id="signup-notes" type="text" placeholder="e.g. bringing a guest, dietary needs…" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:10px;font-size:14px">
+    </div>
+    <button onclick="submitSignup()" style="width:100%;padding:14px;background:#2e7d32;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">Send Sign-Up Email</button>
+    <button onclick="closeSignupForm()" style="width:100%;padding:12px;background:#f5f5f5;color:#555;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
+  </div>
+</div>
 
     <!-- Mid-Season -->
     <div id="lo-mid">
@@ -804,11 +877,11 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
   </div>
 </div>
 
-<!-- ROSTER (NEW TAB — player phone numbers) -->
+<!-- ROSTER + DUES (combined tab) -->
 <div id="roster" class="tab-content">
   <div style="margin-top:12px">
-    <div class="card" style="padding:12px 14px;font-size:13px;color:#2e7d32;font-weight:600;background:#e8f5e9">
-      👥 Tap any player to see contact details &amp; handicap info
+    <div class="search-wrap" style="margin-bottom:10px">
+      <input type="text" id="roster-search" class="search-input" placeholder="Search players…" oninput="rosterFilter(this.value)" autocomplete="off">
     </div>
     <div id="roster-list"></div>
   </div>
@@ -835,69 +908,6 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 </div>
 
 <div id="mytab" class="tab-content"><div id="my-body" style="margin-top:12px"></div></div>
-<!-- GPS Yardage Tab -->
-<div id="gps-tab" class="tab-content" style="padding:0;position:relative">
-  <div id="gps-map-container"></div>
-
-  <!-- Top: hole nav pill -->
-  <div class="gps-nav-pill">
-    <button class="gps-pill-btn" onclick="gpsMapChangeHole(-1)">‹</button>
-    <div class="gps-pill-hole" id="gps-map-hole-label" onclick="gpsMapShowPicker()">Hole 1 ▾</div>
-    <button class="gps-pill-btn" onclick="gpsMapChangeHole(1)">›</button>
-    <div class="gps-acc-dot gray" id="gps-acc-dot"></div>
-  </div>
-
-  <!-- Bottom-left: control buttons -->
-  <div class="gps-ctrl-btns">
-    <button id="gps-rot-lock" onclick="gpsMapToggleLock()" class="gps-ctrl-btn">🔓</button>
-    <button id="gps-trace-toggle" onclick="gpsToggleTracerBar()" class="gps-ctrl-btn">📐</button>
-  </div>
-
-  <!-- Bottom-right: distance pills -->
-  <div class="gps-dist-pills">
-    <div class="gps-dpill gps-dpill-f"><span class="gps-dpill-lbl">F</span><span class="gps-dpill-num" id="gps-map-front">—</span></div>
-    <div class="gps-dpill gps-dpill-c"><span class="gps-dpill-lbl">C</span><span class="gps-dpill-num" id="gps-map-center">—</span></div>
-    <div class="gps-dpill gps-dpill-b"><span class="gps-dpill-lbl">B</span><span class="gps-dpill-num" id="gps-map-back">—</span></div>
-  </div>
-
-  <div id="gps-map-status" style="display:none"><span id="gps-map-status-text"></span></div>
-  <!-- GPS Tracer tools — overlaid inside the map, toggled by 📐 button -->
-  <div id="gps-tracer-bar" style="display:none;background:#1b5e20;color:white">
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px 4px">
-      <button id="gps-trace-btn" onclick="gpsTraceToggle()"
-        style="flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.15);color:white;font-size:14px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">
-        📐 Trace Green
-      </button>
-      <button id="gps-trace-clear" onclick="gpsTraceClear()" style="display:none;padding:9px 12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.35);background:none;color:white;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:transparent">Clear</button>
-      <button onclick="toggleSettings()" style="background:none;border:none;color:white;font-size:20px;cursor:pointer;padding:4px 2px 4px 6px;opacity:.85;-webkit-tap-highlight-color:transparent">⚙️</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;padding:2px 12px 8px">
-      <span style="font-size:12px;opacity:.75">📏</span>
-      <input id="gps-device-height" type="number" value="3.0" step="0.5" min="0" max="10"
-        style="width:52px;padding:3px 6px;border:1px solid rgba(255,255,255,.4);border-radius:8px;font-size:13px;text-align:center;background:rgba(255,255,255,.15);color:white"
-        onchange="gpsDeviceHeightSave(this.value)" oninput="gpsDeviceHeightSave(this.value)">
-      <span style="font-size:12px;opacity:.75">ft</span>
-      <div id="gps-trace-status" style="flex:1;font-size:11px;color:rgba(255,255,255,.8);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
-      <button id="gps-trace-export" onclick="gpsTraceExport()" style="display:none;padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.4);background:none;font-size:12px;font-weight:600;color:white;cursor:pointer;-webkit-tap-highlight-color:transparent;white-space:nowrap">📧 Export</button>
-    </div>
-  </div>
-  <!-- Hole picker overlay -->
-  <div id="gps-hole-picker">
-    <div class="gps-picker-title">Jump to hole</div>
-    <div class="gps-hole-grid" id="gps-hole-grid"></div>
-    <div class="gps-picker-cancel" onclick="gpsMapHidePicker()">Cancel</div>
-  </div>
-  <div id="gps-spot-row" style="display:none">
-    <div style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;text-align:center;padding:6px 0 2px;letter-spacing:.05em">📍 Spot</div>
-    <div class="gps-spot-grid">
-      <div class="gps-spot-card"><div class="gps-spot-label">You→Spot</div><div class="gps-spot-num" id="gps-spot-you">—</div></div>
-      <div class="gps-spot-card"><div class="gps-spot-label">Front</div><div class="gps-spot-num" id="gps-spot-front">—</div></div>
-      <div class="gps-spot-card"><div class="gps-spot-label">Center</div><div class="gps-spot-num" id="gps-spot-center">—</div></div>
-      <div class="gps-spot-card"><div class="gps-spot-label">Back</div><div class="gps-spot-num" id="gps-spot-back">—</div></div>
-    </div>
-  </div>
-
-</div>
 
 <!-- Card Type Modal — shown every time Score tab is tapped with no card in progress -->
 <div id="ctm-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:450;align-items:center;justify-content:center;padding:24px">
@@ -930,6 +940,17 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
     <select id="welcome-identity" style="width:100%;padding:12px;border:1.5px solid #ccc;border-radius:10px;font-size:15px;background:var(--card,#fff);color:var(--text,#111);margin-bottom:14px"></select>
     <button onclick="welcomeSave()" style="width:100%;padding:13px;background:var(--tint,#2e7d32);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;-webkit-tap-highlight-color:transparent">That's Me</button>
     <button onclick="welcomeSkip()" style="width:100%;padding:11px;background:none;border:none;color:#999;font-size:13px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">Skip for now</button>
+  </div>
+</div>
+
+<!-- Push notification prompt (auto-shows on first open) -->
+<div id="push-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:401;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--card,#fff);color:var(--text,#111);border-radius:20px;padding:26px 22px;width:100%;max-width:360px;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,.3)">
+    <div style="font-size:42px">🔔</div>
+    <div style="font-size:19px;font-weight:800;margin:6px 0 4px">Stay in the Loop</div>
+    <div style="font-size:13px;color:#888;margin-bottom:20px;line-height:1.5">Get notified when weekly results are posted and league announcements go out.</div>
+    <button onclick="pushModalEnable()" style="width:100%;padding:13px;background:var(--tint,#2e7d32);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;-webkit-tap-highlight-color:transparent">Enable Notifications</button>
+    <button onclick="pushModalSkip()" style="width:100%;padding:11px;background:none;border:none;color:#999;font-size:13px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">Maybe Later</button>
   </div>
 </div>
 
@@ -1007,6 +1028,9 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 // ── Live data fetch ───────────────────────────────────────────────────────────
 const DATA_BASE='https://raw.githubusercontent.com/wsb76-ui/worthington-golf-league/main/wgl-data.json';
 
+// ── HTML-escape helper — use whenever user/GAS data goes into innerHTML ───────
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
 // ── Default/fallback data (used until wgl-data.json is fetched) ───────────────
 const MOCK_DATA = {
   settings: {
@@ -1019,63 +1043,63 @@ const MOCK_DATA = {
     pot: "$800"
   },
   players: {
-    "Larry Julius":    {team:1,hcp:2,phone:"724-555-0101"},
-    "Kris Simmons":    {team:1,hcp:4,phone:""},
-    "Butch Griffith":  {team:1,hcp:12,phone:"724-555-0103"},
-    "Mario Jenkins":   {team:1,hcp:10,phone:""},
-    "Frank Watt":      {team:1,hcp:16,phone:""},
-    "Paul Harmon":     {team:1,hcp:15,phone:"724-555-0106"},
-    "Andy Gallagher":  {team:1,hcp:16,phone:""},
-    "Keith Clark":     {team:1,hcp:20,phone:""},
-    "Jim Frye":        {team:2,hcp:1,phone:"724-555-0201"},
-    "Skylar Grafton":  {team:2,hcp:8,phone:""},
-    "Nick Keefer":     {team:2,hcp:9,phone:"724-555-0203"},
-    "Jeff Hollobaugh": {team:2,hcp:12,phone:""},
-    "Andy Patz":       {team:2,hcp:14,phone:""},
-    "Trent Brocious":  {team:2,hcp:15,phone:""},
-    "Wilbur Dudley":   {team:2,hcp:18,phone:""},
-    "Duck Julius":     {team:3,hcp:1,phone:"724-555-0301"},
-    "Willie Powell":   {team:3,hcp:10,phone:""},
-    "Bruce Thomas":    {team:3,hcp:10,phone:""},
-    "Scott Barton":    {team:3,hcp:11,phone:""},
-    "Dave Cushey":     {team:3,hcp:12,phone:"724-555-0305"},
+    "Larry Julius":    {team:1,hcp:1,phone:"724-555-0101"},
+    "Kris Simmons":    {team:1,hcp:6,phone:""},
+    "Butch Griffith":  {team:1,hcp:8,phone:"724-555-0103"},
+    "Mario Jenkins":   {team:1,hcp:13,phone:""},
+    "Frank Watt":      {team:1,hcp:10,phone:""},
+    "Paul Harmon":     {team:1,hcp:12,phone:"724-555-0106"},
+    "Andy Gallagher":  {team:1,hcp:14,phone:""},
+    "Keith Clark":     {team:1,hcp:13,phone:""},
+    "Jim Frye":        {team:2,hcp:2,phone:"724-555-0201"},
+    "Skylar Grafton":  {team:2,hcp:7,phone:""},
+    "Nick Keefer":     {team:2,hcp:11,phone:"724-555-0203"},
+    "Jeff Hollobaugh": {team:2,hcp:10,phone:""},
+    "Andy Patz":       {team:2,hcp:18,phone:""},
+    "Trent Brocious":  {team:2,hcp:12,phone:""},
+    "Wilbur Dudley":   {team:2,hcp:15,phone:""},
+    "Duck Julius":     {team:3,hcp:2,phone:"724-555-0301"},
+    "Willie Powell":   {team:3,hcp:7,phone:""},
+    "Bruce Thomas":    {team:3,hcp:8,phone:""},
+    "Scott Barton":    {team:3,hcp:10,phone:""},
+    "Dave Cushey":     {team:3,hcp:9,phone:"724-555-0305"},
     "Dicky Peat":      {team:3,hcp:17,phone:""},
     "Allan Voltz":     {team:3,hcp:20,phone:""},
-    "Clark Helm":      {team:4,hcp:5,phone:""},
-    "Harry Breski":    {team:4,hcp:7,phone:"724-555-0402"},
-    "Roger Hoffman":   {team:4,hcp:7,phone:""},
+    "Clark Helm":      {team:4,hcp:6,phone:""},
+    "Harry Breski":    {team:4,hcp:5,phone:"724-555-0402"},
+    "Roger Hoffman":   {team:4,hcp:8,phone:""},
     "Chad Hollobaugh": {team:4,hcp:10,phone:""},
-    "Blake Bowser":    {team:4,hcp:15,phone:""},
-    "Tom Stennett":    {team:4,hcp:14,phone:""},
+    "Blake Bowser":    {team:4,hcp:18,phone:""},
+    "Tom Stennett":    {team:4,hcp:13,phone:""},
     "Landon Badac":    {team:4,hcp:17,phone:""},
-    "Eli Hickman":     {team:5,hcp:8,phone:"724-555-0501"},
-    "Jaxon Smith":     {team:5,hcp:9,phone:""},
-    "Bill Long":       {team:5,hcp:9,phone:""},
+    "Eli Hickman":     {team:5,hcp:5,phone:"724-555-0501"},
+    "Jaxon Smith":     {team:5,hcp:8,phone:""},
+    "Bill Long":       {team:5,hcp:6,phone:""},
     "Tyler Eroh":      {team:5,hcp:8,phone:""},
     "Denny Snyder":    {team:5,hcp:9,phone:"724-555-0505"},
-    "Don Nulph":       {team:5,hcp:11,phone:""},
-    "Dave Toy":        {team:5,hcp:10,phone:""},
-    "Sam Long":        {team:6,hcp:7,phone:""},
-    "Jay Griffith":    {team:6,hcp:9,phone:"724-555-0602"},
-    "Kevin Frye":      {team:6,hcp:9,phone:""},
-    "Jesse Hickman":   {team:6,hcp:13,phone:""},
-    "Jim Goodman":     {team:6,hcp:17,phone:""},
+    "Don Nulph":       {team:5,hcp:12,phone:""},
+    "Dave Toy":        {team:5,hcp:15,phone:""},
+    "Sam Long":        {team:6,hcp:6,phone:""},
+    "Jay Griffith":    {team:6,hcp:5,phone:"724-555-0602"},
+    "Kevin Frye":      {team:6,hcp:7,phone:""},
+    "Jesse Hickman":   {team:6,hcp:9,phone:""},
+    "Jim Goodman":     {team:6,hcp:10,phone:""},
     "Dylan Barton":    {team:6,hcp:20,phone:""},
-    "Matt Nulph":      {team:6,hcp:20,phone:""},
-    "Ed Bargerstock":  {team:7,hcp:4,phone:"724-555-0701"},
-    "Vince Sanzotti":  {team:7,hcp:7,phone:""},
-    "Mike Hickman":    {team:7,hcp:5,phone:""},
-    "Chris Remaley":   {team:7,hcp:11,phone:"724-555-0704"},
-    "Jason Smith":     {team:7,hcp:11,phone:""},
+    "Matt Nulph":      {team:6,hcp:17,phone:""},
+    "Ed Bargerstock":  {team:7,hcp:5,phone:"724-555-0701"},
+    "Vince Sanzotti":  {team:7,hcp:6,phone:""},
+    "Mike Hickman":    {team:7,hcp:7,phone:""},
+    "Chris Remaley":   {team:7,hcp:10,phone:"724-555-0704"},
+    "Jason Smith":     {team:7,hcp:10,phone:""},
     "Wes Barton":      {team:7,hcp:12,phone:"724-814-0000"},
-    "Doug Anthony":    {team:7,hcp:10,phone:""},
+    "Doug Anthony":    {team:7,hcp:15,phone:""},
     "Brian Barton":    {team:8,hcp:6,phone:""},
-    "Logan Bowser":    {team:8,hcp:10,phone:""},
-    "Paul Bowser":     {team:8,hcp:8,phone:"724-555-0803"},
-    "Ken Long":        {team:8,hcp:13,phone:""},
+    "Logan Bowser":    {team:8,hcp:13,phone:""},
+    "Paul Bowser":     {team:8,hcp:7,phone:"724-555-0803"},
+    "Ken Long":        {team:8,hcp:9,phone:""},
     "Patric Weber":    {team:8,hcp:15,phone:""},
-    "Cole Clark":      {team:8,hcp:15,phone:""},
-    "Dylan Smith":     {team:8,hcp:16,phone:""}
+    "Cole Clark":      {team:8,hcp:18,phone:""},
+    "Dylan Smith":     {team:8,hcp:13,phone:""}
   },
   buyins: {
     "Larry Julius":   {skins:true,lownet:true},
@@ -1300,12 +1324,12 @@ function scLoadFav(fi){
   const fav=favs[fi];
   if(!fav)return;
   // Reset session with favorite's players
-  scSess={players:[],scores:{},hole:0,side:fav.side,cardType:scSess.cardType||'league_night',targetWeek:null,targetDate:scSess.targetDate||null,completedSegments:[]};
+  scSess={players:[],scores:{},hole:0,side:fav.side,cardType:'league_night',targetWeek:null,targetDate:null,completedSegments:[]};
   scSetSide(fav.side);
   const roster=scGetRoster();
   for(const p of fav.players){
     const info=roster[p.name]||{team:p.team,hcp:p.hcp};
-    scSess.players.push({name:p.name,team:info.team,hcp:info.hcp,purpose:scSess.cardType||'league_night',targetWeek:null,targetDate:scSess.targetDate||null});
+    scSess.players.push({name:p.name,team:info.team,hcp:info.hcp,purpose:'league_night',targetWeek:null,targetDate:null});
     scSess.scores[p.name]=Array(scGetHoles().length).fill(null);
   }
   scRenderAdded();
@@ -1317,12 +1341,12 @@ function scLoadRecent(hi){
   const r=history[hi];
   if(!r)return;
   // Reset session with this recent group (current roster team/HCP)
-  scSess={players:[],scores:{},hole:0,side:r.side||'back',cardType:scSess.cardType||'league_night',targetWeek:null,targetDate:scSess.targetDate||null,completedSegments:[]};
+  scSess={players:[],scores:{},hole:0,side:r.side||'back',cardType:'league_night',targetWeek:null,targetDate:null,completedSegments:[]};
   scSetSide(scSess.side);
   const roster=scGetRoster();
   for(const name of r.players){
     const info=roster[name]||{team:'',hcp:0};
-    scSess.players.push({name:name,team:info.team,hcp:info.hcp,purpose:scSess.cardType||'league_night',targetWeek:null,targetDate:scSess.targetDate||null});
+    scSess.players.push({name:name,team:info.team,hcp:info.hcp,purpose:'league_night',targetWeek:null,targetDate:null});
     scSess.scores[name]=Array(scGetHoles().length).fill(null);
   }
   scRenderAdded();
@@ -1387,8 +1411,10 @@ function scSetPlayerPurpose(pi, purpose){
   if(!p)return;
   p.purpose = purpose;
   if(purpose==='play_ahead'){
-    p.targetWeek = p.targetWeek || scSess.targetWeek || (D.settings&&+D.settings.week+1) || null;
+    p.targetWeek = p.targetWeek || scSess.targetWeek || null;
+    p.targetDate = null;
   } else {
+    p.targetDate = scSess.targetDate||null;
     p.targetWeek = null;
   }
   SC_STORE.save();
@@ -1453,7 +1479,7 @@ function scAddPlayer(i){
   const [name,info]=_scHits[i]||[];
   if(!name||!info||scSess.players.find(p=>p.name===name))return;
   const purpose=scSess.cardType||'league_night';
-  const targetWeek=scSess.targetWeek||null;
+  const targetWeek=purpose==='play_ahead'?(scSess.targetWeek||null):null;
   scSess.players.push({name,team:info.team,hcp:info.hcp,purpose,targetWeek});
   scSess.scores[name]=Array(scGetHoles().length).fill(null);
   _scHits=[];
@@ -1500,6 +1526,7 @@ function scRenderAdded(){
 
 function scStart(){
   if(!scSess.players.length){document.getElementById('sc-start-err').style.display='block';return;}
+  scSess.players.sort((a,b)=>a.hcp-b.hcp); // lowest HCP first
   scSess.hole=0;
   SC_STORE.save();
   scShowStep('sc-step-scoring');
@@ -1530,7 +1557,7 @@ function scMidAdd(i){
   const [name,info]=_scMidHits[i]||[];
   if(!name||!info||scSess.players.find(p=>p.name===name))return;
   const purpose=scSess.cardType||'league_night';
-  const targetWeek=scSess.targetWeek||null;
+  const targetWeek=purpose==='play_ahead'?(scSess.targetWeek||null):null;
   scSess.players.push({name,team:info.team,hcp:info.hcp,purpose,targetWeek});
   scSess.scores[name]=Array(scGetHoles().length).fill(null);
   _scMidHits=[];
@@ -1600,6 +1627,7 @@ function scAdj(pi,delta){
   if(el){el.textContent=cur;el.style.color='var(--text,#1a1a1a)';}
   document.getElementById('sc-progress').innerHTML=scMkProgress();
   SC_STORE.save();
+  // No auto-advance — player taps Next manually to reach review
 }
 
 function scHoleNav(dir){
@@ -1657,40 +1685,6 @@ function scRenderSegmentBlock(side, scoreMap, purposes){
   return html;
 }
 
-// Gate: open CTM before showing review so card type is set for all players first
-function scGoToReview(){
-  ctmOpen();
-  _ctmOnConfirm = ()=>scShowReview();
-}
-
-// Per-player type toggle on the review card
-function scSetPlayerType(idx, type){
-  const p=scSess.players[idx];
-  if(!p) return;
-  p.purpose=type;
-  if(type!=='league_night'){ p.targetDate=null; p.targetWeek=null; }
-  else { p.targetDate=scSess.targetDate||null; p.targetWeek=null; }
-  scRenderReviewTypes();
-}
-function scRenderReviewTypes(){
-  const el=document.getElementById('sc-player-types');
-  if(!el) return;
-  // Show the selected date (e.g. "Aug 4") or blank if not yet set
-  const lnDate=scSess.targetDate ? new Date(scSess.targetDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
-  let h='';
-  scSess.players.forEach((p,i)=>{
-    const cur=p.purpose||'league_night';
-    const btnStyle=(active)=>`padding:5px 10px;border-radius:8px;border:1.5px solid ${active?'var(--tint,#2e7d32)':'#ddd'};background:${active?'var(--tint,#2e7d32)':'var(--card,#fff)'};color:${active?'white':'var(--text,#666)'};font-size:12px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent`;
-    h+=`<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f0f0f0">
-      <span style="flex:1;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
-      <button onclick="scSetPlayerType(${i},'league_night')" style="${btnStyle(cur==='league_night')}">🏌️${cur==='league_night'&&lnDate?' '+lnDate:''}</button>
-      <button onclick="scSetPlayerType(${i},'bank_card')" style="${btnStyle(cur==='bank_card')}">🏦</button>
-      <button onclick="scSetPlayerType(${i},'practice')" style="${btnStyle(cur==='practice')}">⛳</button>
-    </div>`;
-  });
-  el.innerHTML=h;
-}
-
 function scShowReview(){
   scShowStep('sc-step-review');
   const wk=D.settings&&D.settings.week?D.settings.week:'?';
@@ -1727,11 +1721,206 @@ function scShowReview(){
   }
 }
 
+// Gate: open CTM before showing review so card type is set for all players first
+function scGoToReview(){
+  ctmOpen();
+  _ctmOnConfirm = ()=>scShowReview();
+}
+
+// Per-player type toggle on the review card
+function scSetPlayerType(idx, type){
+  const p=scSess.players[idx];
+  if(!p) return;
+  p.purpose=type;
+  if(type!=='league_night') p.targetWeek=null;
+  else p.targetWeek=scSess.targetWeek||null;
+  scRenderReviewTypes();
+}
+function scRenderReviewTypes(){
+  const el=document.getElementById('sc-player-types');
+  if(!el) return;
+  const mondays=ctmGetMondays();
+  const lnDate=scSess.targetDate ? new Date(scSess.targetDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+  let h='';
+  scSess.players.forEach((p,i)=>{
+    const cur=p.purpose||'league_night';
+    const btnStyle=(active)=>`padding:5px 10px;border-radius:8px;border:1.5px solid ${active?'var(--tint,#2e7d32)':'#ddd'};background:${active?'var(--tint,#2e7d32)':'var(--card,#fff)'};color:${active?'white':'var(--text,#666)'};font-size:12px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent`;
+    h+=`<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f0f0f0">
+      <span style="flex:1;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
+      <button onclick="scSetPlayerType(${i},'league_night')" style="${btnStyle(cur==='league_night')}">🏌️${cur==='league_night'&&lnDate?' '+lnDate:''}</button>
+      <button onclick="scSetPlayerType(${i},'bank_card')" style="${btnStyle(cur==='bank_card')}">🏦</button>
+      <button onclick="scSetPlayerType(${i},'practice')" style="${btnStyle(cur==='practice')}">⛳</button>
+    </div>`;
+  });
+  el.innerHTML=h;
+}
+
+// ── Card Type Modal ───────────────────────────────────────────────────────────
+let _ctmDateIdx = null;    // which date button is selected (0/1/2)
+let _ctmOnConfirm = null;  // callback to fire after CTM confirm (e.g. scSubmit)
+
+function ctmGetMondays(){
+  const fmt = d => d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  const iso = d => { const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; };
+
+  const today = new Date();
+  const isMonday = today.getDay() === 1;
+
+  // Use published season calendar (D.calendar) if available — shows only actual league nights
+  if(D.calendar && D.calendar.length){
+    const todayStr = iso(today);
+    const sorted = D.calendar.slice().sort((a,b) => a.date < b.date ? -1 : 1);
+    let idx = sorted.findIndex(e => e.date >= todayStr);
+    if(idx < 0) idx = sorted.length;
+    // Monday 12:01 AM: start at today's entry so tonight shows first
+    // Tue–Sun: step back one so last league night shows for late submissions
+    const start = isMonday ? idx : Math.max(0, idx - 1);
+    const results = [];
+    for(let i = start; i < sorted.length && results.length < 3; i++){
+      results.push({label: fmt(new Date(sorted[i].date + 'T12:00:00')), dateStr: sorted[i].date});
+    }
+    if(results.length) return results;
+  }
+
+  // Fallback: pure Monday calendar math — no dependence on settings.week
+  const dow = today.getDay();
+  const thisMon = new Date(today);
+  if(dow===0) thisMon.setDate(today.getDate()-6);
+  else if(dow!==1) thisMon.setDate(today.getDate()-(dow-1));
+  const lastMon = new Date(thisMon); lastMon.setDate(thisMon.getDate()-7);
+  const nextMon = new Date(thisMon); nextMon.setDate(thisMon.getDate()+7);
+  const nextNextMon = new Date(thisMon); nextNextMon.setDate(thisMon.getDate()+14);
+  if(isMonday){
+    // Monday: tonight + next 2 weeks
+    return [
+      {label:fmt(thisMon),    dateStr:iso(thisMon)},
+      {label:fmt(nextMon),    dateStr:iso(nextMon)},
+      {label:fmt(nextNextMon),dateStr:iso(nextNextMon)}
+    ];
+  }
+  return [
+    {label:fmt(lastMon), dateStr:iso(lastMon)},
+    {label:fmt(thisMon), dateStr:iso(thisMon)},
+    {label:fmt(nextMon), dateStr:iso(nextMon)}
+  ];
+}
+
+function ctmOpen(){
+  _ctmDateIdx = null;
+  _ctmOnConfirm = null;
+  // Reset to step 1
+  document.getElementById('ctm-step1').style.display='';
+  document.getElementById('ctm-step2').style.display='none';
+  document.getElementById('ctm-back').style.display='none';
+  document.getElementById('ctm-title').textContent='What type of card?';
+  document.getElementById('ctm-confirm').style.display='none';
+  // Build date buttons fresh
+  const mondays = ctmGetMondays();
+  const list = document.getElementById('ctm-date-list');
+  list.innerHTML='';
+  mondays.forEach((m,i)=>{
+    const b=document.createElement('button');
+    b.id='ctm-d'+i;
+    b.textContent=m.label;
+    b.style.cssText='width:100%;padding:14px 16px;border-radius:12px;border:2px solid #e0e0e0;background:var(--card,#fff);color:var(--text,#111);font-size:14px;font-weight:700;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent';
+    b.onclick=()=>ctmPickDate(i,m.dateStr);
+    list.appendChild(b);
+  });
+  document.getElementById('ctm-bg').style.display='flex';
+}
+
+function ctmPickType(type){
+  if(type==='league_night'){
+    document.getElementById('ctm-step1').style.display='none';
+    document.getElementById('ctm-step2').style.display='';
+    document.getElementById('ctm-back').style.display='';
+    document.getElementById('ctm-title').textContent='Which Monday?';
+  } else {
+    // Bank card or practice — no date needed, apply and close
+    scSess.cardType=type;
+    scSess.targetWeek=null;
+    scSess.targetDate=null;
+    ctmApplyToPlayers();
+    ctmUpdateSummary();
+    document.getElementById('ctm-bg').style.display='none';
+    if(_ctmOnConfirm){const cb=_ctmOnConfirm;_ctmOnConfirm=null;cb();}
+  }
+}
+
+function ctmPickDate(idx, dateStr){
+  _ctmDateIdx=idx;
+  for(let i=0;i<3;i++){
+    const b=document.getElementById('ctm-d'+i);
+    if(!b) continue;
+    const sel=i===idx;
+    b.style.borderColor=sel?'var(--tint,#2e7d32)':'#e0e0e0';
+    b.style.background=sel?'var(--tint,#2e7d32)':'var(--card,#fff)';
+    b.style.color=sel?'white':'var(--text,#111)';
+  }
+  scSess.cardType='league_night';
+  scSess.targetDate=dateStr;
+  scSess.targetWeek=null;
+  document.getElementById('ctm-confirm').style.display='';
+}
+
+function ctmBack(){
+  _ctmDateIdx=null;
+  document.getElementById('ctm-step2').style.display='none';
+  document.getElementById('ctm-step1').style.display='';
+  document.getElementById('ctm-back').style.display='none';
+  document.getElementById('ctm-title').textContent='What type of card?';
+  document.getElementById('ctm-confirm').style.display='none';
+}
+
+function ctmConfirm(){
+  ctmApplyToPlayers();
+  ctmUpdateSummary();
+  document.getElementById('ctm-bg').style.display='none';
+  if(_ctmOnConfirm){const cb=_ctmOnConfirm;_ctmOnConfirm=null;cb();}
+}
+
+function ctmApplyToPlayers(){
+  for(const p of scSess.players){
+    p.purpose=scSess.cardType||'league_night';
+    p.targetDate=scSess.targetDate||null;
+    p.targetWeek=null;
+  }
+}
+
+function ctmUpdateSummary(){
+  const el=document.getElementById('sc-card-type-summary');
+  if(!el) return;
+  const lbl={league_night:'🏌️ League Night',bank_card:'🏦 Bank Card',practice:'⛳ Practice'};
+  const type=scSess.cardType||'league_night';
+  const dateLabel=scSess.targetDate ? new Date(scSess.targetDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+  el.textContent=(lbl[type]||type)+(dateLabel?' — '+dateLabel:'');
+}
+
+// Splash screen dismiss — refreshes live data then fades out
+function splashEnter(){
+  const el=document.getElementById('splash');
+  el.style.opacity='0';
+  el.style.pointerEvents='none';
+  setTimeout(()=>el.style.display='none',380);
+  // Start GPS right away — warm before the scorecard opens
+  gpsStartWatch();
+  // Apply any waiting SW update first; the controllerchange handler reloads.
+  // If no update pending, load fresh data normally.
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistration().then(reg=>{
+      if(reg && reg.waiting){ reg.waiting.postMessage({type:'SKIP_WAITING'}); }
+      else { refreshData(true); }
+    }).catch(()=>refreshData(true));
+  } else {
+    refreshData(true);
+  }
+}
+
 function scAddSecondNine(){
   // Archive current 9-hole segment WITH each player's purpose at time of play,
   // so the second 9 can have a different card type (league vs practice vs bank)
   const purposes={};
-  for(const p of scSess.players) purposes[p.name]={purpose:p.purpose||'league_night',targetDate:p.targetDate||null};
+  for(const p of scSess.players) purposes[p.name]={purpose:p.purpose||'league_night',targetDate:p.targetDate||null,targetWeek:null};
   scSess.completedSegments.push({
     side: scSess.side,
     scores: JSON.parse(JSON.stringify(scSess.scores)),
@@ -1895,17 +2084,6 @@ function showTab(id,el){
   document.getElementById(id).classList.add('active');
   if(el)el.classList.add('active');
   closeSettings();
-  // GPS tab: hide sync bar, lock scroll, close tracer bar on entry
-  const gpsMode=(id==='gps-tab');
-  document.querySelector('.sync-bar').style.display=gpsMode?'none':'';
-  document.getElementById('main-scroll').style.overflow=gpsMode?'hidden':'';
-  if(gpsMode){
-    // Close tracer bar when switching to GPS tab (user opens it manually via 📐)
-    document.getElementById('gps-tracer-bar').style.display='none';
-    const tb=document.getElementById('gps-trace-toggle');
-    if(tb) tb.style.opacity='0.5';
-    if(typeof gpsTraceUpdateExportBtn==='function') gpsTraceUpdateExportBtn();
-  }
 }
 
 // ── Announcements ─────────────────────────────────────────────────────────────
@@ -1915,17 +2093,17 @@ function buildNews(){
   if(!anns||!anns.length){el.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:20px">No announcements yet.</div>';return;}
   const cls={info:'ann-info',reminder:'ann-reminder',alert:'ann-alert',success:''};
   el.innerHTML=anns.map(a=>`
-    <div class="ann-item ${cls[a.tag]||''}">
+    <div class="ann-item ${cls[escHtml(a.tag)]||''}">
       <div class="ann-tag">${a.tag==='info'?'League Notice':a.tag==='reminder'?'Reminder':a.tag==='alert'?'⚠️ Action Needed':'✅ Update'}</div>
-      <div class="ann-title">${a.title}</div>
+      <div class="ann-title">${escHtml(a.title)}</div>
       <div class="ann-body">${a.body}</div>
-      <div class="ann-date">${a.date}</div>
+      <div class="ann-date">${escHtml(a.date)}</div>
     </div>`).join('');
 }
 
 // ── Outing ────────────────────────────────────────────────────────────────────
 function buildOuting(){
-  const o=D.outing;
+  const o=D.outing||{};
   const body=document.getElementById('outing-body');
   if(o.date||o.course){
     body.innerHTML=`
@@ -1959,7 +2137,7 @@ function buildOuting(){
     document.getElementById('signup-cnt').textContent=sups.length;
     document.getElementById('signups-body').innerHTML=sups.map(s=>`
       <div style="padding:9px 0;border-bottom:1px solid #f5f5f5;font-size:14px;font-weight:500">
-        ${s.name}
+        ${escHtml(s.name)}
       </div>`).join('');
   } else {
     document.getElementById('signups-card').style.display='none';
@@ -1996,13 +2174,22 @@ function buildOuting(){
     document.getElementById('signup2-cnt').textContent=o2.signups.length;
     document.getElementById('signups2-body').innerHTML=o2.signups.map(s=>`
       <div style="padding:9px 0;border-bottom:1px solid #f5f5f5;font-size:14px;font-weight:500">
-        ${s.name}
+        ${escHtml(s.name)}
       </div>`).join('');
   } else {
     const sc2=document.getElementById('signups2-card');
     if(sc2) sc2.style.display='none';
   }
   renderOutingTeams(o2.teams||[],'teams2-card','teams2-body');
+
+  // Auto-select the pane that actually has something in it. The tab always opened
+  // on Mid-Season; once the mid-season outing was over (or its details got blanked)
+  // the tab looked empty even though the end-of-season outing was populated.
+  if(!_outingPaneChosen){
+    const midHas=!!(o.date||o.course||(o.signups||[]).length||(o.teams||[]).length);
+    const endHas=!!(o2.date||o2.course||(o2.signups||[]).length||(o2.teams||[]).length);
+    if(endHas&&!midHas)switchLeagueOuting('end',true);
+  }
 }
 
 function renderOutingTeams(teams,cardId,bodyId){
@@ -2015,15 +2202,17 @@ function renderOutingTeams(teams,cardId,bodyId){
     <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f5f5f5">
       <div style="width:32px;height:32px;border-radius:50%;background:#e8f5e9;color:#2e7d32;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">${t.num}</div>
       <div>
-        ${t.players.map(p=>`<div style="font-size:14px;font-weight:600">${p}</div>`).join('')}
+        ${t.players.map(p=>`<div style="font-size:14px;font-weight:600">${escHtml(p)}</div>`).join('')}
       </div>
     </div>`).join('');
 }
 
 // ── Outing selector ───────────────────────────────────────────────────────────
 let _leagueOuting='mid';
-function switchLeagueOuting(which){
+let _outingPaneChosen=false;   // true once auto-select or the golfer has picked a pane
+function switchLeagueOuting(which,auto){
   _leagueOuting=which;
+  _outingPaneChosen=true;      // don't fight the user's choice on the next data refresh
   document.getElementById('lo-mid').style.display=which==='mid'?'':'none';
   document.getElementById('lo-end').style.display=which==='end'?'':'none';
   document.getElementById('lo-mid-btn').style.background=which==='mid'?'#2e7d32':'#eee';
@@ -2257,10 +2446,31 @@ function welcomeSave(){
   try{ localStorage.setItem('wgl_welcome_done','1'); }catch(e){}
   document.getElementById('welcome-modal-bg').style.display='none';
   setIdentity(v);
+  setTimeout(maybeShowPushPrompt, 800);
 }
 function welcomeSkip(){
   try{ localStorage.setItem('wgl_welcome_done','1'); }catch(e){}
   document.getElementById('welcome-modal-bg').style.display='none';
+  setTimeout(maybeShowPushPrompt, 800);
+}
+
+// ── Push notification prompt ───────────────────────────────────────────────────
+function maybeShowPushPrompt(){
+  try{
+    if(localStorage.getItem('wgl_push_prompted')) return;
+    if(!('Notification' in window)) return;          // not installed to home screen
+    if(Notification.permission !== 'default') return; // already granted or denied
+    document.getElementById('push-modal-bg').style.display='flex';
+  }catch(e){}
+}
+function pushModalEnable(){
+  try{ localStorage.setItem('wgl_push_prompted','1'); }catch(e){}
+  document.getElementById('push-modal-bg').style.display='none';
+  enablePush();
+}
+function pushModalSkip(){
+  document.getElementById('push-modal-bg').style.display='none';
+  // Don't set the flag on skip — try again next session until they decide
 }
 
 // ── Outing removal request ────────────────────────────────────────────────────
@@ -2367,12 +2577,11 @@ function openModal(i){
         <span style="font-weight:700">Gross ${b.gross} <span style="opacity:.55;font-weight:600">(HCP ${b.hcp})</span></span>
       </div>`).join('');
   } else bankRow.style.display='none';
-  // Rounds this season — pulled from the same weekly data the Results tab shows
+  // Rounds this season — pulled from WK_DATA (hardcoded paper-verified scores)
   const rRow=document.getElementById('modal-rounds-row');
   const rounds=[];
-  const wk=D.weeks||{};
-  Object.keys(wk).sort((a,b)=>+b-+a).forEach(w=>{
-    (wk[w].players||[]).forEach(e=>{
+  Object.keys(WK_DATA).sort((a,b)=>+b-+a).forEach(w=>{
+    (WK_DATA[+w].players||[]).forEach(e=>{
       if(e.name===p.name) rounds.push({week:w,gross:e.gross,net:e.net,hcp:e.hcp});
     });
   });
@@ -2402,154 +2611,6 @@ function buildHcps(){
     </div>`).join('');
 }
 
-// ── Card Type Modal ───────────────────────────────────────────────────────────
-let _ctmDateIdx = null;    // which date button is selected (0/1/2)
-let _ctmOnConfirm = null;  // callback to fire after CTM confirm (e.g. scSubmit)
-
-function ctmGetMondays(){
-  const fmt = d => d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  const iso = d => { const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; };
-
-  const today = new Date();
-  const isMonday = today.getDay() === 1;
-
-  // Use published season calendar (D.calendar) if available — shows only actual league nights
-  if(D.calendar && D.calendar.length){
-    const todayStr = iso(today);
-    const sorted = D.calendar.slice().sort((a,b) => a.date < b.date ? -1 : 1);
-    let idx = sorted.findIndex(e => e.date >= todayStr);
-    if(idx < 0) idx = sorted.length;
-    // Monday 12:01 AM: start at today so tonight shows first
-    // Tue–Sun: step back one so last league night shows for late submissions
-    const start = isMonday ? idx : Math.max(0, idx - 1);
-    const results = [];
-    for(let i = start; i < sorted.length && results.length < 3; i++){
-      results.push({label: fmt(new Date(sorted[i].date + 'T12:00:00')), dateStr: sorted[i].date});
-    }
-    if(results.length) return results;
-  }
-
-  // Fallback: pure Monday calendar math (no network, no settings.week)
-  const dow = today.getDay();
-  const thisMon = new Date(today);
-  if(dow===0) thisMon.setDate(today.getDate()-6);
-  else if(dow!==1) thisMon.setDate(today.getDate()-(dow-1));
-  const lastMon = new Date(thisMon); lastMon.setDate(thisMon.getDate()-7);
-  const nextMon = new Date(thisMon); nextMon.setDate(thisMon.getDate()+7);
-  const nextNextMon = new Date(thisMon); nextNextMon.setDate(thisMon.getDate()+14);
-  if(isMonday){
-    return [
-      {label:fmt(thisMon),    dateStr:iso(thisMon)},
-      {label:fmt(nextMon),    dateStr:iso(nextMon)},
-      {label:fmt(nextNextMon),dateStr:iso(nextNextMon)}
-    ];
-  }
-  return [
-    {label:fmt(lastMon), dateStr:iso(lastMon)},
-    {label:fmt(thisMon), dateStr:iso(thisMon)},
-    {label:fmt(nextMon), dateStr:iso(nextMon)}
-  ];
-}
-
-function ctmShowIfNeeded(){
-  if(scSess.players.length===0) ctmOpen();
-}
-
-function ctmBeforeSubmit(){
-  ctmOpen(); // resets _ctmOnConfirm inside ctmOpen
-  _ctmOnConfirm = ()=>scSubmit();
-}
-
-function ctmOpen(){
-  _ctmDateIdx = null;
-  _ctmOnConfirm = null;
-  // Reset to step 1
-  document.getElementById('ctm-step1').style.display='';
-  document.getElementById('ctm-step2').style.display='none';
-  document.getElementById('ctm-back').style.display='none';
-  document.getElementById('ctm-title').textContent='What type of card?';
-  document.getElementById('ctm-confirm').style.display='none';
-  // Build date buttons fresh — show actual Monday dates, no week numbers
-  const mondays = ctmGetMondays();
-  const list = document.getElementById('ctm-date-list');
-  list.innerHTML='';
-  mondays.forEach((m,i)=>{
-    const b=document.createElement('button');
-    b.id='ctm-d'+i;
-    b.textContent=m.label;
-    b.style.cssText='width:100%;padding:14px 16px;border-radius:12px;border:2px solid #e0e0e0;background:var(--card,#fff);color:var(--text,#111);font-size:14px;font-weight:700;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent';
-    b.onclick=()=>ctmPickDate(i,m.dateStr);
-    list.appendChild(b);
-  });
-  document.getElementById('ctm-bg').style.display='flex';
-}
-
-function ctmPickType(type){
-  if(type==='league_night'){
-    document.getElementById('ctm-step1').style.display='none';
-    document.getElementById('ctm-step2').style.display='';
-    document.getElementById('ctm-back').style.display='';
-    document.getElementById('ctm-title').textContent='Which Monday?';
-  } else {
-    // Bank card or practice — no date needed, apply and close
-    scSess.cardType=type;
-    scSess.targetDate=null;
-    scSess.targetWeek=null;
-    ctmApplyToPlayers();
-    ctmUpdateSummary();
-    document.getElementById('ctm-bg').style.display='none';
-    if(_ctmOnConfirm){const cb=_ctmOnConfirm;_ctmOnConfirm=null;cb();}
-  }
-}
-
-function ctmPickDate(idx, dateStr){
-  _ctmDateIdx=idx;
-  for(let i=0;i<3;i++){
-    const b=document.getElementById('ctm-d'+i);
-    if(!b) continue;
-    const sel=i===idx;
-    b.style.borderColor=sel?'var(--tint,#2e7d32)':'#e0e0e0';
-    b.style.background=sel?'var(--tint,#2e7d32)':'var(--card,#fff)';
-    b.style.color=sel?'white':'var(--text,#111)';
-  }
-  scSess.cardType='league_night';
-  scSess.targetDate=dateStr;
-  scSess.targetWeek=null;
-  document.getElementById('ctm-confirm').style.display='';
-}
-
-function ctmBack(){
-  _ctmDateIdx=null;
-  document.getElementById('ctm-step2').style.display='none';
-  document.getElementById('ctm-step1').style.display='';
-  document.getElementById('ctm-back').style.display='none';
-  document.getElementById('ctm-title').textContent='What type of card?';
-  document.getElementById('ctm-confirm').style.display='none';
-}
-
-function ctmConfirm(){
-  ctmApplyToPlayers();
-  ctmUpdateSummary();
-  document.getElementById('ctm-bg').style.display='none';
-  if(_ctmOnConfirm){const cb=_ctmOnConfirm;_ctmOnConfirm=null;cb();}
-}
-
-function ctmApplyToPlayers(){
-  for(const p of scSess.players){
-    p.purpose=scSess.cardType||'league_night';
-    p.targetDate=scSess.targetDate||null;
-    p.targetWeek=null;
-  }
-}
-
-function ctmUpdateSummary(){
-  const el=document.getElementById('sc-card-type-summary');
-  if(!el) return;
-  const lbl={league_night:'🏌️ League Night',bank_card:'🏦 Bank Card',practice:'⛳ Practice'};
-  const type=scSess.cardType||'league_night';
-  const dateLabel=scSess.targetDate ? new Date(scSess.targetDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
-  el.textContent=(lbl[type]||type)+(dateLabel?' — '+dateLabel:'');
-}
 // ── Settings gear ─────────────────────────────────────────────────────────────
 function toggleSettings(){
   const p=document.getElementById('settings-panel');
@@ -2606,6 +2667,490 @@ document.addEventListener('click',e=>{
 // Week 10 — verified from score cards (7/13/2026). Scoring: 4 lowest nets per team.
 // T4 and T8 submitted only 3 cards → +50 penalty applied in buildWeek().
 const WK_DATA = {
+  // Week 1 — Monday, May 4, 2026, Back 9. From season xlsx.
+  1: {
+    label:'Week 1',date:'Monday, May 4, 2026',course:'Hiland Golf Course',
+    players:[
+      {name:'Larry Julius',team:1,hcp:1,gross:41,net:40},
+      {name:'Kris Simmons',team:1,hcp:6,gross:39,net:33},
+      {name:'Butch Griffith',team:1,hcp:8,gross:47,net:39},
+      {name:'Frank Watt',team:1,hcp:10,gross:62,net:52},
+      {name:'Paul Harmon',team:1,hcp:12,gross:61,net:49},
+      {name:'Keith Clark',team:1,hcp:13,gross:63,net:50},
+      {name:'Mario Jenkins',team:1,hcp:13,gross:52,net:39},
+      {name:'Andy Gallagher',team:1,hcp:14,gross:57,net:43},
+      {name:'Jim Frye',team:2,hcp:2,gross:38,net:36},
+      {name:'Skylar Grafton',team:2,hcp:7,gross:42,net:35},
+      {name:'Jeff Hollobaugh',team:2,hcp:10,gross:52,net:42},
+      {name:'Nick Keefer',team:2,hcp:11,gross:53,net:42},
+      {name:'Trent Brocious',team:2,hcp:12,gross:57,net:45},
+      {name:'Wilbur Dudley',team:2,hcp:15,gross:58,net:43},
+      {name:'Andy Patz',team:2,hcp:18,gross:53,net:35},
+      {name:'Duck Julius',team:3,hcp:2,gross:39,net:37},
+      {name:'Willie Powell',team:3,hcp:7,gross:51,net:44},
+      {name:'Bruce Thomas',team:3,hcp:8,gross:46,net:38},
+      {name:'Dave Cushey',team:3,hcp:9,gross:50,net:41},
+      {name:'Scott Barton',team:3,hcp:10,gross:49,net:39},
+      {name:'Dicky Peat',team:3,hcp:17,gross:58,net:41},
+      {name:'Allan Voltz',team:3,hcp:20,gross:64,net:44},
+      {name:'Harry Breski',team:4,hcp:5,gross:40,net:35},
+      {name:'Clark Helm',team:4,hcp:6,gross:50,net:44},
+      {name:'Roger Hoffman',team:4,hcp:8,gross:44,net:36},
+      {name:'Tom Stennett',team:4,hcp:13,gross:54,net:41},
+      {name:'Landon Badac',team:4,hcp:17,gross:55,net:38},
+      {name:'Blake Bowser',team:4,hcp:18,gross:56,net:38},
+      {name:'Eli Hickman',team:5,hcp:5,gross:45,net:40},
+      {name:'Jaxon Smith',team:5,hcp:8,gross:51,net:43},
+      {name:'Tyler Eroh',team:5,hcp:8,gross:50,net:42},
+      {name:'Don Nulph',team:5,hcp:12,gross:60,net:48},
+      {name:'Dave Toy',team:5,hcp:15,gross:51,net:36},
+      {name:'Jay Griffith',team:6,hcp:5,gross:51,net:46},
+      {name:'Sam Long',team:6,hcp:6,gross:44,net:38},
+      {name:'Kevin Frye',team:6,hcp:7,gross:49,net:42},
+      {name:'Dylan Barton',team:6,hcp:20,gross:64,net:44},
+      {name:'Ed Bargerstock',team:7,hcp:5,gross:40,net:35},
+      {name:'Vince Sanzotti',team:7,hcp:6,gross:40,net:34},
+      {name:'Mike Hickman',team:7,hcp:7,gross:48,net:41},
+      {name:'Chris Remaley',team:7,hcp:10,gross:55,net:45},
+      {name:'Jason Smith',team:7,hcp:10,gross:52,net:42},
+      {name:'Wes Barton',team:7,hcp:12,gross:54,net:42},
+      {name:'Doug Anthony',team:7,hcp:15,gross:55,net:40},
+      {name:'Brian Barton',team:8,hcp:6,gross:40,net:34},
+      {name:'Paul Bowser',team:8,hcp:7,gross:47,net:40},
+      {name:'Ken Long',team:8,hcp:9,gross:50,net:41},
+      {name:'Logan Bowser',team:8,hcp:13,gross:52,net:39},
+      {name:'Dylan Smith',team:8,hcp:13,gross:52,net:39},
+      {name:'Patric Weber',team:8,hcp:15,gross:58,net:43},
+      {name:'Cole Clark',team:8,hcp:18,gross:56,net:38},
+    ]
+  },
+  // Week 2 — Monday, May 11, 2026, Front 9. From season xlsx.
+  2: {
+    label:'Week 2',date:'Monday, May 11, 2026',course:'Hiland Golf Course',
+    players:[
+      {name:'Larry Julius',team:1,hcp:1,gross:40,net:39},
+      {name:'Kris Simmons',team:1,hcp:6,gross:43,net:37},
+      {name:'Butch Griffith',team:1,hcp:8,gross:58,net:50},
+      {name:'Frank Watt',team:1,hcp:10,gross:62,net:52},
+      {name:'Paul Harmon',team:1,hcp:12,gross:50,net:38},
+      {name:'Keith Clark',team:1,hcp:13,gross:61,net:48},
+      {name:'Mario Jenkins',team:1,hcp:13,gross:49,net:36},
+      {name:'Andy Gallagher',team:1,hcp:14,gross:55,net:41},
+      {name:'Jim Frye',team:2,hcp:2,gross:39,net:37},
+      {name:'Skylar Grafton',team:2,hcp:7,gross:48,net:41},
+      {name:'Jeff Hollobaugh',team:2,hcp:10,gross:48,net:38},
+      {name:'Nick Keefer',team:2,hcp:11,gross:51,net:40},
+      {name:'Trent Brocious',team:2,hcp:12,gross:52,net:40},
+      {name:'Wilbur Dudley',team:2,hcp:15,gross:59,net:44},
+      {name:'Andy Patz',team:2,hcp:18,gross:52,net:34},
+      {name:'Duck Julius',team:3,hcp:2,gross:38,net:36},
+      {name:'Bruce Thomas',team:3,hcp:8,gross:57,net:49},
+      {name:'Dave Cushey',team:3,hcp:9,gross:46,net:37},
+      {name:'Scott Barton',team:3,hcp:10,gross:45,net:35},
+      {name:'Dicky Peat',team:3,hcp:17,gross:61,net:44},
+      {name:'Allan Voltz',team:3,hcp:20,gross:70,net:50},
+      {name:'Harry Breski',team:4,hcp:5,gross:46,net:41},
+      {name:'Clark Helm',team:4,hcp:6,gross:47,net:41},
+      {name:'Roger Hoffman',team:4,hcp:8,gross:50,net:42},
+      {name:'Chad Hollobaugh',team:4,hcp:10,gross:53,net:43},
+      {name:'Tom Stennett',team:4,hcp:13,gross:51,net:38},
+      {name:'Blake Bowser',team:4,hcp:18,gross:60,net:42},
+      {name:'Eli Hickman',team:5,hcp:5,gross:47,net:42},
+      {name:'Jaxon Smith',team:5,hcp:8,gross:46,net:38},
+      {name:'Tyler Eroh',team:5,hcp:8,gross:48,net:40},
+      {name:'Denny Snyder',team:5,hcp:9,gross:50,net:41},
+      {name:'Don Nulph',team:5,hcp:12,gross:56,net:44},
+      {name:'Dave Toy',team:5,hcp:15,gross:49,net:34},
+      {name:'Jay Griffith',team:6,hcp:5,gross:48,net:43},
+      {name:'Sam Long',team:6,hcp:6,gross:45,net:39},
+      {name:'Kevin Frye',team:6,hcp:7,gross:44,net:37},
+      {name:'Jim Goodman',team:6,hcp:10,gross:50,net:40},
+      {name:'Dylan Barton',team:6,hcp:20,gross:69,net:49},
+      {name:'Ed Bargerstock',team:7,hcp:5,gross:42,net:37},
+      {name:'Vince Sanzotti',team:7,hcp:6,gross:46,net:40},
+      {name:'Chris Remaley',team:7,hcp:10,gross:51,net:41},
+      {name:'Jason Smith',team:7,hcp:10,gross:47,net:37},
+      {name:'Wes Barton',team:7,hcp:12,gross:47,net:35},
+      {name:'Doug Anthony',team:7,hcp:15,gross:53,net:38},
+      {name:'Brian Barton',team:8,hcp:6,gross:42,net:36},
+      {name:'Paul Bowser',team:8,hcp:7,gross:44,net:37},
+      {name:'Ken Long',team:8,hcp:9,gross:51,net:42},
+      {name:'Logan Bowser',team:8,hcp:13,gross:58,net:45},
+      {name:'Dylan Smith',team:8,hcp:13,gross:52,net:39},
+      {name:'Patric Weber',team:8,hcp:15,gross:55,net:40},
+      {name:'Cole Clark',team:8,hcp:18,gross:55,net:37},
+    ]
+  },
+  // Week 3 — Monday, May 18, 2026, Back 9. From season xlsx.
+  3: {
+    label:'Week 3',date:'Monday, May 18, 2026',course:'Hiland Golf Course',
+    players:[
+      {name:'Larry Julius',team:1,hcp:1,gross:41,net:40},
+      {name:'Kris Simmons',team:1,hcp:6,gross:44,net:38},
+      {name:'Frank Watt',team:1,hcp:10,gross:59,net:49},
+      {name:'Paul Harmon',team:1,hcp:12,gross:49,net:37},
+      {name:'Keith Clark',team:1,hcp:13,gross:62,net:49},
+      {name:'Mario Jenkins',team:1,hcp:13,gross:52,net:39},
+      {name:'Andy Gallagher',team:1,hcp:14,gross:55,net:41},
+      {name:'Jim Frye',team:2,hcp:2,gross:37,net:35},
+      {name:'Skylar Grafton',team:2,hcp:7,gross:44,net:37},
+      {name:'Jeff Hollobaugh',team:2,hcp:10,gross:49,net:39},
+      {name:'Nick Keefer',team:2,hcp:11,gross:52,net:41},
+      {name:'Trent Brocious',team:2,hcp:12,gross:61,net:49},
+      {name:'Wilbur Dudley',team:2,hcp:15,gross:58,net:43},
+      {name:'Andy Patz',team:2,hcp:18,gross:54,net:36},
+      {name:'Duck Julius',team:3,hcp:2,gross:38,net:36},
+      {name:'Willie Powell',team:3,hcp:7,gross:49,net:42},
+      {name:'Bruce Thomas',team:3,hcp:8,gross:48,net:40},
+      {name:'Dave Cushey',team:3,hcp:9,gross:49,net:40},
+      {name:'Scott Barton',team:3,hcp:10,gross:47,net:37},
+      {name:'Dicky Peat',team:3,hcp:17,gross:63,net:46},
+      {name:'Allan Voltz',team:3,hcp:20,gross:66,net:46},
+      {name:'Clark Helm',team:4,hcp:6,gross:45,net:39},
+      {name:'Roger Hoffman',team:4,hcp:8,gross:47,net:39},
+      {name:'Chad Hollobaugh',team:4,hcp:10,gross:51,net:41},
+      {name:'Tom Stennett',team:4,hcp:13,gross:54,net:41},
+      {name:'Landon Badac',team:4,hcp:17,gross:57,net:40},
+      {name:'Blake Bowser',team:4,hcp:18,gross:54,net:36},
+      {name:'Eli Hickman',team:5,hcp:5,gross:46,net:41},
+      {name:'Bill Long',team:5,hcp:6,gross:49,net:43},
+      {name:'Jaxon Smith',team:5,hcp:8,gross:49,net:41},
+      {name:'Tyler Eroh',team:5,hcp:8,gross:52,net:44},
+      {name:'Denny Snyder',team:5,hcp:9,gross:47,net:38},
+      {name:'Don Nulph',team:5,hcp:12,gross:51,net:39},
+      {name:'Jay Griffith',team:6,hcp:5,gross:38,net:33},
+      {name:'Sam Long',team:6,hcp:6,gross:42,net:36},
+      {name:'Kevin Frye',team:6,hcp:7,gross:45,net:38},
+      {name:'Ed Bargerstock',team:7,hcp:5,gross:41,net:36},
+      {name:'Mike Hickman',team:7,hcp:7,gross:43,net:36},
+      {name:'Chris Remaley',team:7,hcp:10,gross:56,net:46},
+      {name:'Jason Smith',team:7,hcp:10,gross:53,net:43},
+      {name:'Wes Barton',team:7,hcp:12,gross:52,net:40},
+      {name:'Brian Barton',team:8,hcp:6,gross:40,net:34},
+      {name:'Paul Bowser',team:8,hcp:7,gross:47,net:40},
+      {name:'Ken Long',team:8,hcp:9,gross:50,net:41},
+      {name:'Logan Bowser',team:8,hcp:13,gross:50,net:37},
+      {name:'Dylan Smith',team:8,hcp:13,gross:46,net:33},
+      {name:'Patric Weber',team:8,hcp:15,gross:51,net:36},
+      {name:'Cole Clark',team:8,hcp:18,gross:56,net:38},
+    ]
+  },
+  // Week 4 — Monday, June 1, 2026, Front 9. From season xlsx.
+  4: {
+    label:'Week 4',date:'Monday, June 1, 2026',course:'Hiland Golf Course',
+    players:[
+      {name:'Larry Julius',team:1,hcp:1,gross:37,net:36},
+      {name:'Kris Simmons',team:1,hcp:6,gross:41,net:35},
+      {name:'Butch Griffith',team:1,hcp:8,gross:54,net:46},
+      {name:'Frank Watt',team:1,hcp:10,gross:57,net:47},
+      {name:'Keith Clark',team:1,hcp:13,gross:60,net:47},
+      {name:'Andy Gallagher',team:1,hcp:14,gross:56,net:42},
+      {name:'Jim Frye',team:2,hcp:2,gross:39,net:37},
+      {name:'Jeff Hollobaugh',team:2,hcp:10,gross:50,net:40},
+      {name:'Nick Keefer',team:2,hcp:11,gross:46,net:35},
+      {name:'Trent Brocious',team:2,hcp:12,gross:46,net:34},
+      {name:'Wilbur Dudley',team:2,hcp:15,gross:58,net:43},
+      {name:'Andy Patz',team:2,hcp:18,gross:55,net:37},
+      {name:'Duck Julius',team:3,hcp:2,gross:37,net:35},
+      {name:'Willie Powell',team:3,hcp:7,gross:44,net:37},
+      {name:'Bruce Thomas',team:3,hcp:8,gross:49,net:41},
+      {name:'Dave Cushey',team:3,hcp:9,gross:47,net:38},
+      {name:'Scott Barton',team:3,hcp:10,gross:46,net:36},
+      {name:'Dicky Peat',team:3,hcp:17,gross:56,net:39},
+      {name:'Allan Voltz',team:3,hcp:20,gross:66,net:46},
+      {name:'Harry Breski',team:4,hcp:5,gross:47,net:42},
+      {name:'Roger Hoffman',team:4,hcp:8,gross:48,net:40},
+      {name:'Chad Hollobaugh',team:4,hcp:10,gross:56,net:46},
+      {name:'Tom Stennett',team:4,hcp:13,gross:57,net:44},
+      {name:'Landon Badac',team:4,hcp:17,gross:58,net:41},
+      {name:'Blake Bowser',team:4,hcp:18,gross:52,net:34},
+      {name:'Bill Long',team:5,hcp:6,gross:45,net:39},
+      {name:'Jaxon Smith',team:5,hcp:8,gross:44,net:36},
+      {name:'Tyler Eroh',team:5,hcp:8,gross:49,net:41},
+      {name:'Don Nulph',team:5,hcp:12,gross:53,net:41},
+      {name:'Dave Toy',team:5,hcp:15,gross:49,net:34},
+      {name:'Jay Griffith',team:6,hcp:5,gross:42,net:37},
+      {name:'Sam Long',team:6,hcp:6,gross:41,net:35},
+      {name:'Jim Goodman',team:6,hcp:10,gross:49,net:39},
+      {name:'Dylan Barton',team:6,hcp:20,gross:66,net:46},
+      {name:'Ed Bargerstock',team:7,hcp:5,gross:43,net:38},
+      {name:'Vince Sanzotti',team:7,hcp:6,gross:41,net:35},
+      {name:'Jason Smith',team:7,hcp:10,gross:51,net:41},
+      {name:'Wes Barton',team:7,hcp:12,gross:53,net:41},
+      {name:'Brian Barton',team:8,hcp:6,gross:43,net:37},
+      {name:'Paul Bowser',team:8,hcp:7,gross:42,net:35},
+      {name:'Ken Long',team:8,hcp:9,gross:50,net:41},
+      {name:'Logan Bowser',team:8,hcp:13,gross:56,net:43},
+      {name:'Dylan Smith',team:8,hcp:13,gross:47,net:34},
+      {name:'Patric Weber',team:8,hcp:15,gross:60,net:45},
+      {name:'Cole Clark',team:8,hcp:18,gross:52,net:34},
+    ]
+  },
+  // Week 5 — Monday, June 8, 2026, Back 9. From season xlsx.
+  5: {
+    label:'Week 5',date:'Monday, June 8, 2026',course:'Hiland Golf Course',
+    players:[
+      {name:'Larry Julius',team:1,hcp:3,gross:41,net:38},
+      {name:'Kris Simmons',team:1,hcp:5,gross:40,net:35},
+      {name:'Butch Griffith',team:1,hcp:10,gross:48,net:38},
+      {name:'Frank Watt',team:1,hcp:12,gross:55,net:43},
+      {name:'Keith Clark',team:1,hcp:15,gross:61,net:46},
+      {name:'Mario Jenkins',team:1,hcp:13,gross:52,net:39},
+      {name:'Jim Frye',team:2,hcp:3,gross:38,net:35},
+      {name:'Skylar Grafton',team:2,hcp:6,gross:41,net:35},
+      {name:'Nick Keefer',team:2,hcp:12,gross:47,net:35},
+      {name:'Trent Brocious',team:2,hcp:14,gross:49,net:35},
+      {name:'Wilbur Dudley',team:2,hcp:17,gross:54,net:37},
+      {name:'Andy Patz',team:2,hcp:16,gross:52,net:36},
+      {name:'Duck Julius',team:3,hcp:2,gross:37,net:35},
+      {name:'Willie Powell',team:3,hcp:8,gross:49,net:41},
+      {name:'Bruce Thomas',team:3,hcp:10,gross:46,net:36},
+      {name:'Dave Cushey',team:3,hcp:10,gross:49,net:39},
+      {name:'Scott Barton',team:3,hcp:9,gross:51,net:42},
+      {name:'Dicky Peat',team:3,hcp:19,gross:61,net:42},
+      {name:'Allan Voltz',team:3,hcp:20,gross:63,net:43},
+      {name:'Harry Breski',team:4,hcp:7,gross:40,net:33},
+      {name:'Clark Helm',team:4,hcp:8,gross:41,net:33},
+      {name:'Roger Hoffman',team:4,hcp:10,gross:47,net:37},
+      {name:'Chad Hollobaugh',team:4,hcp:12,gross:47,net:35},
+      {name:'Tom Stennett',team:4,hcp:15,gross:57,net:42},
+      {name:'Blake Bowser',team:4,hcp:16,gross:52,net:36},
+      {name:'Bill Long',team:5,hcp:8,gross:43,net:35},
+      {name:'Jaxon Smith',team:5,hcp:10,gross:49,net:39},
+      {name:'Tyler Eroh',team:5,hcp:10,gross:42,net:32},
+      {name:'Denny Snyder',team:5,hcp:11,gross:47,net:36},
+      {name:'Don Nulph',team:5,hcp:14,gross:50,net:36},
+      {name:'Dave Toy',team:5,hcp:13,gross:51,net:38},
+      {name:'Jay Griffith',team:6,hcp:7,gross:45,net:38},
+      {name:'Sam Long',team:6,hcp:6,gross:44,net:38},
+      {name:'Jesse Hickman',team:6,hcp:9,gross:52,net:43},
+      {name:'Dylan Barton',team:6,hcp:20,gross:59,net:39},
+      {name:'Ed Bargerstock',team:7,hcp:5,gross:39,net:34},
+      {name:'Vince Sanzotti',team:7,hcp:6,gross:43,net:37},
+      {name:'Mike Hickman',team:7,hcp:8,gross:41,net:33},
+      {name:'Chris Remaley',team:7,hcp:12,gross:51,net:39},
+      {name:'Jason Smith',team:7,hcp:12,gross:52,net:40},
+      {name:'Wes Barton',team:7,hcp:13,gross:45,net:32},
+      {name:'Doug Anthony',team:7,hcp:15,gross:53,net:38},
+      {name:'Brian Barton',team:8,hcp:5,gross:40,net:35},
+      {name:'Paul Bowser',team:8,hcp:8,gross:42,net:34},
+      {name:'Ken Long',team:8,hcp:11,gross:49,net:38},
+      {name:'Logan Bowser',team:8,hcp:15,gross:53,net:38},
+      {name:'Patric Weber',team:8,hcp:17,gross:59,net:42},
+      {name:'Cole Clark',team:8,hcp:16,gross:56,net:40},
+    ]
+  },
+  // Week 6 — Monday, June 15, 2026, Front 9. From season xlsx.
+  6: {
+    label:'Week 6',date:'Monday, June 15, 2026',course:'Hiland Golf Course',
+    players:[
+      {name:'Larry Julius',team:1,hcp:4,gross:38,net:34},
+      {name:'Kris Simmons',team:1,hcp:5,gross:39,net:34},
+      {name:'Butch Griffith',team:1,hcp:12,gross:53,net:41},
+      {name:'Frank Watt',team:1,hcp:14,gross:50,net:36},
+      {name:'Keith Clark',team:1,hcp:15,gross:65,net:50},
+      {name:'Mario Jenkins',team:1,hcp:13,gross:50,net:37},
+      {name:'Andy Gallagher',team:1,hcp:17,gross:57,net:40},
+      {name:'Jim Frye',team:2,hcp:3,gross:36,net:33},
+      {name:'Skylar Grafton',team:2,hcp:6,gross:48,net:42},
+      {name:'Nick Keefer',team:2,hcp:11,gross:44,net:33},
+      {name:'Trent Brocious',team:2,hcp:14,gross:53,net:39},
+      {name:'Wilbur Dudley',team:2,hcp:18,gross:62,net:44},
+      {name:'Duck Julius',team:3,hcp:2,gross:36,net:34},
+      {name:'Willie Powell',team:3,hcp:10,gross:46,net:36},
+      {name:'Bruce Thomas',team:3,hcp:12,gross:48,net:36},
+      {name:'Dave Cushey',team:3,hcp:10,gross:49,net:39},
+      {name:'Scott Barton',team:3,hcp:10,gross:51,net:41},
+      {name:'Dicky Peat',team:3,hcp:20,gross:61,net:41},
+      {name:'Allan Voltz',team:3,hcp:20,gross:65,net:45},
+      {name:'Harry Breski',team:4,hcp:7,gross:43,net:36},
+      {name:'Clark Helm',team:4,hcp:8,gross:39,net:31},
+      {name:'Roger Hoffman',team:4,hcp:10,gross:43,net:33},
+      {name:'Tom Stennett',team:4,hcp:16,gross:58,net:42},
+      {name:'Landon Badac',team:4,hcp:17,gross:56,net:39},
+      {name:'Blake Bowser',team:4,hcp:16,gross:51,net:35},
+      {name:'Eli Hickman',team:5,hcp:7,gross:43,net:36},
+      {name:'Bill Long',team:5,hcp:9,gross:48,net:39},
+      {name:'Tyler Eroh',team:5,hcp:10,gross:46,net:36},
+      {name:'Denny Snyder',team:5,hcp:10,gross:47,net:37},
+      {name:'Don Nulph',team:5,hcp:14,gross:49,net:35},
+      {name:'Dave Toy',team:5,hcp:12,gross:45,net:33},
+      {name:'Jay Griffith',team:6,hcp:7,gross:43,net:36},
+      {name:'Sam Long',team:6,hcp:6,gross:44,net:38},
+      {name:'Kevin Frye',team:6,hcp:9,gross:48,net:39},
+      {name:'Jim Goodman',team:6,hcp:8,gross:53,net:45},
+      {name:'Dylan Barton',team:6,hcp:20,gross:64,net:44},
+      {name:'Ed Bargerstock',team:7,hcp:5,gross:44,net:39},
+      {name:'Vince Sanzotti',team:7,hcp:6,gross:44,net:38},
+      {name:'Mike Hickman',team:7,hcp:8,gross:41,net:33},
+      {name:'Chris Remaley',team:7,hcp:14,gross:52,net:38},
+      {name:'Wes Barton',team:7,hcp:11,gross:57,net:46},
+      {name:'Doug Anthony',team:7,hcp:15,gross:45,net:30},
+      {name:'Brian Barton',team:8,hcp:5,gross:44,net:39},
+      {name:'Paul Bowser',team:8,hcp:7,gross:50,net:43},
+      {name:'Ken Long',team:8,hcp:12,gross:52,net:40},
+      {name:'Dylan Smith',team:8,hcp:11,gross:47,net:36},
+      {name:'Patric Weber',team:8,hcp:17,gross:52,net:35},
+      {name:'Cole Clark',team:8,hcp:16,gross:53,net:37},
+    ]
+  },
+  // Week 7 — Monday, June 22, 2026, Back 9. From season xlsx.
+  7: {
+    label:'Week 7',date:'Monday, June 22, 2026',course:'Hiland Golf Course',
+    players:[
+      {name:'Larry Julius',team:1,hcp:3,gross:39,net:36},
+      {name:'Kris Simmons',team:1,hcp:5,gross:40,net:35},
+      {name:'Butch Griffith',team:1,hcp:14,gross:44,net:30},
+      {name:'Frank Watt',team:1,hcp:16,gross:50,net:34},
+      {name:'Keith Clark',team:1,hcp:15,gross:65,net:50},
+      {name:'Mario Jenkins',team:1,hcp:13,gross:46,net:33},
+      {name:'Andy Gallagher',team:1,hcp:17,gross:55,net:38},
+      {name:'Jim Frye',team:2,hcp:2,gross:35,net:33},
+      {name:'Jeff Hollobaugh',team:2,hcp:12,gross:48,net:36},
+      {name:'Nick Keefer',team:2,hcp:10,gross:47,net:37},
+      {name:'Trent Brocious',team:2,hcp:14,gross:60,net:46},
+      {name:'Wilbur Dudley',team:2,hcp:18,gross:55,net:37},
+      {name:'Andy Patz',team:2,hcp:15,gross:50,net:35},
+      {name:'Duck Julius',team:3,hcp:2,gross:39,net:37},
+      {name:'Willie Powell',team:3,hcp:10,gross:49,net:39},
+      {name:'Bruce Thomas',team:3,hcp:12,gross:48,net:36},
+      {name:'Dave Cushey',team:3,hcp:11,gross:48,net:37},
+      {name:'Scott Barton',team:3,hcp:11,gross:48,net:37},
+      {name:'Dicky Peat',team:3,hcp:20,gross:56,net:36},
+      {name:'Roger Hoffman',team:4,hcp:9,gross:44,net:35},
+      {name:'Chad Hollobaugh',team:4,hcp:13,gross:46,net:33},
+      {name:'Tom Stennett',team:4,hcp:17,gross:52,net:35},
+      {name:'Landon Badac',team:4,hcp:17,gross:57,net:40},
+      {name:'Blake Bowser',team:4,hcp:16,gross:55,net:39},
+      {name:'Bill Long',team:5,hcp:9,gross:42,net:33},
+      {name:'Jaxon Smith',team:5,hcp:10,gross:45,net:35},
+      {name:'Tyler Eroh',team:5,hcp:10,gross:44,net:34},
+      {name:'Don Nulph',team:5,hcp:13,gross:45,net:32},
+      {name:'Dave Toy',team:5,hcp:11,gross:45,net:34},
+      {name:'Jay Griffith',team:6,hcp:6,gross:46,net:40},
+      {name:'Sam Long',team:6,hcp:6,gross:44,net:38},
+      {name:'Kevin Frye',team:6,hcp:9,gross:50,net:41},
+      {name:'Dylan Barton',team:6,hcp:20,gross:61,net:41},
+      {name:'Ed Bargerstock',team:7,hcp:5,gross:37,net:32},
+      {name:'Vince Sanzotti',team:7,hcp:7,gross:39,net:32},
+      {name:'Jason Smith',team:7,hcp:13,gross:45,net:32},
+      {name:'Wes Barton',team:7,hcp:13,gross:46,net:33},
+      {name:'Doug Anthony',team:7,hcp:13,gross:48,net:35},
+      {name:'Brian Barton',team:8,hcp:5,gross:44,net:39},
+      {name:'Paul Bowser',team:8,hcp:8,gross:48,net:40},
+      {name:'Dylan Smith',team:8,hcp:11,gross:48,net:37},
+      {name:'Patric Weber',team:8,hcp:16,gross:47,net:31},
+      {name:'Cole Clark',team:8,hcp:16,gross:56,net:40},
+    ]
+  },
+  // Week 8 — Monday, June 29, 2026, Front 9. From season xlsx.
+  8: {
+    label:'Week 8',date:'Monday, June 29, 2026',course:'Hiland Golf Course',
+    players:[
+      {name:'Larry Julius',team:1,hcp:3,gross:36,net:33},
+      {name:'Butch Griffith',team:1,hcp:12,gross:52,net:40},
+      {name:'Frank Watt',team:1,hcp:14,gross:61,net:47},
+      {name:'Paul Harmon',team:1,hcp:14,gross:54,net:40},
+      {name:'Keith Clark',team:1,hcp:17,gross:59,net:42},
+      {name:'Mario Jenkins',team:1,hcp:12,gross:52,net:40},
+      {name:'Andy Gallagher',team:1,hcp:17,gross:54,net:37},
+      {name:'Jim Frye',team:2,hcp:2,gross:40,net:38},
+      {name:'Skylar Grafton',team:2,hcp:8,gross:44,net:36},
+      {name:'Jeff Hollobaugh',team:2,hcp:11,gross:51,net:40},
+      {name:'Nick Keefer',team:2,hcp:9,gross:46,net:37},
+      {name:'Trent Brocious',team:2,hcp:14,gross:52,net:38},
+      {name:'Wilbur Dudley',team:2,hcp:18,gross:58,net:40},
+      {name:'Andy Patz',team:2,hcp:14,gross:55,net:41},
+      {name:'Duck Julius',team:3,hcp:2,gross:36,net:34},
+      {name:'Willie Powell',team:3,hcp:10,gross:45,net:35},
+      {name:'Bruce Thomas',team:3,hcp:10,gross:45,net:35},
+      {name:'Dave Cushey',team:3,hcp:11,gross:53,net:42},
+      {name:'Scott Barton',team:3,hcp:11,gross:45,net:34},
+      {name:'Dicky Peat',team:3,hcp:19,gross:54,net:35},
+      {name:'Allan Voltz',team:3,hcp:20,gross:65,net:45},
+      {name:'Clark Helm',team:4,hcp:6,gross:42,net:36},
+      {name:'Roger Hoffman',team:4,hcp:8,gross:42,net:34},
+      {name:'Chad Hollobaugh',team:4,hcp:12,gross:49,net:37},
+      {name:'Tom Stennett',team:4,hcp:17,gross:52,net:35},
+      {name:'Landon Badac',team:4,hcp:17,gross:60,net:43},
+      {name:'Blake Bowser',team:4,hcp:15,gross:59,net:44},
+      {name:'Eli Hickman',team:5,hcp:8,gross:42,net:34},
+      {name:'Bill Long',team:5,hcp:8,gross:50,net:42},
+      {name:'Tyler Eroh',team:5,hcp:8,gross:49,net:41},
+      {name:'Denny Snyder',team:5,hcp:10,gross:49,net:39},
+      {name:'Don Nulph',team:5,hcp:11,gross:46,net:35},
+      {name:'Dave Toy',team:5,hcp:10,gross:53,net:43},
+      {name:'Jay Griffith',team:6,hcp:7,gross:49,net:42},
+      {name:'Sam Long',team:6,hcp:7,gross:43,net:36},
+      {name:'Kevin Frye',team:6,hcp:9,gross:42,net:33},
+      {name:'Jesse Hickman',team:6,hcp:11,gross:48,net:37},
+      {name:'Jim Goodman',team:6,hcp:12,gross:54,net:42},
+      {name:'Dylan Barton',team:6,hcp:20,gross:63,net:43},
+      {name:'Ed Bargerstock',team:7,hcp:5,gross:38,net:33},
+      {name:'Vince Sanzotti',team:7,hcp:5,gross:48,net:43},
+      {name:'Mike Hickman',team:7,hcp:7,gross:41,net:34},
+      {name:'Chris Remaley',team:7,hcp:14,gross:47,net:33},
+      {name:'Jason Smith',team:7,hcp:12,gross:48,net:36},
+      {name:'Wes Barton',team:7,hcp:12,gross:49,net:37},
+      {name:'Doug Anthony',team:7,hcp:12,gross:55,net:43},
+      {name:'Brian Barton',team:8,hcp:5,gross:45,net:40},
+      {name:'Paul Bowser',team:8,hcp:8,gross:40,net:32},
+      {name:'Ken Long',team:8,hcp:12,gross:54,net:42},
+      {name:'Dylan Smith',team:8,hcp:10,gross:48,net:38},
+      {name:'Cole Clark',team:8,hcp:15,gross:52,net:37},
+    ]
+  },
+  // Week 9 — Monday, July 6, 2026, Back 9. From season xlsx.
+  9: {
+    label:'Week 9',date:'Monday, July 6, 2026',course:'Hiland Golf Course',
+    players:[
+      {name:'Larry Julius',team:1,hcp:3,gross:36,net:33},
+      {name:'Kris Simmons',team:1,hcp:4,gross:42,net:38},
+      {name:'Butch Griffith',team:1,hcp:11,gross:49,net:38},
+      {name:'Frank Watt',team:1,hcp:15,gross:57,net:42},
+      {name:'Keith Clark',team:1,hcp:19,gross:60,net:41},
+      {name:'Mario Jenkins',team:1,hcp:12,gross:43,net:31},
+      {name:'Jim Frye',team:2,hcp:2,gross:36,net:34},
+      {name:'Skylar Grafton',team:2,hcp:7,gross:46,net:39},
+      {name:'Trent Brocious',team:2,hcp:15,gross:48,net:33},
+      {name:'Andy Patz',team:2,hcp:14,gross:53,net:39},
+      {name:'Duck Julius',team:3,hcp:2,gross:35,net:33},
+      {name:'Willie Powell',team:3,hcp:10,gross:49,net:39},
+      {name:'Bruce Thomas',team:3,hcp:9,gross:50,net:41},
+      {name:'Dave Cushey',team:3,hcp:12,gross:52,net:40},
+      {name:'Scott Barton',team:3,hcp:11,gross:49,net:38},
+      {name:'Dicky Peat',team:3,hcp:18,gross:56,net:38},
+      {name:'Allan Voltz',team:3,hcp:20,gross:68,net:48},
+      {name:'Clark Helm',team:4,hcp:5,gross:43,net:38},
+      {name:'Roger Hoffman',team:4,hcp:7,gross:46,net:39},
+      {name:'Chad Hollobaugh',team:4,hcp:12,gross:42,net:30},
+      {name:'Tom Stennett',team:4,hcp:16,gross:43,net:27},
+      {name:'Landon Badac',team:4,hcp:18,gross:51,net:33},
+      {name:'Blake Bowser',team:4,hcp:15,gross:51,net:36},
+      {name:'Eli Hickman',team:5,hcp:8,gross:42,net:34},
+      {name:'Bill Long',team:5,hcp:9,gross:45,net:36},
+      {name:'Jaxon Smith',team:5,hcp:9,gross:51,net:42},
+      {name:'Denny Snyder',team:5,hcp:10,gross:42,net:32},
+      {name:'Don Nulph',team:5,hcp:10,gross:49,net:39},
+      {name:'Dave Toy',team:5,hcp:11,gross:50,net:39},
+      {name:'Sam Long',team:6,hcp:7,gross:40,net:33},
+      {name:'Kevin Frye',team:6,hcp:9,gross:45,net:36},
+      {name:'Jesse Hickman',team:6,hcp:12,gross:54,net:42},
+      {name:'Jim Goodman',team:6,hcp:13,gross:52,net:39},
+      {name:'Dylan Barton',team:6,hcp:20,gross:65,net:45},
+      {name:'Ed Bargerstock',team:7,hcp:4,gross:42,net:38},
+      {name:'Mike Hickman',team:7,hcp:5,gross:39,net:34},
+      {name:'Chris Remaley',team:7,hcp:13,gross:41,net:28},
+      {name:'Jason Smith',team:7,hcp:11,gross:48,net:37},
+      {name:'Wes Barton',team:7,hcp:11,gross:47,net:36},
+      {name:'Doug Anthony',team:7,hcp:12,gross:44,net:32},
+      {name:'Brian Barton',team:8,hcp:7,gross:39,net:32},
+      {name:'Paul Bowser',team:8,hcp:8,gross:46,net:38},
+      {name:'Ken Long',team:8,hcp:13,gross:52,net:39},
+      {name:'Logan Bowser',team:8,hcp:15,gross:52,net:37},
+      {name:'Dylan Smith',team:8,hcp:10,gross:53,net:43},
+    ]
+  },
   10: {
     label:'Week 10',date:'Monday, July 13, 2026',course:'Hiland Golf Course',
     players:[
@@ -2662,10 +3207,381 @@ const WK_DATA = {
       // Grp 15 — Card O (Jay Griffith confirmed = Jason Griffith on card)
       {name:'Jay Griffith',   team:6,hcp:9, gross:49,net:40,grp:15},
       {name:'Tyler Eroh',     team:5,hcp:8, gross:43,net:35,grp:15},
-      {name:'Andy Gallagher', team:1,hcp:16,gross:53,net:37,grp:15},
+      {name:'Andy Gallagher', team:1,hcp:16,gross:48,net:32,grp:15},
       {name:'Nick Keefer',    team:2,hcp:9, gross:46,net:37,grp:15}
     ]
-  }
+  },
+  // Week 11 — 7/20/2026, Back 9. Paper scores authoritative. All 8 teams verified.
+  11: {
+    label:'Week 11',date:'Monday, July 20, 2026',course:'Hiland Golf Course',
+    players:[
+      // Grp 1 — GMRV18SQE: Willie Powell, Bill Long, Sam Long, Patric Weber
+      {name:'Willie Powell',  team:3,hcp:10,gross:48,net:38,grp:1},
+      {name:'Bill Long',      team:5,hcp:9, gross:48,net:39,grp:1},
+      {name:'Sam Long',       team:6,hcp:7, gross:44,net:37,grp:1},
+      {name:'Patric Weber',   team:8,hcp:15,gross:57,net:42,grp:1},
+      // Grp 2 — GMRV85UPU: Frank Watt, Andy Patz, Wilbur Dudley, Dylan Barton, Wes Barton
+      {name:'Frank Watt',     team:1,hcp:11,gross:46,net:35,grp:2},
+      {name:'Andy Patz',      team:2,hcp:14,gross:49,net:35,grp:2},
+      {name:'Wilbur Dudley',  team:2,hcp:18,gross:55,net:37,grp:2},
+      {name:'Dylan Barton',   team:6,hcp:20,gross:66,net:46,grp:2},
+      {name:'Wes Barton',     team:7,hcp:10,gross:47,net:37,grp:2},
+      // Grp 3 — GMRV861YG: Tom Stennett, Kevin Frye, Vince Sanzotti, Paul Bowser
+      {name:'Tom Stennett',   team:4,hcp:12,gross:42,net:30,grp:3},
+      {name:'Kevin Frye',     team:6,hcp:7, gross:38,net:31,grp:3},
+      {name:'Vince Sanzotti', team:7,hcp:6, gross:37,net:31,grp:3},
+      {name:'Paul Bowser',    team:8,hcp:7, gross:43,net:36,grp:3},
+      // Grp 4 — paper only (no electronic card)
+      {name:'Kris Simmons',   team:1,hcp:2, gross:39,net:37,grp:4},
+      {name:'Butch Griffith', team:1,hcp:4, gross:43,net:39,grp:4},
+      {name:'Paul Harmon',    team:1,hcp:16,gross:47,net:31,grp:4},
+      {name:'Keith Clark',    team:1,hcp:13,gross:48,net:35,grp:4},
+      {name:'Mario Jenkins',  team:1,hcp:20,gross:53,net:33,grp:4},
+      {name:'Andy Gallagher', team:1,hcp:10,gross:49,net:39,grp:4},
+      {name:'Jim Frye',       team:2,hcp:1, gross:38,net:37,grp:4},
+      {name:'Nick Keefer',    team:2,hcp:9, gross:47,net:38,grp:4},
+      {name:'Trent Brocious', team:2,hcp:13,gross:49,net:36,grp:4},
+      {name:'Duck Julius',    team:3,hcp:1, gross:37,net:36,grp:4},
+      {name:'Bruce Thomas',   team:3,hcp:10,gross:49,net:39,grp:4},
+      {name:'Scott Barton',   team:3,hcp:11,gross:47,net:36,grp:4},
+      {name:'Dicky Peat',     team:3,hcp:17,gross:51,net:34,grp:4},
+      {name:'Allan Voltz',    team:3,hcp:20,gross:65,net:45,grp:4},
+      {name:'Roger Hoffman',  team:4,hcp:8, gross:46,net:38,grp:4},
+      {name:'Chad Hollobaugh',team:4,hcp:8, gross:48,net:40,grp:4},
+      {name:'Landon Badac',   team:4,hcp:16,gross:55,net:39,grp:4},
+      {name:'Eli Hickman',    team:5,hcp:6, gross:41,net:35,grp:4},
+      {name:'Jaxon Smith',    team:5,hcp:9, gross:47,net:38,grp:4},
+      {name:'Tyler Eroh',     team:5,hcp:8, gross:42,net:34,grp:4},
+      {name:'Denny Snyder',   team:5,hcp:9, gross:45,net:36,grp:4},
+      {name:'Don Nulph',      team:5,hcp:12,gross:50,net:38,grp:4},
+      {name:'Dave Toy',       team:5,hcp:11,gross:46,net:35,grp:4},
+      {name:'Jay Griffith',   team:6,hcp:9, gross:47,net:38,grp:4},
+      {name:'Jesse Hickman',  team:6,hcp:12,gross:41,net:29,grp:4},
+      {name:'Jim Goodman',    team:6,hcp:14,gross:50,net:36,grp:4},
+      {name:'Ed Bargerstock', team:7,hcp:4, gross:42,net:38,grp:4},
+      {name:'Mike Hickman',   team:7,hcp:4, gross:39,net:35,grp:4},
+      {name:'Doug Anthony',   team:7,hcp:11,gross:46,net:35,grp:4},
+      {name:'Brian Barton',   team:8,hcp:5, gross:38,net:33,grp:4},
+      {name:'Logan Bowser',   team:8,hcp:15,gross:46,net:31,grp:4},
+      {name:'Cole Clark',     team:8,hcp:15,gross:48,net:33,grp:4}
+    ]
+  },
+  // Week 12 — 7/27/2026, Front 9. ALL SCORES FROM PAPER SHEETS (authoritative).
+  // Prior GAS data for T5/T6/T7/T8 was wrong; paper corrects all.
+  // T1=131 T2=150 T3=142 T4=144 T5=142 T6=144 T7=144 T8=142
+  12: {
+    label:'Week 12',date:'Monday, July 27, 2026',course:'Hiland Golf Course',
+    players:[
+      // T1 — paper
+      {name:'Butch Griffith', team:1,hcp:5, gross:39,net:34,grp:1},
+      {name:'Frank Watt',     team:1,hcp:11,gross:43,net:32,grp:1},
+      {name:'Paul Harmon',    team:1,hcp:16,gross:51,net:35,grp:1},
+      {name:'Mario Jenkins',  team:1,hcp:19,gross:49,net:30,grp:1},
+      {name:'Kris Simmons',   team:1,hcp:2, gross:39,net:37,grp:1},
+      {name:'Keith Clark',    team:1,hcp:13,gross:50,net:37,grp:1},
+      {name:'Andy Gallagher', team:1,hcp:10,gross:51,net:41,grp:1},
+      // T2 — paper
+      {name:'Jim Frye',       team:2,hcp:1, gross:38,net:37,grp:1},
+      {name:'Jeff Hollobaugh',team:2,hcp:11,gross:51,net:40,grp:1},
+      {name:'Trent Brocious', team:2,hcp:11,gross:50,net:39,grp:1},
+      {name:'Wilbur Dudley',  team:2,hcp:16,gross:50,net:34,grp:1},
+      // T3 — paper
+      {name:'Duck Julius',    team:3,hcp:1, gross:38,net:37,grp:1},
+      {name:'Willie Powell',  team:3,hcp:9, gross:42,net:33,grp:1},
+      {name:'Dave Cushey',    team:3,hcp:12,gross:49,net:37,grp:1},
+      {name:'Dicky Peat',     team:3,hcp:16,gross:51,net:35,grp:1},
+      {name:'Bruce Thomas',   team:3,hcp:10,gross:51,net:41,grp:1},
+      {name:'Scott Barton',   team:3,hcp:10,gross:48,net:38,grp:1},
+      {name:'Allan Voltz',    team:3,hcp:20,gross:70,net:50,grp:1},
+      // T4 — paper (Roger gross=40/net=32; Chad gross=46/net=38; Tom gross=46/net=36; Landon gross=54/net=38)
+      {name:'Roger Hoffman',  team:4,hcp:8, gross:40,net:32,grp:1},
+      {name:'Chad Hollobaugh',team:4,hcp:8, gross:46,net:38,grp:1},
+      {name:'Tom Stennett',   team:4,hcp:10,gross:46,net:36,grp:1},
+      {name:'Landon Badac',   team:4,hcp:16,gross:54,net:38,grp:1},
+      // T5 — paper (corrected: was showing Bill Long only w/ penalty; all 4 played)
+      {name:'Jaxon Smith',    team:5,hcp:10,gross:44,net:34,grp:1},
+      {name:'Tyler Eroh',     team:5,hcp:10,gross:44,net:34,grp:1},
+      {name:'Don Nulph',      team:5,hcp:9, gross:44,net:35,grp:1},
+      {name:'Dave Toy',       team:5,hcp:12,gross:51,net:39,grp:1},
+      // T6 — paper (corrected from GAS: Sam=36 Kevin=38 Jesse=31 Jim=39; not Sam=38 Kevin=35)
+      {name:'Sam Long',       team:6,hcp:7, gross:43,net:36,grp:1},
+      {name:'Kevin Frye',     team:6,hcp:5, gross:43,net:38,grp:1},
+      {name:'Jesse Hickman',  team:6,hcp:10,gross:41,net:31,grp:1},
+      {name:'Jim Goodman',    team:6,hcp:14,gross:53,net:39,grp:1},
+      {name:'Dylan Barton',   team:6,hcp:20,gross:60,net:40,grp:1},
+      // T7 — paper (corrected: was Ed+Wes only w/ penalty; Jason Smith+Doug Anthony also played)
+      {name:'Ed Bargerstock', team:7,hcp:5, gross:37,net:32,grp:1},
+      {name:'Jason Smith',    team:7,hcp:10,gross:53,net:43,grp:1},
+      {name:'Wes Barton',     team:7,hcp:10,gross:47,net:37,grp:1},
+      {name:'Doug Anthony',   team:7,hcp:11,gross:43,net:32,grp:1},
+      // T8 — paper (corrected from GAS: Brian+Logan+Cole scored, not GAS players)
+      {name:'Brian Barton',   team:8,hcp:4, gross:41,net:37,grp:1},
+      {name:'Paul Bowser',    team:8,hcp:6, gross:42,net:36,grp:1},
+      {name:'Logan Bowser',   team:8,hcp:13,gross:49,net:36,grp:1},
+      {name:'Cole Clark',     team:8,hcp:14,gross:47,net:33,grp:1},
+      {name:'Ken Long',       team:8,hcp:13,gross:51,net:38,grp:1},
+      {name:'Dylan Smith',    team:8,hcp:11,gross:48,net:37,grp:1},
+      {name:'Patric Weber',   team:8,hcp:14,gross:53,net:39,grp:1}
+    ]
+  },
+  // Week 13 — 8/3/2026, Back 9. All scores from paper sheets.
+  // T1=153 T2=157 T3=148 T4=135 T5=145 T6=174(+100pen) T7=153 T8=142
+  13: {
+    label:'Week 13',date:'Monday, August 3, 2026',course:'Hiland Golf Course',
+    players:[
+      // T1
+      {name:'Kris Simmons',   team:1,hcp:2, gross:40,net:38,grp:1},
+      {name:'Paul Harmon',    team:1,hcp:14,gross:55,net:41,grp:1},
+      {name:'Keith Clark',    team:1,hcp:13,gross:51,net:38,grp:1},
+      {name:'Andy Gallagher', team:1,hcp:10,gross:46,net:36,grp:1},
+      {name:'Mario Jenkins',  team:1,hcp:17,gross:59,net:42,grp:1},
+      // T2
+      {name:'Nick Keefer',    team:2,hcp:9, gross:51,net:42,grp:1},
+      {name:'Trent Brocious', team:2,hcp:11,gross:49,net:38,grp:1},
+      {name:'Wilbur Dudley',  team:2,hcp:15,gross:57,net:42,grp:1},
+      {name:'Andy Patz',      team:2,hcp:14,gross:49,net:35,grp:1},
+      // T3
+      {name:'Duck Julius',    team:3,hcp:2, gross:40,net:38,grp:1},
+      {name:'Bruce Thomas',   team:3,hcp:11,gross:44,net:33,grp:1},
+      {name:'Dave Cushey',    team:3,hcp:12,gross:48,net:36,grp:1},
+      {name:'Allan Voltz',    team:3,hcp:20,gross:61,net:41,grp:1},
+      {name:'Willie Powell',  team:3,hcp:9, gross:51,net:42,grp:1},
+      {name:'Dicky Peat',     team:3,hcp:15,gross:58,net:43,grp:1},
+      // T4 — Roger(37)+Chad(34)+Tom(32)+Landon(32)=135
+      {name:'Roger Hoffman',  team:4,hcp:8, gross:45,net:37,grp:1},
+      {name:'Chad Hollobaugh',team:4,hcp:8, gross:42,net:34,grp:1},
+      {name:'Tom Stennett',   team:4,hcp:12,gross:44,net:32,grp:1},
+      {name:'Landon Badac',   team:4,hcp:16,gross:48,net:32,grp:1},
+      // T5
+      {name:'Jaxon Smith',    team:5,hcp:9, gross:43,net:34,grp:1},
+      {name:'Tyler Eroh',     team:5,hcp:9, gross:45,net:36,grp:1},
+      {name:'Denny Snyder',   team:5,hcp:8, gross:46,net:38,grp:1},
+      {name:'Dave Toy',       team:5,hcp:11,gross:48,net:37,grp:1},
+      {name:'Don Nulph',      team:5,hcp:14,gross:58,net:44,grp:1},
+      // T6 — only 2 real scores → +100 penalty
+      {name:'Jim Goodman',    team:6,hcp:14,gross:48,net:34,grp:1},
+      {name:'Dylan Barton',   team:6,hcp:20,gross:60,net:40,grp:1},
+      // T7
+      {name:'Ed Bargerstock', team:7,hcp:5, gross:41,net:36,grp:1},
+      {name:'Jason Smith',    team:7,hcp:11,gross:57,net:46,grp:1},
+      {name:'Wes Barton',     team:7,hcp:10,gross:43,net:33,grp:1},
+      {name:'Doug Anthony',   team:7,hcp:9, gross:47,net:38,grp:1},
+      // T8
+      {name:'Paul Bowser',    team:8,hcp:7, gross:43,net:36,grp:1},
+      {name:'Logan Bowser',   team:8,hcp:12,gross:48,net:36,grp:1},
+      {name:'Dylan Smith',    team:8,hcp:11,gross:48,net:37,grp:1},
+      {name:'Patric Weber',   team:8,hcp:14,gross:47,net:33,grp:1},
+      {name:'Cole Clark',     team:8,hcp:12,gross:52,net:40,grp:1}
+    ]
+  },
+  // Week 14 — 8/10/2026, Front 9. All scores from paper sheets.
+  // T1=145 T2=145 T3=150 T4=158 T5=148 T6=151 T7=144 T8=153
+  14: {
+    label:'Week 14',date:'Monday, August 10, 2026',course:'Hiland Golf Course',
+    players:[
+      // T1
+      {name:'Larry Julius',   team:1,hcp:3, gross:38,net:35,grp:1},
+      {name:'Butch Griffith', team:1,hcp:9, gross:49,net:40,grp:1},
+      {name:'Frank Watt',     team:1,hcp:13,gross:48,net:35,grp:1},
+      {name:'Mario Jenkins',  team:1,hcp:11,gross:46,net:35,grp:1},
+      {name:'Keith Clark',    team:1,hcp:17,gross:61,net:44,grp:1},
+      // T2
+      {name:'Jim Frye',       team:2,hcp:1, gross:39,net:38,grp:1},
+      {name:'Skylar Grafton', team:2,hcp:10,gross:45,net:35,grp:1},
+      {name:'Jeff Hollobaugh',team:2,hcp:12,gross:48,net:36,grp:1},
+      {name:'Trent Brocious', team:2,hcp:11,gross:47,net:36,grp:1},
+      {name:'Wilbur Dudley',  team:2,hcp:15,gross:55,net:40,grp:1},
+      {name:'Andy Patz',      team:2,hcp:13,gross:51,net:38,grp:1},
+      // T3
+      {name:'Duck Julius',    team:3,hcp:2, gross:38,net:36,grp:1},
+      {name:'Bruce Thomas',   team:3,hcp:10,gross:48,net:38,grp:1},
+      {name:'Dave Cushey',    team:3,hcp:12,gross:48,net:36,grp:1},
+      {name:'Scott Barton',   team:3,hcp:10,gross:50,net:40,grp:1},
+      {name:'Dicky Peat',     team:3,hcp:16,gross:59,net:43,grp:1},
+      {name:'Allan Voltz',    team:3,hcp:20,gross:68,net:48,grp:1},
+      // T4
+      {name:'Harry Breski',   team:4,hcp:7, gross:41,net:34,grp:1},
+      {name:'Clark Helm',     team:4,hcp:5, gross:48,net:43,grp:1},
+      {name:'Roger Hoffman',  team:4,hcp:8, gross:47,net:39,grp:1},
+      {name:'Blake Bowser',   team:4,hcp:15,gross:57,net:42,grp:1},
+      {name:'Chad Hollobaugh',team:4,hcp:10,gross:58,net:48,grp:1},
+      {name:'Landon Badac',   team:4,hcp:17,gross:62,net:45,grp:1},
+      // T5
+      {name:'Bill Long',      team:5,hcp:5, gross:41,net:36,grp:1},
+      {name:'Jaxon Smith',    team:5,hcp:8, gross:39,net:31,grp:1},
+      {name:'Tyler Eroh',     team:5,hcp:9, gross:47,net:38,grp:1},
+      {name:'Don Nulph',      team:5,hcp:8, gross:51,net:43,grp:1},
+      {name:'Dave Toy',       team:5,hcp:11,gross:56,net:45,grp:1},
+      // T6
+      {name:'Sam Long',       team:6,hcp:7, gross:41,net:34,grp:1},
+      {name:'Kevin Frye',     team:6,hcp:5, gross:44,net:39,grp:1},
+      {name:'Jesse Hickman',  team:6,hcp:9, gross:48,net:39,grp:1},
+      {name:'Dylan Barton',   team:6,hcp:20,gross:59,net:39,grp:1},
+      {name:'Jim Goodman',    team:6,hcp:13,gross:53,net:40,grp:1},
+      // T7
+      {name:'Vince Sanzotti', team:7,hcp:5, gross:39,net:34,grp:1},
+      {name:'Doug Anthony',   team:7,hcp:9, gross:44,net:35,grp:1},
+      {name:'Chris Remaley',  team:7,hcp:10,gross:46,net:36,grp:1},
+      {name:'Mike Hickman',   team:7,hcp:4, gross:43,net:39,grp:1},
+      {name:'Ed Bargerstock', team:7,hcp:4, gross:44,net:40,grp:1},
+      {name:'Jason Smith',    team:7,hcp:13,gross:56,net:43,grp:1},
+      {name:'Wes Barton',     team:7,hcp:9, gross:49,net:40,grp:1},
+      // T8
+      {name:'Dylan Smith',    team:8,hcp:11,gross:47,net:36,grp:1},
+      {name:'Logan Bowser',   team:8,hcp:11,gross:48,net:37,grp:1},
+      {name:'Ken Long',       team:8,hcp:12,gross:51,net:39,grp:1},
+      {name:'Paul Bowser',    team:8,hcp:6, gross:47,net:41,grp:1},
+      {name:'Brian Barton',   team:8,hcp:3, gross:47,net:44,grp:1},
+      {name:'Cole Clark',     team:8,hcp:12,gross:55,net:43,grp:1}
+    ]
+  },
+  // Week 15 — 8/17/2026, Back 9. All scores from paper sheets.
+  // T1=150 T2=150 T3=145 T4=153 T5=138 T6=159 T7=147 T8=140
+  15: {
+    label:'Week 15',date:'Monday, August 17, 2026',course:'Hiland Golf Course',
+    players:[
+      // T1
+      {name:'Larry Julius',   team:1,hcp:3, gross:41,net:38,grp:1},
+      {name:'Butch Griffith', team:1,hcp:9, gross:48,net:39,grp:1},
+      {name:'Keith Clark',    team:1,hcp:16,gross:53,net:37,grp:1},
+      {name:'Mario Jenkins',  team:1,hcp:10,gross:46,net:36,grp:1},
+      {name:'Frank Watt',     team:1,hcp:12,gross:55,net:43,grp:1},
+      // T2
+      {name:'Jim Frye',       team:2,hcp:2, gross:37,net:35,grp:1},
+      {name:'Skylar Grafton', team:2,hcp:9, gross:47,net:38,grp:1},
+      {name:'Jeff Hollobaugh',team:2,hcp:12,gross:50,net:38,grp:1},
+      {name:'Trent Brocious', team:2,hcp:11,gross:50,net:39,grp:1},
+      {name:'Wilbur Dudley',  team:2,hcp:15,gross:55,net:40,grp:1},
+      {name:'Andy Patz',      team:2,hcp:13,gross:53,net:40,grp:1},
+      // T3
+      {name:'Duck Julius',    team:3,hcp:2, gross:40,net:38,grp:1},
+      {name:'Bruce Thomas',   team:3,hcp:10,gross:45,net:35,grp:1},
+      {name:'Dave Cushey',    team:3,hcp:11,gross:45,net:34,grp:1},
+      {name:'Scott Barton',   team:3,hcp:11,gross:49,net:38,grp:1},
+      {name:'Dicky Peat',     team:3,hcp:16,gross:60,net:44,grp:1},
+      // T4
+      {name:'Roger Hoffman',  team:4,hcp:8, gross:46,net:38,grp:1},
+      {name:'Tom Stennett',   team:4,hcp:11,gross:47,net:36,grp:1},
+      {name:'Blake Bowser',   team:4,hcp:15,gross:54,net:39,grp:1},
+      {name:'Chad Hollobaugh',team:4,hcp:9, gross:49,net:40,grp:1},
+      {name:'Landon Badac',   team:4,hcp:17,gross:57,net:40,grp:1},
+      // T5
+      {name:'Bill Long',      team:5,hcp:5, gross:40,net:35,grp:1},
+      {name:'Jaxon Smith',    team:5,hcp:7, gross:43,net:36,grp:1},
+      {name:'Tyler Eroh',     team:5,hcp:10,gross:46,net:36,grp:1},
+      {name:'Dave Toy',       team:5,hcp:12,gross:43,net:31,grp:1},
+      {name:'Don Nulph',      team:5,hcp:9, gross:50,net:41,grp:1},
+      // T6
+      {name:'Sam Long',       team:6,hcp:7, gross:46,net:39,grp:1},
+      {name:'Kevin Frye',     team:6,hcp:5, gross:43,net:38,grp:1},
+      {name:'Jim Goodman',    team:6,hcp:13,gross:51,net:38,grp:1},
+      {name:'Dylan Barton',   team:6,hcp:20,gross:64,net:44,grp:1},
+      // T7
+      {name:'Ed Bargerstock', team:7,hcp:5, gross:39,net:34,grp:1},
+      {name:'Vince Sanzotti', team:7,hcp:5, gross:38,net:33,grp:1},
+      {name:'Jason Smith',    team:7,hcp:15,gross:53,net:38,grp:1},
+      {name:'Mike Hickman',   team:7,hcp:4, gross:46,net:42,grp:1},
+      {name:'Chris Remaley',  team:7,hcp:9, gross:52,net:43,grp:1},
+      {name:'Wes Barton',     team:7,hcp:9, gross:53,net:44,grp:1},
+      {name:'Doug Anthony',   team:7,hcp:8, gross:52,net:44,grp:1},
+      // T8
+      {name:'Logan Bowser',   team:8,hcp:10,gross:42,net:32,grp:1},
+      {name:'Paul Bowser',    team:8,hcp:7, gross:42,net:35,grp:1},
+      {name:'Ken Long',       team:8,hcp:12,gross:47,net:35,grp:1},
+      {name:'Brian Barton',   team:8,hcp:5, gross:43,net:38,grp:1},
+      {name:'Patric Weber',   team:8,hcp:14,gross:58,net:44,grp:1},
+      {name:'Cole Clark',     team:8,hcp:12,gross:58,net:46,grp:1}
+    ]
+  },
+  // Week 16 — Monday, August 24, 2026, Front 9. From season xlsx.
+  16: {
+    label:'Week 16',date:'Monday, August 24, 2026',course:'Hiland Golf Course',
+    players:[
+      {name:'Larry Julius',team:1,hcp:4,gross:36,net:32},
+      {name:'Butch Griffith',team:1,hcp:9,gross:51,net:42},
+      {name:'Frank Watt',team:1,hcp:14,gross:52,net:38},
+      {name:'Keith Clark',team:1,hcp:16,gross:56,net:40},
+      {name:'Mario Jenkins',team:1,hcp:10,gross:48,net:38},
+      {name:'Jim Frye',team:2,hcp:2,gross:35,net:33},
+      {name:'Jeff Hollobaugh',team:2,hcp:11,gross:44,net:33},
+      {name:'Trent Brocious',team:2,hcp:11,gross:47,net:36},
+      {name:'Wilbur Dudley',team:2,hcp:15,gross:54,net:39},
+      {name:'Andy Patz',team:2,hcp:12,gross:54,net:42},
+      {name:'Duck Julius',team:3,hcp:3,gross:37,net:34},
+      {name:'Willie Powell',team:3,hcp:11,gross:50,net:39},
+      {name:'Bruce Thomas',team:3,hcp:10,gross:52,net:42},
+      {name:'Dave Cushey',team:3,hcp:10,gross:48,net:38},
+      {name:'Scott Barton',team:3,hcp:11,gross:49,net:38},
+      {name:'Dicky Peat',team:3,hcp:18,gross:65,net:47},
+      {name:'Allan Voltz',team:3,hcp:20,gross:68,net:48},
+      {name:'Harry Breski',team:4,hcp:6,gross:40,net:34},
+      {name:'Roger Hoffman',team:4,hcp:8,gross:45,net:37},
+      {name:'Chad Hollobaugh',team:4,hcp:9,gross:53,net:44},
+      {name:'Tom Stennett',team:4,hcp:12,gross:49,net:37},
+      {name:'Landon Badac',team:4,hcp:19,gross:59,net:40},
+      {name:'Bill Long',team:5,hcp:6,gross:49,net:43},
+      {name:'Don Nulph',team:5,hcp:17,gross:58,net:41},
+      {name:'Dave Toy',team:5,hcp:12,gross:56,net:44},
+      {name:'Sam Long',team:6,hcp:8,gross:42,net:34},
+      {name:'Jim Goodman',team:6,hcp:13,gross:50,net:37},
+      {name:'Dylan Barton',team:6,hcp:20,gross:61,net:41},
+      {name:'Ed Bargerstock',team:7,hcp:4,gross:39,net:35},
+      {name:'Vince Sanzotti',team:7,hcp:3,gross:42,net:39},
+      {name:'Jason Smith',team:7,hcp:16,gross:51,net:35},
+      {name:'Wes Barton',team:7,hcp:10,gross:47,net:37},
+      {name:'Doug Anthony',team:7,hcp:9,gross:51,net:42},
+      {name:'Brian Barton',team:8,hcp:6,gross:39,net:33},
+      {name:'Paul Bowser',team:8,hcp:7,gross:46,net:39},
+      {name:'Logan Bowser',team:8,hcp:9,gross:47,net:38},
+      {name:'Dylan Smith',team:8,hcp:11,gross:46,net:35},
+      {name:'Patric Weber',team:8,hcp:15,gross:51,net:36},
+      {name:'Cole Clark',team:8,hcp:14,gross:50,net:36},
+    ]
+  },
+  // Week 17 — Sunday, August 30, 2026, Back 9. From season xlsx.
+  17: {
+    label:'Week 17',date:'Sunday, August 30, 2026',course:'Hiland Golf Course',
+    players:[
+      {name:'Larry Julius',team:1,hcp:3,gross:38,net:35},
+      {name:'Frank Watt',team:1,hcp:14,gross:52,net:38},
+      {name:'Mario Jenkins',team:1,hcp:10,gross:46,net:36},
+      {name:'Skylar Grafton',team:2,hcp:10,gross:44,net:34},
+      {name:'Trent Brocious',team:2,hcp:11,gross:47,net:36},
+      {name:'Wilbur Dudley',team:2,hcp:16,gross:58,net:42},
+      {name:'Andy Patz',team:2,hcp:13,gross:56,net:43},
+      {name:'Duck Julius',team:3,hcp:3,gross:38,net:35},
+      {name:'Willie Powell',team:3,hcp:11,gross:45,net:34},
+      {name:'Bruce Thomas',team:3,hcp:10,gross:48,net:38},
+      {name:'Dave Cushey',team:3,hcp:10,gross:43,net:33},
+      {name:'Dicky Peat',team:3,hcp:20,gross:56,net:36},
+      {name:'Allan Voltz',team:3,hcp:20,gross:66,net:46},
+      {name:'Harry Breski',team:4,hcp:5,gross:48,net:43},
+      {name:'Roger Hoffman',team:4,hcp:9,gross:47,net:38},
+      {name:'Chad Hollobaugh',team:4,hcp:10,gross:46,net:36},
+      {name:'Tom Stennett',team:4,hcp:13,gross:57,net:44},
+      {name:'Landon Badac',team:4,hcp:19,gross:57,net:38},
+      {name:'Blake Bowser',team:4,hcp:15,gross:54,net:39},
+      {name:'Eli Hickman',team:5,hcp:5,gross:42,net:37},
+      {name:'Bill Long',team:5,hcp:7,gross:41,net:34},
+      {name:'Denny Snyder',team:5,hcp:10,gross:47,net:37},
+      {name:'Don Nulph',team:5,hcp:18,gross:63,net:45},
+      {name:'Dave Toy',team:5,hcp:13,gross:49,net:36},
+      {name:'Sam Long',team:6,hcp:7,gross:46,net:39},
+      {name:'Dylan Barton',team:6,hcp:20,gross:62,net:42},
+      {name:'Ed Bargerstock',team:7,hcp:5,gross:37,net:32},
+      {name:'Mike Hickman',team:7,hcp:5,gross:41,net:36},
+      {name:'Chris Remaley',team:7,hcp:10,gross:55,net:45},
+      {name:'Wes Barton',team:7,hcp:10,gross:41,net:31},
+      {name:'Doug Anthony',team:7,hcp:9,gross:50,net:41},
+      {name:'Brian Barton',team:8,hcp:6,gross:38,net:32},
+      {name:'Paul Bowser',team:8,hcp:8,gross:39,net:31},
+      {name:'Logan Bowser',team:8,hcp:9,gross:53,net:44},
+      {name:'Dylan Smith',team:8,hcp:10,gross:45,net:35},
+      {name:'Patric Weber',team:8,hcp:14,gross:49,net:35},
+      {name:'Cole Clark',team:8,hcp:14,gross:52,net:38},
+
+    ]
+  },
 };
 
 // Accumulated team totals through Week 9 (seed for buildStandings)
@@ -2870,8 +3786,8 @@ function buildWeek(wk,elOverride){
     t.missing=Math.max(0,4-sortedScored.length);
     t.penalty=t.missing>0;
     t.total=t.counting.reduce((s,p)=>s+p.net,0)+50*t.missing;   // +50 PER missing card (engine-verified rule)
-    // Display order: scored players by net, then DNS players by name
-    t.allPlayers=[...sortedScored,...t.unscored.sort((a,b)=>a.name.localeCompare(b.name))];
+    // Display order: all players by HCP ascending (lowest first)
+    t.allPlayers=[...t.scored,...t.unscored].sort((a,b)=>a.hcp-b.hcp);
   }
 
   // sort teams by total ascending (low net wins)
@@ -2889,7 +3805,7 @@ function buildWeek(wk,elOverride){
     const bgHdr=winner?'#e8f5e9':t.penalty?'#fff3e0':'#f9f9f9';
     const clrHdr=winner?'#1b5e20':t.penalty?'#e65100':'#333';
     const countingNames=new Set(t.counting.map(p=>p.name));
-    const penaltyNote=t.penalty?` <span style="font-size:11px;font-weight:600;color:#e65100">(+50 penalty — only ${t.scored.length} card${t.scored.length!==1?'s':''} received)</span>`:'';
+    const penaltyNote=t.penalty?` <span style="font-size:11px;font-weight:600;color:#e65100">(+${t.missing*50} penalty — only ${t.scored.length} card${t.scored.length!==1?'s':''} received)</span>`:'';
     html+=`<div class="card" style="margin-bottom:10px">
       <div class="card-hdr" style="background:${bgHdr};display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">
         <span style="font-weight:700;color:${clrHdr}">Team ${t.num}${winner?' 🏆':t.penalty?' ⚠️':''}</span>
@@ -2911,7 +3827,7 @@ function buildWeek(wk,elOverride){
                 return `<tr style="border-bottom:1px solid #f5f5f5;opacity:${counts?1:.45}">
                   <td style="padding:7px 8px;font-weight:600">
                     <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-                      <span style="cursor:pointer" onclick="showScorecard(${wk},${p.grp},'${p.name}')">${p.name} <span style="opacity:.35;font-size:10px">📋</span></span>
+                      <span style="cursor:pointer" data-wk="${wk}" data-grp="${p.grp}" data-pname="${escHtml(p.name)}" onclick="showScorecard(+this.dataset.wk,+this.dataset.grp,this.dataset.pname)">${escHtml(p.name)} <span style="opacity:.35;font-size:10px">📋</span></span>
                       ${skinners.has(p.name)?'<span style="font-size:10px;font-weight:700;background:#fff3e0;color:#e65100;border-radius:3px;padding:1px 5px">SKINS</span>':''}
                       ${p.name===lowNetWinner?'<span style="font-size:10px;font-weight:700;background:#e3f2fd;color:#0d47a1;border-radius:3px;padding:1px 5px">LOW NET</span>':''}
                       ${counts?'':' <span style="font-size:10px;color:#aaa">non-counting</span>'}
@@ -2965,409 +3881,32 @@ function buildWeek(wk,elOverride){
   el.innerHTML=html;
 }
 
-// ── Weather strip ─────────────────────────────────────────────────────────────
-function fetchWeather(){
-  const url='https://api.open-meteo.com/v1/forecast?latitude=40.88&longitude=-79.81'
-    +'&current=temperature_2m,wind_speed_10m,wind_direction_10m,precipitation_probability'
-    +'&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York';
-  fetch(url).then(r=>r.json()).then(d=>{
-    const c=d.current;
-    const dirs=['N','NE','E','SE','S','SW','W','NW'];
-    const compass=dirs[Math.round(c.wind_direction_10m/45)%8];
-    document.getElementById('wxTemp').textContent=Math.round(c.temperature_2m)+'°F';
-    document.getElementById('wxWind').textContent=compass+' '+Math.round(c.wind_speed_10m)+' mph';
-    document.getElementById('wxRain').textContent=c.precipitation_probability+'%';
-  }).catch(()=>{});
-  setTimeout(fetchWeather, 5*60*1000); // refresh every 5 min
-}
-fetchWeather();
-
-// ── GPS Map Tab ───────────────────────────────────────────────────────────────
-let gpsMapWatchId=null, gpsMapPos=null, gpsMapLeaflet=null, gpsMapHole=1;
-let gpsMapYouMarker=null, gpsMapSpotMarker=null, gpsMapPinMarker=null;
-let gpsMapLastFitPos=null, gpsMapLastBearingUpdate=0, gpsMapRotLocked=false;
-let gpsMapHoleBearing=0; // hole-up bearing for current hole
-let gpsMapTeeLine=null;  // Leaflet polyline tee→green
-let gpsMapTeeMarker=null; // estimated tee position marker
-
-function gpsMapDist(a,b){ return haversineYards(a[0],a[1],b[0],b[1]); }
-
-function gpsMapBearing(lat1,lon1,lat2,lon2){
-  const toRad=d=>d*Math.PI/180, toDeg=r=>r*180/Math.PI;
-  const dLon=toRad(lon2-lon1);
-  const y=Math.sin(dLon)*Math.cos(toRad(lat2));
-  const x=Math.cos(toRad(lat1))*Math.sin(toRad(lat2))-Math.sin(toRad(lat1))*Math.cos(toRad(lat2))*Math.cos(dLon);
-  return (toDeg(Math.atan2(y,x))+360)%360;
-}
-
-function gpsMapProjectPoint(lat,lon,bearingDeg,distYards){
-  const distM=distYards*0.9144;
-  const R=6371000;
-  const d=distM/R;
-  const brg=bearingDeg*Math.PI/180;
-  const lat1=lat*Math.PI/180;
-  const lon1=lon*Math.PI/180;
-  const lat2=Math.asin(Math.sin(lat1)*Math.cos(d)+Math.cos(lat1)*Math.sin(d)*Math.cos(brg));
-  const lon2=lon1+Math.atan2(Math.sin(brg)*Math.sin(d)*Math.cos(lat1),Math.cos(d)-Math.sin(lat1)*Math.sin(lat2));
-  return [lat2*180/Math.PI, lon2*180/Math.PI];
-}
-
-function gpsMapTeePosNoSideEffect(hole){
-  // Pure tee-position calc — no global side effects, safe to call in snap loop
-  const g=GREENS[hole]; if(!g) return null;
-  const bearing=gpsMapBearing(g.f[0],g.f[1],g.r[0],g.r[1]);
-  const teeBearing=(bearing+180)%360;
-  const info=HOLE_INFO[hole]||{yds:200};
-  return gpsMapProjectPoint(g.f[0],g.f[1],teeBearing,info.yds);
-}
-function gpsMapComputeHoleUp(hole){
-  const g=GREENS[hole]; if(!g) return null;
-  gpsMapHoleBearing=gpsMapBearing(g.f[0],g.f[1],g.r[0],g.r[1]); // front→rear = direction of play
-  const teeBearing=(gpsMapHoleBearing+180)%360;
-  const info=HOLE_INFO[hole]||{yds:200};
-  return gpsMapProjectPoint(g.f[0],g.f[1],teeBearing,info.yds);
-}
-
-function gpsMapDrawHole(hole){
-  const g=GREENS[hole]; if(!g||!gpsMapLeaflet) return;
-  const teePos=gpsMapComputeHoleUp(hole);
-  if(!teePos) return;
-  // Rotate map to hole-up bearing (green at top)
-  if(!gpsMapRotLocked && gpsMapLeaflet.setBearing)
-    gpsMapLeaflet.setBearing(gpsMapHoleBearing);
-  // Remove old tee line and marker
-  if(gpsMapTeeLine){ gpsMapTeeLine.remove(); gpsMapTeeLine=null; }
-  if(gpsMapTeeMarker){ gpsMapTeeMarker.remove(); gpsMapTeeMarker=null; }
-  // Draw dashed line: estimated tee → green center
-  gpsMapTeeLine=L.polyline([teePos,[g.c[0],g.c[1]]],{
-    color:'rgba(255,255,255,0.7)',weight:1.5,dashArray:'4 4'
-  }).addTo(gpsMapLeaflet);
-  // Small white circle at estimated tee
-  gpsMapTeeMarker=L.circleMarker(teePos,{
-    radius:5,color:'#fff',fillColor:'#fff',fillOpacity:0.9,weight:1.5
-  }).addTo(gpsMapLeaflet);
-  // Move or create green pin
-  if(gpsMapPinMarker) gpsMapPinMarker.setLatLng([g.c[0],g.c[1]]);
-  else gpsMapPinMarker=L.circleMarker([g.c[0],g.c[1]],{
-    radius:8,color:'#fff',fillColor:'#c62828',fillOpacity:1,weight:2
-  }).addTo(gpsMapLeaflet);
-  // Fit to show tee + green with padding
-  gpsMapLeaflet.fitBounds([teePos,[g.c[0],g.c[1]]],{padding:[60,60]});
-}
-
-function gpsMapToggleLock(){
-  gpsMapRotLocked=!gpsMapRotLocked;
-  document.getElementById('gps-rot-lock').textContent=gpsMapRotLocked?'🔒':'🔓';
-  if(!gpsMapRotLocked && gpsMapLeaflet && gpsMapPos){
-    const g=GREENS[gpsMapHole];
-    if(g && gpsMapLeaflet.setBearing) gpsMapLeaflet.setBearing(gpsMapBearing(gpsMapPos[0],gpsMapPos[1],g.c[0],g.c[1]));
-  }
-}
-
-function gpsMapUpdateDistances(fromPos){
-  const g=GREENS[gpsMapHole]; if(!g||!fromPos) return;
-  const edges=[g.f,g.r,g.rt,g.l];
-  const front=Math.min(...edges.map(p=>gpsMapDist(fromPos,p)));
-  const center=gpsMapDist(fromPos,g.c);
-  const back=Math.max(...edges.map(p=>gpsMapDist(fromPos,p)));
-  document.getElementById('gps-map-front').textContent=front;
-  document.getElementById('gps-map-center').textContent=center;
-  document.getElementById('gps-map-back').textContent=back;
-}
-
-// ── Green Tracer ──────────────────────────────────────────────────────────────
-let gpsTracing=false;
-let gpsTracePts=[];       // [[lat,lng,groundAltFt], ...] current session
-let gpsTracePolyline=null;
-let gpsTraceLastPt=null;
-const GPS_TRACE_KEY='wgl_green_trace_v1';
-const GPS_HEIGHT_KEY='wgl_device_height_v1';
-
-function gpsTraceSaved(){ try{return JSON.parse(localStorage.getItem(GPS_TRACE_KEY)||'{}')}catch(e){return{}} }
-function gpsDeviceHeightGet(){ return parseFloat(localStorage.getItem(GPS_HEIGHT_KEY)||'3.0')||3.0; }
-function gpsDeviceHeightSave(v){
-  const n=parseFloat(v);
-  if(!isNaN(n)&&n>=0) localStorage.setItem(GPS_HEIGHT_KEY,n.toString());
-}
-
-function gpsTraceToggle(){
-  if(!gpsMapPos){document.getElementById('gps-trace-status').textContent='⚠️ Wait for GPS fix first';return;}
-  gpsTracing=!gpsTracing;
-  const btn=document.getElementById('gps-trace-btn');
-  const clrBtn=document.getElementById('gps-trace-clear');
-  const hdrBtn=document.getElementById('hdr-trace-btn');
-  if(gpsTracing){
-    gpsTracePts=[];
-    gpsTraceLastPt=null;
-    if(gpsTracePolyline){gpsTracePolyline.remove();gpsTracePolyline=null;}
-    btn.textContent='⏹ Stop Tracing';
-    btn.style.background='#c62828';
-    if(hdrBtn){hdrBtn.textContent='⏹';hdrBtn.style.opacity='1';}
-    clrBtn.style.display='none';
-    document.getElementById('gps-trace-status').textContent='Walk the green edge — recording…';
-  } else {
-    btn.textContent='📐 Trace Green';
-    btn.style.background='#1b5e20';
-    if(hdrBtn){hdrBtn.textContent='📐';hdrBtn.style.opacity='.85';}
-    if(gpsTracePts.length>=3){
-      // Close the polygon and save
-      const closed=[...gpsTracePts, gpsTracePts[0]];
-      if(gpsTracePolyline) gpsTracePolyline.remove();
-      gpsTracePolyline=L.polygon(gpsTracePts,{color:'#ff6f00',weight:2.5,fillOpacity:0.12,fillColor:'#ff6f00',dashArray:'6,4'}).addTo(gpsMapLeaflet);
-      const saved=gpsTraceSaved();
-      saved[gpsMapHole]={pts:gpsTracePts,date:new Date().toLocaleDateString(),heightFt:gpsDeviceHeightGet()};
-      localStorage.setItem(GPS_TRACE_KEY,JSON.stringify(saved));
-      clrBtn.style.display='';
-      const elevPts=gpsTracePts.filter(p=>p[2]!=null);
-      const elevStr=elevPts.length>=2?' · elev '+Math.min(...elevPts.map(p=>p[2]))+'–'+Math.max(...elevPts.map(p=>p[2]))+' ft':'';
-      document.getElementById('gps-trace-status').textContent='✅ '+gpsTracePts.length+' pts saved · Hole '+gpsMapHole+elevStr;
-      gpsTraceUpdateExportBtn();
-    } else {
-      document.getElementById('gps-trace-status').textContent='⚠️ Need 3+ points to save — try again';
-      clrBtn.style.display='none';
-    }
-  }
-}
-
-function gpsTraceAddPoint(pos, accuracy, altM){
-  if(!gpsTracing) return;
-  // Only record if moved > 1.5 yards from last point (debounce GPS jitter)
-  if(gpsTraceLastPt && haversineYards(pos[0],pos[1],gpsTraceLastPt[0],gpsTraceLastPt[1])<1.5) return;
-  // Convert altitude to feet, subtract device height to get ground-level elevation
-  let groundAltFt = null;
-  if(altM!=null && !isNaN(altM)){
-    const rawFt = altM * 3.28084;
-    groundAltFt = Math.round((rawFt - gpsDeviceHeightGet()) * 10) / 10;
-  }
-  gpsTracePts.push([pos[0], pos[1], groundAltFt]);
-  gpsTraceLastPt=[...pos];
-  // Draw live path (Leaflet only needs lat/lng)
-  const latlngs=gpsTracePts.map(p=>[p[0],p[1]]);
-  if(gpsTracePolyline) gpsTracePolyline.setLatLngs(latlngs);
-  else gpsTracePolyline=L.polyline(latlngs,{color:'#ff6f00',weight:2.5,dashArray:'6,4'}).addTo(gpsMapLeaflet);
-  // Status with elevation if available
-  const elevPts=gpsTracePts.filter(p=>p[2]!=null);
-  const elevStr=elevPts.length ? ' · elev '+Math.min(...elevPts.map(p=>p[2]))+'–'+Math.max(...elevPts.map(p=>p[2]))+' ft' : '';
-  document.getElementById('gps-trace-status').textContent='Recording… '+gpsTracePts.length+' pts · ±'+Math.round(accuracy||0)+'m'+elevStr;
-}
-
-function gpsTraceClear(){
-  const saved=gpsTraceSaved();
-  delete saved[gpsMapHole];
-  localStorage.setItem(GPS_TRACE_KEY,JSON.stringify(saved));
-  if(gpsTracePolyline){gpsTracePolyline.remove();gpsTracePolyline=null;}
-  gpsTracePts=[];
-  document.getElementById('gps-trace-clear').style.display='none';
-  document.getElementById('gps-trace-status').textContent='Trace cleared for hole '+gpsMapHole;
-  gpsTraceUpdateExportBtn();
-}
-
-function gpsTraceUpdateExportBtn(){
-  const saved=gpsTraceSaved();
-  const hasData=Object.keys(saved).length>0;
-  const btn=document.getElementById('gps-trace-export');
-  if(btn) btn.style.display=hasData?'':'none';
-}
-
-function gpsTraceExport(){
-  const saved=gpsTraceSaved();
-  const holes=Object.keys(saved).sort((a,b)=>Number(a)-Number(b));
-  if(!holes.length){alert('No trace data saved yet.');return;}
-  let txt='WGL Green Trace Export\nDate: '+new Date().toLocaleDateString()+'\n\n';
-  holes.forEach(h=>{
-    const d=saved[h];
-    const pts=d.pts||[];
-    const ep=pts.filter(p=>p[2]!=null);
-    const es=ep.length>=2?' | elev '+Math.min(...ep.map(p=>p[2]))+'–'+Math.max(...ep.map(p=>p[2]))+' ft':'';
-    txt+='Hole '+h+': '+pts.length+' pts'+es+' | '+d.date+'\n';
-  });
-  txt+='\n--- RAW JSON ---\n'+JSON.stringify(saved,null,2);
-  const sub=encodeURIComponent('WGL Green Trace – '+new Date().toLocaleDateString());
-  window.location.href='mailto:wglscore@gmail.com?subject='+sub+'&body='+encodeURIComponent(txt);
-}
-
-function gpsTraceLoadSaved(hole){
-  if(!gpsMapLeaflet) return;
-  if(gpsTracePolyline){gpsTracePolyline.remove();gpsTracePolyline=null;}
-  const saved=gpsTraceSaved();
-  const h=saved[hole];
-  if(h&&h.pts&&h.pts.length>=3){
-    gpsTracePolyline=L.polygon(h.pts,{color:'#ff6f00',weight:2.5,fillOpacity:0.12,fillColor:'#ff6f00',dashArray:'6,4'}).addTo(gpsMapLeaflet);
-    document.getElementById('gps-trace-clear').style.display='';
-    const ep=h.pts.filter(p=>p[2]!=null);
-    const es=ep.length>=2?' · elev '+Math.min(...ep.map(p=>p[2]))+'–'+Math.max(...ep.map(p=>p[2]))+' ft':'';
-    const hs=h.heightFt!=null?' · offset '+h.heightFt+'ft':'';
-    document.getElementById('gps-trace-status').textContent='📐 Saved trace · '+h.pts.length+' pts · '+h.date+es+hs;
-  } else {
-    document.getElementById('gps-trace-clear').style.display='none';
-    document.getElementById('gps-trace-status').textContent='';
-  }
-  gpsTraceUpdateExportBtn();
-}
-// ─────────────────────────────────────────────────────────────────────────────
-
-function gpsMapUpdateHoleLabel(){
-  const info=HOLE_INFO[gpsMapHole]||{};
-  document.getElementById('gps-map-hole-label').textContent='Hole '+gpsMapHole+' ▾';
-}
-
-function gpsMapChangeHole(dir){
-  if(gpsTracing){gpsTraceToggle();} // stop tracing if switching holes mid-trace
-  gpsMapHole=((gpsMapHole-1+dir+18)%18)+1;
-  gpsMapUpdateHoleLabel();
-  gpsTraceLoadSaved(gpsMapHole);
-  // Draw hole immediately (tee line + green pin, hole-up rotation, fit bounds)
-  gpsMapDrawHole(gpsMapHole);
-  // If GPS active and user is nearby, re-fit to include their position
-  const g=GREENS[gpsMapHole];
-  if(gpsMapPos && g){
-    const distToGreen=haversineYards(gpsMapPos[0],gpsMapPos[1],g.c[0],g.c[1]);
-    if(distToGreen<500){
-      gpsMapLeaflet.fitBounds([[gpsMapPos[0],gpsMapPos[1]],[g.c[0],g.c[1]]],{padding:[40,40]});
-      gpsMapLastFitPos=[...gpsMapPos];
-    }
-    gpsMapUpdateDistances(gpsMapPos);
-  }
-  // remove old spot
-  if(gpsMapSpotMarker){ gpsMapSpotMarker.remove(); gpsMapSpotMarker=null; }
-  document.getElementById('gps-spot-row').style.display='none';
-  document.querySelector('.gps-dist-pills').style.display='flex';
-}
-
-function gpsToggleTracerBar(){
-  const bar=document.getElementById('gps-tracer-bar');
-  const btn=document.getElementById('gps-trace-toggle');
-  const open=bar.style.display==='none'||bar.style.display==='';
-  bar.style.display=open?'block':'none';
-  if(btn) btn.style.opacity=open?'1':'0.5';
-  if(open && typeof gpsTraceUpdateExportBtn==='function') gpsTraceUpdateExportBtn();
-}
-
-function gpsMapSetStatus(msg, dotClass){
-  const dot=document.getElementById('gps-acc-dot');
-  const txt=document.getElementById('gps-map-status-text');
-  if(dot){ dot.className='gps-acc-dot '+(dotClass||'gray'); }
-  if(txt){ txt.textContent=msg; txt.style.cursor=''; txt.onclick=null; }
-}
-
-function gpsMapShowPicker(){
-  const picker=document.getElementById('gps-hole-picker');
-  const grid=document.getElementById('gps-hole-grid');
-  if(!picker||!grid) return;
-  grid.innerHTML='';
-  for(let h=1;h<=18;h++){
-    const btn=document.createElement('div');
-    btn.className='gps-hbtn'+(h===gpsMapHole?' sel':'');
-    btn.textContent=h;
-    btn.onclick=(()=>{const hole=h; return ()=>gpsMapJumpToHole(hole);})();
-    grid.appendChild(btn);
-  }
-  picker.classList.add('open');
-}
-
-function gpsMapHidePicker(){
-  const picker=document.getElementById('gps-hole-picker');
-  if(picker) picker.classList.remove('open');
-}
-
-function gpsMapJumpToHole(hole){
-  gpsMapHidePicker();
-  if(gpsTracing) gpsTraceToggle();
-  gpsMapHole=hole;
-  gpsMapUpdateHoleLabel();
-  gpsTraceLoadSaved(gpsMapHole);
-  gpsMapDrawHole(gpsMapHole);
-  if(gpsMapSpotMarker){gpsMapSpotMarker.remove();gpsMapSpotMarker=null;}
-  document.getElementById('gps-spot-row').style.display='none';
-  if(gpsMapPos) gpsMapUpdateDistances(gpsMapPos);
-}
-
-function initGpsMap(){
-  if(gpsMapLeaflet){ return; } // already initialized
-  const container=document.getElementById('gps-map-container');
-  if(!container) return;
-  // Create Leaflet map with rotation support
-  const g=GREENS[gpsMapHole];
-  gpsMapLeaflet=L.map(container,{
-    center:[g?g.c[0]:40.882,g?g.c[1]:-79.810],
-    zoom:17,
-    zoomControl:true,
-    attributionControl:false,
-    rotate:true,
-    bearing:0
-  });
-  // ESRI satellite tiles
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
-    maxZoom:20,attribution:''
-  }).addTo(gpsMapLeaflet);
-  // Draw hole immediately — tee line, green pin, hole-up rotation, fit bounds
-  gpsMapDrawHole(gpsMapHole);
-  // Tap handler
-  gpsMapLeaflet.on('click',function(e){
-    if(!gpsMapPos){ document.getElementById('gps-map-status').textContent='📡 Still acquiring GPS…'; return; }
-    const tapped=[e.latlng.lat,e.latlng.lng];
-    if(gpsMapSpotMarker) gpsMapSpotMarker.remove();
-    gpsMapSpotMarker=L.circleMarker(tapped,{radius:6,color:'#fff',fillColor:'#fff',fillOpacity:1,weight:2}).addTo(gpsMapLeaflet);
-    const gg=GREENS[gpsMapHole]; if(!gg) return;
-    const edges=[gg.f,gg.r,gg.rt,gg.l];
-    document.getElementById('gps-spot-you').textContent=gpsMapDist(gpsMapPos,tapped);
-    document.getElementById('gps-spot-front').textContent=Math.min(...edges.map(p=>gpsMapDist(tapped,p)));
-    document.getElementById('gps-spot-center').textContent=gpsMapDist(tapped,gg.c);
-    document.getElementById('gps-spot-back').textContent=Math.max(...edges.map(p=>gpsMapDist(tapped,p)));
-    document.getElementById('gps-spot-row').style.display='block';
-    document.querySelector('.gps-dist-pills').style.display='none';
-  });
-  gpsMapUpdateHoleLabel();
-  gpsTraceLoadSaved(gpsMapHole);
-  // Restore saved device height into input
-  document.getElementById('gps-device-height').value=gpsDeviceHeightGet();
-  // Start GPS watcher
-  if(gpsMapWatchId===null && navigator.geolocation){
-    gpsMapSetStatus('GPS acquiring…','gray');
-    gpsMapWatchId=navigator.geolocation.watchPosition(function(pos){
-      gpsMapPos=[pos.coords.latitude,pos.coords.longitude];
-      const acc=Math.round(pos.coords.accuracy);
-      const dotClass=acc<=10?'green':acc<=20?'yellow':'red';
-      gpsMapSetStatus('±'+acc+' m'+(acc>20?' · move to open sky':''),dotClass);
-      // gps-tracer-bar is always visible; hdr-trace-btn shown by showTab when on GPS tab
-      // If tracing, record this point
-      if(gpsTracing) gpsTraceAddPoint(gpsMapPos, pos.coords.accuracy, pos.coords.altitude);
-      // Move/create you marker
-      if(gpsMapYouMarker) gpsMapYouMarker.setLatLng(gpsMapPos);
-      else gpsMapYouMarker=L.circleMarker(gpsMapPos,{radius:8,color:'#1565c0',fillColor:'#1976d2',fillOpacity:1,weight:2}).addTo(gpsMapLeaflet);
-      gpsMapUpdateDistances(gpsMapPos);
-      const gg2=GREENS[gpsMapHole];
-      const distToGreen=gg2?haversineYards(gpsMapPos[0],gpsMapPos[1],gg2.c[0],gg2.c[1]):999;
-      // Bearing update — only when near the hole, rate-limited to once per 2s, skipped if locked
-      const now2=Date.now();
-      if(gg2 && distToGreen<500 && !gpsMapRotLocked && (now2-gpsMapLastBearingUpdate)>2000){
-        gpsMapLastBearingUpdate=now2;
-        if(gpsMapLeaflet.setBearing) gpsMapLeaflet.setBearing(gpsMapBearing(gpsMapPos[0],gpsMapPos[1],gg2.c[0],gg2.c[1]));
-      }
-      // Refit bounds: first fix when nearby; thereafter only if moved > 5 yards since last fit
-      const movedYds=gpsMapLastFitPos?gpsMapDist(gpsMapPos,gpsMapLastFitPos):999;
-      if(gg2 && distToGreen<500 && (!gpsMapLeaflet._hasFirstFit || movedYds>5)){
-        gpsMapLeaflet._hasFirstFit=true;
-        gpsMapLastFitPos=[...gpsMapPos];
-        gpsMapLeaflet.fitBounds([[gpsMapPos[0],gpsMapPos[1]],[gg2.c[0],gg2.c[1]]],{padding:[50,50]});
-      }
-      // Auto-snap removed — user controls hole manually via nav arrows or hole picker
-    },function(err){
-      gpsMapSetStatus('⚠️ GPS error — tap to retry','red');
-      document.getElementById('gps-map-status-text').style.cursor='pointer';
-      document.getElementById('gps-map-status-text').onclick=()=>{
-        if(gpsMapWatchId!==null){navigator.geolocation.clearWatch(gpsMapWatchId);gpsMapWatchId=null;}
-        initGpsMap();
-      };
-    },{enableHighAccuracy:true,maximumAge:3000,timeout:15000});
-  }
-}
-
 // ── Bootstrap: fetch live data, fall back to MOCK_DATA ───────────────────────
 let D=MOCK_DATA;
 // Render immediately with default data so nothing is blank on load
 document.getElementById('app-subtitle').textContent=D.settings.subtitle;
-buildWeekDropdown();buildNews();buildOuting();buildDues();buildRoster();buildStandings();renderIdentitySetting();buildMyTab();maybeShowWelcome();updatePushUI();loadWeekResult(Math.max(...Object.keys(WK_DATA).map(Number)));
+// Isolated so ONE bad section can't take the whole app down with it.
+// Previously these ran as a single statement chain: a throw in buildOuting()
+// meant Dues, Roster, Standings, My and Results never rendered at all.
+function safeRender(label,fn){try{fn();}catch(e){console.error('WGL render failed: '+label,e);}}
+function renderAll(){
+  safeRender('news',buildNews);
+  safeRender('outing',buildOuting);
+  safeRender('dues',buildDues);
+  safeRender('roster',buildRoster);
+  safeRender('standings',buildStandings);
+  safeRender('identity',renderIdentitySetting);
+  safeRender('my',buildMyTab);
+  safeRender('welcome',()=>{ maybeShowWelcome(); if(localStorage.getItem('wgl_welcome_done')) setTimeout(maybeShowPushPrompt,1200); });
+  safeRender('push',updatePushUI);
+  safeRender('week',()=>{
+    const sel=document.getElementById('week-select');
+    const cur=sel?+sel.value:0;
+    const maxWk=Math.max(...Object.keys(WK_DATA).map(Number));
+    loadWeekResult(cur&&WK_DATA[cur]?cur:maxWk);
+  });
+}
+buildWeekDropdown();renderAll();
 
 let _lastRefresh=0;
 let _lastUpdatedTS='';
@@ -3389,33 +3928,31 @@ async function refreshData(force){
       if(json.lastUpdated)_lastUpdatedTS=json.lastUpdated;
       if(json.players)D.players=json.players;
       if(json.settings)D.settings={...D.settings,...json.settings};
+      // The engine publishes json.calendar (actual league nights) but nothing ever
+      // read it, so the card-type modal always fell back to raw Monday arithmetic.
+      if(Array.isArray(json.calendar)&&json.calendar.length)D.calendar=json.calendar;
       if(json.announcements)D.announcements=json.announcements;
       if(json.outing)D.outing={...D.outing,...json.outing};
       if(json.outing2)D.outing2={...D.outing2,...json.outing2};
-      if(json.buyins)D.buyins=json.buyins;
+      if(json.buyins&&Object.keys(json.buyins).length)D.buyins=json.buyins;
       if(json.duesPaid)D.duesPaid=json.duesPaid;
       if(json.weeklyPayouts)D.weeklyPayouts=json.weeklyPayouts;
-      if(json.weeks){for(const[k,v]of Object.entries(json.weeks))WK_DATA[+k]=v;buildWeekDropdown();}
+      // Paper-verified WK_DATA is authoritative — GAS may only ADD new weeks, never overwrite existing ones
+      if(json.weeks){
+        for(const[k,v]of Object.entries(json.weeks)){if(!WK_DATA[+k])WK_DATA[+k]=v;}
+        buildWeekDropdown();
+      }
       D.banked=json.banked||{};
       document.getElementById('sync-label').textContent=`Live data · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
       // Re-render all dynamic sections with updated data
       document.getElementById('app-subtitle').textContent=D.settings.subtitle;
-      buildNews();buildOuting();buildDues();buildRoster();buildStandings();renderIdentitySetting();buildMyTab();maybeShowWelcome();updatePushUI();loadWeekResult(Math.max(...Object.keys(WK_DATA).map(Number)));
+      renderAll();
     } else {
       document.getElementById('sync-label').textContent='Using cached data';
     }
   } catch(e){
     document.getElementById('sync-label').textContent='Offline — using cached data';
   }
-}
-
-// Splash screen dismiss — refreshes live data then fades out
-function splashEnter(){
-  const el=document.getElementById('splash');
-  el.style.opacity='0';
-  el.style.pointerEvents='none';
-  setTimeout(()=>el.style.display='none',380);
-  refreshData(true);
 }
 
 // Initial fetch on load (always re-render)
@@ -3472,19 +4009,16 @@ function gpsResetStrip(holeNum,par){
   const info=HOLE_INFO[holeNum]||{};
   document.getElementById('gps-strip-hole').textContent=
     '📍 Hole '+holeNum+' · Par '+par+(info.yds?' · '+info.yds+' yds':'');
-  const btn=document.getElementById('gps-btn');
   if(gpsWatchId!==null && gpsLastPos){
     // Live watch running — recompute against the new hole's green instantly
     gpsLastRender=Date.now();
     gpsRender(gpsLastPos);
-    btn.disabled=false; gpsSetBtnLabel();
   }else{
     document.getElementById('gps-front').textContent='—';
     document.getElementById('gps-center').textContent='—';
     document.getElementById('gps-back').textContent='—';
-    document.getElementById('gps-status').textContent='';
+    document.getElementById('gps-status').textContent='Acquiring GPS…';
     const _ev=document.getElementById('gps-elev'); if(_ev)_ev.style.display='none';
-    btn.textContent='📍 Locate';btn.disabled=false;
   }
 }
 
@@ -3537,25 +4071,56 @@ function gpsOnFix(pos){
   if(_alt!=null && (_aa==null || _aa<=20)){
     gpsAltEmaM = (gpsAltEmaM==null) ? _alt : (0.7*gpsAltEmaM + 0.3*_alt);
   }
-  const btn=document.getElementById('gps-btn');
-  if(btn && btn.disabled){ btn.disabled=false; gpsSetBtnLabel(); }
   const now=Date.now();
   const interval = now<gpsBoostUntil ? 0 : 5000;   // boost: every fix (~1s); normal: every 5s
-  if(now-gpsLastRender>=interval){ gpsLastRender=now; gpsRender(pos); }
+  if(now-gpsLastRender>=interval){ gpsLastRender=now; gpsRender(pos); gps2Render(); }
 }
 
 function gpsOnError(err){
   const status=document.getElementById('gps-status');
-  const btn=document.getElementById('gps-btn');
-  if(status) status.textContent=err.code===1?'Location denied — check Settings.':'Could not get location. Try again.';
-  if(btn){ btn.textContent='📍 Locate'; btn.disabled=false; }
+  if(status) status.textContent=err.code===1?'Location denied — check Settings.':'Could not get location.';
   gpsStopWatch();
 }
 
-function gpsSetBtnLabel(){
-  const btn=document.getElementById('gps-btn');
-  if(!btn) return;
-  btn.textContent = gpsWatchId===null ? '📍 Locate' : (Date.now()<gpsBoostUntil ? '⚡ Live' : '🔄 Refresh');
+function gpsSetBtnLabel(){ /* no-op — Locate button removed; GPS auto-starts on Enter */ }
+
+// ── Standalone GPS tab ────────────────────────────────────────────────
+const GPS2_PARS = [4,4,3,4,4,4,5,4,3, 5,4,4,4,4,3,4,3,4]; // holes 1–18 Hiland GC
+let gps2Hole = 1;
+
+function gps2Open(){
+  // Sync to scorecard's current hole if a round is active; otherwise stay where we were
+  if(scSess.players.length > 0){
+    const h = scGetHoles()[scSess.hole];
+    if(h) gps2Hole = h;
+  }
+  gps2Render();
+}
+
+function gps2HoleNav(dir){
+  gps2Hole = Math.max(1, Math.min(18, gps2Hole + dir));
+  gps2Render();
+}
+
+function gps2Render(){
+  const hEl=document.getElementById('gps2-hole');
+  if(!hEl) return; // tab not rendered
+  const mEl=document.getElementById('gps2-meta');
+  const fEl=document.getElementById('gps2-front');
+  const cEl=document.getElementById('gps2-center');
+  const bEl=document.getElementById('gps2-back');
+  const sEl=document.getElementById('gps2-status');
+  hEl.textContent='Hole '+gps2Hole;
+  mEl.textContent='Par '+GPS2_PARS[gps2Hole-1];
+  if(!gpsLastPos){ sEl.textContent='Acquiring GPS…'; return; }
+  const{latitude:lat,longitude:lon,accuracy:acc}=gpsLastPos.coords;
+  const g=GREENS[gps2Hole];
+  if(!g){ fEl.textContent='—'; cEl.textContent='—'; bEl.textContent='—'; sEl.textContent='No green data for hole '+gps2Hole; return; }
+  const edges=[g.f,g.l,g.rt].filter(Boolean);
+  fEl.textContent=Math.min(...edges.map(e=>haversineYards(lat,lon,e[0],e[1])));
+  cEl.textContent=haversineYards(lat,lon,g.c[0],g.c[1]);
+  bEl.textContent=haversineYards(lat,lon,g.r[0],g.r[1]);
+  sEl.textContent='±'+Math.round(acc)+' m'+(acc>15?' · move to open sky':'');
 }
 
 function gpsStartWatch(){
@@ -3576,21 +4141,16 @@ function gpsStopWatch(){
 }
 
 function gpsGetDistance(){
-  const btn=document.getElementById('gps-btn');
+  // Locate button removed — GPS auto-starts on Enter. Kept for boost only.
   const status=document.getElementById('gps-status');
-  if(!navigator.geolocation){status.textContent='GPS not available on this device.';return;}
-  if(gpsWatchId===null){
-    // First tap: start the live watch
-    btn.textContent='⏳ …'; btn.disabled=true; status.textContent='';
-    gpsLastRender=0;
-    gpsStartWatch();
-  }else{
-    // Already live: boost to ~1s updates for 15 seconds
+  if(!navigator.geolocation){ if(status) status.textContent='GPS not available on this device.'; return; }
+  if(gpsWatchId===null){ gpsLastRender=0; gpsStartWatch(); }
+  else{
+    // Boost to ~1s updates for 15 seconds
     gpsBoostUntil=Date.now()+15000;
     if(gpsLastPos){ gpsLastRender=Date.now(); gpsRender(gpsLastPos); }
-    gpsSetBtnLabel();
     clearTimeout(gpsBoostTimer);
-    gpsBoostTimer=setTimeout(gpsSetBtnLabel,15100);
+    gpsBoostTimer=setTimeout(()=>{},15100);
   }
 }
 
@@ -3719,18 +4279,192 @@ document.addEventListener('visibilitychange',()=>{
   }
 });
 
-// ── Service worker: register + "new version available" toast ────────────────
+// ── Weather bar ───────────────────────────────────────────────────────────────
+function fetchWeather(){
+  const url='https://api.open-meteo.com/v1/forecast?latitude=40.88&longitude=-79.81'
+    +'&current=temperature_2m,wind_speed_10m,wind_direction_10m,precipitation_probability'
+    +'&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York';
+  fetch(url).then(r=>r.json()).then(d=>{
+    const c=d.current;
+    const dirs=['N','NE','E','SE','S','SW','W','NW'];
+    const compass=dirs[Math.round(c.wind_direction_10m/45)%8];
+    document.getElementById('wxTemp').textContent=Math.round(c.temperature_2m)+'°F';
+    document.getElementById('wxWind').textContent=compass+' '+Math.round(c.wind_speed_10m)+' mph';
+    document.getElementById('wxRain').textContent=c.precipitation_probability+'% rain';
+  }).catch(()=>{});
+  setTimeout(fetchWeather,5*60*1000);
+}
+fetchWeather();
+
+// ── Close scorecard (Edit+Close flow) ────────────────────────────────────────
+function scCloseCard(){
+  // Return to scorecard setup step
+  scShowStep('sc-step-setup');
+  scSess={players:[],scores:{},hole:0,side:'back',cardType:'league_night',targetWeek:null,targetDate:null,completedSegments:[]};
+}
+
+// ── 18-hole support for setup selector ───────────────────────────────────────
+(function patchScSetSide(){
+  const orig=window.scSetSide;
+  window.scSetSide=function(side){
+    const fb=document.getElementById('sc-front-btn');
+    const bb=document.getElementById('sc-back-btn');
+    const eb=document.getElementById('sc-18-btn');
+    [fb,bb,eb].forEach(b=>{if(b){b.style.background='white';b.style.color='#555';b.style.borderColor='#ddd';b.textContent=b.textContent.replace(' ✓','');}});
+    const active=side==='front'?fb:side==='back'?bb:eb;
+    if(active){active.style.background='#2e7d32';active.style.color='white';active.style.borderColor='#2e7d32';active.textContent+=side==='front'?'':side==='back'?'':' ✓';}
+    scSess.side=side;
+    if(orig) orig.call(this,side);
+  };
+})();
+
+// ── Calendar tab ──────────────────────────────────────────────────────────────
+const CAL_EVENTS={
+  '2026-03-09':[{type:'meeting',name:'Pre-Season Meeting',sub:'8 PM · Location TBD'}],
+  '2026-04-13':[{type:'meeting',name:'Draft Night',sub:'Teams set for 2026'}],
+  '2026-04-27':[{type:'season',name:'Season Begins',sub:'Week 1 · Hiland GC'}],
+  '2026-05-04':[{type:'league',name:'Week 2',sub:'Hiland GC'}],
+  '2026-05-11':[{type:'league',name:'Week 3',sub:'Hiland GC'}],
+  '2026-05-18':[{type:'league',name:'Week 4',sub:'Hiland GC'}],
+  '2026-05-25':[{type:'league',name:'Week 5',sub:'Hiland GC'}],
+  '2026-06-01':[{type:'league',name:'Week 6',sub:'Hiland GC'}],
+  '2026-06-08':[{type:'league',name:'Week 7',sub:'Hiland GC'}],
+  '2026-06-15':[{type:'league',name:'Week 8',sub:'Hiland GC'}],
+  '2026-06-22':[{type:'league',name:'Week 9',sub:'Hiland GC'}],
+  '2026-06-29':[{type:'league',name:'Week 10',sub:'Hiland GC'}],
+  '2026-07-06':[{type:'league',name:'Week 11',sub:'Hiland GC'}],
+  '2026-07-13':[{type:'league',name:'Week 12',sub:'Hiland GC'}],
+  '2026-07-20':[{type:'league',name:'Week 13',sub:'Hiland GC'}],
+  '2026-07-27':[{type:'league',name:'Week 14',sub:'Hiland GC'}],
+  '2026-08-03':[{type:'league',name:'Week 15',sub:'Hiland GC'}],
+  '2026-08-10':[{type:'league',name:'Week 16',sub:'Hiland GC'}],
+  '2026-08-17':[{type:'league',name:'Week 17',sub:'Hiland GC'}],
+  '2026-08-24':[{type:'playoff',name:'Playoffs — Week 18',sub:'Semifinals · 1v4 · 2v3'}],
+  '2026-08-29':[{type:'outing',name:'End-of-Season Outing',sub:'Hiland GC 18 holes · Dinner: The Farm'}],
+  '2026-08-31':[{type:'playoff',name:'Playoffs — Week 19',sub:'Finals · Championship & 3rd place'}],
+  '2026-09-07':[{type:'season',name:'Season Ends',sub:'Award night · Location TBD'}],
+};
+const CAL_DOT={league:'#2e7d32',outing:'#e65100',meeting:'#1565c0',playoff:'#6a1b9a',season:'#c62828'};
+const CAL_PILL={league:'#e8f5e9',outing:'#fff3e0',meeting:'#e3f2fd',playoff:'#f3e5f5',season:'#ffebee'};
+const CAL_PILLTXT={league:'#2e7d32',outing:'#e65100',meeting:'#1565c0',playoff:'#6a1b9a',season:'#c62828'};
+const CAL_LBL={league:'League',outing:'Outing',meeting:'Meeting',playoff:'Playoffs',season:'Season'};
+const MONTHS_LONG=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+let calYear=2026, calMonth=8, calView='grid'; // month 8 = September
+
+function buildCalendar(){
+  renderCalGrid();
+  renderCalList();
+}
+
+function calChangeMonth(d){
+  calMonth+=d;
+  if(calMonth>11){calMonth=0;calYear++;}
+  if(calMonth<0){calMonth=11;calYear--;}
+  document.getElementById('cal-title').textContent=MONTHS_LONG[calMonth]+' '+calYear;
+  renderCalGrid();
+}
+
+function calDayKey(y,m,d){return`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+
+function renderCalGrid(){
+  document.getElementById('cal-title').textContent=MONTHS_LONG[calMonth]+' '+calYear;
+  const first=new Date(calYear,calMonth,1).getDay();
+  const days=new Date(calYear,calMonth+1,0).getDate();
+  const today=new Date();
+  let html='';
+  for(let i=0;i<first;i++){
+    const d=new Date(calYear,calMonth,1-first+i);
+    const k=calDayKey(d.getFullYear(),d.getMonth(),d.getDate());
+    const evs=CAL_EVENTS[k]||[];
+    html+=`<div onclick="calShowDay('${k}')" style="min-height:44px;padding:3px 2px;text-align:center;border-bottom:.5px solid #f5f5f5;border-right:.5px solid #f5f5f5;cursor:pointer">
+      <span style="font-size:13px;font-weight:500;color:#ccc">${d.getDate()}</span>
+      <div style="display:flex;justify-content:center;gap:2px;margin-top:2px">${evs.map(e=>`<div style="width:5px;height:5px;border-radius:50%;background:${CAL_DOT[e.type]}"></div>`).join('')}</div>
+    </div>`;
+  }
+  for(let d=1;d<=days;d++){
+    const k=calDayKey(calYear,calMonth,d);
+    const evs=CAL_EVENTS[k]||[];
+    const isToday=today.getFullYear()===calYear&&today.getMonth()===calMonth&&today.getDate()===d;
+    html+=`<div onclick="calShowDay('${k}')" style="min-height:44px;padding:3px 2px;text-align:center;border-bottom:.5px solid #f5f5f5;border-right:.5px solid #f5f5f5;cursor:pointer">
+      <span style="font-size:13px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;${isToday?'background:#2e7d32;color:white':'color:#1a1a1a'}">${d}</span>
+      <div style="display:flex;justify-content:center;gap:2px;margin-top:2px">${evs.map(e=>`<div style="width:5px;height:5px;border-radius:50%;background:${CAL_DOT[e.type]}"></div>`).join('')}</div>
+    </div>`;
+  }
+  document.getElementById('cal-days').innerHTML=html;
+  document.getElementById('cal-day-detail').style.display='none';
+}
+
+function calShowDay(k){
+  const evs=CAL_EVENTS[k]; if(!evs||!evs.length)return;
+  if(evs.find(e=>e.type==='outing')){calOpenOuting();return;}
+  const d=new Date(k+'T00:00:00');
+  document.getElementById('cal-detail-date').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  document.getElementById('cal-detail-events').innerHTML=evs.map(e=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:.5px solid #f0f0f0;font-size:13px">
+      <div style="width:8px;height:8px;border-radius:50%;background:${CAL_DOT[e.type]};flex-shrink:0"></div>
+      <div>${e.name}<br><span style="font-size:11px;color:#888">${e.sub}</span></div>
+    </div>`).join('');
+  document.getElementById('cal-day-detail').style.display='block';
+}
+
+function renderCalList(){
+  const sorted=Object.keys(CAL_EVENTS).sort();
+  let lastMo='',html='';
+  sorted.forEach(k=>{
+    const d=new Date(k+'T00:00:00');
+    const mo=MONTHS_LONG[d.getMonth()]+' '+d.getFullYear();
+    if(mo!==lastMo){html+=`<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.06em;padding:10px 2px 5px">${mo}</div>`;lastMo=mo;}
+    CAL_EVENTS[k].forEach(e=>{
+      const isOuting=e.type==='outing';
+      html+=`<div onclick="${isOuting?'calOpenOuting()':''}" class="card" style="padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;${isOuting?'cursor:pointer':''}">
+        <div style="width:42px;text-align:center;flex-shrink:0">
+          <div style="font-size:20px;font-weight:700;color:#1a1a1a;line-height:1">${d.getDate()}</div>
+          <div style="font-size:10px;color:#888;text-transform:uppercase">${d.toLocaleDateString('en-US',{weekday:'short'})}</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500">${e.name}${isOuting?' ↗':''}</div>
+          <div style="font-size:12px;color:#888;margin-top:2px">${e.sub}</div>
+        </div>
+        <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:${CAL_PILL[e.type]};color:${CAL_PILLTXT[e.type]};flex-shrink:0">${CAL_LBL[e.type]}</span>
+      </div>`;
+    });
+  });
+  document.getElementById('cal-list-body').innerHTML=html;
+}
+
+function calShowView(v,btn){
+  calView=v;
+  document.getElementById('cal-grid-btn').style.background=v==='grid'?'white':'none';
+  document.getElementById('cal-grid-btn').style.color=v==='grid'?'#2e7d32':'#666';
+  document.getElementById('cal-grid-btn').style.boxShadow=v==='grid'?'0 1px 3px rgba(0,0,0,.18)':'none';
+  document.getElementById('cal-list-btn').style.background=v==='list'?'white':'none';
+  document.getElementById('cal-list-btn').style.color=v==='list'?'#2e7d32':'#666';
+  document.getElementById('cal-list-btn').style.boxShadow=v==='list'?'0 1px 3px rgba(0,0,0,.18)':'none';
+  document.getElementById('cal-grid-view').style.display=v==='grid'?'block':'none';
+  document.getElementById('cal-list-view').style.display=v==='list'?'block':'none';
+}
+
+function calOpenOuting(){
+  const s=document.getElementById('outing-sheet');
+  s.style.display='flex'; document.body.style.overflow='hidden';
+}
+function calCloseOuting(){
+  document.getElementById('outing-sheet').style.display='none';
+  document.body.style.overflow='';
+}
+
+// ── Roster search filter ──────────────────────────────────────────────────────
+function rosterFilter(q){
+  const ql=q.toLowerCase();
+  document.querySelectorAll('#roster-list .roster-player').forEach(el=>{
+    el.style.display=el.dataset.name.toLowerCase().includes(ql)?'':'none';
+  });
+}
+
+// ── Service worker: register + auto-reload on update ─────────────────────────
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').then(reg=>{
-    function watchWorker(worker){
-      worker.addEventListener('statechange',()=>{
-        if(worker.state==='installed' && navigator.serviceWorker.controller){
-          swShowUpdateToast(worker);
-        }
-      });
-    }
-    if(reg.waiting && navigator.serviceWorker.controller) swShowUpdateToast(reg.waiting);
-    reg.addEventListener('updatefound',()=>{ if(reg.installing) watchWorker(reg.installing); });
     // Check for a new version whenever the app is foregrounded
     document.addEventListener('visibilitychange',()=>{
       if(document.visibilityState==='visible') reg.update().catch(()=>{});
@@ -3740,16 +4474,6 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange',()=>{
     if(swReloading) return; swReloading=true; location.reload();
   });
-}
-
-function swShowUpdateToast(worker){
-  if(document.getElementById('sw-update-toast')) return;
-  const t=document.createElement('div');
-  t.id='sw-update-toast';
-  t.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:76px;background:#1b5e20;color:#fff;padding:10px 16px;border-radius:24px;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.3);z-index:9998;cursor:pointer;display:flex;align-items:center;gap:8px';
-  t.innerHTML='🔄 New version available · <span style="text-decoration:underline">Tap to update</span>';
-  t.onclick=()=>{ worker.postMessage({type:'SKIP_WAITING'}); t.textContent='⏳ Updating…'; };
-  document.body.appendChild(t);
 }
 </script>
 </div><!-- /main-scroll -->
