@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL BetaV2 · 2026-09-04 · Hub-and-spoke navigation; contextual home screen; settings spoke; color theming -->
+<!-- WGL BetaV2 · 2026-09-04 v5 · XSS fix — escHtml wraps on announcement body + all outing text fields + calendar event name/sub + team num; Hub-and-spoke navigation; contextual home screen; settings spoke; color theming -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2142,7 +2142,7 @@ function buildNews(){
     <div class="ann-item ${cls[escHtml(a.tag)]||''}">
       <div class="ann-tag">${a.tag==='info'?'League Notice':a.tag==='reminder'?'Reminder':a.tag==='alert'?'⚠️ Action Needed':'✅ Update'}</div>
       <div class="ann-title">${escHtml(a.title)}</div>
-      <div class="ann-body">${a.body}</div>
+      <div class="ann-body">${escHtml(a.body)}</div>
       <div class="ann-date">${escHtml(a.date)}</div>
     </div>`).join('');
 }
@@ -2153,12 +2153,12 @@ function buildOuting(){
   const body=document.getElementById('outing-body');
   if(o.date||o.course){
     body.innerHTML=`
-      ${o.date?`<div class="outing-section"><div class="outing-lbl">📅 Date</div><div class="outing-val">${o.date}</div></div>`:''}
-      ${o.tee?`<div class="outing-section"><div class="outing-lbl">⏰ Tee Time</div><div class="outing-val">${o.tee}</div></div>`:''}
-      ${o.course?`<div class="outing-section"><div class="outing-lbl">📍 Course</div><div class="outing-val">${o.course}</div></div>`:''}
-      ${(o.holes||o.format)?`<div class="outing-section"><div class="outing-lbl">⛳ Format</div><div class="outing-val">${o.holes||''}${o.holes&&o.format?'<br>':''}${o.format||''}</div></div>`:''}
-      ${o.cost?`<div class="outing-section"><div class="outing-lbl">💵 Cost</div><div class="outing-val">${o.cost}</div></div>`:''}
-      ${o.dinner?`<div class="outing-section"><div class="outing-lbl">🍽️ Dinner</div><div class="outing-val">${o.dinner}</div></div>`:''}`;
+      ${o.date?`<div class="outing-section"><div class="outing-lbl">📅 Date</div><div class="outing-val">${escHtml(o.date)}</div></div>`:''}
+      ${o.tee?`<div class="outing-section"><div class="outing-lbl">⏰ Tee Time</div><div class="outing-val">${escHtml(o.tee)}</div></div>`:''}
+      ${o.course?`<div class="outing-section"><div class="outing-lbl">📍 Course</div><div class="outing-val">${escHtml(o.course)}</div></div>`:''}
+      ${(o.holes||o.format)?`<div class="outing-section"><div class="outing-lbl">⛳ Format</div><div class="outing-val">${escHtml(o.holes||'')}${o.holes&&o.format?'<br>':''}${escHtml(o.format||'')}</div></div>`:''}
+      ${o.cost?`<div class="outing-section"><div class="outing-lbl">💵 Cost</div><div class="outing-val">${escHtml(o.cost)}</div></div>`:''}
+      ${o.dinner?`<div class="outing-section"><div class="outing-lbl">🍽️ Dinner</div><div class="outing-val">${escHtml(o.dinner)}</div></div>`:''}`;
   } else {
     body.innerHTML='<div style="color:#aaa;font-size:13px;text-align:center;padding:10px">Details coming soon — check back later.</div>';
   }
@@ -2170,7 +2170,7 @@ function buildOuting(){
       ['🥇 Low Gross',prizes.p1],['🥈 Low Net',prizes.p2],
       ['📍 Closest to Pin',prizes.p3],['🏌️ Long Drive',prizes.p4],
       ['🏆 Season Champion',prizes.p5]
-    ].map(([pos,desc])=>desc?`<div class="prize-row"><span class="prize-pos">${pos}</span><span class="prize-desc">${desc}</span></div>`:'').join('');
+    ].map(([pos,desc])=>desc?`<div class="prize-row"><span class="prize-pos">${pos}</span><span class="prize-desc">${escHtml(desc)}</span></div>`:'').join('');
   } else {
     pcard.style.display='none';
   }
@@ -2196,12 +2196,12 @@ function buildOuting(){
   if(body2){
     if(o2.date||o2.course){
       body2.innerHTML=`
-        ${o2.date?`<div class="outing-section"><div class="outing-lbl">📅 Date</div><div class="outing-val">${o2.date}</div></div>`:''}
-        ${o2.tee?`<div class="outing-section"><div class="outing-lbl">⏰ Tee Time</div><div class="outing-val">${o2.tee}</div></div>`:''}
-        ${o2.course?`<div class="outing-section"><div class="outing-lbl">📍 Course</div><div class="outing-val">${o2.course}</div></div>`:''}
-        ${(o2.holes||o2.format)?`<div class="outing-section"><div class="outing-lbl">⛳ Format</div><div class="outing-val">${o2.holes||''}${o2.holes&&o2.format?'<br>':''}${o2.format||''}</div></div>`:''}
-        ${o2.cost?`<div class="outing-section"><div class="outing-lbl">💵 Cost</div><div class="outing-val">${o2.cost}</div></div>`:''}
-        ${o2.dinner?`<div class="outing-section"><div class="outing-lbl">🍽️ Dinner</div><div class="outing-val">${o2.dinner}</div></div>`:''}`;
+        ${o2.date?`<div class="outing-section"><div class="outing-lbl">📅 Date</div><div class="outing-val">${escHtml(o2.date)}</div></div>`:''}
+        ${o2.tee?`<div class="outing-section"><div class="outing-lbl">⏰ Tee Time</div><div class="outing-val">${escHtml(o2.tee)}</div></div>`:''}
+        ${o2.course?`<div class="outing-section"><div class="outing-lbl">📍 Course</div><div class="outing-val">${escHtml(o2.course)}</div></div>`:''}
+        ${(o2.holes||o2.format)?`<div class="outing-section"><div class="outing-lbl">⛳ Format</div><div class="outing-val">${escHtml(o2.holes||'')}${o2.holes&&o2.format?'<br>':''}${escHtml(o2.format||'')}</div></div>`:''}
+        ${o2.cost?`<div class="outing-section"><div class="outing-lbl">💵 Cost</div><div class="outing-val">${escHtml(o2.cost)}</div></div>`:''}
+        ${o2.dinner?`<div class="outing-section"><div class="outing-lbl">🍽️ Dinner</div><div class="outing-val">${escHtml(o2.dinner)}</div></div>`:''}`;
     } else {
       body2.innerHTML='<div style="color:#aaa;font-size:13px;text-align:center;padding:10px">Details coming soon — check back later.</div>';
     }
@@ -2211,7 +2211,7 @@ function buildOuting(){
     const pc2=document.getElementById('prizes2-card');
     const pb2=document.getElementById('prizes2-body');
     if(pc2&&pb2){
-      const rows2=[['🥇 Low Gross',prizes2.p1],['🥈 Low Net',prizes2.p2],['📍 Closest to Pin',prizes2.p3],['🏌️ Long Drive',prizes2.p4],['🏆 Season Champion',prizes2.p5]].map(([pos,desc])=>desc?`<div class="prize-row"><span class="prize-pos">${pos}</span><span class="prize-desc">${desc}</span></div>`:'').join('');
+      const rows2=[['🥇 Low Gross',prizes2.p1],['🥈 Low Net',prizes2.p2],['📍 Closest to Pin',prizes2.p3],['🏌️ Long Drive',prizes2.p4],['🏆 Season Champion',prizes2.p5]].map(([pos,desc])=>desc?`<div class="prize-row"><span class="prize-pos">${pos}</span><span class="prize-desc">${escHtml(desc)}</span></div>`:'').join('');
       if(rows2){pc2.style.display='';pb2.innerHTML=rows2;}
     }
   }
@@ -2246,7 +2246,7 @@ function renderOutingTeams(teams,cardId,bodyId){
   card.style.display='';
   body.innerHTML=teams.map(t=>`
     <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f5f5f5">
-      <div style="width:32px;height:32px;border-radius:50%;background:#e8f5e9;color:#2e7d32;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">${t.num}</div>
+      <div style="width:32px;height:32px;border-radius:50%;background:#e8f5e9;color:#2e7d32;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">${escHtml(t.num)}</div>
       <div>
         ${t.players.map(p=>`<div style="font-size:14px;font-weight:600">${escHtml(p)}</div>`).join('')}
       </div>
@@ -4613,7 +4613,7 @@ function calShowDay(k){
   document.getElementById('cal-detail-events').innerHTML=evs.map(e=>`
     <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:.5px solid #f0f0f0;font-size:13px">
       <div style="width:8px;height:8px;border-radius:50%;background:${CAL_DOT[e.type]};flex-shrink:0"></div>
-      <div>${e.name}<br><span style="font-size:11px;color:#888">${e.sub}</span></div>
+      <div>${escHtml(e.name)}<br><span style="font-size:11px;color:#888">${escHtml(e.sub)}</span></div>
     </div>`).join('');
   document.getElementById('cal-day-detail').style.display='block';
 }
@@ -4633,8 +4633,8 @@ function renderCalList(){
           <div style="font-size:10px;color:#888;text-transform:uppercase">${d.toLocaleDateString('en-US',{weekday:'short'})}</div>
         </div>
         <div style="flex:1">
-          <div style="font-size:14px;font-weight:500">${e.name}${isOuting?' ↗':''}</div>
-          <div style="font-size:12px;color:#888;margin-top:2px">${e.sub}</div>
+          <div style="font-size:14px;font-weight:500">${escHtml(e.name)}${isOuting?' ↗':''}</div>
+          <div style="font-size:12px;color:#888;margin-top:2px">${escHtml(e.sub)}</div>
         </div>
         <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:${CAL_PILL[e.type]};color:${CAL_PILLTXT[e.type]};flex-shrink:0">${CAL_LBL[e.type]}</span>
       </div>`;
@@ -4661,16 +4661,16 @@ function calOpenOuting(){
   const pr=Object.values(o.prizes||{}).filter(v=>v);
   const row=(icon,label,val,last)=>`<div style="padding:11px 14px;${last?'':'border-bottom:.5px solid #f0f0f0;'}font-size:13px;display:flex;gap:10px"><span style="font-size:18px">${icon}</span><div><div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase">${label}</div><div style="font-weight:500">${val}</div></div></div>`;
   const rows=[];
-  if(o.course) rows.push(row('🏌️','Course &amp; Format',`${o.course} · ${o.holes||'18 holes'}<br><span style="font-size:12px;color:#666">${o.format||''}</span>`,false));
-  if(o.tee)    rows.push(row('⏰','Tee Time',o.tee,false));
-  if(o.cost)   rows.push(row('💵','Cost',o.cost,false));
-  if(o.dinner) rows.push(row('🍽️','Dinner',o.dinner,!pr.length));
-  if(pr.length) rows.push(row('🏆','Prizes',pr.map(v=>`• ${v}`).join('<br>'),true));
+  if(o.course) rows.push(row('🏌️','Course &amp; Format',`${escHtml(o.course)} · ${escHtml(o.holes||'18 holes')}<br><span style="font-size:12px;color:#666">${escHtml(o.format||'')}</span>`,false));
+  if(o.tee)    rows.push(row('⏰','Tee Time',escHtml(o.tee),false));
+  if(o.cost)   rows.push(row('💵','Cost',escHtml(o.cost),false));
+  if(o.dinner) rows.push(row('🍽️','Dinner',escHtml(o.dinner),!pr.length));
+  if(pr.length) rows.push(row('🏆','Prizes',pr.map(v=>`• ${escHtml(v)}`).join('<br>'),true));
   const inner=document.getElementById('outing-sheet-inner');
   if(inner) inner.innerHTML=`
     <div style="background:#bf360c;border-radius:12px;padding:14px;margin-bottom:12px;color:white;text-align:center">
       <div style="font-size:17px;font-weight:700">⛳ End-of-Season Outing</div>
-      <div style="font-size:12px;opacity:.85;margin-top:3px">${o.date||'Date TBD'}</div>
+      <div style="font-size:12px;opacity:.85;margin-top:3px">${escHtml(o.date||'Date TBD')}</div>
     </div>
     <div class="card" style="margin-bottom:10px">${rows.join('')}</div>
     <button onclick="showTab('scorecard',null);calCloseOuting()" style="display:block;width:100%;padding:15px;background:var(--tint,#2e7d32);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;text-align:center;cursor:pointer;margin-bottom:10px">📲 Open Scorecard</button>
