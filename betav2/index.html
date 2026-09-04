@@ -881,7 +881,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 
 <!-- Scorecard Modal -->
 <div id="sc-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:999;align-items:flex-end;justify-content:center" onclick="if(event.target===this)closeScModal()">
-  <div style="background:white;color:#1a1a1a;border-radius:18px 18px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:0 0 24px">
+  <div style="background:white;color:#1a1a1a;border-radius:18px 18px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:0 0 calc(24px + env(safe-area-inset-bottom))">
     <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 16px 10px">
       <div>
         <div id="sc-title" style="font-size:16px;font-weight:700;color:#1b5e20"></div>
@@ -1305,13 +1305,13 @@ function scRenderExtras(){
   // 1 — Resume in-progress round
   const active=SC_STORE.load();
   if(active&&active.players&&active.players.length&&active.hole>=0){
-    const holes=active.side==='back'?[10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
+    const holes=active.side==='back'?[10,11,12,13,14,15,16,17,18]:active.side==='18'?[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
     const holeNum=holes[active.hole]||'?';
     const names=active.players.map(p=>p.name.split(' ')[0]).join(', ');
     html+=`<div style="background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:12px;padding:12px 14px;margin-bottom:14px">
       <div style="font-size:10px;font-weight:700;color:#2e7d32;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">🔄 Resume Round</div>
       <div style="font-size:14px;font-weight:600;color:#1a2e1a;margin-bottom:2px">${names}</div>
-      <div style="font-size:12px;color:#555;margin-bottom:10px">${active.side==='back'?'Back 9':'Front 9'} · on Hole ${holeNum}</div>
+      <div style="font-size:12px;color:#555;margin-bottom:10px">${active.side==='back'?'Back 9':active.side==='18'?'18 Holes':'Front 9'} · on Hole ${holeNum}</div>
       <div style="display:flex;gap:8px">
         <button onclick="scResumeSession()" style="flex:1;padding:9px;background:#2e7d32;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Resume →</button>
         <button onclick="scDiscardSession()" style="padding:9px 14px;background:white;color:#888;border:1.5px solid #ddd;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Discard</button>
@@ -1473,8 +1473,8 @@ function scSetPlayerTargetWeek(pi, val){
   SC_STORE.save();
 }
 
-function scGetPars()  { return scSess.side==='back'?SC_BACK_PARS:SC_FRONT_PARS; }
-function scGetHoles() { return scSess.side==='back'?[10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9]; }
+function scGetPars()  { return scSess.side==='back'?SC_BACK_PARS:scSess.side==='18'?[...SC_FRONT_PARS,...SC_BACK_PARS]:SC_FRONT_PARS; }
+function scGetHoles() { return scSess.side==='back'?[10,11,12,13,14,15,16,17,18]:scSess.side==='18'?[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9]; }
 
 function scSetSide(side){
   scSess.side=side;
@@ -1700,11 +1700,11 @@ function scHdClass(val,par){
 }
 
 function scRenderSegmentBlock(side, scoreMap, purposes){
-  // Renders one 9-hole segment (used for both completed and active segments)
-  const pars = side==='back'?SC_BACK_PARS:SC_FRONT_PARS;
+  // Renders one 9-hole segment (or 18-hole block)
+  const pars = side==='back'?SC_BACK_PARS:side==='18'?[...SC_FRONT_PARS,...SC_BACK_PARS]:SC_FRONT_PARS;
   const byTeam={};
   for(const p of scSess.players){
-    const s=scoreMap[p.name]||Array(9).fill(null);
+    const s=scoreMap[p.name]||Array(pars.length).fill(null);
     const filled=s.every(v=>v!==null);
     const gross=s.reduce((a,b)=>a+(b||0),0);
     const net=filled?gross-p.hcp:null;
@@ -1734,7 +1734,7 @@ function scRenderSegmentBlock(side, scoreMap, purposes){
 function scShowReview(){
   scShowStep('sc-step-review');
   const wk=D.settings&&D.settings.week?D.settings.week:'?';
-  const sideLbl=s=>s==='back'?'Back 9 (Holes 10–18)':'Front 9 (Holes 1–9)';
+  const sideLbl=s=>s==='back'?'Back 9 (Holes 10–18)':s==='18'?'18 Holes (1–18)':'Front 9 (Holes 1–9)';
   const totalSegs=scSess.completedSegments.length+1;
   const hdrLabel=totalSegs>1?'18 Holes ('+scSess.completedSegments.map(s=>sideLbl(s.side).split(' ')[0]).join(' + ')+' + '+sideLbl(scSess.side).split(' ')[0]+')':sideLbl(scSess.side);
   let html=`<div class="card" style="margin-bottom:4px;background:#f0f7f0">
@@ -2026,11 +2026,11 @@ async function scSubmit(){
 
   // Build segments array — completed segments + current active segment
   function buildSegment(side, scoreMap, purposes){
-    const segHoles = side==='back'?[10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
+    const segHoles = side==='back'?[10,11,12,13,14,15,16,17,18]:side==='18'?[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
     return {
       side,
       entries: scSess.players.map(p=>{
-        const s = scoreMap[p.name]||Array(9).fill(null);
+        const s = scoreMap[p.name]||Array(segHoles.length).fill(null);
         const gross = s.reduce((a,b)=>a+(b||0),0);
         const net = gross - p.hcp;
         const scores = {};
@@ -2071,7 +2071,7 @@ async function scSubmit(){
       for(const team of Object.keys(byTeam).sort((a,b)=>+a-+b)){
         body += `--- Team ${team} ---\n`;
         for(const e of byTeam[team]){
-          const hNums = seg.side==='back'?[10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
+          const hNums = seg.side==='back'?[10,11,12,13,14,15,16,17,18]:seg.side==='18'?[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
           const hstr = hNums.map(h=>`H${h}:${e.scores[h]??'?'}`).join('  ');
           const purpStr = e.purpose!=='league_night'?` [${SC_TYPE_LABELS[e.purpose]||e.purpose}${e.targetWeek?' Wk'+e.targetWeek:''}]`:'';
           body += `${e.name}  HCP ${e.hcp}${purpStr}\n${hstr}\nGross:${e.gross}  Net:${e.net}\n\n`;
@@ -3778,9 +3778,11 @@ function loadWeekResult(wk){
 function showScorecard(wk,grp,tapped){
   const d=WK_DATA[wk];
   if(!d)return;
-  const group=d.players.filter(p=>p.grp===grp).sort((a,b)=>a.net-b.net);
+  // Use group filter if data has grp fields; fall back to all players if not
+  const hasGroups=d.players.some(p=>p.grp!=null);
+  const group=(hasGroups?d.players.filter(p=>p.grp===grp):d.players).sort((a,b)=>a.net-b.net);
   const modal=document.getElementById('sc-modal');
-  document.getElementById('sc-title').textContent=`Group ${grp} — ${d.label}`;
+  document.getElementById('sc-title').textContent=hasGroups?`Group ${grp} — ${d.label}`:d.label;
   document.getElementById('sc-subtitle').textContent=`${d.date} · ${d.course}`;
   const rows=group.map(p=>`
     <tr style="border-bottom:1px solid #f0f0f0;background:${p.name===tapped?'#e8f5e9':'white'}">
