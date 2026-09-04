@@ -1,5 +1,5 @@
-// WGL v51 · 2026-09-03 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v51'; // bumped 2026-09-03: removed auto-advance timer
+// WGL v53 · 2026-09-03 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v53'; // bumped 2026-09-03: app header bar removed; gear moved to sync-bar
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
