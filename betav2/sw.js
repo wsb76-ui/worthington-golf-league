@@ -1,5 +1,5 @@
-// WGL BetaV2 · 2026-09-04 — Hub-and-spoke navigation; contextual home; settings spoke
-const CACHE = 'wgl-betav2-v1';
+// WGL BetaV2 · 2026-09-04 v2 — 18-hole fix; modal safe-area; scorecard grp fallback
+const CACHE = 'wgl-betav2-v2';
 const ASSETS = [
   '/worthington-golf-league/betav2/',
   '/worthington-golf-league/betav2/index.html',
