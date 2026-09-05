@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-09-05T19:47:05.255Z",
+  "lastUpdated": "2026-09-05T21:37:04.482Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -6908,6 +6908,12 @@
         "gross": 48,
         "hcp": 9,
         "played": "8/24"
+      },
+      {
+        "side": "back",
+        "gross": 48,
+        "hcp": 10,
+        "played": "9/5"
       }
     ],
     "Bill Long": [
@@ -6984,6 +6990,12 @@
         "gross": 32,
         "hcp": 12,
         "played": "8/29"
+      },
+      {
+        "side": "back",
+        "gross": 48,
+        "hcp": 12,
+        "played": "9/5"
       }
     ],
     "Scott Barton": [
