@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-09-05T21:37:04.482Z",
+  "lastUpdated": "2026-09-10T18:47:04.969Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -7128,6 +7128,14 @@
         "gross": 32,
         "hcp": 15,
         "played": "8/29"
+      }
+    ],
+    "Vince Sanzotti": [
+      {
+        "side": "front",
+        "gross": 36,
+        "hcp": 3,
+        "played": "9/10"
       }
     ]
   },
