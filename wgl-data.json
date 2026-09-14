@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-09-10T18:47:04.969Z",
+  "lastUpdated": "2026-09-14T18:17:43.270Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -9,8 +9,8 @@
     "skins": "",
     "lownet": "",
     "pot": "",
-    "week": 18,
-    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Through Week 17",
+    "week": 19,
+    "subtitle": "Monday Nights · Hiland Golf Course, Butler PA · Through Week 18",
     "computeHandicaps": false
   },
   "players": {
@@ -6855,6 +6855,45 @@
           "gross": 53,
           "net": 44,
           "grp": 6
+        }
+      ]
+    },
+    "18": {
+      "label": "Week 18",
+      "date": "",
+      "course": "Hiland Golf Course",
+      "players": [
+        {
+          "name": "Cole Clark",
+          "team": 8,
+          "hcp": 14,
+          "gross": 58,
+          "net": 44,
+          "grp": 1
+        },
+        {
+          "name": "Keith Clark",
+          "team": 1,
+          "hcp": 16,
+          "gross": 58,
+          "net": 42,
+          "grp": 1
+        },
+        {
+          "name": "Kris Simmons",
+          "team": 1,
+          "hcp": 5,
+          "gross": 45,
+          "net": 40,
+          "grp": 2
+        },
+        {
+          "name": "Paul Bowser",
+          "team": 8,
+          "hcp": 7,
+          "gross": 50,
+          "net": 43,
+          "grp": 2
         }
       ]
     }
