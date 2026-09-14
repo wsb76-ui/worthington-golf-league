@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-09-14T21:17:17.715Z",
+  "lastUpdated": "2026-09-14T22:47:15.288Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -7006,6 +7006,14 @@
           "gross": 51,
           "net": 41,
           "grp": 6
+        },
+        {
+          "name": "Jim Frye",
+          "team": 2,
+          "hcp": 2,
+          "gross": 39,
+          "net": 37,
+          "grp": 7
         }
       ]
     }
