@@ -1,5 +1,5 @@
-// WGL BetaV2 · 2026-09-15 v6 — one-tap scorecard; calendar built from engine data; ties to higher seed; bracket penalty marker; SW updatefound activation
-const CACHE = 'wgl-betav2-v9';
+// WGL BetaV2 · 2026-09-15 v10 — one-tap scorecard; calendar built from engine data; ties to higher seed; bracket penalty marker; SW updatefound activation
+const CACHE = 'wgl-betav2-v10';
 const ASSETS = [
   '/worthington-golf-league/betav2/',
   '/worthington-golf-league/betav2/index.html',
