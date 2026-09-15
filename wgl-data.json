@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-09-15T11:56:20.855Z",
+  "lastUpdated": "2026-09-15T11:57:24.211Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -7086,6 +7086,22 @@
           "gross": 50,
           "net": 36,
           "grp": 10
+        },
+        {
+          "name": "Doug Anthony",
+          "team": 7,
+          "hcp": 9,
+          "gross": 54,
+          "net": 45,
+          "grp": 11
+        },
+        {
+          "name": "Patric Weber",
+          "team": 8,
+          "hcp": 15,
+          "gross": 50,
+          "net": 35,
+          "grp": 11
         }
       ]
     }
