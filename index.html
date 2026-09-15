@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL v57 · 2026-09-15 · Award night removed from the generated calendar. v56: Published calEvents now authoritative (admin owns the calendar). v55: Promoted from betaV2: hub-and-spoke home screen, one-tap scorecard, playoff bracket, calendar from engine data, ties to higher seed, XSS hardening. Replaces v53. -->
+<!-- WGL v58 · 2026-09-15 · Playoff weeks titled Semifinals/Finals; week dates now fall back to the engine calendar so engine-published weeks no longer render a bare "Week 18 ·"; week 17 date corrected Sunday→Monday. v57: Award night removed from the generated calendar. v56: Published calEvents now authoritative (admin owns the calendar). v55: Promoted from betaV2: hub-and-spoke home screen, one-tap scorecard, playoff bracket, calendar from engine data, ties to higher seed, XSS hardening. Replaces v53. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1023,7 +1023,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
       </div>
     </div>
 
-    <div style="margin-top:24px;padding-top:14px;border-top:1px solid rgba(120,120,128,.15);font-size:11px;color:#bbb;text-align:center">WGL 2026 · v55</div>
+    <div style="margin-top:24px;padding-top:14px;border-top:1px solid rgba(120,120,128,.15);font-size:11px;color:#bbb;text-align:center">WGL 2026 · v58</div>
   </div>
 </div>
 
@@ -2449,7 +2449,7 @@ function buildMyTab(){
   if(rounds.length){
     html+=`<div class="card"><div class="card-hdr">🗓 My Rounds</div><div style="padding:6px 14px">`+
       rounds.slice().reverse().map(r=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(120,120,128,.12);font-size:14px">
-        <span style="font-weight:600">Week ${r.wk}</span>
+        <span style="font-weight:600">Week ${r.wk}${wkRoundName(r.wk)?`<span style="font-weight:500;color:#888"> \u00b7 ${wkRoundName(r.wk)}</span>`:''}</span>
         <span style="color:#888">Gross ${r.gross} · HCP ${r.hcp}</span>
         <span style="font-weight:800;color:var(--tint,#2e7d32)">Net ${r.net}</span>
       </div>`).join('')+`</div></div>`;
@@ -3613,7 +3613,7 @@ const WK_DATA = {
   },
   // Week 17 — Sunday, August 30, 2026, Back 9. From season xlsx.
   17: {
-    label:'Week 17',date:'Sunday, August 30, 2026',course:'Hiland Golf Course',
+    label:'Week 17',date:'Monday, August 31, 2026',course:'Hiland Golf Course',
     players:[
       {name:'Larry Julius',team:1,hcp:3,gross:38,net:35},
       {name:'Frank Watt',team:1,hcp:14,gross:52,net:38},
@@ -3854,11 +3854,49 @@ function buildWeekDropdown(){
   const cur=+sel.value||0;
   const wks=Object.keys(WK_DATA).map(Number).sort((a,b)=>b-a);
   sel.innerHTML=wks.map(w=>{
-    const d=WK_DATA[w]||{};
-    return `<option value="${w}">Week ${w}${d.date?' — '+d.date.replace(/^\w+, /,''):''}</option>`;
+    const ds=wkDateShort(w);
+    return `<option value="${w}">${escHtml(wkTitle(w))}${ds?' \u2014 '+escHtml(ds):''}</option>`;
   }).join('');
   if(cur&&wks.includes(cur))sel.value=cur;
 }
+// ── Week titling ────────────────────────────────────────────────────────────
+// v58: engine-published weeks arrive with date:'' — fall back to D.calendar,
+// which carries the real date for every week of the season. Playoff weeks also
+// get their round name, matching how the Schedule tab already labels them.
+function wkRoundName(wk){
+  wk = +wk;
+  if(wk === PLAYOFF_FIRST_WK)     return 'Semifinals';
+  if(wk === PLAYOFF_FIRST_WK + 1) return 'Finals';
+  return '';
+}
+// "Week 18 · Semifinals"  /  "Week 16"
+function wkTitle(wk){
+  const r = wkRoundName(wk);
+  return 'Week ' + (+wk) + (r ? ' \u00b7 ' + r : '');
+}
+// "Monday, September 14, 2026" — '' when genuinely unknown
+function wkDateStr(wk){
+  const d = WK_DATA[+wk];
+  if(d && d.date) return d.date;
+  try{
+    const c = (D.calendar || []).find(x => +x.week === +wk);
+    if(c && c.date){
+      // noon local: a bare YYYY-MM-DD parses as UTC and lands a day early
+      return new Date(c.date + 'T12:00:00')
+        .toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
+    }
+  }catch(e){}
+  return '';
+}
+// "Sep 14" for the compact week picker — kept short so the <select> never clips
+function wkDateShort(wk){
+  const full = wkDateStr(wk);
+  if(!full) return '';
+  return full.replace(/^\w+, /, '')      // drop weekday
+             .replace(/, \d{4}$/, '')     // drop year
+             .replace(/^(\w{3})\w*/, '$1'); // August -> Aug
+}
+
 function loadWeekResult(wk){
   const el=document.getElementById('week-result-body');
   const sel=document.getElementById('week-select');
@@ -3873,8 +3911,9 @@ function showScorecard(wk,grp,tapped){
   const hasGroups=d.players.some(p=>p.grp!=null);
   const group=(hasGroups?d.players.filter(p=>p.grp===grp):d.players).sort((a,b)=>a.net-b.net);
   const modal=document.getElementById('sc-modal');
-  document.getElementById('sc-title').textContent=hasGroups?`Group ${grp} — ${d.label}`:d.label;
-  document.getElementById('sc-subtitle').textContent=`${d.date} · ${d.course}`;
+  const _wt=wkTitle(wk), _wd=wkDateStr(wk);
+  document.getElementById('sc-title').textContent=hasGroups?`Group ${grp} \u2014 ${_wt}`:_wt;
+  document.getElementById('sc-subtitle').textContent=_wd?`${_wd} \u00b7 ${d.course}`:d.course;
   const rows=group.map(p=>`
     <tr style="border-bottom:1px solid #f0f0f0;background:${p.name===tapped?'#e8f5e9':'white'}">
       <td style="padding:10px 8px;font-weight:${p.name===tapped?'700':'500'}">${p.name}<br><span style="font-size:11px;color:#888">Team ${p.team}</span></td>
@@ -3940,7 +3979,7 @@ function buildWeek(wk,elOverride){
   const best=sorted[0].total;
 
   let html=`<div class="card" style="margin-bottom:10px">
-    <div class="card-hdr">${d.label} · ${d.date}</div>
+    <div class="card-hdr">${escHtml(wkTitle(wk))}${wkDateStr(wk)?' \u2014 '+escHtml(wkDateStr(wk)):''}</div>
     <div style="padding:8px 14px;font-size:13px;color:#555">${d.course} · 4 lowest nets count</div>
   </div>`;
 
