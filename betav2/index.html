@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL BetaV2 · 2026-09-15 v7 · Splash/Enter screen removed (home screen is the entry point); GPS warms on first touch · v6: One-tap scorecard; calendar from engine; tie-to-higher-seed; bracket ⚠; SW updatefound · prev v5: XSS fix — escHtml wraps on announcement body + all outing text fields + calendar event name/sub + team num; Hub-and-spoke navigation; contextual home screen; settings spoke; color theming -->
+<!-- WGL BetaV2 · 2026-09-15 v9 · Award night removed from the generated calendar · v8: Published calEvents now authoritative (admin owns the calendar) · v7: Splash/Enter screen removed (home screen is the entry point); GPS warms on first touch · v6: One-tap scorecard; calendar from engine; tie-to-higher-seed; bracket ⚠; SW updatefound · prev v5: XSS fix — escHtml wraps on announcement body + all outing text fields + calendar event name/sub + team num; Hub-and-spoke navigation; contextual home screen; settings spoke; color theming -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -4185,24 +4185,24 @@ async function refreshData(force){
         }
         const _wks=D.calendar.filter(c=>c&&c.date&&c.week).sort((a,b)=>a.week-b.week);
         for(const c of _wks){
-          const po=c.week>=PLAYOFF_FIRST_WK;
-          let sub='Hiland GC';
-          if(po){
-            if(c.week===PLAYOFF_FIRST_WK) sub='Semifinals · 1v4 · 2v3';
-            else if(c.week===PLAYOFF_FIRST_WK+1) sub='Finals · Championship & 3rd place';
-            else sub='';            // don't claim what an extra playoff week is
-          }
+          // Only weeks 18 and 19 are playoff rounds. Anything past the finals is
+          // just another scheduled league night — don't label it a playoff and
+          // don't invent an award night for it.
+          const po = c.week===PLAYOFF_FIRST_WK || c.week===PLAYOFF_FIRST_WK+1;
+          const sub = po
+            ? (c.week===PLAYOFF_FIRST_WK ? 'Semifinals · 1v4 · 2v3' : 'Finals · Championship & 3rd place')
+            : 'Hiland GC';
           CAL_EVENTS[c.date]=[{
             type: po?'playoff':'league',
             name: po?('Playoffs — Week '+c.week):('Week '+c.week),
             sub:  sub
           }];
         }
-        // Season bookends follow the engine calendar so they can't drift out of sync
+        // Season opener follows the engine calendar so it can't drift out of sync.
+        // No closing bookend — award night is not on the schedule.
         if(_wks.length){
-          const first=_wks[0], last=_wks[_wks.length-1];
+          const first=_wks[0];
           CAL_EVENTS[first.date]=[{type:'season',name:'Season Begins',sub:'Week '+first.week+' · Hiland GC'}];
-          CAL_EVENTS[last.date]=[{type:'season',name:'Season Ends',sub:'Award night · Location TBD'}];
         }
         buildCalendar();
       }
@@ -4219,7 +4219,15 @@ async function refreshData(force){
       }
       D.banked=json.banked||{};
       if(Array.isArray(json.calEvents)&&json.calEvents.length){
-        for(const e of json.calEvents)CAL_EVENTS[e.date]=[{type:e.type||'league',name:e.name,sub:e.sub||''}];
+        // A published calendar is AUTHORITATIVE — the admin's event list is the
+        // calendar. Replacing wholesale (rather than merging) is what lets an
+        // event deleted in admin actually disappear instead of being regenerated
+        // from D.calendar on the next refresh.
+        for(const k of Object.keys(CAL_EVENTS)) delete CAL_EVENTS[k];
+        for(const e of json.calEvents){
+          if(!e||!e.date||!e.name) continue;
+          CAL_EVENTS[e.date]=[{type:e.type||'league',name:e.name,sub:e.sub||''}];
+        }
         buildCalendar();
       }
       document.getElementById('sync-label').textContent=`Live data · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
@@ -4628,7 +4636,6 @@ const CAL_EVENTS={
   '2026-08-24':[{type:'playoff',name:'Playoffs — Week 18',sub:'Semifinals · 1v4 · 2v3'}],
   '2026-08-29':[{type:'outing',name:'End-of-Season Outing',sub:'Hiland GC 18 holes · Dinner: The Farm'}],
   '2026-08-31':[{type:'playoff',name:'Playoffs — Week 19',sub:'Finals · Championship & 3rd place'}],
-  '2026-09-07':[{type:'season',name:'Season Ends',sub:'Award night · Location TBD'}],
 };
 const CAL_DOT={league:'#2e7d32',outing:'#e65100',meeting:'#1565c0',playoff:'#6a1b9a',season:'#c62828'};
 const CAL_PILL={league:'#e8f5e9',outing:'#fff3e0',meeting:'#e3f2fd',playoff:'#f3e5f5',season:'#ffebee'};
