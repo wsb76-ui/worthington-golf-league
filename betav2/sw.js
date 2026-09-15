@@ -1,5 +1,5 @@
-// WGL BetaV2 · 2026-09-04 v5 — XSS fix: escHtml wraps on announcement body + all outing text fields + calendar event name/sub + team num; playoff bracket in standings; admin calendar generator; calEvents live merge; calendar dynamic; outing sheet dynamic; sc-modal dark mode; sc-add-nine-btn; view toggle CSS vars
-const CACHE = 'wgl-betav2-v5';
+// WGL BetaV2 · 2026-09-15 v6 — one-tap scorecard; calendar built from engine data; ties to higher seed; bracket penalty marker; SW updatefound activation
+const CACHE = 'wgl-betav2-v7';
 const ASSETS = [
   '/worthington-golf-league/betav2/',
   '/worthington-golf-league/betav2/index.html',
