@@ -1,5 +1,5 @@
-// WGL v53 · 2026-09-03 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v53'; // bumped 2026-09-03: app header bar removed; gear moved to sync-bar
+// WGL v57 · 2026-09-15 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v57'; // bumped 2026-09-15: promoted betaV2 — home screen, one-tap scorecard, playoff bracket
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
