@@ -438,6 +438,11 @@ body.theme-dark-slate{--bg:#10141c;--card:#1e293b;--card-hdr:#233044;--input:#33
           <div id="cal-skip-list" style="display:flex;flex-wrap:wrap;gap:6px;min-height:6px"></div>
         </div>
         <button class="btn btn-green" style="width:100%;padding:12px;font-size:15px" onclick="generateSchedule()">⚡ Generate Schedule</button>
+        <button class="btn btn-gray" id="cal-import-btn" style="width:100%;padding:11px;font-size:14px;margin-top:8px" onclick="importEngineSchedule()">📥 Import Current Schedule</button>
+        <div style="font-size:12px;color:#888;margin-top:8px;line-height:1.5">
+          <strong>Import</strong> pulls the real week dates from the published data so the list below
+          matches what members see right now — then delete or edit anything you don't want.
+        </div>
       </div>
     </div>
 
@@ -469,7 +474,12 @@ body.theme-dark-slate{--bg:#10141c;--card:#1e293b;--card-hdr:#233044;--input:#33
       <div class="card-hdr">Calendar Events <span id="cal-ev-count" style="background:#e8f5e9;color:#2e7d32;border-radius:10px;font-size:11px;padding:2px 8px;font-weight:800;margin-left:6px">0</span></div>
       <div id="cal-ev-list" style="padding:0 14px"></div>
     </div>
-    <div style="font-size:12px;color:#888;padding:0 4px">Events publish to the league app calendar. Tap Publish to push live.</div>
+    <div style="font-size:12px;color:#888;padding:0 4px;line-height:1.5">
+      This list <strong>is</strong> the league app calendar once published — whatever is here is exactly what
+      members see, and anything deleted here disappears from their Schedule tab. If the list is empty,
+      the app falls back to generating weeks from the season schedule automatically.
+      Tap Publish to push live.
+    </div>
   </div>
 
   <!-- ── OUTING ──────────────────────────────────── -->
@@ -2068,6 +2078,50 @@ function generateSchedule(){
   saveST();
   buildCalEvents();
   alert('✅ Generated '+regCount+' league night'+(regCount!==1?'s':'')+' + '+playoffs+' playoff week'+(playoffs!==1?'s':'')+'. Tap Publish to push live.');
+}
+
+// Build the event list from the schedule the engine actually publishes, so the
+// admin is editing the same dates members are looking at. Without this the list
+// starts empty and there is nothing to delete.
+async function importEngineSchedule(){
+  const btn=document.getElementById('cal-import-btn');
+  const reset=btn?btn.textContent:'';
+  if(btn){btn.disabled=true;btn.textContent='Loading…';}
+  try{
+    const r=await fetch(LIVE_URL+'?t='+Date.now(),{cache:'no-store'});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const json=await r.json();
+    const cal=(Array.isArray(json.calendar)?json.calendar:[]).filter(c=>c&&c.date&&c.week);
+    if(!cal.length){alert('No season schedule found in the published data.');return;}
+    cal.sort((a,b)=>a.week-b.week);
+    const course=((document.getElementById('cal-course')||{}).value||'').trim()||'Hiland GC';
+    const PLAYOFF_FIRST=18;   // matches PLAYOFF_FIRST_WK in the league app
+    const evs=cal.map(c=>{
+      if(c.week>=PLAYOFF_FIRST){
+        const sub=c.week===PLAYOFF_FIRST?'Semifinals · 1v4 · 2v3'
+                 :(c.week===PLAYOFF_FIRST+1?'Finals · Championship & 3rd Place':'');
+        return{date:c.date,type:'playoff',name:'Playoffs — Week '+c.week,sub:sub};
+      }
+      return{date:c.date,type:'league',name:'Week '+c.week,sub:course};
+    });
+    // Season bookends, same as the app generates them today
+    const first=cal[0], last=cal[cal.length-1];
+    evs[0]={date:first.date,type:'season',name:'Season Begins',sub:'Week '+first.week+' · '+course};
+    evs[evs.length-1]={date:last.date,type:'season',name:'Season Ends',sub:'Award night · Location TBD'};
+    // Keep hand-entered meetings/outings that don't collide with a league date
+    const taken=new Set(evs.map(e=>e.date));
+    const keep=(ST.calEvents||[]).filter(e=>['outing','meeting'].includes(e.type)&&!taken.has(e.date));
+    ST.calEvents=[...keep,...evs];
+    saveST();
+    buildCalEvents();
+    alert('✅ Imported '+evs.length+' dates'+(keep.length?' and kept '+keep.length+' meeting/outing event'+(keep.length!==1?'s':''):'')
+      +'.\n\nDelete anything you do not want (Award Night, extra weeks…), then tap Publish.'
+      +'\n\nHeads up: once published, this list is the ENTIRE calendar members see. Anything not in the list below will not appear — add it with the one-off form first.');
+  }catch(e){
+    alert('Could not load the published schedule.\n\n'+e.message);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent=reset||'📥 Import Current Schedule';}
+  }
 }
 
 function addSkipDate(){
