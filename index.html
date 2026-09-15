@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL v51 · 2026-09-03 · Removed auto-advance timer; player taps Next manually to reach review -->
+<!-- WGL v57 · 2026-09-15 · Award night removed from the generated calendar. v56: Published calEvents now authoritative (admin owns the calendar). v55: Promoted from betaV2: hub-and-spoke home screen, one-tap scorecard, playoff bracket, calendar from engine data, ties to higher seed, XSS hardening. Replaces v53. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -26,14 +26,13 @@
 body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg,#f5f5f5); color:var(--text,#1a1a1a); font-size:14px; height:100dvh; display:flex; flex-direction:column; overflow:hidden; }
 
 /* Sync badge */
-.sync-bar { display:flex; align-items:center; justify-content:center; gap:6px; padding:5px 12px; font-size:11px; color:#2e7d32; background:#e8f5e9; border-bottom:1px solid #c8e6c9; flex-shrink:0; order:0; }
+.sync-bar { display:flex; align-items:center; justify-content:center; gap:6px; padding-top:calc(5px + env(safe-area-inset-top)); padding-bottom:5px; padding-left:12px; padding-right:12px; font-size:11px; color:#2e7d32; background:#e8f5e9; border-bottom:1px solid #c8e6c9; flex-shrink:0; order:0; position:relative; }
 .sync-dot { width:7px; height:7px; border-radius:50%; background:#43a047; flex-shrink:0; }
+.wx-bar { display:flex; gap:16px; align-items:center; justify-content:center; padding:4px 14px 5px; font-size:11px; color:#2e7d32; background:#e8f5e9; border-bottom:1px solid #c8e6c9; flex-shrink:0; flex-wrap:wrap; }
+.wx-bar span { display:flex; align-items:center; gap:3px; opacity:.85; }
 
-/* Header */
-.app-hdr { background:#1b5e20; color:white; padding-top:env(safe-area-inset-top); flex-shrink:0; order:1; }
-.hdr-inner { padding:10px 14px 0; }
-.hdr-inner h1 { font-size:17px; font-weight:700; }
-.hdr-sub { font-size:11px; opacity:.75; margin:1px 0 8px; }
+/* Header — removed v53; safe-area top now handled by body/sync-bar */
+.app-hdr { display:none; }
 html,body{touch-action:manipulation}
 button,.tab,.pin-btn,input,select{touch-action:manipulation}
 .tabs { flex-shrink:0; order:3; display:flex; background:var(--tabbar-bg,rgba(255,255,255,.88)); -webkit-backdrop-filter:blur(20px) saturate(180%); backdrop-filter:blur(20px) saturate(180%); border-top:.5px solid var(--tabbar-line,rgba(0,0,0,.12)); padding-bottom:env(safe-area-inset-bottom); }
@@ -46,18 +45,23 @@ button,.tab,.pin-btn,input,select{touch-action:manipulation}
 .tab.active { color:var(--tint,#2e7d32); }
 .tab.active .ticon { opacity:1; transform:scale(1.08); background:var(--tint-soft,rgba(46,125,50,.14)); }
 .tab:active .ticon { transform:scale(.88); }
-.tab-content { display:none; padding:12px 12px 20px; max-width:700px; margin:0 auto; }
+.tab-content { display:none; padding:12px 12px calc(80px + env(safe-area-inset-bottom)); max-width:700px; margin:0 auto; }
 .tab-content.active { display:block; }
 
 /* Cards */
 .card { background:var(--card,white); border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.1); margin-bottom:12px; overflow:hidden; }
 .card-hdr { padding:11px 14px; font-weight:700; font-size:13px; border-bottom:1px solid #f0f0f0; background:var(--card,white); }
 
-/* Settings gear (in header) */
-#gear-btn { background:none; border:none; color:white; font-size:20px; cursor:pointer; padding:4px 2px 4px 10px; -webkit-tap-highlight-color:transparent; transition:transform .3s; opacity:.85; }
-#gear-btn.open { transform:rotate(90deg); }
-#settings-panel { position:fixed; top:calc(env(safe-area-inset-top) + 62px); right:12px; width:252px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,.22); z-index:200; padding:16px; display:none; border:1px solid #ddd; }
-#settings-panel.open { display:block; }
+/* Settings gear — hidden in sync bar; lives on home screen in v2 */
+#gear-btn { display:none; }
+/* Home screen title bar */
+.home-title-bar { display:flex; align-items:center; justify-content:space-between; padding:12px 14px 4px; }
+.home-title-lbl { font-size:11px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:#aaa; }
+.home-gear-btn { background:none; border:none; color:var(--tint,#2e7d32); font-size:19px; cursor:pointer; padding:4px; -webkit-tap-highlight-color:transparent; opacity:.85; line-height:1; }
+.home-gear-btn:active { opacity:.5; }
+/* Settings spoke section */
+#settings-screen { padding:0 !important; }
+.settings-inner { padding:0 12px 32px; }
 .settings-title { font-size:11px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
 .seg { display:flex; background:rgba(120,120,128,.16); border-radius:9px; padding:2px; margin-bottom:14px; }
 .seg button { flex:1; border:none; background:none; padding:7px 2px; border-radius:7px; font-size:12px; font-weight:600; color:inherit; opacity:.65; cursor:pointer; -webkit-tap-highlight-color:transparent; }
@@ -106,6 +110,24 @@ body.text-xl .tab-content, body.text-xl .modal, body.text-xl #signup-modal, body
 .adj-btn { width:44px; height:44px; border-radius:50%; border:1.5px solid #ddd; background:white; font-size:28px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; }
 .adj-btn:active { background:#f0f0f0; transform:scale(.88); }
 .score-val { width:38px; text-align:center; font-size:28px; font-weight:800; }
+/* one-tap score entry */
+.prow { padding:11px 0; border-bottom:1px solid #f0f0f0; }
+.prow:last-child { border-bottom:none; }
+.pinfo { display:flex; align-items:baseline; margin-bottom:8px; }
+.pnet { margin-left:auto; font-size:13px; font-weight:700; color:var(--tint,#2e7d32); }
+.pnet.empty { color:var(--tabbar-inactive,#bbb); font-weight:600; }
+.score-strip { display:flex; gap:4px; }
+.sbtn { flex:1; min-width:0; padding:15px 1px; text-align:center; font-size:17px; font-weight:600;
+        cursor:pointer; background:var(--unsel-bg,#fff); color:var(--unsel-fg,#555);
+        border:1.5px solid var(--unsel-line,#ddd); border-radius:8px; line-height:1;
+        -webkit-tap-highlight-color:transparent; font-variant-numeric:tabular-nums; }
+.sbtn:active { transform:scale(.91); }
+.sbtn.eagle  { border-radius:50%; outline:2px solid var(--unsel-line,#ddd); outline-offset:2px; }
+.sbtn.birdie { border-radius:50%; }
+.sbtn.dbl    { border-radius:3px; }
+.sbtn.dbl2   { border-radius:3px; outline:2px solid var(--unsel-line,#ddd); outline-offset:2px; }
+.sbtn.sel { background:var(--sel-bg,#2e7d32); color:var(--sel-fg,#fff); border-color:var(--sel-bg,#2e7d32); font-weight:800; }
+.sbtn.sel.eagle, .sbtn.sel.dbl2 { outline-color:var(--sel-bg,#2e7d32); }
 .nav-row { display:flex; gap:10px; padding:12px 0 0; }
 .nav-btn { flex:1; padding:14px; border:1.5px solid #ddd; border-radius:10px; font-size:15px; font-weight:600; background:white; color:#333; cursor:pointer; -webkit-tap-highlight-color:transparent; }
 .nav-btn:active { transform:scale(.97); }
@@ -250,7 +272,7 @@ body.theme-dark-gold .sc-btn-ghost{color:#8b949e}
 body.theme-dark-gold .search-input{background:#21262d;border-color:#30363d;color:#e6edf3}
 body.theme-dark-gold .search-input:focus{border-color:#c9a84c}
 body.theme-dark-gold .search-drop,.theme-dark-gold .search-item{background:#161b22;border-color:#21262d;color:#e6edf3}
-body.theme-dark-gold .player-chip,.theme-dark-gold .score-row,.theme-dark-gold .rev-row,.theme-dark-gold .roster-player{border-bottom-color:#21262d}
+body.theme-dark-gold .player-chip,.theme-dark-gold .score-row,.theme-dark-gold .prow,.theme-dark-gold .rev-row,.theme-dark-gold .roster-player{border-bottom-color:#21262d}
 body.theme-dark-gold .hcp-val,.theme-dark-gold .rtotals,.theme-dark-gold .outing-lbl,.theme-dark-gold .ann-tag{color:#c9a84c}
 body.theme-dark-gold .toggle input:checked+.toggle-track{background:#c9a84c}
 body.theme-dark-gold .roster-team-hdr{background:#c9a84c;color:#0d1117}
@@ -464,42 +486,58 @@ body.theme-earth-light .modal{background:#f8f4e4}
 body.theme-earth-light .modal-close{background:#e4ddc4;color:#7c7758}
 body.theme-earth-light #modal-hcp{color:#47714b!important}
 body.theme-earth-light .hcp-row:active{background:#e4ddc4}
+
+/* ── Hub navigation ──────────────────────────────────────────────────────── */
+.tabs{display:none!important}
+.tab-content{padding:12px 12px calc(20px + env(safe-area-inset-bottom))}
+
+/* Section header (back chevron) */
+.sec-hdr{display:flex;align-items:center;gap:4px;padding:8px 4px 4px;flex-shrink:0}
+.back-btn{background:none;border:none;color:var(--tint,#2e7d32);font-size:22px;font-weight:300;cursor:pointer;line-height:1;padding:4px 8px 4px 2px;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;gap:3px}
+.back-btn span{font-size:14px;font-weight:600}
+.back-btn:active{opacity:.6}
+
+/* Home screen */
+#home-screen{padding:8px 12px calc(20px + env(safe-area-inset-bottom))}
+.home-ctx-card{background:white;border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.1);overflow:hidden;margin-bottom:10px}
+.home-ctx-header{padding:12px 14px 10px;border-bottom:1px solid #f0f0f0}
+.home-ctx-title{font-size:18px;font-weight:800;color:#1a1a1a;letter-spacing:-.3px}
+.home-ctx-sub{font-size:12px;color:#888;margin-top:2px}
+.home-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid #f0f0f0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.home-row:active{background:#f7f7f7}
+.home-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.home-icon-green{background:#e8f5e9}
+.home-icon-blue{background:#e3f2fd}
+.home-icon-amber{background:#fff8e1}
+.home-icon-purple{background:#f3e5f5}
+.home-row-body{flex:1;min-width:0}
+.home-row-body strong{display:block;font-size:14px;font-weight:600;color:#1a1a1a}
+.home-row-body span{display:block;font-size:11px;color:#888;margin-top:2px}
+.home-chev{color:#ccc;font-size:22px;font-weight:300;flex-shrink:0}
+.home-sec-label{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#999;margin:10px 2px 6px}
+.home-browse-card{background:white;border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.1);overflow:hidden;margin-bottom:10px}
+.home-news-card{background:white;border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.1);overflow:hidden;margin-bottom:10px}
+.home-news-hdr{padding:10px 14px 8px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#999;border-bottom:1px solid #f0f0f0}
+.home-news-item{padding:10px 14px;border-top:1px solid #f0f0f0}
+.home-news-item:first-child{border-top:none}
+.home-news-title{font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:2px}
+.home-news-body{font-size:12px;color:#555;line-height:1.4}
+.home-news-date{font-size:11px;color:#bbb;margin-top:3px}
 </style>
 
 </head>
 <body>
 
-<!-- Splash Screen -->
-<div id="splash" style="position:fixed;inset:0;z-index:9999;background:#1a3d1f;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .4s ease">
-  <!-- Logo — dominant, centered -->
-  <div style="flex:1;display:flex;align-items:center;justify-content:center">
-    <img src="icon-192.png" alt="WGL"
-      style="width:min(72vw,320px);height:min(72vw,320px);border-radius:min(16vw,72px);box-shadow:0 24px 80px rgba(0,0,0,.55)">
-  </div>
-  <!-- Enter button pinned to bottom, iOS-style -->
-  <div style="width:100%;padding:0 32px calc(env(safe-area-inset-bottom) + 32px)">
-    <button onclick="splashEnter()"
-      style="width:100%;padding:17px;background:rgba(255,255,255,.15);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);color:white;font-size:17px;font-weight:600;border:1.5px solid rgba(255,255,255,.25);border-radius:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;letter-spacing:-.1px">
-      Enter
-    </button>
-  </div>
-</div>
-
 <!-- Sync indicator -->
 <div class="sync-bar">
   <div class="sync-dot"></div>
   <span id="sync-label">Loaded from wgl-data.json · just now</span>
+  <button id="gear-btn" onclick="toggleSettings()">⚙️</button>
 </div>
-
-<!-- Header -->
-<div class="app-hdr">
-  <div class="hdr-inner" style="display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:10px">
-    <div>
-      <h1>⛳ Worthington Golf League</h1>
-      <div class="hdr-sub" id="app-subtitle">Monday Nights · Hiland Golf Course · Week 11 Upcoming</div>
-    </div>
-    <button id="gear-btn" onclick="toggleSettings()">⚙️</button>
-  </div>
+<div class="wx-bar" id="wx-bar">
+  <span>🌡️ <span id="wxTemp">—</span></span>
+  <span>💨 <span id="wxWind">—</span></span>
+  <span>🌧️ <span id="wxRain">—</span></span>
 </div>
 
 <!-- Bottom tab bar -->
@@ -510,14 +548,64 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
   <div class="tab" onclick="showTab('standings',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>Standings</div>
   <div class="tab" onclick="showTab('news',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg></span>News</div>
   <div class="tab" onclick="showTab('roster',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span>Roster</div>
-  <div class="tab" onclick="showTab('outing',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 4H4.5A1.5 1.5 0 003 5.5v1A4.5 4.5 0 007.5 11M17 4h2.5A1.5 1.5 0 0121 5.5v1A4.5 4.5 0 0116.5 11"/><path d="M7 4h10v7a5 5 0 01-10 0V4z"/></svg></span>Outing</div>
-  <div class="tab" onclick="showTab('dues',this)"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="13" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M3 10v5M21 10v5"/></svg></span>Dues</div>
+  <div class="tab" onclick="showTab('calendar',this);buildCalendar()"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>Cal</div>
   <div class="tab" id="tab-my" onclick="showTab('mytab',this);buildMyTab()"><span class="ticon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>My</div>
 </div>
 
 <div id="main-scroll">
+
+<!-- ══ HOME SCREEN ══ -->
+<div id="home-screen" style="padding:0 0 calc(20px + env(safe-area-inset-bottom))">
+  <div class="home-title-bar">
+    <div class="home-title-lbl">Worthington Golf League</div>
+    <button class="home-gear-btn" onclick="showSettings()">⚙️</button>
+  </div>
+  <!-- Contextual card (built by buildHomeScreen()) -->
+  <div id="home-ctx" style="padding:0 12px 4px"></div>
+  <!-- Browse card -->
+  <div class="home-sec-label" style="padding:0 14px">Browse</div>
+  <div class="home-browse-card" style="margin:4px 12px 10px">
+    <div class="home-row" style="border-top:none" onclick="showTab('results',null)">
+      <div class="home-icon home-icon-blue">📋</div>
+      <div class="home-row-body"><strong>Results by week</strong><span>Scores &amp; low net</span></div>
+      <span class="home-chev">›</span>
+    </div>
+    <div class="home-row" onclick="showTab('standings',null)">
+      <div class="home-icon home-icon-purple">📊</div>
+      <div class="home-row-body"><strong>Standings</strong><span>Team points &amp; rankings</span></div>
+      <span class="home-chev">›</span>
+    </div>
+    <div class="home-row" onclick="showTab('news',null)">
+      <div class="home-icon home-icon-green">📢</div>
+      <div class="home-row-body"><strong>League news</strong><span>Announcements &amp; updates</span></div>
+      <span class="home-chev">›</span>
+    </div>
+    <div class="home-row" onclick="showTab('roster',null)">
+      <div class="home-icon home-icon-amber">👥</div>
+      <div class="home-row-body"><strong>Roster &amp; dues</strong><span>Players &amp; payment status</span></div>
+      <span class="home-chev">›</span>
+    </div>
+    <div class="home-row" onclick="showTab('calendar',null);buildCalendar()">
+      <div class="home-icon home-icon-blue">📅</div>
+      <div class="home-row-body"><strong>Schedule</strong><span>League calendar</span></div>
+      <span class="home-chev">›</span>
+    </div>
+    <div class="home-row" onclick="showTab('mytab',null);buildMyTab()">
+      <div class="home-icon home-icon-amber">⭐</div>
+      <div class="home-row-body"><strong>My stats</strong><span>Personal scorecard history</span></div>
+      <span class="home-chev">›</span>
+    </div>
+  </div>
+  <!-- News feed -->
+  <div class="home-sec-label" style="padding:0 14px">League News</div>
+  <div class="home-news-card" id="home-news-feed" style="margin:4px 12px 10px">
+    <div style="padding:14px;color:#bbb;font-size:13px;text-align:center">Loading…</div>
+  </div>
+</div>
+
 <!-- SCORE CARD — 3-step prototype -->
-<div id="scorecard" class="tab-content active">
+<div id="scorecard" class="tab-content">
+  <div class="sec-hdr"><button class="back-btn" onclick="showHome()">‹ <span>Home</span></button></div>
 
   <!-- ══ STEP 1: Build the group ══ -->
   <div id="sc-step-setup" class="sc-step active">
@@ -542,6 +630,8 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
         style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;font-weight:600;background:white;color:#555;cursor:pointer">Front 9</button>
       <button id="sc-back-btn" onclick="scSetSide('back')"
         style="flex:1;padding:10px;border:1.5px solid #2e7d32;border-radius:8px;font-size:13px;font-weight:600;background:#2e7d32;color:white;cursor:pointer">Back 9 ✓</button>
+      <button id="sc-18-btn" onclick="scSetSide('18')"
+        style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;font-weight:600;background:white;color:#555;cursor:pointer">18 Holes</button>
     </div>
     <div style="padding:12px 0 0">
       <div id="sc-start-err" style="color:#c62828;font-size:12px;margin-bottom:8px;display:none">Add at least one player to start.</div>
@@ -589,9 +679,9 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
-        <div class="gps-dist-box" style="background:rgba(255,255,255,.12)"><div class="gps-dist-lbl" style="color:rgba(255,255,255,.6)">Front</div><div class="gps-dist-val" id="gps-front" style="color:white">—</div><div class="gps-dist-unit" style="color:rgba(255,255,255,.4)">yds</div></div>
-        <div class="gps-dist-box" style="background:rgba(255,255,255,.22)"><div class="gps-dist-lbl" style="color:rgba(255,255,255,.6)">Center</div><div class="gps-dist-val" id="gps-center" style="color:white">—</div><div class="gps-dist-unit" style="color:rgba(255,255,255,.4)">yds</div></div>
-        <div class="gps-dist-box" style="background:rgba(255,255,255,.12)"><div class="gps-dist-lbl" style="color:rgba(255,255,255,.6)">Back</div><div class="gps-dist-val" id="gps-back" style="color:white">—</div><div class="gps-dist-unit" style="color:rgba(255,255,255,.4)">yds</div></div>
+        <div class="gps-dist-box" style="background:rgba(255,80,80,.18)"><div class="gps-dist-lbl" style="color:#ff8a80">Red</div><div class="gps-dist-val" id="gps-front" style="color:#ffb3b3;font-size:26px">—</div><div class="gps-dist-unit" style="color:rgba(255,180,180,.5)">yds</div></div>
+        <div class="gps-dist-box" style="background:rgba(255,255,255,.22)"><div class="gps-dist-lbl" style="color:rgba(255,255,255,.7)">White</div><div class="gps-dist-val" id="gps-center" style="color:white;font-size:34px">—</div><div class="gps-dist-unit" style="color:rgba(255,255,255,.4)">yds</div></div>
+        <div class="gps-dist-box" style="background:rgba(80,140,255,.2)"><div class="gps-dist-lbl" style="color:#82b1ff">Blue</div><div class="gps-dist-val" id="gps-back" style="color:#b3ccff;font-size:26px">—</div><div class="gps-dist-unit" style="color:rgba(160,200,255,.5)">yds</div></div>
       </div>
       <div id="gps-elev" style="display:none;font-size:12px;font-weight:700;color:rgba(255,255,255,.85);text-align:center;margin-top:7px"></div>
       <div id="gps-status" style="font-size:10px;color:rgba(255,255,255,.45);text-align:center;margin-top:6px"></div>
@@ -613,12 +703,14 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
   <div id="sc-step-review" class="sc-step">
     <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;padding:16px 0 8px">Review Scores</div>
     <div id="sc-review-body"></div>
+    <button id="sc-add-nine-btn" class="sc-btn-ghost" onclick="scAddSecondNine()" style="display:none;width:100%;margin:8px 0;border:1.5px solid var(--tint,#2e7d32);color:var(--tint,#2e7d32);font-weight:700">+ Play Back 9 Too</button>
     <div style="padding:12px 0 0">
       <button id="sc-submit-btn" class="sc-btn" onclick="scSubmit()">📤 Submit Card to League</button>
-      <button id="sc-add-nine-btn" class="sc-btn-ghost" onclick="scAddSecondNine()"
-        style="margin-top:6px;border:1.5px solid #2e7d32;color:#2e7d32;font-weight:700">+ Play Another 9</button>
       <div id="sc-submit-status" style="display:none;padding:10px;border-radius:8px;font-size:14px;font-weight:600;text-align:center;margin:8px 0"></div>
-      <button class="sc-btn-ghost" onclick="scGoBack()">← Back to Scoring</button>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <button class="sc-btn-ghost" onclick="scGoBack()" style="flex:1;border:1.5px solid #ccc;color:#555">✏️ Edit</button>
+        <button class="sc-btn-ghost" onclick="scCloseCard()" style="flex:1;border:1.5px solid #2e7d32;color:#2e7d32;font-weight:700">✓ Close</button>
+      </div>
       <div id="sc-submit-note" class="sc-note">Sends scores directly to the WGL system · Commissioner reviews before official</div>
     </div>
   </div>
@@ -627,6 +719,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 
 <!-- GPS TAB — standalone rangefinder -->
 <div id="gps2" class="tab-content">
+  <div class="sec-hdr" style="background:var(--bg,#f5f5f5);position:sticky;top:0;z-index:10"><button class="back-btn" onclick="showHome()">‹ <span>Home</span></button></div>
   <div class="gps2-screen">
     <div class="gps2-hole-bar">
       <button class="gps2-nav-btn" onclick="gps2HoleNav(-1)">&#8249;</button>
@@ -656,6 +749,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 
 <!-- NEWS (dynamic from wgl-data.json) -->
 <div id="news" class="tab-content">
+  <div class="sec-hdr"><button class="back-btn" onclick="showHome()">‹ <span>Home</span></button></div>
   <div id="push-banner" style="display:none;background:var(--tint-soft,rgba(46,125,50,.12));border:1.5px solid var(--tint,#2e7d32);border-radius:12px;padding:12px 14px;margin-top:12px">
     <div style="font-size:14px;font-weight:700;margin-bottom:2px">🔔 Get league updates</div>
     <div style="font-size:12px;color:#777;margin-bottom:10px">Results, announcements, and outing news — right on your phone.</div>
@@ -666,74 +760,68 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 </div>
 
 <!-- OUTING (dynamic from wgl-data.json) -->
-<div id="outing" class="tab-content">
-  <div style="margin-top:12px">
-
-    <!-- Outing selector -->
-    <div style="display:flex;gap:8px;margin-bottom:14px">
-      <button id="lo-mid-btn" onclick="switchLeagueOuting('mid')" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#2e7d32;color:white;-webkit-tap-highlight-color:transparent">🏌️ Mid-Season</button>
-      <button id="lo-end-btn" onclick="switchLeagueOuting('end')" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#eee;color:#555;-webkit-tap-highlight-color:transparent">🏆 End of Season</button>
+<div id="calendar" class="tab-content">
+  <div class="sec-hdr"><button class="back-btn" onclick="showHome()">‹ <span>Home</span></button></div>
+  <div style="margin-top:4px">
+    <!-- Month nav -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <button onclick="calChangeMonth(-1)" style="background:none;border:none;font-size:22px;color:#2e7d32;cursor:pointer;padding:4px 8px">‹</button>
+      <div id="cal-title" style="font-size:17px;font-weight:700"></div>
+      <button onclick="calChangeMonth(1)" style="background:none;border:none;font-size:22px;color:#2e7d32;cursor:pointer;padding:4px 8px">›</button>
     </div>
-
-    <!-- Mid-Season -->
-    <div id="lo-mid">
-      <div class="card">
-        <div class="card-hdr">🏌️ Mid-Season Outing</div>
-        <div style="padding:14px" id="outing-body"></div>
-      </div>
-      <div class="card" id="prizes-card" style="display:none">
-        <div class="card-hdr">Prizes & Awards</div>
-        <div style="padding:8px 14px" id="prizes-body"></div>
-      </div>
-      <button onclick="signupQuick('mid')" style="width:100%;padding:15px;background:#2e7d32;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:6px;-webkit-tap-highlight-color:transparent">
-        ✅ Sign Me Up — Mid-Season Outing
-      </button>
-      <button onclick="openSignupForm('mid')" style="width:100%;padding:11px;background:transparent;color:#2e7d32;border:1.5px dashed #2e7d32;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:6px;-webkit-tap-highlight-color:transparent">
-        ➕ Sign Up Someone Else / Guest
-      </button>
-      <div style="text-align:center;margin-bottom:12px"><span onclick="requestOutingRemoval('mid')" style="font-size:12px;color:#c62828;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">🚫 Signed up but can't make it? Request removal</span></div>
-      <div class="card" id="signups-card" style="display:none">
-        <div class="card-hdr">Who's In <span id="signup-cnt" style="background:#e8f5e9;color:#2e7d32;border-radius:20px;font-size:11px;font-weight:700;padding:2px 9px;margin-left:6px">0</span></div>
-        <div style="padding:8px 14px;font-size:13px" id="signups-body"></div>
-      </div>
-      <div class="card" id="teams-card" style="display:none">
-        <div class="card-hdr">🏌️ Outing Teams</div>
-        <div style="padding:8px 14px" id="teams-body"></div>
-      </div>
+    <!-- View toggle -->
+    <div style="display:flex;background:rgba(0,0,0,.06);border-radius:10px;padding:2px;margin-bottom:12px">
+      <button id="cal-grid-btn" onclick="calShowView('grid',this)" style="flex:1;padding:8px;text-align:center;font-size:13px;font-weight:600;border:none;border-radius:8px;cursor:pointer;background:white;color:#2e7d32;box-shadow:0 1px 3px rgba(0,0,0,.18)">📅 Calendar</button>
+      <button id="cal-list-btn" onclick="calShowView('list',this)" style="flex:1;padding:8px;text-align:center;font-size:13px;font-weight:600;border:none;border-radius:8px;cursor:pointer;background:none;color:#666">📋 Schedule</button>
     </div>
-
-    <!-- End of Season -->
-    <div id="lo-end" style="display:none">
-      <div class="card">
-        <div class="card-hdr">🏆 End-of-Season Outing</div>
-        <div style="padding:14px" id="outing2-body">
-          <div style="color:#aaa;font-size:13px;text-align:center;padding:10px">Details coming soon — check back later.</div>
+    <!-- Grid view -->
+    <div id="cal-grid-view">
+      <div class="card" style="overflow:hidden;margin-bottom:10px">
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);background:#f9f9f9;border-bottom:.5px solid #f0f0f0">
+          <span style="text-align:center;font-size:11px;font-weight:700;color:#888;padding:6px 0">Su</span>
+          <span style="text-align:center;font-size:11px;font-weight:700;color:#888;padding:6px 0">Mo</span>
+          <span style="text-align:center;font-size:11px;font-weight:700;color:#888;padding:6px 0">Tu</span>
+          <span style="text-align:center;font-size:11px;font-weight:700;color:#888;padding:6px 0">We</span>
+          <span style="text-align:center;font-size:11px;font-weight:700;color:#888;padding:6px 0">Th</span>
+          <span style="text-align:center;font-size:11px;font-weight:700;color:#888;padding:6px 0">Fr</span>
+          <span style="text-align:center;font-size:11px;font-weight:700;color:#888;padding:6px 0">Sa</span>
+        </div>
+        <div id="cal-days" style="display:grid;grid-template-columns:repeat(7,1fr)"></div>
+      </div>
+      <div id="cal-day-detail" style="display:none" class="card">
+        <div style="padding:12px 14px">
+          <div id="cal-detail-date" style="font-size:14px;font-weight:700;margin-bottom:8px"></div>
+          <div id="cal-detail-events"></div>
         </div>
       </div>
-      <div class="card" id="prizes2-card" style="display:none">
-        <div class="card-hdr">Prizes & Awards</div>
-        <div style="padding:8px 14px" id="prizes2-body"></div>
-      </div>
-      <button onclick="signupQuick('end')" style="width:100%;padding:15px;background:#1565c0;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:6px;-webkit-tap-highlight-color:transparent">
-        ✅ Sign Me Up — End-of-Season Outing
-      </button>
-      <button onclick="openSignupForm('end')" style="width:100%;padding:11px;background:transparent;color:#1565c0;border:1.5px dashed #1565c0;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:6px;-webkit-tap-highlight-color:transparent">
-        ➕ Sign Up Someone Else / Guest
-      </button>
-      <div style="text-align:center;margin-bottom:12px"><span onclick="requestOutingRemoval('end')" style="font-size:12px;color:#c62828;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">🚫 Signed up but can't make it? Request removal</span></div>
-      <div class="card" id="signups2-card" style="display:none">
-        <div class="card-hdr">Who's In <span id="signup2-cnt" style="background:#e8f5e9;color:#2e7d32;border-radius:20px;font-size:11px;font-weight:700;padding:2px 9px;margin-left:6px">0</span></div>
-        <div style="padding:8px 14px;font-size:13px" id="signups2-body"></div>
-      </div>
-      <div class="card" id="teams2-card" style="display:none">
-        <div class="card-hdr">🏌️ Outing Teams</div>
-        <div style="padding:8px 14px" id="teams2-body"></div>
-      </div>
+    </div>
+    <!-- List view -->
+    <div id="cal-list-view" style="display:none">
+      <div id="cal-list-body"></div>
     </div>
   </div>
 </div>
 
-<!-- Sign-up modal (shared for both outings) -->
+<!-- Outing detail sheet — content built dynamically by calOpenOuting() -->
+<div id="outing-sheet" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;align-items:flex-end" onclick="if(event.target===this)calCloseOuting()">
+  <div style="background:var(--bg,#f5f5f5);border-radius:20px 20px 0 0;width:100%;max-height:88dvh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom)">
+    <div style="width:36px;height:4px;background:#ddd;border-radius:2px;margin:10px auto 6px"></div>
+    <div id="outing-sheet-inner" style="padding:0 14px 20px"></div>
+  </div>
+</div>
+
+<!-- Legacy outing content kept for data/JS references — hidden -->
+<div id="outing" style="display:none">
+  <div id="outing-body"></div><div id="prizes-card"></div><div id="prizes-body"></div>
+  <div id="signups-card"></div><div id="signup-cnt"></div><div id="signups-body"></div>
+  <div id="teams-card"></div><div id="teams-body"></div>
+  <div id="lo-mid"></div><div id="lo-end"></div>
+  <div id="outing2-body"></div><div id="prizes2-card"></div><div id="prizes2-body"></div>
+  <div id="signups2-card"></div><div id="signup2-cnt"></div><div id="signups2-body"></div>
+  <div id="teams2-card"></div><div id="teams2-body"></div>
+</div>
+
+<!-- Original outing modals kept for JS -->
 <div id="signup-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;align-items:flex-end;justify-content:center" onclick="closeSignupForm(event)">
   <div id="signup-modal" style="background:white;color:#1a1a1a;border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:500px">
     <div style="font-size:18px;font-weight:700;margin-bottom:4px" id="signup-modal-title">Sign Up for the Outing</div>
@@ -742,7 +830,6 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
       <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;display:block;margin-bottom:5px">Your Name</label>
       <input id="signup-name" type="text" list="league-names" autocomplete="off" placeholder="Pick a league name or type a guest's name" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:10px;font-size:15px">
       <datalist id="league-names"></datalist>
-      <div style="font-size:11px;color:#999;margin-top:4px">League players appear as you type — or enter any name. Outside guests are welcome at outings.</div>
     </div>
     <div style="margin-bottom:18px">
       <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;display:block;margin-bottom:5px">Notes (optional)</label>
@@ -765,12 +852,13 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 
 <!-- STANDINGS (computed from WK_DATA + accumulated season totals) -->
 <div id="standings" class="tab-content">
+  <div class="sec-hdr"><button class="back-btn" onclick="showHome()">‹ <span>Home</span></button></div>
   <div id="standings-content"></div>
 </div>
 
 <!-- RESULTS (single tab with week dropdown) -->
 <div id="results" class="tab-content">
-  <div style="margin-top:12px"></div>
+  <div class="sec-hdr"><button class="back-btn" onclick="showHome()">‹ <span>Home</span></button></div>
   <div class="card" style="margin-bottom:12px">
     <div style="padding:12px 14px;display:flex;align-items:center;gap:12px">
       <label style="font-size:13px;font-weight:600;color:#555;white-space:nowrap">📋 View Week</label>
@@ -783,7 +871,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 
 <!-- Scorecard Modal -->
 <div id="sc-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:999;align-items:flex-end;justify-content:center" onclick="if(event.target===this)closeScModal()">
-  <div style="background:white;color:#1a1a1a;border-radius:18px 18px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:0 0 24px">
+  <div style="background:var(--card,white);color:var(--text,#1a1a1a);border-radius:18px 18px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:0 0 calc(24px + env(safe-area-inset-bottom))">
     <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 16px 10px">
       <div>
         <div id="sc-title" style="font-size:16px;font-weight:700;color:#1b5e20"></div>
@@ -798,11 +886,12 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
   </div>
 </div>
 
-<!-- ROSTER (NEW TAB — player phone numbers) -->
+<!-- ROSTER + DUES (combined tab) -->
 <div id="roster" class="tab-content">
-  <div style="margin-top:12px">
-    <div class="card" style="padding:12px 14px;font-size:13px;color:#2e7d32;font-weight:600;background:#e8f5e9">
-      👥 Tap any player to see contact details &amp; handicap info
+  <div class="sec-hdr"><button class="back-btn" onclick="showHome()">‹ <span>Home</span></button></div>
+  <div style="margin-top:4px">
+    <div class="search-wrap" style="margin-bottom:10px">
+      <input type="text" id="roster-search" class="search-input" placeholder="Search players…" oninput="rosterFilter(this.value)" autocomplete="off">
     </div>
     <div id="roster-list"></div>
   </div>
@@ -810,7 +899,8 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 
 <!-- DUES (dynamic from wgl-data.json) -->
 <div id="dues" class="tab-content">
-  <div class="card" style="margin-top:12px">
+  <div class="sec-hdr"><button class="back-btn" onclick="showHome()">‹ <span>Home</span></button></div>
+  <div class="card" style="margin-top:4px">
     <div class="card-hdr">Season Buy-ins &amp; Dues</div>
     <div class="dues-summary" id="dues-summary"></div>
   </div>
@@ -828,7 +918,10 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
   </div>
 </div>
 
-<div id="mytab" class="tab-content"><div id="my-body" style="margin-top:12px"></div></div>
+<div id="mytab" class="tab-content">
+  <div class="sec-hdr"><button class="back-btn" onclick="showHome()">‹ <span>Home</span></button></div>
+  <div id="my-body" style="margin-top:4px"></div>
+</div>
 
 <!-- Card Type Modal — shown every time Score tab is tapped with no card in progress -->
 <div id="ctm-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:450;align-items:center;justify-content:center;padding:24px">
@@ -875,41 +968,63 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
   </div>
 </div>
 
-<!-- Settings panel (gear is in the header) -->
-<div id="settings-panel">
-  <div class="settings-title">Appearance</div>
-  <div class="seg">
-    <button id="sp-mode-light" onclick="setPref('mode','light')">☀️ Light</button>
-    <button id="sp-mode-dark" onclick="setPref('mode','dark')">🌙 Dark</button>
-    <button id="sp-mode-auto" onclick="setPref('mode','auto')">Auto</button>
-  </div>
-  <div class="settings-title">Color</div>
-  <div class="seg">
-    <button id="sp-color-turf" onclick="setPref('color','turf')">🌿 Turf</button>
-    <button id="sp-color-gold" onclick="setPref('color','gold')">✨ Gold</button>
-    <button id="sp-color-slate" onclick="setPref('color','slate')">🌊 Slate</button>
-    <button id="sp-color-earth" onclick="setPref('color','earth')">🏜️ Earth</button>
-  </div>
-  <div class="settings-title">Font</div>
-  <div class="seg">
-    <button id="sp-font-classic" onclick="setPref('font','classic')">Classic</button>
-    <button id="sp-font-rounded" onclick="setPref('font','rounded')" style="font-family:ui-rounded,-apple-system,sans-serif">Rounded</button>
-    <button id="sp-font-serif" onclick="setPref('font','serif')" style="font-family:ui-serif,Georgia,serif">Serif</button>
-  </div>
-  <div class="settings-title">Text Size</div>
-  <div class="seg">
-    <button id="sp-size-md" onclick="setPref('size','md')" style="font-size:12px">A</button>
-    <button id="sp-size-lg" onclick="setPref('size','lg')" style="font-size:14px">A</button>
-    <button id="sp-size-xl" onclick="setPref('size','xl')" style="font-size:16px">A</button>
-  </div>
-  <div class="settings-title" style="margin-top:14px">Notifications</div>
-  <button id="sp-push-btn" onclick="enablePush()" style="width:100%;padding:10px;border:1.5px solid var(--tint,#2e7d32);border-radius:10px;background:none;color:var(--tint,#2e7d32);font-size:13px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">🔔 Enable Notifications</button>
+<!-- Settings screen (hub-and-spoke full-screen section) -->
+<div id="settings-screen" class="tab-content">
+  <div class="sec-hdr"><button class="back-btn" onclick="showHome()">‹ <span>Home</span></button><span style="font-size:15px;font-weight:700;flex:1;text-align:center;padding-right:32px">Settings</span></div>
+  <div class="settings-inner">
 
-  <div class="settings-title" style="margin-top:14px">This Is Me</div>
-  <select id="sp-identity" onchange="setIdentity(this.value)" style="width:100%;padding:10px 12px;border:1.5px solid #ccc;border-radius:10px;font-size:14px;background:var(--card,#fff);color:var(--text,#111)"></select>
-  <div style="font-size:11px;color:#999;margin-top:5px">Powers the ⭐ My tab & one-tap outing removal.</div>
-  <button onclick="location.href='wgl-admin.html'" style="width:100%;margin-top:14px;padding:11px;border:1.5px solid var(--tint,#2e7d32);border-radius:10px;background:none;color:var(--tint,#2e7d32);font-size:13px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">🔐 Commissioner Login</button>
-  <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(120,120,128,.2);font-size:11px;color:#999">WGL 2026 · Proto v2</div>
+    <div class="home-sec-label" style="margin-top:14px">Appearance</div>
+    <div class="home-browse-card" style="padding:14px 14px 6px">
+      <div class="settings-title">Mode</div>
+      <div class="seg" style="margin-bottom:14px">
+        <button id="sp-mode-light" onclick="setPref('mode','light')">☀️ Light</button>
+        <button id="sp-mode-dark" onclick="setPref('mode','dark')">🌙 Dark</button>
+        <button id="sp-mode-auto" onclick="setPref('mode','auto')">Auto</button>
+      </div>
+      <div class="settings-title">Color</div>
+      <div class="seg" style="margin-bottom:14px">
+        <button id="sp-color-turf" onclick="setPref('color','turf')">🌿 Turf</button>
+        <button id="sp-color-gold" onclick="setPref('color','gold')">✨ Gold</button>
+        <button id="sp-color-slate" onclick="setPref('color','slate')">🌊 Slate</button>
+        <button id="sp-color-earth" onclick="setPref('color','earth')">🏜️ Earth</button>
+      </div>
+      <div class="settings-title">Font</div>
+      <div class="seg" style="margin-bottom:14px">
+        <button id="sp-font-classic" onclick="setPref('font','classic')">Classic</button>
+        <button id="sp-font-rounded" onclick="setPref('font','rounded')" style="font-family:ui-rounded,-apple-system,sans-serif">Rounded</button>
+        <button id="sp-font-serif" onclick="setPref('font','serif')" style="font-family:ui-serif,Georgia,serif">Serif</button>
+      </div>
+      <div class="settings-title">Text Size</div>
+      <div class="seg">
+        <button id="sp-size-md" onclick="setPref('size','md')">A<span style="font-size:10px"> Normal</span></button>
+        <button id="sp-size-lg" onclick="setPref('size','lg')">A<span style="font-size:10px"> Large</span></button>
+        <button id="sp-size-xl" onclick="setPref('size','xl')">A<span style="font-size:10px"> X-Large</span></button>
+      </div>
+    </div>
+
+    <div class="home-sec-label" style="margin-top:14px">Identity</div>
+    <div class="home-browse-card" style="padding:14px">
+      <div class="settings-title">This Is Me</div>
+      <select id="sp-identity" onchange="setIdentity(this.value)" style="width:100%;padding:10px 12px;border:1.5px solid #ccc;border-radius:10px;font-size:14px;background:var(--card,#fff);color:var(--text,#111)"></select>
+      <div style="font-size:11px;color:#999;margin-top:6px">Powers the ⭐ My stats tab &amp; one-tap outing sign-up.</div>
+    </div>
+
+    <div class="home-sec-label" style="margin-top:14px">Notifications</div>
+    <div class="home-browse-card" style="padding:14px">
+      <button id="sp-push-btn" onclick="enablePush()" style="width:100%;padding:12px;border:1.5px solid var(--tint,#2e7d32);border-radius:10px;background:none;color:var(--tint,#2e7d32);font-size:14px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">🔔 Enable Notifications</button>
+    </div>
+
+    <div class="home-sec-label" style="margin-top:14px">Admin</div>
+    <div class="home-browse-card">
+      <div class="home-row" style="border-top:none" onclick="location.href='../wgl-admin.html'">
+        <div class="home-icon home-icon-blue">🔐</div>
+        <div class="home-row-body"><strong>Commissioner Login</strong><span>Manage scores, roster &amp; data</span></div>
+        <span class="home-chev">›</span>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;padding-top:14px;border-top:1px solid rgba(120,120,128,.15);font-size:11px;color:#bbb;text-align:center">WGL 2026 · v55</div>
+  </div>
 </div>
 
 <!-- Player Modal -->
@@ -1180,13 +1295,13 @@ function scRenderExtras(){
   // 1 — Resume in-progress round
   const active=SC_STORE.load();
   if(active&&active.players&&active.players.length&&active.hole>=0){
-    const holes=active.side==='back'?[10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
+    const holes=active.side==='back'?[10,11,12,13,14,15,16,17,18]:active.side==='18'?[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
     const holeNum=holes[active.hole]||'?';
     const names=active.players.map(p=>p.name.split(' ')[0]).join(', ');
     html+=`<div style="background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:12px;padding:12px 14px;margin-bottom:14px">
       <div style="font-size:10px;font-weight:700;color:#2e7d32;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">🔄 Resume Round</div>
       <div style="font-size:14px;font-weight:600;color:#1a2e1a;margin-bottom:2px">${names}</div>
-      <div style="font-size:12px;color:#555;margin-bottom:10px">${active.side==='back'?'Back 9':'Front 9'} · on Hole ${holeNum}</div>
+      <div style="font-size:12px;color:#555;margin-bottom:10px">${active.side==='back'?'Back 9':active.side==='18'?'18 Holes':'Front 9'} · on Hole ${holeNum}</div>
       <div style="display:flex;gap:8px">
         <button onclick="scResumeSession()" style="flex:1;padding:9px;background:#2e7d32;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Resume →</button>
         <button onclick="scDiscardSession()" style="padding:9px 14px;background:white;color:#888;border:1.5px solid #ddd;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Discard</button>
@@ -1348,8 +1463,8 @@ function scSetPlayerTargetWeek(pi, val){
   SC_STORE.save();
 }
 
-function scGetPars()  { return scSess.side==='back'?SC_BACK_PARS:SC_FRONT_PARS; }
-function scGetHoles() { return scSess.side==='back'?[10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9]; }
+function scGetPars()  { return scSess.side==='back'?SC_BACK_PARS:scSess.side==='18'?[...SC_FRONT_PARS,...SC_BACK_PARS]:SC_FRONT_PARS; }
+function scGetHoles() { return scSess.side==='back'?[10,11,12,13,14,15,16,17,18]:scSess.side==='18'?[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9]; }
 
 function scSetSide(side){
   scSess.side=side;
@@ -1516,17 +1631,27 @@ function scRenderHole(){
   document.getElementById('sc-progress').innerHTML=scMkProgress();
   // GPS strip — show and reset distances on each hole change
   gpsResetStrip(holeNum,par);
+  const lo=Math.max(1,par-2), hiS=par*2;
   document.getElementById('sc-inputs').innerHTML=scSess.players.map((p,pi)=>{
     const val=scSess.scores[p.name][hi];
-    const disp=val!==null?val:'—';
-    const clr=val!==null?'var(--text,#1a1a1a)':'var(--tabbar-inactive,#bbb)';
-    return `<div class="score-row">
-      <span class="sname">${scShortName(p.name)}</span>
-      <div class="score-ctrl">
-        <button class="adj-btn" onclick="scAdj(${pi},-1)">−</button>
-        <div class="score-val" id="sc-sv-${pi}" style="color:${clr}">${disp}</div>
-        <button class="adj-btn" onclick="scAdj(${pi},+1)">+</button>
+    const hcp=+(p.hcp||0);
+    // Running total for this card: gross so far, and net = gross − full handicap.
+    // A per-hole net is meaningless on a 9-hole card, so show the round instead.
+    const done=scSess.scores[p.name].filter(v=>v!==null);
+    const grossSoFar=done.reduce((s,v)=>s+v,0);
+    const thru=done.length;
+    let strip='';
+    for(let s=lo;s<=hiS;s++){
+      strip+=`<button class="sbtn ${scSym(s,par)}${val===s?' sel':''}" onclick="scPick(${pi},${s})">${s}</button>`;
+    }
+    return `<div class="prow">
+      <div class="pinfo">
+        <span class="sname">${scShortName(p.name)}</span>
+        <span class="${thru?'pnet':'pnet empty'}">${!thru?'—':(thru===scSess.scores[p.name].length
+            ? grossSoFar+' <b>net '+(grossSoFar-hcp)+'</b>'
+            : 'thru '+thru+' · '+grossSoFar)}</span>
       </div>
+      <div class="score-strip">${strip}</div>
     </div>`;
   }).join('');
   document.getElementById('sc-prev-btn').style.visibility=hi===0?'hidden':'visible';
@@ -1534,6 +1659,26 @@ function scRenderHole(){
   const nb=document.getElementById('sc-next-btn');
   nb.textContent=last?'✓ Review':'Next Hole →';
   nb.className='nav-btn '+(last?'review':'next');
+}
+
+// Golf shape per score: eagle-or-better = ringed circle, birdie = circle,
+// double = square, triple-or-worse = ringed square. Par/bogey plain.
+function scSym(s,par){
+  const d=s-par;
+  if(d<=-2)return'eagle';
+  if(d===-1)return'birdie';
+  if(d===2)return'dbl';
+  if(d>=3)return'dbl2';
+  return'';
+}
+
+function scPick(pi,s){
+  const hi=scSess.hole;
+  const p=scSess.players[pi];
+  // tapping the already-selected score clears it
+  scSess.scores[p.name][hi] = (scSess.scores[p.name][hi]===s) ? null : s;
+  scRenderHole();
+  SC_STORE.save();
 }
 
 function scAdj(pi,delta){
@@ -1575,11 +1720,11 @@ function scHdClass(val,par){
 }
 
 function scRenderSegmentBlock(side, scoreMap, purposes){
-  // Renders one 9-hole segment (used for both completed and active segments)
-  const pars = side==='back'?SC_BACK_PARS:SC_FRONT_PARS;
+  // Renders one 9-hole segment (or 18-hole block)
+  const pars = side==='back'?SC_BACK_PARS:side==='18'?[...SC_FRONT_PARS,...SC_BACK_PARS]:SC_FRONT_PARS;
   const byTeam={};
   for(const p of scSess.players){
-    const s=scoreMap[p.name]||Array(9).fill(null);
+    const s=scoreMap[p.name]||Array(pars.length).fill(null);
     const filled=s.every(v=>v!==null);
     const gross=s.reduce((a,b)=>a+(b||0),0);
     const net=filled?gross-p.hcp:null;
@@ -1609,7 +1754,7 @@ function scRenderSegmentBlock(side, scoreMap, purposes){
 function scShowReview(){
   scShowStep('sc-step-review');
   const wk=D.settings&&D.settings.week?D.settings.week:'?';
-  const sideLbl=s=>s==='back'?'Back 9 (Holes 10–18)':'Front 9 (Holes 1–9)';
+  const sideLbl=s=>s==='back'?'Back 9 (Holes 10–18)':s==='18'?'18 Holes (1–18)':'Front 9 (Holes 1–9)';
   const totalSegs=scSess.completedSegments.length+1;
   const hdrLabel=totalSegs>1?'18 Holes ('+scSess.completedSegments.map(s=>sideLbl(s.side).split(' ')[0]).join(' + ')+' + '+sideLbl(scSess.side).split(' ')[0]+')':sideLbl(scSess.side);
   let html=`<div class="card" style="margin-bottom:4px;background:#f0f7f0">
@@ -1638,7 +1783,7 @@ function scShowReview(){
   if(addBtn){
     const otherSide=scSess.side==='back'?'Front':'Back';
     addBtn.textContent=`+ Play ${otherSide} 9 Too`;
-    addBtn.style.display=scSess.completedSegments.length>=1?'none':'block';
+    addBtn.style.display=(scSess.completedSegments.length>=1||scSess.side==='18')?'none':'block';
   }
 }
 
@@ -1818,22 +1963,23 @@ function ctmUpdateSummary(){
 }
 
 // Splash screen dismiss — refreshes live data then fades out
-function splashEnter(){
-  const el=document.getElementById('splash');
-  el.style.opacity='0';
-  el.style.pointerEvents='none';
-  setTimeout(()=>el.style.display='none',380);
-  // Start GPS right away — warm before the scorecard opens
-  gpsStartWatch();
-  // Apply any waiting SW update first; the controllerchange handler reloads.
-  // If no update pending, load fresh data normally.
+function appBoot(){
+  // No splash gate any more — the home screen is the entry point.
+  // GPS still needs a user gesture on iOS for a clean permission prompt, so arm
+  // a one-shot listener and warm the watch on whatever the user touches first.
+  const warm=()=>{
+    document.removeEventListener('touchstart',warm,true);
+    document.removeEventListener('click',warm,true);
+    try{ gpsStartWatch(); }catch(e){}
+  };
+  document.addEventListener('touchstart',warm,{capture:true,once:false});
+  document.addEventListener('click',warm,{capture:true,once:false});
+
+  // If a worker was left waiting from a previous session, activate it now.
   if('serviceWorker' in navigator){
     navigator.serviceWorker.getRegistration().then(reg=>{
-      if(reg && reg.waiting){ reg.waiting.postMessage({type:'SKIP_WAITING'}); }
-      else { refreshData(true); }
-    }).catch(()=>refreshData(true));
-  } else {
-    refreshData(true);
+      if(reg && reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+    }).catch(()=>{});
   }
 }
 
@@ -1901,11 +2047,11 @@ async function scSubmit(){
 
   // Build segments array — completed segments + current active segment
   function buildSegment(side, scoreMap, purposes){
-    const segHoles = side==='back'?[10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
+    const segHoles = side==='back'?[10,11,12,13,14,15,16,17,18]:side==='18'?[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
     return {
       side,
       entries: scSess.players.map(p=>{
-        const s = scoreMap[p.name]||Array(9).fill(null);
+        const s = scoreMap[p.name]||Array(segHoles.length).fill(null);
         const gross = s.reduce((a,b)=>a+(b||0),0);
         const net = gross - p.hcp;
         const scores = {};
@@ -1946,7 +2092,7 @@ async function scSubmit(){
       for(const team of Object.keys(byTeam).sort((a,b)=>+a-+b)){
         body += `--- Team ${team} ---\n`;
         for(const e of byTeam[team]){
-          const hNums = seg.side==='back'?[10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
+          const hNums = seg.side==='back'?[10,11,12,13,14,15,16,17,18]:seg.side==='18'?[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]:[1,2,3,4,5,6,7,8,9];
           const hstr = hNums.map(h=>`H${h}:${e.scores[h]??'?'}`).join('  ');
           const purpStr = e.purpose!=='league_night'?` [${SC_TYPE_LABELS[e.purpose]||e.purpose}${e.targetWeek?' Wk'+e.targetWeek:''}]`:'';
           body += `${e.name}  HCP ${e.hcp}${purpStr}\n${hstr}\nGross:${e.gross}  Net:${e.net}\n\n`;
@@ -1970,7 +2116,7 @@ async function scSubmit(){
       : '✅ Card submitted!';
     if(noteEl) noteEl.style.display = 'none';
     btn.style.display = 'none';
-    document.getElementById('sc-add-nine-btn').style.display='none';
+    const _nine=document.getElementById('sc-add-nine-btn');if(_nine)_nine.style.display='none';
     // Save to history and clear the active session
     const summary = scSess.players.map(p=>{
       const gross=scSess.scores[p.name].reduce((a,b)=>a+(b||0),0);
@@ -1998,14 +2144,26 @@ async function scSubmit(){
   }
 }
 
-// ── Tabs ──────────────────────────────────────────────────────────────────────
+// ── Hub navigation ────────────────────────────────────────────────────────────
+function showHome(){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  const h=document.getElementById('home-screen');
+  if(h)h.style.display='';
+  // Scroll to top
+  const ms=document.getElementById('main-scroll');
+  if(ms)ms.scrollTop=0;
+}
 function showTab(id,el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  const h=document.getElementById('home-screen');
+  if(h)h.style.display='none';
   document.getElementById(id).classList.add('active');
   if(el)el.classList.add('active');
-  closeSettings();
+  const ms=document.getElementById('main-scroll');
+  if(ms)ms.scrollTop=0;
 }
+function showSettings(){ showTab('settings-screen',null); }
 
 // ── Announcements ─────────────────────────────────────────────────────────────
 function buildNews(){
@@ -2017,7 +2175,7 @@ function buildNews(){
     <div class="ann-item ${cls[escHtml(a.tag)]||''}">
       <div class="ann-tag">${a.tag==='info'?'League Notice':a.tag==='reminder'?'Reminder':a.tag==='alert'?'⚠️ Action Needed':'✅ Update'}</div>
       <div class="ann-title">${escHtml(a.title)}</div>
-      <div class="ann-body">${a.body}</div>
+      <div class="ann-body">${escHtml(a.body)}</div>
       <div class="ann-date">${escHtml(a.date)}</div>
     </div>`).join('');
 }
@@ -2028,12 +2186,12 @@ function buildOuting(){
   const body=document.getElementById('outing-body');
   if(o.date||o.course){
     body.innerHTML=`
-      ${o.date?`<div class="outing-section"><div class="outing-lbl">📅 Date</div><div class="outing-val">${o.date}</div></div>`:''}
-      ${o.tee?`<div class="outing-section"><div class="outing-lbl">⏰ Tee Time</div><div class="outing-val">${o.tee}</div></div>`:''}
-      ${o.course?`<div class="outing-section"><div class="outing-lbl">📍 Course</div><div class="outing-val">${o.course}</div></div>`:''}
-      ${(o.holes||o.format)?`<div class="outing-section"><div class="outing-lbl">⛳ Format</div><div class="outing-val">${o.holes||''}${o.holes&&o.format?'<br>':''}${o.format||''}</div></div>`:''}
-      ${o.cost?`<div class="outing-section"><div class="outing-lbl">💵 Cost</div><div class="outing-val">${o.cost}</div></div>`:''}
-      ${o.dinner?`<div class="outing-section"><div class="outing-lbl">🍽️ Dinner</div><div class="outing-val">${o.dinner}</div></div>`:''}`;
+      ${o.date?`<div class="outing-section"><div class="outing-lbl">📅 Date</div><div class="outing-val">${escHtml(o.date)}</div></div>`:''}
+      ${o.tee?`<div class="outing-section"><div class="outing-lbl">⏰ Tee Time</div><div class="outing-val">${escHtml(o.tee)}</div></div>`:''}
+      ${o.course?`<div class="outing-section"><div class="outing-lbl">📍 Course</div><div class="outing-val">${escHtml(o.course)}</div></div>`:''}
+      ${(o.holes||o.format)?`<div class="outing-section"><div class="outing-lbl">⛳ Format</div><div class="outing-val">${escHtml(o.holes||'')}${o.holes&&o.format?'<br>':''}${escHtml(o.format||'')}</div></div>`:''}
+      ${o.cost?`<div class="outing-section"><div class="outing-lbl">💵 Cost</div><div class="outing-val">${escHtml(o.cost)}</div></div>`:''}
+      ${o.dinner?`<div class="outing-section"><div class="outing-lbl">🍽️ Dinner</div><div class="outing-val">${escHtml(o.dinner)}</div></div>`:''}`;
   } else {
     body.innerHTML='<div style="color:#aaa;font-size:13px;text-align:center;padding:10px">Details coming soon — check back later.</div>';
   }
@@ -2045,7 +2203,7 @@ function buildOuting(){
       ['🥇 Low Gross',prizes.p1],['🥈 Low Net',prizes.p2],
       ['📍 Closest to Pin',prizes.p3],['🏌️ Long Drive',prizes.p4],
       ['🏆 Season Champion',prizes.p5]
-    ].map(([pos,desc])=>desc?`<div class="prize-row"><span class="prize-pos">${pos}</span><span class="prize-desc">${desc}</span></div>`:'').join('');
+    ].map(([pos,desc])=>desc?`<div class="prize-row"><span class="prize-pos">${pos}</span><span class="prize-desc">${escHtml(desc)}</span></div>`:'').join('');
   } else {
     pcard.style.display='none';
   }
@@ -2071,12 +2229,12 @@ function buildOuting(){
   if(body2){
     if(o2.date||o2.course){
       body2.innerHTML=`
-        ${o2.date?`<div class="outing-section"><div class="outing-lbl">📅 Date</div><div class="outing-val">${o2.date}</div></div>`:''}
-        ${o2.tee?`<div class="outing-section"><div class="outing-lbl">⏰ Tee Time</div><div class="outing-val">${o2.tee}</div></div>`:''}
-        ${o2.course?`<div class="outing-section"><div class="outing-lbl">📍 Course</div><div class="outing-val">${o2.course}</div></div>`:''}
-        ${(o2.holes||o2.format)?`<div class="outing-section"><div class="outing-lbl">⛳ Format</div><div class="outing-val">${o2.holes||''}${o2.holes&&o2.format?'<br>':''}${o2.format||''}</div></div>`:''}
-        ${o2.cost?`<div class="outing-section"><div class="outing-lbl">💵 Cost</div><div class="outing-val">${o2.cost}</div></div>`:''}
-        ${o2.dinner?`<div class="outing-section"><div class="outing-lbl">🍽️ Dinner</div><div class="outing-val">${o2.dinner}</div></div>`:''}`;
+        ${o2.date?`<div class="outing-section"><div class="outing-lbl">📅 Date</div><div class="outing-val">${escHtml(o2.date)}</div></div>`:''}
+        ${o2.tee?`<div class="outing-section"><div class="outing-lbl">⏰ Tee Time</div><div class="outing-val">${escHtml(o2.tee)}</div></div>`:''}
+        ${o2.course?`<div class="outing-section"><div class="outing-lbl">📍 Course</div><div class="outing-val">${escHtml(o2.course)}</div></div>`:''}
+        ${(o2.holes||o2.format)?`<div class="outing-section"><div class="outing-lbl">⛳ Format</div><div class="outing-val">${escHtml(o2.holes||'')}${o2.holes&&o2.format?'<br>':''}${escHtml(o2.format||'')}</div></div>`:''}
+        ${o2.cost?`<div class="outing-section"><div class="outing-lbl">💵 Cost</div><div class="outing-val">${escHtml(o2.cost)}</div></div>`:''}
+        ${o2.dinner?`<div class="outing-section"><div class="outing-lbl">🍽️ Dinner</div><div class="outing-val">${escHtml(o2.dinner)}</div></div>`:''}`;
     } else {
       body2.innerHTML='<div style="color:#aaa;font-size:13px;text-align:center;padding:10px">Details coming soon — check back later.</div>';
     }
@@ -2086,7 +2244,7 @@ function buildOuting(){
     const pc2=document.getElementById('prizes2-card');
     const pb2=document.getElementById('prizes2-body');
     if(pc2&&pb2){
-      const rows2=[['🥇 Low Gross',prizes2.p1],['🥈 Low Net',prizes2.p2],['📍 Closest to Pin',prizes2.p3],['🏌️ Long Drive',prizes2.p4],['🏆 Season Champion',prizes2.p5]].map(([pos,desc])=>desc?`<div class="prize-row"><span class="prize-pos">${pos}</span><span class="prize-desc">${desc}</span></div>`:'').join('');
+      const rows2=[['🥇 Low Gross',prizes2.p1],['🥈 Low Net',prizes2.p2],['📍 Closest to Pin',prizes2.p3],['🏌️ Long Drive',prizes2.p4],['🏆 Season Champion',prizes2.p5]].map(([pos,desc])=>desc?`<div class="prize-row"><span class="prize-pos">${pos}</span><span class="prize-desc">${escHtml(desc)}</span></div>`:'').join('');
       if(rows2){pc2.style.display='';pb2.innerHTML=rows2;}
     }
   }
@@ -2121,7 +2279,7 @@ function renderOutingTeams(teams,cardId,bodyId){
   card.style.display='';
   body.innerHTML=teams.map(t=>`
     <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f5f5f5">
-      <div style="width:32px;height:32px;border-radius:50%;background:#e8f5e9;color:#2e7d32;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">${t.num}</div>
+      <div style="width:32px;height:32px;border-radius:50%;background:#e8f5e9;color:#2e7d32;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">${escHtml(t.num)}</div>
       <div>
         ${t.players.map(p=>`<div style="font-size:14px;font-weight:600">${escHtml(p)}</div>`).join('')}
       </div>
@@ -2133,13 +2291,16 @@ let _leagueOuting='mid';
 let _outingPaneChosen=false;   // true once auto-select or the golfer has picked a pane
 function switchLeagueOuting(which,auto){
   _leagueOuting=which;
-  _outingPaneChosen=true;      // don't fight the user's choice on the next data refresh
-  document.getElementById('lo-mid').style.display=which==='mid'?'':'none';
-  document.getElementById('lo-end').style.display=which==='end'?'':'none';
-  document.getElementById('lo-mid-btn').style.background=which==='mid'?'#2e7d32':'#eee';
-  document.getElementById('lo-mid-btn').style.color=which==='mid'?'white':'#555';
-  document.getElementById('lo-end-btn').style.background=which==='end'?'#2e7d32':'#eee';
-  document.getElementById('lo-end-btn').style.color=which==='end'?'white':'#555';
+  _outingPaneChosen=true;
+  // Outing tab removed in beta — guard all element refs so applyData doesn't crash
+  const mid=document.getElementById('lo-mid');
+  const end=document.getElementById('lo-end');
+  const mb=document.getElementById('lo-mid-btn');
+  const eb=document.getElementById('lo-end-btn');
+  if(mid) mid.style.display=which==='mid'?'':'none';
+  if(end) end.style.display=which==='end'?'':'none';
+  if(mb){mb.style.background=which==='mid'?'#2e7d32':'#eee';mb.style.color=which==='mid'?'white':'#555';}
+  if(eb){eb.style.background=which==='end'?'#2e7d32':'#eee';eb.style.color=which==='end'?'white':'#555';}
 }
 
 // ── Outing Sign-Up ────────────────────────────────────────────────────────────
@@ -2525,6 +2686,7 @@ function closeModal(e){
 // ── HCP Grid ──────────────────────────────────────────────────────────────────
 function buildHcps(){
   const el=document.getElementById('hcp-grid');
+  if(!el)return;
   el.innerHTML=sortedPlayers().map((p,i)=>`
     <div class="hcp-row" onclick="openModal(${i})">
       <div><div class="hcp-name">${p.name.split(' ')[0]}<br>${p.name.split(' ').slice(1).join(' ')}</div><div style="font-size:10px;color:#aaa">T${p.team}</div></div>
@@ -2532,18 +2694,9 @@ function buildHcps(){
     </div>`).join('');
 }
 
-// ── Settings gear ─────────────────────────────────────────────────────────────
-function toggleSettings(){
-  const p=document.getElementById('settings-panel');
-  const b=document.getElementById('gear-btn');
-  const o=p.classList.contains('open');
-  p.classList.toggle('open',!o);
-  b.classList.toggle('open',!o);
-}
-function closeSettings(){
-  document.getElementById('settings-panel').classList.remove('open');
-  document.getElementById('gear-btn').classList.remove('open');
-}
+// ── Settings (hub-and-spoke in v2) ────────────────────────────────────────────
+function toggleSettings(){ showSettings(); }
+function closeSettings(){ /* no-op in v2 — settings is a full spoke */ }
 const THEME_MAP={turf:{light:'default',dark:'dark-turf'},gold:{light:'light-gold',dark:'dark-gold'},slate:{light:'light-slate',dark:'dark-slate'},earth:{light:'earth-light',dark:'earth-dark'}};
 const PREF={
   mode:localStorage.getItem('wgl-mode')||'auto',
@@ -2578,8 +2731,7 @@ function applyPrefs(){
 }
 applyPrefs();
 document.addEventListener('click',e=>{
-  const panel=document.getElementById('settings-panel');
-  if(panel.classList.contains('open')&&!panel.contains(e.target)&&!document.getElementById('gear-btn').contains(e.target))closeSettings();
+  // settings-panel no longer a floating popup in v2 — click-outside handler is a no-op
   if(!e.target.closest('#sc-search')&&!e.target.closest('#sc-drop')){const d=document.getElementById('sc-drop');if(d)d.style.display='none';}
   if(!e.target.closest('#sc-mid-search')&&!e.target.closest('#sc-mid-drop')){const d=document.getElementById('sc-mid-drop');if(d)d.style.display='none';}
 });
@@ -3515,6 +3667,7 @@ const WK_DATA = {
 // const PREV_TOTALS={1:1327,2:1314,3:1339,4:1309,5:1325,6:1416,7:1277,8:1321};
 const PREV_TOTALS={1:1327,2:1309,3:1334,4:1302,5:1325,6:1416,7:1277,8:1311};
 const PREV_THROUGH=9;
+const PLAYOFF_FIRST_WK=18; // Weeks ≥18 are playoffs — excluded from regular-season standings
 
 function buildStandings(){
   // Compute each team's score per week from WK_DATA
@@ -3533,40 +3686,109 @@ function buildStandings(){
       wkScores[t][wk]={sc,penalty,count:nets.length};
     }
   }
-  const maxWk=Math.max(...Object.keys(WK_DATA).map(Number));
+  // Separate regular-season weeks from playoff weeks
+  const regWks=Object.keys(WK_DATA).map(Number).filter(w=>w<PLAYOFF_FIRST_WK);
+  const lastRegWk=regWks.length?Math.max(...regWks):PREV_THROUGH;
   const standings=[];
   for(let t=1;t<=8;t++){
     let prev=PREV_TOTALS[t]||0;
     let wkTotal=0;
     const wks=wkScores[t]||{};
     for(const [w,{sc}] of Object.entries(wks)){
+      if(+w>=PLAYOFF_FIRST_WK)continue;   // skip playoff weeks
       wkTotal+=sc;
       if(+w<=PREV_THROUGH) prev-=sc;   // backfilled historical week — remove from baseline
     }
-    const lastWk=wkScores[t]?.[maxWk]||{sc:null,penalty:false,count:0};
+    const lastWk=wkScores[t]?.[lastRegWk]||{sc:null,penalty:false,count:0};
     standings.push({team:t,season:prev+wkTotal,wkSc:lastWk.sc,wkPenalty:lastWk.penalty});
   }
   standings.sort((a,b)=>a.season-b.season);
   const el=document.getElementById('standings-content');
   let html=`<div class="card" style="margin-top:12px">
-    <div class="card-hdr">Team Standings · Through Week ${maxWk}</div>
+    <div class="card-hdr">Regular Season · Through Week ${lastRegWk}</div>
     <div style="overflow-x:auto">
       <table class="standings">
         <thead><tr>
           <th style="width:28px">#</th>
           <th class="lft">Team</th>
-          <th>Wk ${maxWk}</th>
+          <th>Wk ${lastRegWk}</th>
           <th>Season</th>
         </tr></thead>
         <tbody>`;
   standings.forEach((s,i)=>{
     const r=i+1;
     const c=r===1?' class="rank1"':'';
+    const q=r<=4?`<span style="color:var(--tint,#2e7d32);font-size:10px;margin-left:3px" title="Playoff qualifier">✦</span>`:'';
     const wkDisp=s.wkSc!==null?s.wkSc+(s.wkPenalty?'⚠':''):'—';
-    html+=`<tr><td${c}>${r}</td><td class="lft"${c}>Team ${s.team}</td><td${c}>${wkDisp}</td><td${c}>${s.season.toLocaleString()}</td></tr>`;
+    html+=`<tr><td${c}>${r}${q}</td><td class="lft"${c}>Team ${s.team}</td><td${c}>${wkDisp}</td><td${c}>${s.season.toLocaleString()}</td></tr>`;
   });
   html+=`</tbody></table></div></div>
-  <div style="font-size:11px;color:#aaa;text-align:center;padding:4px">Lower total = better · 4 lowest nets count · ⚠ = short team (+50 penalty)</div>`;
+  <div style="font-size:11px;color:#aaa;text-align:center;padding:4px">Lower total = better · 4 lowest nets count · ⚠ = short team (+50 penalty) · ✦ = playoff qualifier</div>`;
+
+  // ── Playoff Bracket ──────────────────────────────────────────────────────────
+  {
+    const sRanked=standings.map((s,i)=>({team:s.team,rank:i+1}));
+    const getR=t=>sRanked.find(r=>r.team===t);
+    const top4=standings.slice(0,4).map(s=>s.team);
+    const wk18=PLAYOFF_FIRST_WK, wk19=PLAYOFF_FIRST_WK+1;
+    const teamSc=(wk,t)=>wkScores[t]?.[wk]?.sc??null;
+    // Semis: seed 1v4, seed 2v3
+    // a is always the higher seed, so sa<=sb gives the tie to the higher seed.
+    const semiResult=[[top4[0],top4[3]],[top4[1],top4[2]]].map(([a,b])=>{
+      const sa=teamSc(wk18,a),sb=teamSc(wk18,b);
+      if(sa===null||sb===null)return{a,b,sa,sb,winner:null,loser:null,tie:false};
+      return{a,b,sa,sb,winner:sa<=sb?a:b,loser:sa<=sb?b:a,tie:sa===sb};
+    });
+    const tieTag='<span style="font-size:11px;font-weight:600;color:#888;margin-left:5px">(tie · higher seed)</span>';
+    const semiRow=({a,b,sa,sb,winner,tie})=>{
+      const wA=winner===a, wB=winner===b;
+      const td=(t,sc,w)=>{
+        const col=w?'var(--tint,#2e7d32)':'var(--text,#1a1a1a)';
+        const fw=w?'800':'600';
+        const pen=wkScores[t]?.[wk18]?.penalty?'⚠':'';
+        const scStr=sc!==null?' <b style="font-size:12px">'+sc+pen+'</b>':'';
+        return '<span style="font-weight:'+fw+';color:'+col+'">#'+getR(t).rank+' Team '+t+scStr+'</span>';
+      };
+      const arrow=winner
+        ?'<span style="font-size:12px;font-weight:700;color:var(--tint,#2e7d32)">→ Team '+winner+(tie?tieTag:'')+'</span>'
+        :'<span style="font-size:12px;color:#bbb">TBD</span>';
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(120,120,128,.1)"><div style="font-size:13px">'+td(a,sa,wA)+'<span style="margin:0 8px;color:#ccc">vs</span>'+td(b,sb,wB)+'</div>'+arrow+'</div>';
+    };
+    const champRow=(tA,tB,lbl)=>{
+      if(!tA||!tB)return '<div style="padding:10px 14px;font-size:13px;color:#bbb">'+lbl+': TBD</div>';
+      const cA=teamSc(wk19,tA),cB=teamSc(wk19,tB);
+      // On a tie the HIGHER SEED wins — not whoever happened to come out of the 1v4 half.
+      let w=null,cTie=false;
+      if(cA!==null&&cB!==null){
+        if(cA===cB){ cTie=true; w=(getR(tA).rank<getR(tB).rank)?tA:tB; }
+        else w=(cA<cB)?tA:tB;
+      }
+      const td=(t,sc,won)=>{
+        const col=won?'var(--tint,#2e7d32)':'var(--text,#1a1a1a)';
+        const fw=won?'800':'600';
+        const pen=wkScores[t]?.[wk19]?.penalty?'⚠':'';
+        const scStr=sc!==null?' <b style="font-size:12px">'+sc+pen+'</b>':'';
+        return '<span style="font-weight:'+fw+';color:'+col+'">Team '+t+scStr+'</span>';
+      };
+      const trophy=lbl==='Championship'?'🏆 ':'🥉 ';
+      const result=w
+        ?'<span style="font-size:12px;font-weight:700;color:var(--tint,#2e7d32)">'+trophy+'Team '+w+(cTie?tieTag:'')+'</span>'
+        :'<span style="font-size:12px;color:#bbb">TBD</span>';
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(120,120,128,.1)"><div style="font-size:13px">'+td(tA,cA,w===tA)+'<span style="margin:0 8px;color:#ccc">vs</span>'+td(tB,cB,w===tB)+'</div>'+result+'</div>';
+    };
+    const w1=semiResult[0].winner, l1=semiResult[0].loser;
+    const w2=semiResult[1].winner, l2=semiResult[1].loser;
+    html+=`<div class="card" style="margin-top:12px">
+    <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">🏆 Playoff Bracket<span style="font-size:11px;font-weight:400;color:#888">lower score wins · ties to higher seed · ⚠ +50/missing card</span></div>
+    <div style="padding:6px 14px 4px;font-size:11px;font-weight:800;color:var(--tint,#2e7d32);text-transform:uppercase;letter-spacing:.06em">Semifinals · Week ${wk18}</div>
+    ${semiRow(semiResult[0])}
+    ${semiRow(semiResult[1])}
+    <div style="padding:6px 14px 4px;font-size:11px;font-weight:800;color:var(--tint,#2e7d32);text-transform:uppercase;letter-spacing:.06em;border-top:1px solid rgba(120,120,128,.14);margin-top:4px">Championship · Week ${wk19}</div>
+    ${champRow(w1,w2,'Championship')}
+    <div style="padding:6px 14px 4px;font-size:11px;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:.06em;border-top:1px solid rgba(120,120,128,.14);margin-top:4px">3rd Place · Week ${wk19}</div>
+    ${champRow(l1,l2,'3rd Place')}
+    </div>`;
+  }
 
   // ── Skins & Low Net results — all weeks, newest first ──
   const _wpData=D.weeklyPayouts||{};
@@ -3647,9 +3869,11 @@ function loadWeekResult(wk){
 function showScorecard(wk,grp,tapped){
   const d=WK_DATA[wk];
   if(!d)return;
-  const group=d.players.filter(p=>p.grp===grp).sort((a,b)=>a.net-b.net);
+  // Use group filter if data has grp fields; fall back to all players if not
+  const hasGroups=d.players.some(p=>p.grp!=null);
+  const group=(hasGroups?d.players.filter(p=>p.grp===grp):d.players).sort((a,b)=>a.net-b.net);
   const modal=document.getElementById('sc-modal');
-  document.getElementById('sc-title').textContent=`Group ${grp} — ${d.label}`;
+  document.getElementById('sc-title').textContent=hasGroups?`Group ${grp} — ${d.label}`:d.label;
   document.getElementById('sc-subtitle').textContent=`${d.date} · ${d.course}`;
   const rows=group.map(p=>`
     <tr style="border-bottom:1px solid #f0f0f0;background:${p.name===tapped?'#e8f5e9':'white'}">
@@ -3707,8 +3931,8 @@ function buildWeek(wk,elOverride){
     t.missing=Math.max(0,4-sortedScored.length);
     t.penalty=t.missing>0;
     t.total=t.counting.reduce((s,p)=>s+p.net,0)+50*t.missing;   // +50 PER missing card (engine-verified rule)
-    // Display order: scored players by net, then DNS players by name
-    t.allPlayers=[...sortedScored,...t.unscored.sort((a,b)=>a.name.localeCompare(b.name))];
+    // Display order: all players by HCP ascending (lowest first)
+    t.allPlayers=[...t.scored,...t.unscored].sort((a,b)=>a.hcp-b.hcp);
   }
 
   // sort teams by total ascending (low net wins)
@@ -3805,12 +4029,112 @@ function buildWeek(wk,elOverride){
 // ── Bootstrap: fetch live data, fall back to MOCK_DATA ───────────────────────
 let D=MOCK_DATA;
 // Render immediately with default data so nothing is blank on load
-document.getElementById('app-subtitle').textContent=D.settings.subtitle;
+const _subEl=document.getElementById('app-subtitle');
+if(_subEl)_subEl.textContent=D.settings.subtitle;
 // Isolated so ONE bad section can't take the whole app down with it.
 // Previously these ran as a single statement chain: a throw in buildOuting()
 // meant Dues, Roster, Standings, My and Results never rendered at all.
 function safeRender(label,fn){try{fn();}catch(e){console.error('WGL render failed: '+label,e);}}
+
+// ── Home screen ───────────────────────────────────────────────────────────────
+function buildHomeScreen(){
+  const ctx=document.getElementById('home-ctx'); if(!ctx)return;
+  const now=new Date();
+  const todayDow=now.getDay();
+  const DAY_NAMES=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  // Detect league night from subtitle (e.g. "Monday Nights")
+  const sub=(D.settings&&D.settings.subtitle||'').toLowerCase();
+  const leagueDayIdx=DAY_NAMES.findIndex(d=>sub.includes(d.toLowerCase()+'s ')||sub.includes(d.toLowerCase()+' night'));
+  const isLeagueNight=leagueDayIdx!==-1&&todayDow===leagueDayIdx;
+  // Detect outing day
+  const o=D.outing||{};
+  let isOutingDay=false;
+  if(o.date){
+    try{
+      const od=new Date(o.date);
+      isOutingDay=od.getFullYear()===now.getFullYear()&&od.getMonth()===now.getMonth()&&od.getDate()===now.getDate();
+    }catch(e){}
+  }
+  const wk=D.settings&&D.settings.week?D.settings.week:'?';
+  const hasOutingGPS=!!(o.gps&&Object.keys(o.gps).length);
+
+  if(isOutingDay){
+    ctx.innerHTML=`
+      <div class="home-ctx-card">
+        <div class="home-ctx-header" style="background:linear-gradient(135deg,#1b5e20 0%,#2e7d32 100%)">
+          <div class="home-ctx-title" style="color:white">${escHtml(o.name||'Mid-Season Outing')}</div>
+          <div class="home-ctx-sub" style="color:rgba(255,255,255,.78)">${o.course?escHtml(o.course):''}${o.date?' · '+escHtml(o.date):''}</div>
+          <div style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.2);border-radius:20px;padding:3px 9px;font-size:10px;font-weight:700;color:white;margin-top:6px">🏌️ Today</div>
+        </div>
+        <div class="home-row" onclick="showTab('scorecard',null)">
+          <div class="home-icon home-icon-green">⛳</div>
+          <div class="home-row-body"><strong>Outing scorecard</strong><span>Track today's round</span></div>
+          <span class="home-chev">›</span>
+        </div>
+        ${hasOutingGPS?`<div class="home-row" onclick="showTab('gps2',null);gps2Open()">
+          <div class="home-icon home-icon-amber">📡</div>
+          <div class="home-row-body"><strong>GPS yardages</strong><span>${escHtml(o.course||'Course')} distances</span></div>
+          <span class="home-chev">›</span>
+        </div>`:''}
+      </div>`;
+  } else if(isLeagueNight){
+    const side=D.settings&&D.settings.side?D.settings.side:'Back 9';
+    ctx.innerHTML=`
+      <div class="home-ctx-card">
+        <div class="home-ctx-header">
+          <div class="home-ctx-title">Week ${escHtml(String(wk))} · Tonight</div>
+          <div class="home-ctx-sub">${escHtml(side)} · Cards due by 8:45 PM</div>
+        </div>
+        <div class="home-row" onclick="showTab('scorecard',null)">
+          <div class="home-icon home-icon-green">⛳</div>
+          <div class="home-row-body"><strong>Play for league</strong><span>Start or resume scorecard</span></div>
+          <span class="home-chev">›</span>
+        </div>
+        <div class="home-row" onclick="showTab('gps2',null);gps2Open()">
+          <div class="home-icon home-icon-blue">📡</div>
+          <div class="home-row-body"><strong>GPS yardages</strong><span>Hiland distances by hole</span></div>
+          <span class="home-chev">›</span>
+        </div>
+      </div>`;
+  } else {
+    const isAfterLeague=leagueDayIdx!==-1&&todayDow>leagueDayIdx;
+    // D.settings.week is the week about to be PLAYED, so it must never be the
+    // one we claim results for. Use the newest week that actually has scores.
+    const _played=Object.keys(WK_DATA).map(Number).filter(n=>!isNaN(n));
+    const lastPlayed=_played.length?Math.max(..._played):wk;
+    const label=isAfterLeague?`Week ${lastPlayed} · Results In`:`Week ${wk} · Up Next`;
+    const sublabel=isAfterLeague?'Scores have been posted':`Next ${leagueDayIdx!==-1?DAY_NAMES[leagueDayIdx]:'league night'}`;
+    ctx.innerHTML=`
+      <div class="home-ctx-card">
+        <div class="home-ctx-header">
+          <div class="home-ctx-title">${escHtml(label)}</div>
+          <div class="home-ctx-sub">${escHtml(sublabel)}</div>
+        </div>
+        <div class="home-row" onclick="showTab('scorecard',null)">
+          <div class="home-icon home-icon-green">⛳</div>
+          <div class="home-row-body"><strong>Scorecard</strong><span>Start or review a round</span></div>
+          <span class="home-chev">›</span>
+        </div>
+      </div>`;
+  }
+
+  // ── News feed strip ──
+  const feed=document.getElementById('home-news-feed'); if(!feed)return;
+  const anns=D.announcements||[];
+  if(!anns.length){
+    feed.innerHTML='<div style="padding:14px;color:#bbb;font-size:13px;text-align:center">No announcements yet.</div>';
+    return;
+  }
+  feed.innerHTML=anns.slice(0,3).map((a,i)=>`
+    <div class="home-news-item"${i===0?' style="border-top:none"':''}>
+      <div class="home-news-title">${escHtml(a.title||'')}</div>
+      <div class="home-news-body">${escHtml(a.body||'')}</div>
+      <div class="home-news-date">${escHtml(a.date||'')}</div>
+    </div>`).join('');
+}
+
 function renderAll(){
+  safeRender('home',buildHomeScreen);
   safeRender('news',buildNews);
   safeRender('outing',buildOuting);
   safeRender('dues',buildDues);
@@ -3851,7 +4175,37 @@ async function refreshData(force){
       if(json.settings)D.settings={...D.settings,...json.settings};
       // The engine publishes json.calendar (actual league nights) but nothing ever
       // read it, so the card-type modal always fell back to raw Monday arithmetic.
-      if(Array.isArray(json.calendar)&&json.calendar.length)D.calendar=json.calendar;
+      if(Array.isArray(json.calendar)&&json.calendar.length){
+        D.calendar=json.calendar;
+        // The engine's calendar is the source of truth for league/playoff nights.
+        // Clear previously generated rows first so republishing never double-books a date.
+        for(const k of Object.keys(CAL_EVENTS)){
+          const t=(CAL_EVENTS[k][0]||{}).type;
+          if(t==='league'||t==='playoff'||t==='season') delete CAL_EVENTS[k];
+        }
+        const _wks=D.calendar.filter(c=>c&&c.date&&c.week).sort((a,b)=>a.week-b.week);
+        for(const c of _wks){
+          // Only weeks 18 and 19 are playoff rounds. Anything past the finals is
+          // just another scheduled league night — don't label it a playoff and
+          // don't invent an award night for it.
+          const po = c.week===PLAYOFF_FIRST_WK || c.week===PLAYOFF_FIRST_WK+1;
+          const sub = po
+            ? (c.week===PLAYOFF_FIRST_WK ? 'Semifinals · 1v4 · 2v3' : 'Finals · Championship & 3rd place')
+            : 'Hiland GC';
+          CAL_EVENTS[c.date]=[{
+            type: po?'playoff':'league',
+            name: po?('Playoffs — Week '+c.week):('Week '+c.week),
+            sub:  sub
+          }];
+        }
+        // Season opener follows the engine calendar so it can't drift out of sync.
+        // No closing bookend — award night is not on the schedule.
+        if(_wks.length){
+          const first=_wks[0];
+          CAL_EVENTS[first.date]=[{type:'season',name:'Season Begins',sub:'Week '+first.week+' · Hiland GC'}];
+        }
+        buildCalendar();
+      }
       if(json.announcements)D.announcements=json.announcements;
       if(json.outing)D.outing={...D.outing,...json.outing};
       if(json.outing2)D.outing2={...D.outing2,...json.outing2};
@@ -3864,9 +4218,21 @@ async function refreshData(force){
         buildWeekDropdown();
       }
       D.banked=json.banked||{};
+      if(Array.isArray(json.calEvents)&&json.calEvents.length){
+        // A published calendar is AUTHORITATIVE — the admin's event list is the
+        // calendar. Replacing wholesale (rather than merging) is what lets an
+        // event deleted in admin actually disappear instead of being regenerated
+        // from D.calendar on the next refresh.
+        for(const k of Object.keys(CAL_EVENTS)) delete CAL_EVENTS[k];
+        for(const e of json.calEvents){
+          if(!e||!e.date||!e.name) continue;
+          CAL_EVENTS[e.date]=[{type:e.type||'league',name:e.name,sub:e.sub||''}];
+        }
+        buildCalendar();
+      }
       document.getElementById('sync-label').textContent=`Live data · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
       // Re-render all dynamic sections with updated data
-      document.getElementById('app-subtitle').textContent=D.settings.subtitle;
+      const _sub=document.getElementById('app-subtitle');if(_sub)_sub.textContent=D.settings.subtitle;
       renderAll();
     } else {
       document.getElementById('sync-label').textContent='Using cached data';
@@ -3878,6 +4244,7 @@ async function refreshData(force){
 
 // Initial fetch on load (always re-render)
 refreshData(true);
+appBoot();
 
 // Populate resume / favorites / history in scorecard setup
 scRenderExtras();
@@ -4200,17 +4567,236 @@ document.addEventListener('visibilitychange',()=>{
   }
 });
 
+// ── Weather bar ───────────────────────────────────────────────────────────────
+function fetchWeather(){
+  const url='https://api.open-meteo.com/v1/forecast?latitude=40.88&longitude=-79.81'
+    +'&current=temperature_2m,wind_speed_10m,wind_direction_10m,precipitation_probability'
+    +'&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York';
+  fetch(url).then(r=>r.json()).then(d=>{
+    const c=d.current;
+    const dirs=['N','NE','E','SE','S','SW','W','NW'];
+    const compass=dirs[Math.round(c.wind_direction_10m/45)%8];
+    document.getElementById('wxTemp').textContent=Math.round(c.temperature_2m)+'°F';
+    document.getElementById('wxWind').textContent=compass+' '+Math.round(c.wind_speed_10m)+' mph';
+    document.getElementById('wxRain').textContent=c.precipitation_probability+'% rain';
+  }).catch(()=>{});
+  setTimeout(fetchWeather,5*60*1000);
+}
+fetchWeather();
+
+// ── Close scorecard (Edit+Close flow) ────────────────────────────────────────
+function scCloseCard(){
+  // Return to scorecard setup step
+  scShowStep('sc-step-setup');
+  scSess={players:[],scores:{},hole:0,side:'back',cardType:'league_night',targetWeek:null,targetDate:null,completedSegments:[]};
+}
+
+// ── 18-hole support for setup selector ───────────────────────────────────────
+// Replaces scSetSide to handle front/back/18 button highlighting.
+// Does NOT call orig for '18' because orig's else-branch would wrongly
+// highlight the Back button when 18 Holes is selected.
+(function patchScSetSide(){
+  window.scSetSide=function(side){
+    scSess.side=side;
+    const fb=document.getElementById('sc-front-btn');
+    const bb=document.getElementById('sc-back-btn');
+    const eb=document.getElementById('sc-18-btn');
+    const base='flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;';
+    const on=base+'border:1.5px solid #2e7d32;background:#2e7d32;color:white;';
+    const off=base+'border:1.5px solid #ddd;background:white;color:#555;';
+    if(fb){fb.style.cssText=off;fb.textContent=side==='front'?'Front 9 ✓':'Front 9';}
+    if(bb){bb.style.cssText=off;bb.textContent=side==='back'?'Back 9 ✓':'Back 9';}
+    if(eb){eb.style.cssText=off;eb.textContent=side==='18'?'18 Holes ✓':'18 Holes';}
+    const active=side==='front'?fb:side==='back'?bb:eb;
+    if(active) active.style.cssText=on;
+  };
+})();
+
+// ── Calendar tab ──────────────────────────────────────────────────────────────
+const CAL_EVENTS={
+  '2026-03-09':[{type:'meeting',name:'Pre-Season Meeting',sub:'8 PM · Location TBD'}],
+  '2026-04-13':[{type:'meeting',name:'Draft Night',sub:'Teams set for 2026'}],
+  '2026-04-27':[{type:'season',name:'Season Begins',sub:'Week 1 · Hiland GC'}],
+  '2026-05-04':[{type:'league',name:'Week 2',sub:'Hiland GC'}],
+  '2026-05-11':[{type:'league',name:'Week 3',sub:'Hiland GC'}],
+  '2026-05-18':[{type:'league',name:'Week 4',sub:'Hiland GC'}],
+  '2026-05-25':[{type:'league',name:'Week 5',sub:'Hiland GC'}],
+  '2026-06-01':[{type:'league',name:'Week 6',sub:'Hiland GC'}],
+  '2026-06-08':[{type:'league',name:'Week 7',sub:'Hiland GC'}],
+  '2026-06-15':[{type:'league',name:'Week 8',sub:'Hiland GC'}],
+  '2026-06-22':[{type:'league',name:'Week 9',sub:'Hiland GC'}],
+  '2026-06-29':[{type:'league',name:'Week 10',sub:'Hiland GC'}],
+  '2026-07-06':[{type:'league',name:'Week 11',sub:'Hiland GC'}],
+  '2026-07-13':[{type:'league',name:'Week 12',sub:'Hiland GC'}],
+  '2026-07-20':[{type:'league',name:'Week 13',sub:'Hiland GC'}],
+  '2026-07-27':[{type:'league',name:'Week 14',sub:'Hiland GC'}],
+  '2026-08-03':[{type:'league',name:'Week 15',sub:'Hiland GC'}],
+  '2026-08-10':[{type:'league',name:'Week 16',sub:'Hiland GC'}],
+  '2026-08-17':[{type:'league',name:'Week 17',sub:'Hiland GC'}],
+  '2026-08-24':[{type:'playoff',name:'Playoffs — Week 18',sub:'Semifinals · 1v4 · 2v3'}],
+  '2026-08-29':[{type:'outing',name:'End-of-Season Outing',sub:'Hiland GC 18 holes · Dinner: The Farm'}],
+  '2026-08-31':[{type:'playoff',name:'Playoffs — Week 19',sub:'Finals · Championship & 3rd place'}],
+};
+const CAL_DOT={league:'#2e7d32',outing:'#e65100',meeting:'#1565c0',playoff:'#6a1b9a',season:'#c62828'};
+const CAL_PILL={league:'#e8f5e9',outing:'#fff3e0',meeting:'#e3f2fd',playoff:'#f3e5f5',season:'#ffebee'};
+const CAL_PILLTXT={league:'#2e7d32',outing:'#e65100',meeting:'#1565c0',playoff:'#6a1b9a',season:'#c62828'};
+const CAL_LBL={league:'League',outing:'Outing',meeting:'Meeting',playoff:'Playoffs',season:'Season'};
+const MONTHS_LONG=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+let calYear=new Date().getFullYear(), calMonth=new Date().getMonth(), calView='grid';
+
+function buildCalendar(){
+  renderCalGrid();
+  renderCalList();
+}
+
+function calChangeMonth(d){
+  calMonth+=d;
+  if(calMonth>11){calMonth=0;calYear++;}
+  if(calMonth<0){calMonth=11;calYear--;}
+  document.getElementById('cal-title').textContent=MONTHS_LONG[calMonth]+' '+calYear;
+  renderCalGrid();
+  renderCalList();
+}
+
+function calDayKey(y,m,d){return`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+
+function renderCalGrid(){
+  document.getElementById('cal-title').textContent=MONTHS_LONG[calMonth]+' '+calYear;
+  const first=new Date(calYear,calMonth,1).getDay();
+  const days=new Date(calYear,calMonth+1,0).getDate();
+  const today=new Date();
+  let html='';
+  for(let i=0;i<first;i++){
+    const d=new Date(calYear,calMonth,1-first+i);
+    const k=calDayKey(d.getFullYear(),d.getMonth(),d.getDate());
+    const evs=CAL_EVENTS[k]||[];
+    html+=`<div onclick="calShowDay('${k}')" style="min-height:44px;padding:3px 2px;text-align:center;border-bottom:.5px solid #f5f5f5;border-right:.5px solid #f5f5f5;cursor:pointer">
+      <span style="font-size:13px;font-weight:500;color:#ccc">${d.getDate()}</span>
+      <div style="display:flex;justify-content:center;gap:2px;margin-top:2px">${evs.map(e=>`<div style="width:5px;height:5px;border-radius:50%;background:${CAL_DOT[e.type]}"></div>`).join('')}</div>
+    </div>`;
+  }
+  for(let d=1;d<=days;d++){
+    const k=calDayKey(calYear,calMonth,d);
+    const evs=CAL_EVENTS[k]||[];
+    const isToday=today.getFullYear()===calYear&&today.getMonth()===calMonth&&today.getDate()===d;
+    html+=`<div onclick="calShowDay('${k}')" style="min-height:44px;padding:3px 2px;text-align:center;border-bottom:.5px solid #f5f5f5;border-right:.5px solid #f5f5f5;cursor:pointer">
+      <span style="font-size:13px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;${isToday?'background:var(--tint,#2e7d32);color:white':'color:var(--text,#1a1a1a)'}">${d}</span>
+      <div style="display:flex;justify-content:center;gap:2px;margin-top:2px">${evs.map(e=>`<div style="width:5px;height:5px;border-radius:50%;background:${CAL_DOT[e.type]}"></div>`).join('')}</div>
+    </div>`;
+  }
+  document.getElementById('cal-days').innerHTML=html;
+  document.getElementById('cal-day-detail').style.display='none';
+}
+
+function calShowDay(k){
+  const evs=CAL_EVENTS[k]; if(!evs||!evs.length){document.getElementById('cal-day-detail').style.display='none';return;}
+  if(evs.find(e=>e.type==='outing')){calOpenOuting();return;}
+  const d=new Date(k+'T00:00:00');
+  document.getElementById('cal-detail-date').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  document.getElementById('cal-detail-events').innerHTML=evs.map(e=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:.5px solid #f0f0f0;font-size:13px">
+      <div style="width:8px;height:8px;border-radius:50%;background:${CAL_DOT[e.type]};flex-shrink:0"></div>
+      <div>${escHtml(e.name)}<br><span style="font-size:11px;color:#888">${escHtml(e.sub)}</span></div>
+    </div>`).join('');
+  document.getElementById('cal-day-detail').style.display='block';
+}
+
+function renderCalList(){
+  const sorted=Object.keys(CAL_EVENTS).sort();
+  let lastMo='',html='';
+  sorted.forEach(k=>{
+    const d=new Date(k+'T00:00:00');
+    const mo=MONTHS_LONG[d.getMonth()]+' '+d.getFullYear();
+    if(mo!==lastMo){html+=`<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.06em;padding:10px 2px 5px">${mo}</div>`;lastMo=mo;}
+    CAL_EVENTS[k].forEach(e=>{
+      const isOuting=e.type==='outing';
+      html+=`<div onclick="${isOuting?'calOpenOuting()':''}" class="card" style="padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;${isOuting?'cursor:pointer':''}">
+        <div style="width:42px;text-align:center;flex-shrink:0">
+          <div style="font-size:20px;font-weight:700;color:#1a1a1a;line-height:1">${d.getDate()}</div>
+          <div style="font-size:10px;color:#888;text-transform:uppercase">${d.toLocaleDateString('en-US',{weekday:'short'})}</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500">${escHtml(e.name)}${isOuting?' ↗':''}</div>
+          <div style="font-size:12px;color:#888;margin-top:2px">${escHtml(e.sub)}</div>
+        </div>
+        <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:${CAL_PILL[e.type]};color:${CAL_PILLTXT[e.type]};flex-shrink:0">${CAL_LBL[e.type]}</span>
+      </div>`;
+    });
+  });
+  document.getElementById('cal-list-body').innerHTML=html;
+}
+
+function calShowView(v,btn){
+  calView=v;
+  document.getElementById('cal-grid-btn').style.background=v==='grid'?'var(--card,white)':'transparent';
+  document.getElementById('cal-grid-btn').style.color=v==='grid'?'var(--tint,#2e7d32)':'#888';
+  document.getElementById('cal-grid-btn').style.boxShadow=v==='grid'?'0 1px 3px rgba(0,0,0,.18)':'none';
+  document.getElementById('cal-list-btn').style.background=v==='list'?'var(--card,white)':'transparent';
+  document.getElementById('cal-list-btn').style.color=v==='list'?'var(--tint,#2e7d32)':'#888';
+  document.getElementById('cal-list-btn').style.boxShadow=v==='list'?'0 1px 3px rgba(0,0,0,.18)':'none';
+  document.getElementById('cal-grid-view').style.display=v==='grid'?'block':'none';
+  document.getElementById('cal-list-view').style.display=v==='list'?'block':'none';
+}
+
+function calOpenOuting(){
+  const s=document.getElementById('outing-sheet');
+  const o=D.outing||{};
+  const pr=Object.values(o.prizes||{}).filter(v=>v);
+  const row=(icon,label,val,last)=>`<div style="padding:11px 14px;${last?'':'border-bottom:.5px solid #f0f0f0;'}font-size:13px;display:flex;gap:10px"><span style="font-size:18px">${icon}</span><div><div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase">${label}</div><div style="font-weight:500">${val}</div></div></div>`;
+  const rows=[];
+  if(o.course) rows.push(row('🏌️','Course &amp; Format',`${escHtml(o.course)} · ${escHtml(o.holes||'18 holes')}<br><span style="font-size:12px;color:#666">${escHtml(o.format||'')}</span>`,false));
+  if(o.tee)    rows.push(row('⏰','Tee Time',escHtml(o.tee),false));
+  if(o.cost)   rows.push(row('💵','Cost',escHtml(o.cost),false));
+  if(o.dinner) rows.push(row('🍽️','Dinner',escHtml(o.dinner),!pr.length));
+  if(pr.length) rows.push(row('🏆','Prizes',pr.map(v=>`• ${escHtml(v)}`).join('<br>'),true));
+  const inner=document.getElementById('outing-sheet-inner');
+  if(inner) inner.innerHTML=`
+    <div style="background:#bf360c;border-radius:12px;padding:14px;margin-bottom:12px;color:white;text-align:center">
+      <div style="font-size:17px;font-weight:700">⛳ End-of-Season Outing</div>
+      <div style="font-size:12px;opacity:.85;margin-top:3px">${escHtml(o.date||'Date TBD')}</div>
+    </div>
+    <div class="card" style="margin-bottom:10px">${rows.join('')}</div>
+    <button onclick="showTab('scorecard',null);calCloseOuting()" style="display:block;width:100%;padding:15px;background:var(--tint,#2e7d32);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;text-align:center;cursor:pointer;margin-bottom:10px">📲 Open Scorecard</button>
+    <button onclick="calCloseOuting()" style="display:block;width:100%;padding:12px;background:#f0f0f0;color:#555;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">Close</button>`;
+  s.style.display='flex'; document.body.style.overflow='hidden';
+}
+function calCloseOuting(){
+  document.getElementById('outing-sheet').style.display='none';
+  document.body.style.overflow='';
+}
+
+// ── Roster search filter ──────────────────────────────────────────────────────
+function rosterFilter(q){
+  const ql=q.toLowerCase();
+  document.querySelectorAll('#roster-list .roster-player').forEach(el=>{
+    el.style.display=el.dataset.name.toLowerCase().includes(ql)?'':'none';
+  });
+}
+
 // ── Service worker: register + auto-reload on update ─────────────────────────
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').then(reg=>{
+    // Activate a new worker the moment it finishes installing, rather than
+    // waiting for a later boot — otherwise the first open after a
+    // release still runs the old build.
+    reg.addEventListener('updatefound',()=>{
+      const nw=reg.installing;
+      if(!nw)return;
+      nw.addEventListener('statechange',()=>{
+        if(nw.state==='installed'&&navigator.serviceWorker.controller){
+          nw.postMessage({type:'SKIP_WAITING'});
+        }
+      });
+    });
     // Check for a new version whenever the app is foregrounded
     document.addEventListener('visibilitychange',()=>{
       if(document.visibilityState==='visible') reg.update().catch(()=>{});
     });
   }).catch(()=>{});
-  let swReloading=false;
+  window.__swReloading=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{
-    if(swReloading) return; swReloading=true; location.reload();
+    if(window.__swReloading) return; window.__swReloading=true; location.reload();
   });
 }
 </script>
