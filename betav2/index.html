@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL BetaV2 · 2026-09-04 v5 · XSS fix — escHtml wraps on announcement body + all outing text fields + calendar event name/sub + team num; Hub-and-spoke navigation; contextual home screen; settings spoke; color theming -->
+<!-- WGL BetaV2 · 2026-09-15 v7 · Splash/Enter screen removed (home screen is the entry point); GPS warms on first touch · v6: One-tap scorecard; calendar from engine; tie-to-higher-seed; bracket ⚠; SW updatefound · prev v5: XSS fix — escHtml wraps on announcement body + all outing text fields + calendar event name/sub + team num; Hub-and-spoke navigation; contextual home screen; settings spoke; color theming -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -110,6 +110,24 @@ body.text-xl .tab-content, body.text-xl .modal, body.text-xl #signup-modal, body
 .adj-btn { width:44px; height:44px; border-radius:50%; border:1.5px solid #ddd; background:white; font-size:28px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; }
 .adj-btn:active { background:#f0f0f0; transform:scale(.88); }
 .score-val { width:38px; text-align:center; font-size:28px; font-weight:800; }
+/* one-tap score entry */
+.prow { padding:11px 0; border-bottom:1px solid #f0f0f0; }
+.prow:last-child { border-bottom:none; }
+.pinfo { display:flex; align-items:baseline; margin-bottom:8px; }
+.pnet { margin-left:auto; font-size:13px; font-weight:700; color:var(--tint,#2e7d32); }
+.pnet.empty { color:var(--tabbar-inactive,#bbb); font-weight:600; }
+.score-strip { display:flex; gap:4px; }
+.sbtn { flex:1; min-width:0; padding:15px 1px; text-align:center; font-size:17px; font-weight:600;
+        cursor:pointer; background:var(--unsel-bg,#fff); color:var(--unsel-fg,#555);
+        border:1.5px solid var(--unsel-line,#ddd); border-radius:8px; line-height:1;
+        -webkit-tap-highlight-color:transparent; font-variant-numeric:tabular-nums; }
+.sbtn:active { transform:scale(.91); }
+.sbtn.eagle  { border-radius:50%; outline:2px solid var(--unsel-line,#ddd); outline-offset:2px; }
+.sbtn.birdie { border-radius:50%; }
+.sbtn.dbl    { border-radius:3px; }
+.sbtn.dbl2   { border-radius:3px; outline:2px solid var(--unsel-line,#ddd); outline-offset:2px; }
+.sbtn.sel { background:var(--sel-bg,#2e7d32); color:var(--sel-fg,#fff); border-color:var(--sel-bg,#2e7d32); font-weight:800; }
+.sbtn.sel.eagle, .sbtn.sel.dbl2 { outline-color:var(--sel-bg,#2e7d32); }
 .nav-row { display:flex; gap:10px; padding:12px 0 0; }
 .nav-btn { flex:1; padding:14px; border:1.5px solid #ddd; border-radius:10px; font-size:15px; font-weight:600; background:white; color:#333; cursor:pointer; -webkit-tap-highlight-color:transparent; }
 .nav-btn:active { transform:scale(.97); }
@@ -254,7 +272,7 @@ body.theme-dark-gold .sc-btn-ghost{color:#8b949e}
 body.theme-dark-gold .search-input{background:#21262d;border-color:#30363d;color:#e6edf3}
 body.theme-dark-gold .search-input:focus{border-color:#c9a84c}
 body.theme-dark-gold .search-drop,.theme-dark-gold .search-item{background:#161b22;border-color:#21262d;color:#e6edf3}
-body.theme-dark-gold .player-chip,.theme-dark-gold .score-row,.theme-dark-gold .rev-row,.theme-dark-gold .roster-player{border-bottom-color:#21262d}
+body.theme-dark-gold .player-chip,.theme-dark-gold .score-row,.theme-dark-gold .prow,.theme-dark-gold .rev-row,.theme-dark-gold .roster-player{border-bottom-color:#21262d}
 body.theme-dark-gold .hcp-val,.theme-dark-gold .rtotals,.theme-dark-gold .outing-lbl,.theme-dark-gold .ann-tag{color:#c9a84c}
 body.theme-dark-gold .toggle input:checked+.toggle-track{background:#c9a84c}
 body.theme-dark-gold .roster-team-hdr{background:#c9a84c;color:#0d1117}
@@ -509,22 +527,6 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 
 </head>
 <body>
-
-<!-- Splash Screen -->
-<div id="splash" style="position:fixed;inset:0;z-index:9999;background:#1a3d1f;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .4s ease">
-  <!-- Logo — dominant, centered -->
-  <div style="flex:1;display:flex;align-items:center;justify-content:center">
-    <img src="icon-192.png" alt="WGL"
-      style="width:min(72vw,320px);height:min(72vw,320px);border-radius:min(16vw,72px);box-shadow:0 24px 80px rgba(0,0,0,.55)">
-  </div>
-  <!-- Enter button pinned to bottom, iOS-style -->
-  <div style="width:100%;padding:0 32px calc(env(safe-area-inset-bottom) + 32px)">
-    <button onclick="splashEnter()"
-      style="width:100%;padding:17px;background:rgba(255,255,255,.15);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);color:white;font-size:17px;font-weight:600;border:1.5px solid rgba(255,255,255,.25);border-radius:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;letter-spacing:-.1px">
-      Enter
-    </button>
-  </div>
-</div>
 
 <!-- Sync indicator -->
 <div class="sync-bar">
@@ -1629,17 +1631,27 @@ function scRenderHole(){
   document.getElementById('sc-progress').innerHTML=scMkProgress();
   // GPS strip — show and reset distances on each hole change
   gpsResetStrip(holeNum,par);
+  const lo=Math.max(1,par-2), hiS=par*2;
   document.getElementById('sc-inputs').innerHTML=scSess.players.map((p,pi)=>{
     const val=scSess.scores[p.name][hi];
-    const disp=val!==null?val:'—';
-    const clr=val!==null?'var(--text,#1a1a1a)':'var(--tabbar-inactive,#bbb)';
-    return `<div class="score-row">
-      <span class="sname">${scShortName(p.name)}</span>
-      <div class="score-ctrl">
-        <button class="adj-btn" onclick="scAdj(${pi},-1)">−</button>
-        <div class="score-val" id="sc-sv-${pi}" style="color:${clr}">${disp}</div>
-        <button class="adj-btn" onclick="scAdj(${pi},+1)">+</button>
+    const hcp=+(p.hcp||0);
+    // Running total for this card: gross so far, and net = gross − full handicap.
+    // A per-hole net is meaningless on a 9-hole card, so show the round instead.
+    const done=scSess.scores[p.name].filter(v=>v!==null);
+    const grossSoFar=done.reduce((s,v)=>s+v,0);
+    const thru=done.length;
+    let strip='';
+    for(let s=lo;s<=hiS;s++){
+      strip+=`<button class="sbtn ${scSym(s,par)}${val===s?' sel':''}" onclick="scPick(${pi},${s})">${s}</button>`;
+    }
+    return `<div class="prow">
+      <div class="pinfo">
+        <span class="sname">${scShortName(p.name)}</span>
+        <span class="${thru?'pnet':'pnet empty'}">${!thru?'—':(thru===scSess.scores[p.name].length
+            ? grossSoFar+' <b>net '+(grossSoFar-hcp)+'</b>'
+            : 'thru '+thru+' · '+grossSoFar)}</span>
       </div>
+      <div class="score-strip">${strip}</div>
     </div>`;
   }).join('');
   document.getElementById('sc-prev-btn').style.visibility=hi===0?'hidden':'visible';
@@ -1647,6 +1659,26 @@ function scRenderHole(){
   const nb=document.getElementById('sc-next-btn');
   nb.textContent=last?'✓ Review':'Next Hole →';
   nb.className='nav-btn '+(last?'review':'next');
+}
+
+// Golf shape per score: eagle-or-better = ringed circle, birdie = circle,
+// double = square, triple-or-worse = ringed square. Par/bogey plain.
+function scSym(s,par){
+  const d=s-par;
+  if(d<=-2)return'eagle';
+  if(d===-1)return'birdie';
+  if(d===2)return'dbl';
+  if(d>=3)return'dbl2';
+  return'';
+}
+
+function scPick(pi,s){
+  const hi=scSess.hole;
+  const p=scSess.players[pi];
+  // tapping the already-selected score clears it
+  scSess.scores[p.name][hi] = (scSess.scores[p.name][hi]===s) ? null : s;
+  scRenderHole();
+  SC_STORE.save();
 }
 
 function scAdj(pi,delta){
@@ -1931,22 +1963,23 @@ function ctmUpdateSummary(){
 }
 
 // Splash screen dismiss — refreshes live data then fades out
-function splashEnter(){
-  const el=document.getElementById('splash');
-  el.style.opacity='0';
-  el.style.pointerEvents='none';
-  setTimeout(()=>el.style.display='none',380);
-  // Start GPS right away — warm before the scorecard opens
-  gpsStartWatch();
-  // Apply any waiting SW update first; the controllerchange handler reloads.
-  // If no update pending, load fresh data normally.
+function appBoot(){
+  // No splash gate any more — the home screen is the entry point.
+  // GPS still needs a user gesture on iOS for a clean permission prompt, so arm
+  // a one-shot listener and warm the watch on whatever the user touches first.
+  const warm=()=>{
+    document.removeEventListener('touchstart',warm,true);
+    document.removeEventListener('click',warm,true);
+    try{ gpsStartWatch(); }catch(e){}
+  };
+  document.addEventListener('touchstart',warm,{capture:true,once:false});
+  document.addEventListener('click',warm,{capture:true,once:false});
+
+  // If a worker was left waiting from a previous session, activate it now.
   if('serviceWorker' in navigator){
     navigator.serviceWorker.getRegistration().then(reg=>{
-      if(reg && reg.waiting){ reg.waiting.postMessage({type:'SKIP_WAITING'}); }
-      else { refreshData(true); }
-    }).catch(()=>refreshData(true));
-  } else {
-    refreshData(true);
+      if(reg && reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+    }).catch(()=>{});
   }
 }
 
@@ -3700,44 +3733,53 @@ function buildStandings(){
     const wk18=PLAYOFF_FIRST_WK, wk19=PLAYOFF_FIRST_WK+1;
     const teamSc=(wk,t)=>wkScores[t]?.[wk]?.sc??null;
     // Semis: seed 1v4, seed 2v3
+    // a is always the higher seed, so sa<=sb gives the tie to the higher seed.
     const semiResult=[[top4[0],top4[3]],[top4[1],top4[2]]].map(([a,b])=>{
       const sa=teamSc(wk18,a),sb=teamSc(wk18,b);
-      if(sa===null||sb===null)return{a,b,sa,sb,winner:null,loser:null};
-      return{a,b,sa,sb,winner:sa<=sb?a:b,loser:sa<=sb?b:a};
+      if(sa===null||sb===null)return{a,b,sa,sb,winner:null,loser:null,tie:false};
+      return{a,b,sa,sb,winner:sa<=sb?a:b,loser:sa<=sb?b:a,tie:sa===sb};
     });
-    const semiRow=({a,b,sa,sb,winner})=>{
+    const tieTag='<span style="font-size:11px;font-weight:600;color:#888;margin-left:5px">(tie · higher seed)</span>';
+    const semiRow=({a,b,sa,sb,winner,tie})=>{
       const wA=winner===a, wB=winner===b;
       const td=(t,sc,w)=>{
         const col=w?'var(--tint,#2e7d32)':'var(--text,#1a1a1a)';
         const fw=w?'800':'600';
-        const scStr=sc!==null?' <b style="font-size:12px">'+sc+'</b>':'';
+        const pen=wkScores[t]?.[wk18]?.penalty?'⚠':'';
+        const scStr=sc!==null?' <b style="font-size:12px">'+sc+pen+'</b>':'';
         return '<span style="font-weight:'+fw+';color:'+col+'">#'+getR(t).rank+' Team '+t+scStr+'</span>';
       };
       const arrow=winner
-        ?'<span style="font-size:12px;font-weight:700;color:var(--tint,#2e7d32)">→ Team '+winner+'</span>'
+        ?'<span style="font-size:12px;font-weight:700;color:var(--tint,#2e7d32)">→ Team '+winner+(tie?tieTag:'')+'</span>'
         :'<span style="font-size:12px;color:#bbb">TBD</span>';
       return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(120,120,128,.1)"><div style="font-size:13px">'+td(a,sa,wA)+'<span style="margin:0 8px;color:#ccc">vs</span>'+td(b,sb,wB)+'</div>'+arrow+'</div>';
     };
     const champRow=(tA,tB,lbl)=>{
       if(!tA||!tB)return '<div style="padding:10px 14px;font-size:13px;color:#bbb">'+lbl+': TBD</div>';
       const cA=teamSc(wk19,tA),cB=teamSc(wk19,tB);
-      const w=(cA!==null&&cB!==null)?(cA<=cB?tA:tB):null;
+      // On a tie the HIGHER SEED wins — not whoever happened to come out of the 1v4 half.
+      let w=null,cTie=false;
+      if(cA!==null&&cB!==null){
+        if(cA===cB){ cTie=true; w=(getR(tA).rank<getR(tB).rank)?tA:tB; }
+        else w=(cA<cB)?tA:tB;
+      }
       const td=(t,sc,won)=>{
         const col=won?'var(--tint,#2e7d32)':'var(--text,#1a1a1a)';
         const fw=won?'800':'600';
-        const scStr=sc!==null?' <b style="font-size:12px">'+sc+'</b>':'';
+        const pen=wkScores[t]?.[wk19]?.penalty?'⚠':'';
+        const scStr=sc!==null?' <b style="font-size:12px">'+sc+pen+'</b>':'';
         return '<span style="font-weight:'+fw+';color:'+col+'">Team '+t+scStr+'</span>';
       };
       const trophy=lbl==='Championship'?'🏆 ':'🥉 ';
       const result=w
-        ?'<span style="font-size:12px;font-weight:700;color:var(--tint,#2e7d32)">'+trophy+'Team '+w+'</span>'
+        ?'<span style="font-size:12px;font-weight:700;color:var(--tint,#2e7d32)">'+trophy+'Team '+w+(cTie?tieTag:'')+'</span>'
         :'<span style="font-size:12px;color:#bbb">TBD</span>';
       return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(120,120,128,.1)"><div style="font-size:13px">'+td(tA,cA,w===tA)+'<span style="margin:0 8px;color:#ccc">vs</span>'+td(tB,cB,w===tB)+'</div>'+result+'</div>';
     };
     const w1=semiResult[0].winner, l1=semiResult[0].loser;
     const w2=semiResult[1].winner, l2=semiResult[1].loser;
     html+=`<div class="card" style="margin-top:12px">
-    <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">🏆 Playoff Bracket<span style="font-size:11px;font-weight:400;color:#888">top 4 qualify · lower score wins</span></div>
+    <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">🏆 Playoff Bracket<span style="font-size:11px;font-weight:400;color:#888">lower score wins · ties to higher seed · ⚠ +50/missing card</span></div>
     <div style="padding:6px 14px 4px;font-size:11px;font-weight:800;color:var(--tint,#2e7d32);text-transform:uppercase;letter-spacing:.06em">Semifinals · Week ${wk18}</div>
     ${semiRow(semiResult[0])}
     ${semiRow(semiResult[1])}
@@ -4056,7 +4098,11 @@ function buildHomeScreen(){
       </div>`;
   } else {
     const isAfterLeague=leagueDayIdx!==-1&&todayDow>leagueDayIdx;
-    const label=isAfterLeague?`Week ${wk} · Results In`:`Week ${wk} · Up Next`;
+    // D.settings.week is the week about to be PLAYED, so it must never be the
+    // one we claim results for. Use the newest week that actually has scores.
+    const _played=Object.keys(WK_DATA).map(Number).filter(n=>!isNaN(n));
+    const lastPlayed=_played.length?Math.max(..._played):wk;
+    const label=isAfterLeague?`Week ${lastPlayed} · Results In`:`Week ${wk} · Up Next`;
     const sublabel=isAfterLeague?'Scores have been posted':`Next ${leagueDayIdx!==-1?DAY_NAMES[leagueDayIdx]:'league night'}`;
     ctx.innerHTML=`
       <div class="home-ctx-card">
@@ -4129,7 +4175,37 @@ async function refreshData(force){
       if(json.settings)D.settings={...D.settings,...json.settings};
       // The engine publishes json.calendar (actual league nights) but nothing ever
       // read it, so the card-type modal always fell back to raw Monday arithmetic.
-      if(Array.isArray(json.calendar)&&json.calendar.length)D.calendar=json.calendar;
+      if(Array.isArray(json.calendar)&&json.calendar.length){
+        D.calendar=json.calendar;
+        // The engine's calendar is the source of truth for league/playoff nights.
+        // Clear previously generated rows first so republishing never double-books a date.
+        for(const k of Object.keys(CAL_EVENTS)){
+          const t=(CAL_EVENTS[k][0]||{}).type;
+          if(t==='league'||t==='playoff'||t==='season') delete CAL_EVENTS[k];
+        }
+        const _wks=D.calendar.filter(c=>c&&c.date&&c.week).sort((a,b)=>a.week-b.week);
+        for(const c of _wks){
+          const po=c.week>=PLAYOFF_FIRST_WK;
+          let sub='Hiland GC';
+          if(po){
+            if(c.week===PLAYOFF_FIRST_WK) sub='Semifinals · 1v4 · 2v3';
+            else if(c.week===PLAYOFF_FIRST_WK+1) sub='Finals · Championship & 3rd place';
+            else sub='';            // don't claim what an extra playoff week is
+          }
+          CAL_EVENTS[c.date]=[{
+            type: po?'playoff':'league',
+            name: po?('Playoffs — Week '+c.week):('Week '+c.week),
+            sub:  sub
+          }];
+        }
+        // Season bookends follow the engine calendar so they can't drift out of sync
+        if(_wks.length){
+          const first=_wks[0], last=_wks[_wks.length-1];
+          CAL_EVENTS[first.date]=[{type:'season',name:'Season Begins',sub:'Week '+first.week+' · Hiland GC'}];
+          CAL_EVENTS[last.date]=[{type:'season',name:'Season Ends',sub:'Award night · Location TBD'}];
+        }
+        buildCalendar();
+      }
       if(json.announcements)D.announcements=json.announcements;
       if(json.outing)D.outing={...D.outing,...json.outing};
       if(json.outing2)D.outing2={...D.outing2,...json.outing2};
@@ -4160,6 +4236,7 @@ async function refreshData(force){
 
 // Initial fetch on load (always re-render)
 refreshData(true);
+appBoot();
 
 // Populate resume / favorites / history in scorecard setup
 scRenderExtras();
@@ -4693,14 +4770,26 @@ function rosterFilter(q){
 // ── Service worker: register + auto-reload on update ─────────────────────────
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').then(reg=>{
+    // Activate a new worker the moment it finishes installing, rather than
+    // waiting for a later boot — otherwise the first open after a
+    // release still runs the old build.
+    reg.addEventListener('updatefound',()=>{
+      const nw=reg.installing;
+      if(!nw)return;
+      nw.addEventListener('statechange',()=>{
+        if(nw.state==='installed'&&navigator.serviceWorker.controller){
+          nw.postMessage({type:'SKIP_WAITING'});
+        }
+      });
+    });
     // Check for a new version whenever the app is foregrounded
     document.addEventListener('visibilitychange',()=>{
       if(document.visibilityState==='visible') reg.update().catch(()=>{});
     });
   }).catch(()=>{});
-  let swReloading=false;
+  window.__swReloading=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{
-    if(swReloading) return; swReloading=true; location.reload();
+    if(window.__swReloading) return; window.__swReloading=true; location.reload();
   });
 }
 </script>
