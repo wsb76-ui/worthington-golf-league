@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-09-21T21:27:14.088Z",
+  "lastUpdated": "2026-09-21T21:37:18.630Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -7197,6 +7197,22 @@
           "gross": 51,
           "net": 42,
           "grp": 1
+        },
+        {
+          "name": "Mike Hickman",
+          "team": 7,
+          "hcp": 5,
+          "gross": 44,
+          "net": 39,
+          "grp": 4
+        },
+        {
+          "name": "Ken Long",
+          "team": 8,
+          "hcp": 11,
+          "gross": 48,
+          "net": 37,
+          "grp": 4
         }
       ]
     }
