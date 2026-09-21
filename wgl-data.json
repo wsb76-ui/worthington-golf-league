@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-09-21T22:07:36.696Z",
+  "lastUpdated": "2026-09-21T22:17:22.018Z",
   "updatedBy": "sheets-engine",
   "settings": {
     "greens": "",
@@ -7269,6 +7269,22 @@
           "gross": 49,
           "net": 36,
           "grp": 7
+        },
+        {
+          "name": "Brian Barton",
+          "team": 8,
+          "hcp": 6,
+          "gross": 43,
+          "net": 37,
+          "grp": 8
+        },
+        {
+          "name": "Cole Clark",
+          "team": 8,
+          "hcp": 14,
+          "gross": 60,
+          "net": 46,
+          "grp": 8
         }
       ]
     }
