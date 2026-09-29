@@ -1,5 +1,5 @@
-// WGL v58 · 2026-09-15 — must match the stamp at the top of index.html
-const CACHE = 'wgl-v58'; // bumped 2026-09-15: promoted betaV2 — home screen, one-tap scorecard, playoff bracket
+// WGL v60 · 2026-09-29 — must match the stamp at the top of index.html
+const CACHE = 'wgl-v60'; // bumped 2026-09-15: promoted betaV2 — home screen, one-tap scorecard, playoff bracket
 const ASSETS = [
   '/worthington-golf-league/',
   '/worthington-golf-league/index.html',
