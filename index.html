@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- WGL v58 · 2026-09-15 · Playoff weeks titled Semifinals/Finals; week dates now fall back to the engine calendar so engine-published weeks no longer render a bare "Week 18 ·"; week 17 date corrected Sunday→Monday. v57: Award night removed from the generated calendar. v56: Published calEvents now authoritative (admin owns the calendar). v55: Promoted from betaV2: hub-and-spoke home screen, one-tap scorecard, playoff bracket, calendar from engine data, ties to higher seed, XSS hardening. Replaces v53. -->
+<!-- WGL v60 · 2026-09-29 · Home screen contrast: green hero card, course-colored browse tile grid, solid green Home back button. v59: Scorecard keeps players in entry order. Playoff weeks titled Semifinals/Finals; week dates now fall back to the engine calendar so engine-published weeks no longer render a bare "Week 18 ·"; week 17 date corrected Sunday→Monday. v57: Award night removed from the generated calendar. v56: Published calEvents now authoritative (admin owns the calendar). v55: Promoted from betaV2: hub-and-spoke home screen, one-tap scorecard, playoff bracket, calendar from engine data, ties to higher seed, XSS hardening. Replaces v53. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -29,7 +29,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
 .sync-bar { display:flex; align-items:center; justify-content:center; gap:6px; padding-top:calc(5px + env(safe-area-inset-top)); padding-bottom:5px; padding-left:12px; padding-right:12px; font-size:11px; color:#2e7d32; background:#e8f5e9; border-bottom:1px solid #c8e6c9; flex-shrink:0; order:0; position:relative; }
 .sync-dot { width:7px; height:7px; border-radius:50%; background:#43a047; flex-shrink:0; }
 .wx-bar { display:flex; gap:16px; align-items:center; justify-content:center; padding:4px 14px 5px; font-size:11px; color:#2e7d32; background:#e8f5e9; border-bottom:1px solid #c8e6c9; flex-shrink:0; flex-wrap:wrap; }
-.wx-bar span { display:flex; align-items:center; gap:3px; opacity:.85; }
+.wx-bar span { display:flex; align-items:center; gap:3px; opacity:1; font-weight:600; }
 
 /* Header — removed v53; safe-area top now handled by body/sync-bar */
 .app-hdr { display:none; }
@@ -491,38 +491,61 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
 .tabs{display:none!important}
 .tab-content{padding:12px 12px calc(20px + env(safe-area-inset-bottom))}
 
-/* Section header (back chevron) */
-.sec-hdr{display:flex;align-items:center;gap:4px;padding:8px 4px 4px;flex-shrink:0}
-.back-btn{background:none;border:none;color:var(--tint,#2e7d32);font-size:22px;font-weight:300;cursor:pointer;line-height:1;padding:4px 8px 4px 2px;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;gap:3px}
-.back-btn span{font-size:14px;font-weight:600}
-.back-btn:active{opacity:.6}
+/* Section header (back button) — v60: solid green pill so it reads as a button */
+.sec-hdr{display:flex;align-items:center;gap:8px;padding:10px 4px 6px;flex-shrink:0}
+.back-btn{background:#1f4423;color:#fff;border:none;border-radius:22px;height:40px;padding:0 16px 0 12px;font-size:24px;font-weight:400;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 5px rgba(31,68,35,.35)}
+.back-btn span{font-size:15px;font-weight:700}
+.back-btn:active{opacity:.75;transform:scale(.97)}
 
-/* Home screen */
+/* Home screen — v60: green hero card + "course" tile grid */
+.home-title-bar { display:flex; align-items:center; justify-content:space-between; padding:12px 14px 4px; }
+.home-title-lbl { font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--tint,#1f4423); }
+.home-gear-btn { background:none; border:none; color:var(--tint,#1f4423); font-size:19px; cursor:pointer; padding:4px; -webkit-tap-highlight-color:transparent; opacity:.9; line-height:1; }
+.home-gear-btn:active { opacity:.5; }
 #home-screen{padding:8px 12px calc(20px + env(safe-area-inset-bottom))}
-.home-ctx-card{background:white;border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.1);overflow:hidden;margin-bottom:10px}
-.home-ctx-header{padding:12px 14px 10px;border-bottom:1px solid #f0f0f0}
-.home-ctx-title{font-size:18px;font-weight:800;color:#1a1a1a;letter-spacing:-.3px}
-.home-ctx-sub{font-size:12px;color:#888;margin-top:2px}
-.home-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid #f0f0f0;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.home-row:active{background:#f7f7f7}
+.home-ctx-card{background:linear-gradient(150deg,#1f4423 0%,#2f5d34 100%);color:#fff;border-radius:16px;box-shadow:0 4px 12px rgba(31,68,35,.35);overflow:hidden;margin-bottom:10px}
+.home-ctx-header{padding:12px 14px 10px;border-bottom:1px solid rgba(255,255,255,.18)}
+.home-ctx-title{font-size:20px;font-weight:800;color:#fff;letter-spacing:-.3px}
+.home-ctx-sub{font-size:12px;color:rgba(255,255,255,.82);margin-top:2px}
+.home-ctx-card .home-row{border-top:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07)}
+.home-ctx-card .home-row:active{background:rgba(255,255,255,.16)}
+.home-ctx-card .home-row-body strong{color:#fff;font-weight:700}
+.home-ctx-card .home-row-body span{color:rgba(255,255,255,.78)}
+.home-ctx-card .home-chev{color:rgba(255,255,255,.75)}
+.home-ctx-card .home-icon{background:#fff}
+.home-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid rgba(120,120,128,.14);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .home-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
 .home-icon-green{background:#e8f5e9}
 .home-icon-blue{background:#e3f2fd}
 .home-icon-amber{background:#fff8e1}
 .home-icon-purple{background:#f3e5f5}
 .home-row-body{flex:1;min-width:0}
-.home-row-body strong{display:block;font-size:14px;font-weight:600;color:#1a1a1a}
-.home-row-body span{display:block;font-size:11px;color:#888;margin-top:2px}
-.home-chev{color:#ccc;font-size:22px;font-weight:300;flex-shrink:0}
-.home-sec-label{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#999;margin:10px 2px 6px}
-.home-browse-card{background:white;border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.1);overflow:hidden;margin-bottom:10px}
-.home-news-card{background:white;border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.1);overflow:hidden;margin-bottom:10px}
-.home-news-hdr{padding:10px 14px 8px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#999;border-bottom:1px solid #f0f0f0}
-.home-news-item{padding:10px 14px;border-top:1px solid #f0f0f0}
+.home-row-body strong{display:block;font-size:14px;font-weight:700;color:var(--text,#1c1a10)}
+.home-row-body span{display:block;font-size:11px;color:var(--text,#1c1a10);opacity:.68;margin-top:2px}
+.home-chev{color:var(--text,#1c1a10);opacity:.45;font-size:22px;font-weight:300;flex-shrink:0}
+.home-sec-label{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--tint,#1f4423);margin:12px 2px 6px}
+/* Browse tiles — colors from the course: fairway, deep rough, pond, bunker sand, rough, flag */
+.home-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 12px 10px}
+.home-tile{border-radius:14px;padding:12px 12px 10px;color:#fff;min-height:78px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 2px 6px rgba(50,40,10,.18);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.home-tile:active{filter:brightness(.88);transform:scale(.98)}
+.home-tile .home-icon{width:28px;height:28px;font-size:15px;border-radius:8px;background:rgba(255,255,255,.22)}
+.home-tile strong{display:block;font-size:14px;font-weight:700;margin-top:8px;color:inherit}
+.home-tile span{display:block;font-size:11px;opacity:.85;margin-top:1px;color:inherit}
+.home-tile-fairway{background:#2f5d34}
+.home-tile-rough-deep{background:#1f4423}
+.home-tile-pond{background:#3d6b8a}
+.home-tile-sand{background:#c9a35a;color:#2a2000}
+.home-tile-sand .home-icon{background:rgba(0,0,0,.12)}
+.home-tile-rough{background:#5a7a3a}
+.home-tile-flag{background:#a63a2a}
+.home-browse-card{background:var(--card,#fffdf6);border-radius:16px;box-shadow:0 1px 4px rgba(50,40,10,.14);overflow:hidden;margin-bottom:10px}
+.home-news-card{background:var(--card,#fffdf6);border-radius:16px;box-shadow:0 1px 4px rgba(50,40,10,.14);overflow:hidden;margin-bottom:10px}
+.home-news-hdr{padding:10px 14px 8px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--tint,#1f4423);border-bottom:1px solid rgba(120,120,128,.14)}
+.home-news-item{padding:10px 14px;border-top:1px solid rgba(120,120,128,.14)}
 .home-news-item:first-child{border-top:none}
-.home-news-title{font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:2px}
-.home-news-body{font-size:12px;color:#555;line-height:1.4}
-.home-news-date{font-size:11px;color:#bbb;margin-top:3px}
+.home-news-title{font-size:13px;font-weight:700;color:var(--text,#1c1a10);margin-bottom:2px}
+.home-news-body{font-size:12px;color:var(--text,#1c1a10);opacity:.8;line-height:1.4}
+.home-news-date{font-size:11px;color:var(--text,#1c1a10);opacity:.5;margin-top:3px}
 </style>
 
 </head>
@@ -564,37 +587,13 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
   <div id="home-ctx" style="padding:0 12px 4px"></div>
   <!-- Browse card -->
   <div class="home-sec-label" style="padding:0 14px">Browse</div>
-  <div class="home-browse-card" style="margin:4px 12px 10px">
-    <div class="home-row" style="border-top:none" onclick="showTab('results',null)">
-      <div class="home-icon home-icon-blue">📋</div>
-      <div class="home-row-body"><strong>Results by week</strong><span>Scores &amp; low net</span></div>
-      <span class="home-chev">›</span>
-    </div>
-    <div class="home-row" onclick="showTab('standings',null)">
-      <div class="home-icon home-icon-purple">📊</div>
-      <div class="home-row-body"><strong>Standings</strong><span>Team points &amp; rankings</span></div>
-      <span class="home-chev">›</span>
-    </div>
-    <div class="home-row" onclick="showTab('news',null)">
-      <div class="home-icon home-icon-green">📢</div>
-      <div class="home-row-body"><strong>League news</strong><span>Announcements &amp; updates</span></div>
-      <span class="home-chev">›</span>
-    </div>
-    <div class="home-row" onclick="showTab('roster',null)">
-      <div class="home-icon home-icon-amber">👥</div>
-      <div class="home-row-body"><strong>Roster &amp; dues</strong><span>Players &amp; payment status</span></div>
-      <span class="home-chev">›</span>
-    </div>
-    <div class="home-row" onclick="showTab('calendar',null);buildCalendar()">
-      <div class="home-icon home-icon-blue">📅</div>
-      <div class="home-row-body"><strong>Schedule</strong><span>League calendar</span></div>
-      <span class="home-chev">›</span>
-    </div>
-    <div class="home-row" onclick="showTab('mytab',null);buildMyTab()">
-      <div class="home-icon home-icon-amber">⭐</div>
-      <div class="home-row-body"><strong>My stats</strong><span>Personal scorecard history</span></div>
-      <span class="home-chev">›</span>
-    </div>
+  <div class="home-tiles">
+    <div class="home-tile home-tile-fairway" onclick="showTab('results',null)"><div class="home-icon">📋</div><div><strong>Results</strong><span>Scores &amp; low net</span></div></div>
+    <div class="home-tile home-tile-rough-deep" onclick="showTab('standings',null)"><div class="home-icon">📊</div><div><strong>Standings</strong><span>Team rankings</span></div></div>
+    <div class="home-tile home-tile-pond" onclick="showTab('news',null)"><div class="home-icon">📢</div><div><strong>League news</strong><span>Announcements</span></div></div>
+    <div class="home-tile home-tile-sand" onclick="showTab('roster',null)"><div class="home-icon">👥</div><div><strong>Roster &amp; dues</strong><span>Players &amp; payment</span></div></div>
+    <div class="home-tile home-tile-rough" onclick="showTab('calendar',null);buildCalendar()"><div class="home-icon">📅</div><div><strong>Schedule</strong><span>League calendar</span></div></div>
+    <div class="home-tile home-tile-flag" onclick="showTab('mytab',null);buildMyTab()"><div class="home-icon">⭐</div><div><strong>My stats</strong><span>Scorecard history</span></div></div>
   </div>
   <!-- News feed -->
   <div class="home-sec-label" style="padding:0 14px">League News</div>
@@ -1023,7 +1022,7 @@ body.theme-earth-light .hcp-row:active{background:#e4ddc4}
       </div>
     </div>
 
-    <div style="margin-top:24px;padding-top:14px;border-top:1px solid rgba(120,120,128,.15);font-size:11px;color:#bbb;text-align:center">WGL 2026 · v58</div>
+    <div style="margin-top:24px;padding-top:14px;border-top:1px solid rgba(120,120,128,.15);font-size:11px;color:#bbb;text-align:center">WGL 2026 · v60</div>
   </div>
 </div>
 
@@ -1562,7 +1561,7 @@ function scRenderAdded(){
 
 function scStart(){
   if(!scSess.players.length){document.getElementById('sc-start-err').style.display='block';return;}
-  scSess.players.sort((a,b)=>a.hcp-b.hcp); // lowest HCP first
+  // Scorecard keeps the order the names were entered. Lowest-HCP-first is a roster rule only.
   scSess.hole=0;
   SC_STORE.save();
   scShowStep('sc-step-scoring');
@@ -4100,7 +4099,7 @@ function buildHomeScreen(){
   if(isOutingDay){
     ctx.innerHTML=`
       <div class="home-ctx-card">
-        <div class="home-ctx-header" style="background:linear-gradient(135deg,#1b5e20 0%,#2e7d32 100%)">
+        <div class="home-ctx-header">
           <div class="home-ctx-title" style="color:white">${escHtml(o.name||'Mid-Season Outing')}</div>
           <div class="home-ctx-sub" style="color:rgba(255,255,255,.78)">${o.course?escHtml(o.course):''}${o.date?' · '+escHtml(o.date):''}</div>
           <div style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.2);border-radius:20px;padding:3px 9px;font-size:10px;font-weight:700;color:white;margin-top:6px">🏌️ Today</div>
