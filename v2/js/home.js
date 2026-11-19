@@ -4,6 +4,7 @@ import { html, lastName, longDate, placeWord, raw, todayISO } from './format.js'
 import { avatar, svg, windArrow } from './ui.js';
 import { commit, go, saveSession, state } from './state.js';
 import { teamStandings } from './scoring.js';
+import { homeNews } from './news.js';
 
 export function calendarOf(league) {
   return ((league && league.calendar) || [])
@@ -122,6 +123,7 @@ export function renderHome() {
       <div class="brand">
         <img src="./assets/crest.png" alt="" width="30" height="30">
         <div class="serif brand-name">${LEAGUE_NAME}</div>
+        <button class="gear" type="button" data-go="settings" aria-label="Settings">⚙</button>
         <button class="avatar avatar-btn" type="button" data-action="identity" aria-label="Choose your name">${state.identity ? initials(state.identity) : '•'}</button>
       </div>
       <div class="page hero-copy">
@@ -159,7 +161,54 @@ export function renderHome() {
           <div class="t-small">${race.detail || ''}</div>
         </div>
       </div>
+    </div>
+    ${raw(outingCard(league, ctx))}
+    <div class="page block">
+      <div class="t-label">Browse</div>
+      <div class="card flush mt8">
+        <button class="hub" type="button" data-go="gps"><b>Yardages</b><span>Map and distances</span></button>
+        <button class="hub" type="button" data-go="results"><b>Results</b><span>Latest week</span></button>
+        <button class="hub" type="button" data-go="standings"><b>Standings</b><span>Teams and players</span></button>
+        <button class="hub" type="button" data-go="news"><b>League news</b><span>Announcements</span></button>
+        <button class="hub" type="button" data-go="roster"><b>Roster & dues</b><span>Players and payments</span></button>
+        <button class="hub" type="button" data-go="schedule"><b>Schedule</b><span>Mondays and the outing</span></button>
+        <button class="hub" type="button" data-go="my"><b>My stats</b><span>Rounds and banked cards</span></button>
+      </div>
+    </div>
+    ${raw(homeNews())}`;
+}
+
+function outingCard(league, ctx) {
+  const o = outingOn(league, ctx.today);
+  if (!o) return '';
+  const gps = o.gps && Object.keys(o.gps).length;
+  return html`
+    <div class="page block">
+      <div class="card pad">
+        <div class="t-label">Outing today</div>
+        <div class="t-head mt4">${o.name || 'League outing'}</div>
+        <p class="t-small mt4">${o.course || ''} ${o.tee ? '· ' + o.tee : ''}</p>
+        <button class="btn forest mt12" type="button" data-go="score">Outing scorecard</button>
+        ${gps ? raw('<button class="btn ghost mt8" type="button" data-go="gps">GPS yardages</button>') : ''}
+      </div>
     </div>`;
+}
+
+function outingOn(league, today) {
+  const year = today.slice(0, 4);
+  for (const o of [league.outing, league.outing2]) {
+    if (!o || !o.date) continue;
+    const rawDate = String(o.date).trim();
+    const parsed = /^\d{4}-\d{2}-\d{2}$/.test(rawDate) ? rawDate : isoFromLoose(rawDate, year);
+    if (parsed === today) return o;
+  }
+  return null;
+}
+
+function isoFromLoose(value, year) {
+  const d = new Date(value + ' ' + year);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
 function initials(name) {

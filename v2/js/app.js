@@ -7,8 +7,13 @@ import { bindResults, renderResults } from './results.js';
 import { bindSchedule, bindSignup, renderSchedule, renderSignup } from './schedule.js';
 import { bindCardType, bindScore, renderCardType, renderScore } from './scorecard.js';
 import { bindStandings, renderStandings } from './standings.js';
+import { renderNews } from './news.js';
+import { bindRoster, renderPlayer, renderRoster } from './roster.js';
+import { renderMy } from './my.js';
+import { bindSettings, renderSettings } from './settings.js';
+import { bindGps, renderElev, renderGps } from './gps.js';
+import { setDesired } from './gps-watch.js';
 import { commit, go, initialScreen, state, subscribe } from './state.js';
-import { bindTabs, tabsHtml } from './ui.js';
 
 const params = new URLSearchParams(location.search);
 state.previewLive = params.get('preview') === 'live';
@@ -27,16 +32,10 @@ function safe(label, fn) {
 
 function draw() {
   const screen = document.getElementById('screen');
-  const tabs = document.getElementById('tabs');
   const overlay = document.getElementById('overlay');
   if (!screen) return;
   const y = screen.scrollTop;
-  tabs.innerHTML = tabsHtml(state.screen);
-  bindTabs(tabs, (id) => {
-    if (id === 'score' && state.session.started && state.session.players.length) state.scoreMode = state.scoreMode === 'review' ? 'review' : 'hole';
-    if (id === 'score' && !state.session.players.length) state.scoreMode = 'setup';
-    go(id);
-  });
+  screen.classList.toggle('is-gps', state.screen === 'gps');
   if (state.status === 'loading') {
     screen.innerHTML = '<div class="splash"><img src="./assets/crest.png" alt=""><div class="serif">Worthington Golf League</div></div>';
   } else if (state.status === 'error') {
@@ -49,6 +48,9 @@ function draw() {
   } else if (state.screen === 'score') {
     screen.innerHTML = safe('score', renderScore);
     bindScore(screen);
+  } else if (state.screen === 'gps') {
+    screen.innerHTML = safe('gps', renderGps);
+    bindGps(screen);
   } else if (state.screen === 'standings') {
     screen.innerHTML = safe('standings', renderStandings);
     bindStandings(screen);
@@ -58,10 +60,31 @@ function draw() {
   } else if (state.screen === 'schedule') {
     screen.innerHTML = safe('schedule', renderSchedule);
     bindSchedule(screen);
+  } else if (state.screen === 'news') {
+    screen.innerHTML = safe('news', renderNews);
+  } else if (state.screen === 'roster') {
+    screen.innerHTML = safe('roster', renderRoster);
+    bindRoster(screen);
+  } else if (state.screen === 'my') {
+    screen.innerHTML = safe('my', renderMy);
+  } else if (state.screen === 'settings') {
+    screen.innerHTML = safe('settings', renderSettings);
+    bindSettings(screen);
   }
+  bindGo(screen);
   overlay.innerHTML = safe('sheet', renderOverlay);
   bindOverlay(overlay);
-  if (state.status === 'ready' && state.screen !== 'home') screen.scrollTop = y;
+  const watching = state.screen === 'gps' || (state.screen === 'score' && state.scoreMode === 'hole');
+  setDesired(watching);
+  if (state.status === 'ready' && state.screen !== 'home' && state.screen !== 'gps') screen.scrollTop = y;
+}
+
+function bindGo(root) {
+  root.querySelectorAll('[data-go]').forEach(b => {
+    if (b.dataset.boundGo) return;
+    b.dataset.boundGo = '1';
+    b.addEventListener('click', () => go(b.dataset.go));
+  });
 }
 
 function renderOverlay() {
@@ -70,6 +93,8 @@ function renderOverlay() {
   if (state.sheet === 'identity') return renderIdentity();
   if (state.sheet === 'cardtype') return renderCardType();
   if (state.sheet === 'signup') return renderSignup();
+  if (state.sheet === 'player') return renderPlayer();
+  if (state.sheet === 'elev') return renderElev();
   return '';
 }
 

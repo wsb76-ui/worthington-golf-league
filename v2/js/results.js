@@ -3,6 +3,7 @@ import { calendarOf } from './home.js';
 import { weekBoard } from './scoring.js';
 import { avatarTone } from './format.js';
 import { commit, state } from './state.js';
+import { backBar } from './ui.js';
 import { sideForWeek, sideLabel } from './course.js';
 import { roundName, weekTitle } from './format.js';
 
@@ -24,7 +25,7 @@ function weekDateLabel(week) {
 export function renderResults() {
   const week = latestWeek(state.weeks);
   if (!week) {
-    return html`<div class="page sheet-page"><h1 class="serif t-display">Results</h1><p class="t-small mt8">No scores posted yet.</p></div>`;
+    return html`${backBar('Results')}<div class="page"><p class="t-small mt8">No scores posted yet.</p></div>`;
   }
   const data = state.weeks[week];
   const board = weekBoard(data, (state.league && state.league.players) || {});
@@ -45,8 +46,8 @@ export function renderResults() {
   const side = sideLabel(sideForWeek(week));
   const title = round ? (round + ' · ' + side) : ('Week ' + week + ' · ' + side);
   return html`
-    <div class="page sheet-page">
-      <h1 class="serif t-display">Results</h1>
+    ${backBar('Results')}
+    <div class="page">
       <div class="row gap8 mt8 wrap">
         <span class="week-line">${title}</span>
         <span class="t-small">· ${weekDateLabel(week)}</span>

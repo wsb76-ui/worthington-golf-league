@@ -28,6 +28,14 @@ export function windArrow(degrees) {
   return `<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="none" stroke="rgba(244,239,226,.35)"/><g transform="rotate(${rot} 13 13)"><path d="M13 4.2l3.2 9.2H9.8z" fill="#E08A5E"/></g></svg>`;
 }
 
+export function backBar(title) {
+  return {
+    __raw: `<div class="backbar"><button type="button" class="back" data-go="home">‹ Home</button>${
+      title ? `<span class="serif t-head">${String(title).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]))}</span>` : ''
+    }</div>`
+  };
+}
+
 export function tabsHtml(screen) {
   const item = (id, label, icon) => {
     const on = screen === id ? ' on' : '';
