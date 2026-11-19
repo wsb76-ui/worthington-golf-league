@@ -1,6 +1,6 @@
 import { html, initials, money, raw } from './format.js';
 import { calendarOf, playedWeeks } from './home.js';
-import { weekBoard } from './scoring.js';
+import { seasonChampion, teamStandings, weekBoard } from './scoring.js';
 import { avatarTone } from './format.js';
 import { commit, state } from './state.js';
 import { backBar } from './ui.js';
@@ -30,7 +30,8 @@ export function renderResults() {
   }
   const data = weeks[week];
   const board = weekBoard(data, (state.league && state.league.players) || {});
-  const winner = board[0];
+  const champs = +week === 19 ? seasonChampion(teamStandings(weeks), weeks) : null;
+  const winner = (champs && board.find(t => t.team === champs.team)) || board[0];
   const roster = (state.league && state.league.players) || {};
   const me = roster[state.identity];
   const mine = me ? board.find(t => t.team === +me.team) : null;

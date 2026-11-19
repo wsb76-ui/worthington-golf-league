@@ -3,7 +3,7 @@ import { nineTitle, sideForWeek, sideRange } from './course.js';
 import { html, lastName, longDate, placeWord, raw, todayISO } from './format.js';
 import { avatar, svg, windArrow } from './ui.js';
 import { commit, go, saveSession, state } from './state.js';
-import { playoffBracket, teamStandings } from './scoring.js';
+import { playoffBracket, seasonChampion, teamStandings } from './scoring.js';
 import { homeNews } from './news.js';
 
 export function calendarOf(league) {
@@ -160,7 +160,7 @@ export function renderHome() {
   const standings = teamStandings(weeks);
   const race = raceCopy(standings.rows, state.identity, roster);
   const playoffNight = ctx.todayEv && (+ctx.todayEv.week === 18 || +ctx.todayEv.week === 19);
-  const champs = weeks[19] && (weeks[19].players || []).length;
+  const champs = seasonChampion(standings, weeks);
   const group = state.session.players || [];
   const side = group.length ? state.session.side : (ctx.focus ? sideForWeek(ctx.focus.week) : 'back');
   const names = group.map(p => lastName(p.name)).join(' · ');
@@ -199,7 +199,7 @@ export function renderHome() {
       </div>
       <button class="btn primary mt16" type="button" data-action="start">${raw(svg('card', 20))} ${group.length && state.session.started ? 'Resume scorecard' : 'Start scorecard'}</button>
     </div>
-    ${raw(champs ? championCard(standings, (ctx.cal[0] && ctx.cal[0].date.slice(0, 4)) || ctx.today.slice(0, 4)) : '')}
+    ${raw(champs ? championCard(champs, (ctx.cal[0] && ctx.cal[0].date.slice(0, 4)) || ctx.today.slice(0, 4)) : '')}
     ${raw(playoffNight ? matchupCard(standings, weeks, +ctx.todayEv.week, roster) : '')}
     ${playoffNight ? '' : raw(`<div class="page block">
       <div class="card race">
@@ -229,10 +229,8 @@ export function renderHome() {
     ${raw(homeNews())}`;
 }
 
-function championCard(standings, year) {
-  const winner = standings.rows[0];
-  if (!winner) return '';
-  return `<div class="page block"><div class="card pad"><div class="serif t-title">${year} Champions · Team ${winner.team}</div><p class="t-small mt4">Regular-season winner</p></div></div>`;
+function championCard(champs, year) {
+  return `<div class="page block"><div class="card pad"><div class="serif t-title">${year} Champions · Team ${champs.team}</div><p class="t-small mt4">Regular-season winner · Team ${champs.regular}</p></div></div>`;
 }
 
 function matchupCard(standings, weeks, week, roster) {

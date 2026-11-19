@@ -173,3 +173,13 @@ export function playoffBracket(standings, weeks) {
   if (!any) return null;
   return { semis, final, third, seeds };
 }
+
+// Champion is the week-19 final winner (low score). The regular-season
+// winner is the team that led weeks 1–17, which is not the same match.
+export function seasonChampion(standings, weeks) {
+  const bracket = playoffBracket(standings, weeks);
+  const team = bracket && bracket.final && bracket.final.winner;
+  const regular = standings && standings.rows && standings.rows[0];
+  if (!team || !regular) return null;
+  return { team, regular: regular.team };
+}
