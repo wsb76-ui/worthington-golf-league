@@ -113,7 +113,7 @@ export function readLeagueCache() {
 }
 
 export function initialScreen() {
-  const m = (location.hash || '').match(/^#\/(home|score|standings|results|schedule)$/);
+  const m = (location.hash || '').match(/^#\/(home|score|gps|standings|results|schedule|news|roster|my|settings)$/);
   return m ? m[1] : 'home';
 }
 

@@ -2,14 +2,15 @@ import { PLAYOFF_FIRST } from './config.js';
 import { html, lastName, placeWord, raw, toParText } from './format.js';
 import { captainLabel, playoffBracket, playerBoard, teamStandings } from './scoring.js';
 import { commit, state } from './state.js';
+import { backBar } from './ui.js';
 
 export function renderStandings() {
   const table = teamStandings(state.weeks);
   const sub = 'Through week ' + table.lastReg + ' · lower total wins';
   const teams = state.standingsView !== 'players';
   return html`
-    <div class="page sheet-page">
-      <h1 class="serif t-display">Standings</h1>
+    ${backBar('Standings')}
+    <div class="page">
       <p class="t-small mt4">${sub}</p>
       <div class="seg mt16">
         <button type="button" data-view="teams" class="${teams ? 'on' : ''}">Teams</button>

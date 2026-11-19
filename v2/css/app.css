@@ -62,7 +62,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
   overflow-y: auto;
   scrollbar-width: none;
   background: var(--cream);
-  padding-bottom: calc(var(--tab-h) + 12px);
+  padding-bottom: calc(28px + env(safe-area-inset-bottom));
 }
 .screen::-webkit-scrollbar { display: none; }
 .page { padding: 0 20px; }
@@ -333,3 +333,59 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .b { font-size: 16px; }
   .t-display { font-size: 30px; }
 }
+.tabbar { display: none !important; }
+.backbar { display: flex; align-items: center; gap: 12px; padding: calc(12px + env(safe-area-inset-top)) 16px 8px; }
+.back {
+  border: 0; background: var(--forest); color: #F4EFE2; border-radius: 22px;
+  height: 40px; padding: 0 14px; font-weight: 700; font-size: 15px;
+}
+.hub {
+  width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  text-align: left; background: transparent; border: 0; border-top: 1px solid var(--line);
+  padding: 14px 16px; text-decoration: none; color: inherit;
+}
+.hub:first-child { border-top: 0; }
+.hub b { font-weight: 600; }
+.hub span { color: var(--muted); font-size: 13px; }
+.gear { border: 0; background: transparent; color: #F4EFE2; font-size: 18px; padding: 4px; }
+.gps-strip {
+  margin: 10px 12px 0; width: calc(100% - 24px); border: 1px solid var(--line); background: var(--card);
+  border-radius: 14px; padding: 10px 12px; display: flex; align-items: center; gap: 8px; text-align: left;
+}
+.gps-strip [data-yards] { flex: 1; font-size: 13px; font-weight: 600; }
+.screen.is-gps { overflow: hidden; padding: 0; display: flex; flex-direction: column; }
+.gps-screen { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.gps-map-wrap { position: relative; flex: 1; min-height: 220px; background: #1c2a22; }
+.gps-map { position: absolute; inset: 0; overflow: hidden; touch-action: none; }
+.tile { position: absolute; width: 256px; height: 256px; }
+.pin { position: absolute; transform: translate(-50%, -50%); z-index: 2; }
+.pin.you { width: 16px; height: 16px; border-radius: 50%; background: #F4EFE2; border: 3px solid var(--clay); }
+.pin.green { background: var(--forest); color: #F4EFE2; font-size: 11px; font-weight: 700; border-radius: 10px; padding: 2px 6px; }
+.pin.spot { width: 14px; height: 14px; border-radius: 50%; background: var(--gold); border: 2px solid #F4EFE2; }
+.map-attr { position: absolute; left: 8px; bottom: 6px; font-size: 10px; color: #fff; text-shadow: 0 1px 2px #000; z-index: 3; }
+.zoom { position: absolute; right: 10px; bottom: 10px; display: flex; flex-direction: column; gap: 6px; z-index: 3; }
+.zoom button { width: 36px; height: 36px; border-radius: 10px; border: 0; background: var(--card); font-size: 20px; }
+.gps-panel { background: var(--cream); padding: 12px 16px calc(16px + env(safe-area-inset-bottom)); }
+.gps-nums { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 8px; text-align: center; }
+.gps-nums b { display: block; font-size: 28px; line-height: 1.1; }
+.gps-nums .ctr b { font-size: 36px; color: var(--forest); }
+.hole-switch { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.hole-switch button { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); font-size: 20px; }
+.ann { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--forest); border-radius: 16px; padding: 14px 16px; margin-bottom: 12px; }
+.ann.reminder { border-left-color: var(--clay); }
+.ann.alert { border-left-color: #8A2B2B; }
+.ann.info { border-left-color: #3d6b8a; }
+.stat-row { display: flex; border-top: 1px solid var(--line); }
+.stat-row div { flex: 1; text-align: center; padding: 10px 2px; }
+.stat-row b { display: block; font-size: 22px; color: var(--forest); }
+.stat-row span { font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+body[data-font="rounded"] { font-family: ui-rounded, 'SF Pro Rounded', Inter, system-ui, sans-serif; }
+body[data-font="serif"] { font-family: Fraunces, Georgia, serif; }
+body[data-size="lg"] { font-size: 17px; }
+body[data-size="xl"] { font-size: 19px; }
+body[data-mode="dark"] {
+  --cream: #17211b; --card: #243028; --ink: #F4EFE2; --line: #334038; --muted: #C5D0C6; --faint: #8E9A90;
+}
+body[data-color="gold"] { --forest: #8A6A1F; --forest-deep: #5C4814; }
+body[data-color="slate"] { --forest: #3D5C6E; --forest-deep: #243844; }
+body[data-color="earth"] { --forest: #6B5A32; --forest-deep: #3E3420; }

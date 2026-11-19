@@ -4,6 +4,7 @@ import { html, monthKey, raw, weekdayShort } from './format.js';
 import { calendarOf, isLeagueNight, leagueContext } from './home.js';
 import { postScript } from './api.js';
 import { commit, state } from './state.js';
+import { backBar } from './ui.js';
 import { todayISO } from './format.js';
 
 export function renderSchedule() {
@@ -28,8 +29,8 @@ export function renderSchedule() {
     </div>
     <div class="card flush mt8">${raw(m.rows.map(rowHtml).join(''))}</div>`).join('');
   return html`
-    <div class="page sheet-page">
-      <h1 class="serif t-display">Schedule</h1>
+    ${backBar('Schedule')}
+    <div class="page">
       <p class="t-small mt4">Mondays at ${COURSE.replace(' Golf Course', ' GC')} · first group ${FIRST_TEE}</p>
       ${raw(blocks)}
       <div class="sheet-pad"></div>

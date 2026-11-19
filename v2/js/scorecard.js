@@ -6,6 +6,7 @@ import { bindLive, renderBestStrip } from './live.js';
 import { commit, go, readFavs, saveFav, saveSession, state } from './state.js';
 import { postScript } from './api.js';
 import { svg } from './ui.js';
+import { attachStrip, gpsStripHtml, noteHole } from './gps.js';
 import { todayISO } from './format.js';
 
 let addOpen = false;
@@ -91,6 +92,9 @@ export function bindScore(root) {
     persist();
     commit();
   }));
+  const gpsBtn = root.querySelector('[data-action=gps]');
+  if (gpsBtn) gpsBtn.addEventListener('click', () => go('gps'));
+  if (state.scoreMode === 'hole') attachStrip(root);
   const done = root.querySelector('[data-action=done]');
   if (done) done.addEventListener('click', () => {
     state.submitNote = '';
@@ -244,6 +248,7 @@ function renderHole() {
   const hi = Math.min(sess().hole, holes.length - 1);
   sess().hole = hi;
   const hole = holes[hi];
+  noteHole(hole);
   const par = pars[hi];
   const info = HOLES[hole];
   const range = scoreRange(par);
@@ -279,7 +284,7 @@ function renderHole() {
   return html`
     <div class="score-top ${showLive ? 'compact' : ''}">
       <div class="hdr row between">
-        <button class="icon-btn" type="button" data-action="home" aria-label="Close">${raw(svg('close', 22))}</button>
+        <button class="back" type="button" data-action="home">‹ Home</button>
         <span class="pill sage">${sideLabel(sess().side)}</span>
         <button class="text-btn" type="button" data-action="review">Review</button>
       </div>
@@ -294,6 +299,7 @@ function renderHole() {
         </div>
       </div>
       <div class="prog">${raw(prog)}</div>
+      ${raw(gpsStripHtml())}
       ${showLive ? raw(renderBestStrip(hole)) : ''}
       <div class="add-row">
         <button class="text-btn" type="button" data-action="add-toggle">${addOpen ? 'Close' : '+ Player'}</button>
@@ -317,7 +323,7 @@ function renderSetup() {
   return html`
     <div class="page sheet-page">
       <div class="hdr row between">
-        <button class="icon-btn" type="button" data-action="home" aria-label="Close">${raw(svg('close', 22))}</button>
+        <button class="back" type="button" data-action="home">‹ Home</button>
         <span class="serif t-title">Your group</span>
         <span></span>
       </div>
@@ -392,7 +398,7 @@ function renderReview() {
       <div class="hdr row between">
         <button class="text-btn" type="button" data-action="back-hole">Edit</button>
         <span class="serif t-title">Review</span>
-        <button class="icon-btn" type="button" data-action="home" aria-label="Close">${raw(svg('close', 22))}</button>
+        <button class="back" type="button" data-action="home">‹ Home</button>
       </div>
       <p class="t-small mt8">Week ${wk} · ${sideLabel(sess().side)} · ${sess().players.length} player${sess().players.length === 1 ? '' : 's'}</p>
       <div class="card mt16">${raw(blocks)}</div>
