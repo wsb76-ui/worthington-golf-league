@@ -1,11 +1,13 @@
 import { PLAYOFF_FIRST } from './config.js';
 import { html, lastName, placeWord, raw, toParText } from './format.js';
 import { captainLabel, playoffBracket, playerBoard, teamStandings } from './scoring.js';
+import { playedWeeks } from './home.js';
 import { commit, state } from './state.js';
 import { backBar } from './ui.js';
 
 export function renderStandings() {
-  const table = teamStandings(state.weeks);
+  const weeks = playedWeeks(state.weeks, state.league);
+  const table = teamStandings(weeks);
   const sub = 'Through week ' + table.lastReg + ' · lower total wins';
   const teams = state.standingsView !== 'players';
   return html`
@@ -16,11 +18,11 @@ export function renderStandings() {
         <button type="button" data-view="teams" class="${teams ? 'on' : ''}">Teams</button>
         <button type="button" data-view="players" class="${teams ? '' : 'on'}">Players</button>
       </div>
-      ${teams ? raw(teamList(table)) : raw(playerList())}
+      ${teams ? raw(teamList(table, weeks)) : raw(playerList())}
     </div>`;
 }
 
-function teamList(table) {
+function teamList(table, weeks) {
   const roster = (state.league && state.league.players) || {};
   const me = roster[state.identity];
   const myTeam = me ? +me.team : 0;
@@ -39,10 +41,11 @@ function teamList(table) {
       </div>
     </div>`;
   }).join('');
-  const bracket = playoffBracket(table, state.weeks);
+  const bracket = playoffBracket(table, weeks);
   return `<div class="card flush mt16">${rows}</div>
     <p class="foot">4 lowest nets count each week · +50 per missing card</p>
-    ${bracket ? bracketHtml(bracket, table) : ''}`;
+    ${bracket ? bracketHtml(bracket, table) : ''}
+    ${payoutCard()}`;
 }
 
 function escName(s) {
@@ -52,7 +55,7 @@ function escName(s) {
 function matchLine(m, weekLabel) {
   if (!m) return '';
   const side = (team, cell, win) => {
-    const sc = cell ? cell.score + (cell.penalty ? '!' : '') : '—';
+    const sc = cell ? (cell.penalty ? cell.score + ' (incl. +' + (cell.missing * 50) + ')' : String(cell.score)) : '—';
     return `<span class="${win ? 'win-name' : ''}">Team ${team}${cell ? ' ' + sc : ''}</span>`;
   };
   const result = m.winner
@@ -69,6 +72,20 @@ function bracketHtml(bracket) {
     ${matchLine(bracket.semis[1], 'Semifinal')}
     ${matchLine(bracket.final, 'Championship')}
     ${matchLine(bracket.third, '3rd place')}
+    <p class="t-small mt8">A score with “incl. +50” is short a card. The main app marked that with !.</p>
+  </div>`;
+}
+
+function payoutCard() {
+  const p = (state.league && state.league.payouts) || {};
+  if (p.pct1 == null && p.pct2 == null) return '';
+  const rolls = Object.entries(p.rollover || {}).filter(([, v]) => String(v || '').trim());
+  const teams = Object.entries(p.teamPayouts || {}).filter(([, v]) => v != null && String(v).trim());
+  return `<div class="card pad mt16">
+    <div class="t-label">Season payout</div>
+    <p class="mt8">${p.pct1 || 0}% · ${p.pct2 || 0}% · ${p.pct3 || 0}%</p>
+    <p class="t-small mt8">${rolls.length ? rolls.map(([n, v]) => escName(n) + ' rollover ' + escName(String(v))).join(' · ') : 'No rollover amounts posted.'}</p>
+    <p class="t-small mt4">${teams.length ? teams.map(([n, v]) => 'Team ' + n + ' ' + v).join(' · ') : 'Team payouts aren’t posted yet.'}</p>
   </div>`;
 }
 
@@ -96,7 +113,7 @@ function deltaMark(delta) {
 }
 
 function playerList() {
-  const rows = playerBoard(state.weeks, (state.league && state.league.players) || {});
+  const rows = playerBoard(playedWeeks(state.weeks, state.league), (state.league && state.league.players) || {});
   const me = rows.find(r => r.name === state.identity);
   const mine = me ? `<div class="card pad hcp-card mt16">
       <div>

@@ -85,7 +85,7 @@ export function weekBoard(weekData, roster) {
       if (+info.team !== t) continue;
       seen.add(name);
       const s = scored[name];
-      if (s) rows.push({ name, team: t, hcp: s.hcp, gross: +s.gross, net: +s.net, dns: false });
+      if (s) rows.push({ name, team: t, hcp: s.hcp, gross: +s.gross, net: +s.net, grp: s.grp, scores: s.scores || s.holes || null, dns: false });
       else rows.push({ name, team: t, hcp: info.hcp, dns: true });
     }
     for (const p of (weekData && weekData.players) || []) {

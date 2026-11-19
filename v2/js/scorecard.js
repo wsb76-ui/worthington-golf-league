@@ -1,13 +1,12 @@
 import { SCORE_EMAIL } from './config.js';
 import { HOLES, holesFor, parsFor, scoreRange, sideLabel, sideRange } from './course.js';
 import { esc, html, raw, shortName, toParText } from './format.js';
-import { calendarOf, isLeagueNight } from './home.js';
+import { calendarOf, cardWeek, isLeagueNight } from './home.js';
 import { bindLive, renderBestStrip } from './live.js';
 import { commit, go, readFavs, saveFav, saveSession, state } from './state.js';
 import { postScript } from './api.js';
 import { svg } from './ui.js';
 import { attachStrip, gpsStripHtml, noteHole } from './gps.js';
-import { todayISO } from './format.js';
 
 let addOpen = false;
 let addQuery = '';
@@ -39,9 +38,7 @@ export function bindScore(root) {
   if (start) start.addEventListener('click', startRound);
   const fav = root.querySelector('[data-action=save-fav]');
   if (fav) fav.addEventListener('click', () => {
-    const name = window.prompt('Name this group');
-    if (name && name.trim()) saveFav(name.trim());
-    commit();
+    commit({ sheet: 'savefav' });
   });
   const clear = root.querySelector('[data-action=clear]');
   if (clear) clear.addEventListener('click', () => {
@@ -392,13 +389,13 @@ function renderReview() {
     + segmentBlock(sess().side, sess().scores, true);
   const other = sess().side === 'back' ? 'Front' : 'Back';
   const canAdd = sess().side !== '18' && sess().completedSegments.length < 1;
-  const wk = (state.league && state.league.settings && state.league.settings.week) || '';
+  const wk = cardWeek(state.league, sess().targetDate);
   return html`
     <div class="page sheet-page">
       <div class="hdr row between">
-        <button class="text-btn" type="button" data-action="back-hole">Edit</button>
-        <span class="serif t-title">Review</span>
         <button class="back" type="button" data-action="home">‹ Home</button>
+        <span class="serif t-title">Review</span>
+        <button class="text-btn" type="button" data-action="back-hole">Edit</button>
       </div>
       <p class="t-small mt8">Week ${wk} · ${sideLabel(sess().side)} · ${sess().players.length} player${sess().players.length === 1 ? '' : 's'}</p>
       <div class="card mt16">${raw(blocks)}</div>
@@ -439,25 +436,31 @@ function addSecondNine() {
   commit({ sheet: 'cardtype', scoreMode: 'hole' });
 }
 
+export function renderSaveFav() {
+  return `<div class="modal-scrim" data-close-sheet><div class="modal" role="dialog">
+    <div class="serif t-head">Save this group</div>
+    <input id="fav-name" class="search mt16" placeholder="Group name" autocomplete="off">
+    <button class="btn forest mt16" type="button" data-action="save-fav-name">Save</button>
+  </div></div>`;
+}
+
+export function bindSaveFav(root) {
+  const btn = root.querySelector('[data-action=save-fav-name]');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const name = (root.querySelector('#fav-name').value || '').trim();
+    if (!name) return;
+    saveFav(name);
+    commit({ sheet: null });
+  });
+}
+
 export function leagueDateChoices() {
-  const cal = calendarOf(state.league);
-  const today = todayISO();
-  const wd = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short' }).format(new Date());
-  const isMonday = wd === 'Mon';
-  if (cal.length) {
-    let idx = cal.findIndex(e => e.date >= today);
-    if (idx < 0) idx = cal.length;
-    const start = isMonday ? idx : Math.max(0, idx - 1);
-    const out = [];
-    for (let i = start; i < cal.length && out.length < 3; i++) out.push(cal[i]);
-    if (!out.length && cal.length) out.push(cal[cal.length - 1]);
-    if (out.length) return out.map(c => ({
-      date: c.date,
-      label: new Date(c.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
-        + (c.week ? ' · Week ' + c.week : '')
-    }));
-  }
-  return [];
+  return calendarOf(state.league).map(c => ({
+    date: c.date,
+    label: new Date(c.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+      + (c.week ? ' · Week ' + c.week : '')
+  }));
 }
 
 export function renderCardType() {
@@ -465,6 +468,8 @@ export function renderCardType() {
   const dates = leagueDateChoices();
   const body = step === 1 ? html`
       <button class="choice" type="button" data-type="league_night">League night</button>
+      <p class="t-small">Counts on the Monday you pick. Play ahead is the same idea for a later Monday, if you are posting early.</p>
+      <button class="choice" type="button" data-type="play_ahead">Play ahead</button>
       <button class="choice" type="button" data-type="bank_card">Bank for later</button>
       <button class="choice" type="button" data-type="practice">Practice only</button>`
     : raw(dates.map(d => `<button class="choice ${sess().targetDate === d.date ? 'on' : ''}" type="button" data-date="${esc(d.date)}">${esc(d.label)}</button>`).join('')
@@ -485,8 +490,10 @@ export function renderCardType() {
 export function bindCardType(root) {
   root.querySelectorAll('[data-type]').forEach(b => b.addEventListener('click', () => {
     const type = b.dataset.type;
-    if (type === 'league_night') {
+    if (type === 'league_night' || type === 'play_ahead') {
+      state.cardKind = type;
       state.cardTypeStep = 2;
+      sess().targetDate = null;
       commit();
       return;
     }
@@ -500,7 +507,7 @@ export function bindCardType(root) {
   const back = root.querySelector('[data-action=type-back]');
   if (back) back.addEventListener('click', () => { state.cardTypeStep = 1; commit(); });
   const ok = root.querySelector('[data-action=confirm-date]');
-  if (ok) ok.addEventListener('click', () => applyType('league_night', sess().targetDate));
+  if (ok) ok.addEventListener('click', () => applyType(state.cardKind || 'league_night', sess().targetDate));
   root.querySelectorAll('[data-close-sheet]').forEach(b => {
     if (b.classList.contains('modal-scrim')) {
       b.addEventListener('click', ev => {
@@ -511,16 +518,14 @@ export function bindCardType(root) {
 }
 
 function applyType(type, date) {
+  const week = (type === 'league_night' || type === 'play_ahead') ? cardWeek(state.league, date) : null;
   sess().cardType = type;
-  sess().targetDate = type === 'league_night' ? date : null;
+  sess().targetDate = date || null;
+  sess().targetWeek = week;
   for (const p of sess().players) {
-    if (state.pendingNine) {
-      p.purpose = type;
-      p.targetDate = sess().targetDate;
-    } else if (!p.purpose || p.purpose === sess().cardType || true) {
-      p.purpose = type;
-      p.targetDate = sess().targetDate;
-    }
+    p.purpose = type;
+    p.targetDate = date || null;
+    p.targetWeek = type === 'play_ahead' ? week : null;
   }
   state.pendingNine = false;
   persist();
@@ -545,7 +550,7 @@ function buildSegment(side, scoreMap, purposes) {
         hcp: p.hcp,
         purpose: pp.purpose || 'league_night',
         targetDate: pp.targetDate || null,
-        targetWeek: null,
+        targetWeek: (pp.purpose === 'play_ahead' ? (pp.targetWeek || sess().targetWeek || null) : null),
         side,
         gross,
         net: gross - p.hcp,
@@ -556,7 +561,7 @@ function buildSegment(side, scoreMap, purposes) {
 }
 
 function payload() {
-  const wk = state.league && state.league.settings && state.league.settings.week ? state.league.settings.week : '?';
+  const wk = cardWeek(state.league, sess().targetDate);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const segments = [
     ...sess().completedSegments.map(seg => buildSegment(seg.side, seg.scores, seg.purposes)),

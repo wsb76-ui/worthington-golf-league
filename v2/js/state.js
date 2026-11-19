@@ -55,7 +55,9 @@ export const state = {
   sheet: null,
   cardTypeStep: 1,
   weather: null,
-  syncLabel: ''
+  syncLabel: '',
+  resultsWeek: null,
+  cardFocus: null
 };
 
 export function subscribe(fn) {
@@ -113,12 +115,19 @@ export function readLeagueCache() {
 }
 
 export function initialScreen() {
-  const m = (location.hash || '').match(/^#\/(home|score|gps|standings|results|schedule|news|roster|my|settings)$/);
+  const hash = location.hash || '';
+  const deep = hash.match(/^#\/results\/(\d+)$/);
+  if (deep) {
+    state.resultsWeek = +deep[1];
+    return 'results';
+  }
+  const m = hash.match(/^#\/(home|score|gps|standings|results|schedule|news|roster|my|settings)$/);
   return m ? m[1] : 'home';
 }
 
 export function go(screen) {
-  const next = '#/' + screen;
+  let next = '#/' + screen;
+  if (screen === 'results' && state.resultsWeek) next = '#/results/' + state.resultsWeek;
   if (location.hash !== next) location.hash = next;
-  commit({ screen, sheet: state.sheet === 'live' && screen !== 'score' ? null : state.sheet });
+  commit({ screen });
 }

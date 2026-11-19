@@ -35,7 +35,7 @@ export function homeNews() {
     <div class="page block">
       <div class="t-label">League news</div>
       <div class="card flush mt8">
-        ${anns.map(a => html`<button class="hub" type="button" data-go="news"><b>${a.title || ''}</b><span>${a.date || ''}</span></button>`).join('')}
+        ${raw(anns.map(a => html`<button class="hub" type="button" data-go="news"><b>${a.title || ''}</b><span>${a.date || ''}</span></button>`).join(''))}
       </div>
     </div>`;
 }

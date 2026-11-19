@@ -32,15 +32,30 @@ export async function loadLeagueJson() {
   throw new Error('League data is unavailable offline.');
 }
 
-// Paper-verified weeks win. The published file may only fill week numbers
-// the bundle does not already have (playoffs and anything after this release).
+// verified-weeks.json is the 2026 paper card file. The 2026 engine export
+// disagrees with those cards, so for a 2026 calendar the paper file fills a
+// week unless that published week is marked "authoritative": true (a
+// commissioner correction). Any other season ignores the file and uses
+// whatever wgl-data.json publishes, including a week the engine adds later.
 export function mergeWeeks(verified, published) {
   const weeks = {};
-  for (const [k, v] of Object.entries(verified || {})) weeks[+k] = v;
-  for (const [k, v] of Object.entries((published && published.weeks) || {})) {
-    if (!weeks[+k]) weeks[+k] = v;
+  const pub = (published && published.weeks) || {};
+  for (const [k, v] of Object.entries(pub)) weeks[+k] = v;
+  const year = seasonYear(published);
+  if (year !== 2026) return weeks;
+  for (const [k, v] of Object.entries(verified || {})) {
+    const publishedWeek = pub[k] || pub[String(+k)];
+    if (publishedWeek && publishedWeek.authoritative === true) continue;
+    weeks[+k] = v;
   }
   return weeks;
+}
+
+function seasonYear(published) {
+  const explicit = published && published.settings && published.settings.season;
+  if (explicit) return +explicit;
+  const dates = ((published && published.calendar) || []).map(c => c && c.date).filter(Boolean).sort();
+  return dates.length ? +dates[0].slice(0, 4) : null;
 }
 
 export async function postScript(payload) {

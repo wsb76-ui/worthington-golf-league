@@ -22,7 +22,12 @@ export function html(strings, ...vals) {
   return out;
 }
 
+let asOfOverride = null;
+export function setAsOf(iso) {
+  asOfOverride = iso && /^\d{4}-\d{2}-\d{2}$/.test(iso) ? iso : null;
+}
 export function todayISO(now = new Date()) {
+  if (asOfOverride) return asOfOverride;
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit'
   }).format(now);
