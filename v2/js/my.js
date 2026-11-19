@@ -65,7 +65,7 @@ function winList(wins) {
 
 function bankList(bank) {
   return `<div class="t-label mt20">Banked cards</div><div class="card flush mt8">${bank.map(b =>
-    `<div class="trow"><div class="grow"><div class="who">${b.side === 'front' ? 'Front' : 'Back'} 9</div><div class="t-small">Played ${escapeText(b.played || '')} · HCP ${b.hcp}</div></div><b>Gross ${b.gross}</b></div>`
+    `<div class="trow"><div class="grow"><div class="who">${b.side === 'front' ? 'Front' : 'Back'} 9${+b.gross < 30 ? ' · incomplete?' : ''}</div><div class="t-small">Played ${escapeText(b.played || '')} · HCP ${b.hcp}</div></div><b>Gross ${b.gross}</b></div>`
   ).join('')}</div>`;
 }
 

@@ -3,7 +3,7 @@ import { nineTitle, sideForWeek, sideRange } from './course.js';
 import { html, lastName, longDate, placeWord, raw, todayISO } from './format.js';
 import { avatar, svg, windArrow } from './ui.js';
 import { commit, go, saveSession, state } from './state.js';
-import { teamStandings } from './scoring.js';
+import { playoffBracket, seasonChampion, teamStandings } from './scoring.js';
 import { homeNews } from './news.js';
 
 export function calendarOf(league) {
@@ -27,6 +27,34 @@ export function leagueContext(league) {
 
 export function isLeagueNight(league) {
   return leagueContext(league).leagueNight;
+}
+
+export function playedWeeks(weeks, league) {
+  const today = todayISO();
+  const cal = calendarOf(league);
+  const out = {};
+  for (const [k, v] of Object.entries(weeks || {})) {
+    const hit = cal.find(c => +c.week === +k);
+    if (hit && hit.date > today) continue;
+    out[k] = v;
+  }
+  return out;
+}
+
+export function weekForDate(league, iso) {
+  if (!iso) return null;
+  const hit = calendarOf(league).find(c => c.date === iso);
+  return hit ? +hit.week : null;
+}
+
+// The Monday the card is for, then today's league night, then settings.week.
+export function cardWeek(league, targetDate) {
+  const chosen = weekForDate(league, targetDate);
+  if (chosen) return chosen;
+  const tonight = weekForDate(league, todayISO());
+  if (tonight) return tonight;
+  const fallback = league && league.settings && league.settings.week;
+  return fallback || '?';
 }
 
 function teeLine(settings) {
@@ -56,7 +84,24 @@ function story(ctx) {
       sub: COURSE + ' · ' + teeLine(settings)
     };
   }
+  if (ctx.upcoming && ctx.upcoming.date > ctx.today) {
+    const days = Math.round((new Date(ctx.upcoming.date + 'T12:00:00') - new Date(ctx.today + 'T12:00:00')) / 86400000);
+    return {
+      eyebrow: 'Week ' + ctx.upcoming.week + ' · ' + longDate(ctx.upcoming.date),
+      title: days === 1 ? 'Tomorrow' : days + ' days',
+      sub: 'Next league night · ' + COURSE
+    };
+  }
   if (ctx.seasonOver) {
+    const last = ctx.cal[ctx.cal.length - 1];
+    const nextYear = last && +ctx.today.slice(0, 4) > +last.date.slice(0, 4);
+    if (nextYear) {
+      return {
+        eyebrow: last.date.slice(0, 4) + ' season ended',
+        title: 'Next season',
+        sub: 'Next league date posts with the new calendar'
+      };
+    }
     const lastReg = [...ctx.cal].reverse().find(c => +c.week < PLAYOFF_FIRST);
     return {
       eyebrow: lastReg ? ('Through week ' + lastReg.week) : 'Season complete',
@@ -111,8 +156,11 @@ export function renderHome() {
   const roster = league.players || {};
   const ctx = leagueContext(league);
   const s = story(ctx);
-  const standings = teamStandings(state.weeks);
+  const weeks = playedWeeks(state.weeks, league);
+  const standings = teamStandings(weeks);
   const race = raceCopy(standings.rows, state.identity, roster);
+  const playoffNight = ctx.todayEv && (+ctx.todayEv.week === 18 || +ctx.todayEv.week === 19);
+  const champs = seasonChampion(standings, weeks);
   const group = state.session.players || [];
   const side = group.length ? state.session.side : (ctx.focus ? sideForWeek(ctx.focus.week) : 'back');
   const names = group.map(p => lastName(p.name)).join(' · ');
@@ -130,6 +178,7 @@ export function renderHome() {
         <div class="eyebrow">${s.eyebrow}</div>
         <h1 class="serif t-display">${s.title}</h1>
         <p class="hero-sub">${s.sub}</p>
+        <p class="t-small mt8" style="color:#C9D3BF">${state.syncLabel || ''} · pull to refresh</p>
       </div>
       ${wx ? raw(`<div class="wx">
         <div>${svg('sun', 26)}<div><div class="v">${wx.temp}°</div><div class="k">${escKeep(wx.sky)}</div></div></div>
@@ -150,7 +199,9 @@ export function renderHome() {
       </div>
       <button class="btn primary mt16" type="button" data-action="start">${raw(svg('card', 20))} ${group.length && state.session.started ? 'Resume scorecard' : 'Start scorecard'}</button>
     </div>
-    <div class="page block">
+    ${raw(champs ? championCard(champs, (ctx.cal[0] && ctx.cal[0].date.slice(0, 4)) || ctx.today.slice(0, 4)) : '')}
+    ${raw(playoffNight ? matchupCard(standings, weeks, +ctx.todayEv.week, roster) : '')}
+    ${playoffNight ? '' : raw(`<div class="page block">
       <div class="card race">
         <div>
           <div class="t-label">${race.label}</div>
@@ -161,7 +212,7 @@ export function renderHome() {
           <div class="t-small">${race.detail || ''}</div>
         </div>
       </div>
-    </div>
+    </div>`)}
     ${raw(outingCard(league, ctx))}
     <div class="page block">
       <div class="t-label">Browse</div>
@@ -176,6 +227,25 @@ export function renderHome() {
       </div>
     </div>
     ${raw(homeNews())}`;
+}
+
+function championCard(champs, year) {
+  return `<div class="page block"><div class="card pad"><div class="serif t-title">${year} Champions · Team ${champs.team}</div><p class="t-small mt4">Regular-season winner · Team ${champs.regular}</p></div></div>`;
+}
+
+function matchupCard(standings, weeks, week, roster) {
+  const bracket = playoffBracket(standings, weeks);
+  if (!bracket) return '';
+  const me = roster[state.identity];
+  const mine = me ? +me.team : 0;
+  const rows = week === 18 ? bracket.semis : [bracket.final, bracket.third].filter(Boolean);
+  const labels = week === 18 ? ['Semifinal', 'Semifinal'] : ['Championship', '3rd place'];
+  const body = rows.map((m, i) => {
+    if (!m) return '';
+    const you = m.a === mine || m.b === mine;
+    return `<div class="trow ${you ? 'me' : ''}"><div class="grow"><div class="who">Team ${m.a} vs Team ${m.b}</div><div class="t-small">${labels[i] || ''}</div></div>${you ? '<span class="pill sage">You</span>' : ''}</div>`;
+  }).join('');
+  return `<div class="page block"><div class="t-label">Tonight</div><div class="card flush mt8">${body}</div></div>`;
 }
 
 function outingCard(league, ctx) {

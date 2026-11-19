@@ -1,3 +1,4 @@
+import { COMMISSIONER, NOTIFY_SCOPE } from './config.js';
 import { html } from './format.js';
 import { backBar } from './ui.js';
 import { commit, setIdentity, state } from './state.js';
@@ -59,8 +60,7 @@ export function renderSettings() {
       <div class="t-label mt20">Notifications</div>
       <button class="btn ghost mt8" type="button" data-action="push">Enable notifications</button>
       <p class="t-small mt8" id="push-note">League alerts stay inside this v2 install. They do not replace the main app.</p>
-      <div class="t-label mt20">Commissioner</div>
-      <a class="hub" href="../wgl-admin.html">Open admin</a>
+      ${state.identity === COMMISSIONER ? rawOpts('<div class="t-label mt20">Commissioner</div><a class="hub" href="../wgl-admin.html">Open admin</a>') : rawOpts('<p class="t-small mt20">Admin stays on the commissioner\'s phone.</p>')}
     </div>`;
 }
 
@@ -80,9 +80,9 @@ export function bindSettings(root) {
   if (push) push.addEventListener('click', () => enablePush(root));
 }
 
-async function enablePush(root) {
+export async function enablePush(root) {
   const note = root.querySelector('#push-note');
-  const scope = new URL('./', window.location.href).pathname;
+  const scope = new URL(NOTIFY_SCOPE, window.location.href).pathname;
   try {
     if (!window.OneSignal) {
       await loadScript('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js');

@@ -389,3 +389,12 @@ body[data-mode="dark"] {
 body[data-color="gold"] { --forest: #8A6A1F; --forest-deep: #5C4814; }
 body[data-color="slate"] { --forest: #3D5C6E; --forest-deep: #243844; }
 body[data-color="earth"] { --forest: #6B5A32; --forest-deep: #3E3420; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+.cal-grid span { font-size: 11px; color: var(--muted); font-weight: 700; }
+.cal-cell { min-height: 36px; border: 0; background: transparent; border-radius: 8px; color: var(--ink); }
+.cal-cell.hit { background: var(--sage-soft); color: var(--forest); font-weight: 700; }
+.cal-cell.today { outline: 2px solid var(--forest); }
+.cal-cell.mute { pointer-events: none; }
+.hub .bank-line { display: block; margin-top: 4px; }
+.choices { max-height: 52vh; overflow: auto; }
+.player-line, .team-hd { width: 100%; background: transparent; border: 0; color: inherit; font: inherit; text-align: left; }

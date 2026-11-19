@@ -8,6 +8,13 @@ export const SCORE_EMAIL = 'wglscore@gmail.com';
 export const TZ = 'America/New_York';
 export const COURSE = 'Hiland Golf Course';
 export const LEAGUE_NAME = 'Worthington Golf League';
+// No commissioner flag is published in wgl-data.json. The main app shows
+// the admin link to everyone; v2 shows it only for this name.
+export const COMMISSIONER = 'Wes Barton';
+// Notifications stay inside /v2/ while this is a beta beside the live app.
+// When v2 replaces the main app, change this to '/worthington-golf-league/'
+// so the existing OneSignal subscribers carry over instead of starting over.
+export const NOTIFY_SCOPE = './';
 // League copy: first group off the tee. settings.firstTee or settings.teeTime overrides it.
 export const FIRST_TEE = '4:30 PM';
 
