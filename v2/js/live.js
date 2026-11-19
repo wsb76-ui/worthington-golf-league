@@ -36,7 +36,8 @@ export function renderLiveSheet() {
   const board = live.board || [];
   const events = live.events || [];
   const posting = live.playersPosting != null ? live.playersPosting : board.length;
-  const expected = live.playersExpected;
+  // Optional. The script leaves this off when it cannot count the roster.
+  const expected = Number(live.playersExpected) > 0 ? Number(live.playersExpected) : 0;
   const when = live.updatedLabel || clockLabel(live.updated);
   const week = live.week || (state.league && state.league.settings && state.league.settings.week) || '';
   const rows = board.map((p, i) => html`

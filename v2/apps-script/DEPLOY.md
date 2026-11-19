@@ -21,17 +21,21 @@ A useful response looks like:
   "week": 14,
   "updated": "2026-08-10T22:42:00.000Z",
   "playersPosting": 18,
-  "playersExpected": 44,
+  "playersExpected": 57,
   "birdies": 6,
   "eagles": 1,
   "bestTeam": 7,
   "holes": { "13": { "best": 3, "count": 2, "groups": 5 } },
   "board": [{ "name": "Ed Bargerstock", "team": 7, "thru": 7, "thruHole": 16, "toPar": -4 }],
-  "events": [{ "name": "Duck Julius", "team": 3, "hole": 13, "score": 3, "par": 4, "kind": "birdie", "at": "6:41" }]
+  "events": [{ "name": "Duck Julius", "team": 3, "hole": 13, "score": 3, "par": 4, "kind": "birdie", "at": "6:41 PM" }]
 }
 ```
 
-`best` is the lowest gross score posted on that hole tonight. `toPar` is gross minus par for the holes posted, minus a share of the player's handicap (`round(hcp × holes posted / 9)`). Birdies and eagles are gross versus par.
+`best` is the lowest gross score posted on that hole tonight. `toPar` is gross minus par for the holes posted, minus a share of the player's handicap (`round(hcp × holes posted / 9)`). Birdies and eagles are gross versus par. Each event's `at` is Eastern time with AM/PM. The list is ordered by the card's timestamp, not by that text. Every hole on one card shares that card's stamp.
+
+`playersExpected` is optional. When the script can read `wgl-data.json`, it is the number of names in `players`, cached for six hours. If that fetch fails the field is left off. v2 then shows the posting count by itself (`18 players posting`) instead of `18 of 57`.
+
+Hole pars in `WGL_PARS_` are the live app's Hiland card (`SC_FRONT_PARS` / `SC_BACK_PARS` and `HOLE_INFO` in `index.html`), the same numbers as `v2/js/course.js`. The published JSON does not include pars.
 
 If the response is missing, not JSON, or `live` is not `true`, v2 hides the strip. Practice and bank cards are not mirrored.
 
@@ -59,6 +63,10 @@ try { wglMirrorLive_(payload); } catch (err) {}
 The `try` keeps a live-sheet problem from failing the card the current app just submitted. Deploy a new version of the same web app (execute as you, anyone can access) so the `/exec` URL does not change.
 
 The first mirror creates a sheet named `WGL_Live`. One row per scored hole: timestamp, card id, date, week, name, team, handicap, hole, score, par, purpose, side. Re-posting a player keeps their newest card.
+
+Two cards posting together take a script lock (`LockService.getScriptLock`, 10 second wait) before they read the last row and append. If the lock is not free in time, or the sheet write fails, the mirror returns without throwing. The score the live app already accepted still stands.
+
+While that lock is held, rows older than two days are deleted. A poll also reads at most the latest 3,000 rows, so a sheet that has not been trimmed yet is not loaded in full.
 
 ## How to test on league night
 
